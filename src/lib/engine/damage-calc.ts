@@ -24,6 +24,7 @@ export interface DamageCalcPokemon {
   spAtkStages?: number;
   isBurned?: boolean;
   currentHPPercent?: number; // 0-100
+  cachedStats?: CalculatedStats; // pre-computed stats — skip recalculation in hot paths
 }
 
 export interface DamageCalcTarget {
@@ -36,6 +37,7 @@ export interface DamageCalcTarget {
   defStages?: number;
   spDefStages?: number;
   currentHPPercent?: number; // 0-100
+  cachedStats?: CalculatedStats; // pre-computed stats — skip recalculation in hot paths
 }
 
 export interface DamageCalcOptions {
@@ -50,6 +52,7 @@ export interface DamageCalcOptions {
   friendGuard?: boolean;
   computeKOChance?: boolean; // expensive - only enable for UI damage calc
   targetCount?: number;      // number of targets hit (for spread reduction)
+  simMode?: boolean;         // fast path: skip 16-roll loop, only compute min/max
 }
 
 export interface KOChance {
@@ -266,8 +269,8 @@ export function calculateDamage(
 
   // Use the type-overridden move for all subsequent calculations
 
-  const atkStats = calculateStats(attacker.baseStats, attacker.sp, attacker.nature);
-  const defStats = calculateStats(defender.baseStats, defender.sp, defender.nature);
+  const atkStats = attacker.cachedStats ?? calculateStats(attacker.baseStats, attacker.sp, attacker.nature);
+  const defStats = defender.cachedStats ?? calculateStats(defender.baseStats, defender.sp, defender.nature);
 
   // Determine attacking and defending stats
   const isPhysical = moveCalc.category === "physical";
@@ -570,23 +573,34 @@ export function calculateDamage(
   // Check if defender resist berry activated
   const berryActivated = defenderItemMult === 0.5;
 
-  // Random roll is 0.85 to 1.00 (16 possible values)
-  const rolls: number[] = [];
-  for (let i = 0; i < 16; i++) {
-    rolls.push(Math.max(1, Math.floor(baseDamage * modifiers * (85 + i) / 100)));
-  }
-
-  // Parental Bond: hit twice (second hit at 25% power)
+  // Random roll is 0.85 to 1.00 (16 possible values).
+  // In simMode only compute min (85%) and max (100%) to skip 14 redundant floor() calls.
   const hasParentalBond = attacker.ability === "Parental Bond" && !isSpreadMove(moveCalc);
-  if (hasParentalBond) {
-    for (let i = 0; i < rolls.length; i++) {
-      const secondHit = Math.max(1, Math.floor(rolls[i] * 0.25));
-      rolls[i] += secondHit;
+  const rolls: number[] = [];
+  if (options.simMode) {
+    const minRoll = Math.max(1, Math.floor(baseDamage * modifiers * 85 / 100));
+    const maxRoll = Math.max(1, Math.floor(baseDamage * modifiers));
+    if (hasParentalBond) {
+      rolls.push(minRoll + Math.max(1, Math.floor(minRoll * 0.25)));
+      rolls.push(maxRoll + Math.max(1, Math.floor(maxRoll * 0.25)));
+    } else {
+      rolls.push(minRoll);
+      rolls.push(maxRoll);
+    }
+  } else {
+    for (let i = 0; i < 16; i++) {
+      rolls.push(Math.max(1, Math.floor(baseDamage * modifiers * (85 + i) / 100)));
+    }
+    if (hasParentalBond) {
+      for (let i = 0; i < rolls.length; i++) {
+        const secondHit = Math.max(1, Math.floor(rolls[i] * 0.25));
+        rolls[i] += secondHit;
+      }
     }
   }
 
   const minDamage = rolls[0];
-  const maxDamage = rolls[15];
+  const maxDamage = rolls[rolls.length - 1];
 
   const targetHP = defStats.hp;
   const minPct = Math.round((minDamage / targetHP) * 1000) / 10;

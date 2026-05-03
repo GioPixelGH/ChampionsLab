@@ -298,6 +298,7 @@ export function generateStrategyTree(
   team2Sets: CommonSet[],
   bestLead: LeadComboResult | undefined,
   winRate: number,
+  customOppLead?: [string, string],
 ): StrategyTree | null {
   nodeCounter = 0;
 
@@ -359,7 +360,20 @@ export function generateStrategyTree(
 
   root.children = scenarioBranches;
 
-  // Backup plan
+  // Optional 4th scenario: custom opponent lead chosen by the user
+  if (customOppLead) {
+    const [c1name, c2name] = customOppLead;
+    const cOpp1 = oppTeam.find(m => m.pokemon.name === c1name);
+    const cOpp2 = oppTeam.find(m => m.pokemon.name === c2name);
+    if (cOpp1 && cOpp2) {
+      const customNode = buildScenarioBranch(
+        lead1, lead2, cOpp1, cOpp2, 3, myArchetype, effectiveWeather, effectiveTerrain, myTeam, winRate,
+      );
+      customNode.detail = "Custom scenario";
+      customNode.branchLabel = "Custom";
+      root.children = [...scenarioBranches, customNode];
+    }
+  }
   const backupPlan = generateBackupPlan(lead1, lead2, myTeam, oppTeam, winRate);
 
   return {

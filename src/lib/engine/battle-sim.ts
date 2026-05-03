@@ -394,6 +394,7 @@ function estimateThreatLevel(
     isDoubles: true,
     reflect: (attackerSide === 1 ? field.side2 : field.side1).reflect > 0,
     lightScreen: (attackerSide === 1 ? field.side2 : field.side1).lightScreen > 0,
+    simMode: true,
   };
   for (const moveName of attacker.set.moves) {
     const move = getMove(moveName);
@@ -405,6 +406,7 @@ function estimateThreatLevel(
       atkStages: attacker.boosts.attack, spAtkStages: attacker.boosts.spAtk,
       isBurned: attacker.status === "burn",
       currentHPPercent: (attacker.currentHP / attacker.maxHP) * 100,
+      cachedStats: attacker.stats,
     };
     const def: DamageCalcTarget = {
       baseStats: defender.effectiveBaseStats, sp: defender.set.sp,
@@ -412,6 +414,7 @@ function estimateThreatLevel(
       ability: defender.ability, item: defender.item,
       defStages: defender.boosts.defense, spDefStages: defender.boosts.spDef,
       currentHPPercent: (defender.currentHP / defender.maxHP) * 100,
+      cachedStats: defender.stats,
     };
     const result = calculateDamage(atk, def, moveName, options);
     if (result.percentHP[0] > maxPercent) maxPercent = result.percentHP[0];
@@ -432,6 +435,7 @@ function allyCanKO(
     isDoubles: true,
     reflect: (allySide === 1 ? field.side2 : field.side1).reflect > 0,
     lightScreen: (allySide === 1 ? field.side2 : field.side1).lightScreen > 0,
+    simMode: true,
   };
   for (const moveName of ally.set.moves) {
     const move = getMove(moveName);
@@ -443,6 +447,7 @@ function allyCanKO(
       atkStages: ally.boosts.attack, spAtkStages: ally.boosts.spAtk,
       isBurned: ally.status === "burn",
       currentHPPercent: (ally.currentHP / ally.maxHP) * 100,
+      cachedStats: ally.stats,
     };
     const def: DamageCalcTarget = {
       baseStats: target.effectiveBaseStats, sp: target.set.sp,
@@ -450,6 +455,7 @@ function allyCanKO(
       ability: target.ability, item: target.item,
       defStages: target.boosts.defense, spDefStages: target.boosts.spDef,
       currentHPPercent: (target.currentHP / target.maxHP) * 100,
+      cachedStats: target.stats,
     };
     const result = calculateDamage(atk, def, moveName, options);
     if (result.isOHKO) return true;
@@ -493,6 +499,7 @@ function evaluateMoveOption(
     lightScreen: (userSide === 1 ? field.side2 : field.side1).lightScreen > 0,
     reflect: (userSide === 1 ? field.side2 : field.side1).reflect > 0,
     auroraVeil: (userSide === 1 ? field.side2 : field.side1).auroraVeil > 0,
+    simMode: true,
   };
   
   // Context: our alive counts and theirs for position awareness
@@ -611,6 +618,7 @@ function evaluateMoveOption(
               atkStages: user.boosts.attack, spAtkStages: user.boosts.spAtk,
               isBurned: user.status === "burn",
               currentHPPercent: (user.currentHP / user.maxHP) * 100,
+              cachedStats: user.stats,
             };
             const def: DamageCalcTarget = {
               baseStats: opp.effectiveBaseStats, sp: opp.set.sp,
@@ -618,8 +626,9 @@ function evaluateMoveOption(
               ability: opp.ability, item: opp.item,
               defStages: opp.boosts.defense, spDefStages: opp.boosts.spDef,
               currentHPPercent: (opp.currentHP / opp.maxHP) * 100,
+              cachedStats: opp.stats,
             };
-            const res = calculateDamage(atk, def, m, { weather: field.weather as DamageCalcOptions["weather"], isDoubles: true });
+            const res = calculateDamage(atk, def, m, { weather: field.weather as DamageCalcOptions["weather"], isDoubles: true, simMode: true });
             if (res.isOHKO || (res.damage[0] / opp.currentHP) >= 1.0) {
               canKO = true;
               break;
@@ -724,6 +733,7 @@ function evaluateMoveOption(
               atkStages: ally.boosts.attack, spAtkStages: ally.boosts.spAtk,
               isBurned: ally.status === "burn",
               currentHPPercent: (ally.currentHP / ally.maxHP) * 100,
+              cachedStats: ally.stats,
             };
             const def: DamageCalcTarget = {
               baseStats: opp.effectiveBaseStats, sp: opp.set.sp,
@@ -731,6 +741,7 @@ function evaluateMoveOption(
               ability: opp.ability, item: opp.item,
               defStages: opp.boosts.defense, spDefStages: opp.boosts.spDef,
               currentHPPercent: (opp.currentHP / opp.maxHP) * 100,
+              cachedStats: opp.stats,
             };
             const res = calculateDamage(atk, def, allyMove, options);
             const percentVsCurrentHP = (res.damage[0] / opp.currentHP) * 100;
@@ -838,6 +849,7 @@ function evaluateMoveOption(
       spAtkStages: user.boosts.spAtk,
       isBurned: user.status === "burn",
       currentHPPercent: (user.currentHP / user.maxHP) * 100,
+      cachedStats: user.stats,
     };
     
     const defender: DamageCalcTarget = {
@@ -850,6 +862,7 @@ function evaluateMoveOption(
       defStages: target.boosts.defense,
       spDefStages: target.boosts.spDef,
       currentHPPercent: (target.currentHP / target.maxHP) * 100,
+      cachedStats: target.stats,
     };
     
     const result = calculateDamage(attacker, defender, moveName, options);
@@ -886,6 +899,7 @@ function evaluateMoveOption(
           ability: otherTarget.ability, item: otherTarget.item,
           defStages: otherTarget.boosts.defense, spDefStages: otherTarget.boosts.spDef,
           currentHPPercent: (otherTarget.currentHP / otherTarget.maxHP) * 100,
+          cachedStats: otherTarget.stats,
         };
         const otherResult = calculateDamage(attacker, otherDef, moveName, options);
         score += otherResult.percentHP[0] * 0.35; // Add value from hitting second target
@@ -902,6 +916,7 @@ function evaluateMoveOption(
             ability: allyMon.ability, item: allyMon.item,
             defStages: allyMon.boosts.defense, spDefStages: allyMon.boosts.spDef,
             currentHPPercent: (allyMon.currentHP / allyMon.maxHP) * 100,
+            cachedStats: allyMon.stats,
           };
           const allyDmg = calculateDamage(attacker, allyDef, moveName, options);
           const allyDmgPercent = allyDmg.percentHP[0];
@@ -1654,6 +1669,7 @@ function executeMove(
       lightScreen: (userSide === 1 ? state.field.side2 : state.field.side1).lightScreen > 0,
       isCrit: Math.random() < 0.0625,
       targetCount: opponentTargetCount,
+      simMode: true,
     };
     
     // Unaware: ignore opponent's stat boosts
@@ -1673,6 +1689,7 @@ function executeMove(
       spAtkStages,
       isBurned: user.status === "burn",
       currentHPPercent: (user.currentHP / user.maxHP) * 100,
+      cachedStats: user.stats,
     };
     
     const defender: DamageCalcTarget = {
@@ -1685,6 +1702,7 @@ function executeMove(
       defStages,
       spDefStages,
       currentHPPercent: (t.currentHP / t.maxHP) * 100,
+      cachedStats: t.stats,
     };
     
     const result = calculateDamage(attacker, defender, moveName, options);
@@ -3125,6 +3143,10 @@ export interface LeadComboResult {
   lead2: string;
   lead1Sprite: string;
   lead2Sprite: string;
+  back1?: string;
+  back2?: string;
+  back1Sprite?: string;
+  back2Sprite?: string;
   winRate: number;
   games: number;
 }
@@ -3227,6 +3249,10 @@ export function runTeamTestSimulation(
         lead2: team1Pokemon[j].name,
         lead1Sprite: team1Pokemon[i].sprite,
         lead2Sprite: team1Pokemon[j].sprite,
+        back1: remaining[0] ? team1Pokemon[remaining[0].idx].name : undefined,
+        back2: remaining[1] ? team1Pokemon[remaining[1].idx].name : undefined,
+        back1Sprite: remaining[0] ? team1Pokemon[remaining[0].idx].sprite : undefined,
+        back2Sprite: remaining[1] ? team1Pokemon[remaining[1].idx].sprite : undefined,
         winRate: res.winRate,
         games: pass1Trials,
       });
@@ -3261,6 +3287,11 @@ export function runTeamTestSimulation(
       const mergedWins = oldWins + res.wins;
       combo.winRate = Math.round((mergedWins / mergedGames) * 1000) / 10;
       combo.games = mergedGames;
+      // Refresh back-pokemon (same logic, ensures they're consistent with final ranking)
+      combo.back1 = remaining[0] ? team1Pokemon[remaining[0].idx].name : undefined;
+      combo.back2 = remaining[1] ? team1Pokemon[remaining[1].idx].name : undefined;
+      combo.back1Sprite = remaining[0] ? team1Pokemon[remaining[0].idx].sprite : undefined;
+      combo.back2Sprite = remaining[1] ? team1Pokemon[remaining[1].idx].sprite : undefined;
 
       totalWins += res.wins;
       totalGames += pass2Trials;
@@ -3319,6 +3350,18 @@ export function runTeamTestSimulation(
       onProgress?.(70 + Math.round(((i + 1) / team1Pokemon.length) * 25));
     }
     pokemonImpact.sort((a, b) => b.impact - a.impact);
+
+    // Retroactively update back pokemon for every lead combo using impact data.
+    // This replaces the type-heuristic picks from Phase 1 with simulation-backed choices.
+    for (const combo of leadCombos) {
+      const backs = pokemonImpact
+        .filter(pi => pi.name !== combo.lead1 && pi.name !== combo.lead2)
+        .slice(0, 2);
+      combo.back1 = backs[0]?.name;
+      combo.back1Sprite = backs[0]?.sprite;
+      combo.back2 = backs[1]?.name;
+      combo.back2Sprite = backs[1]?.sprite;
+    }
   }
   onProgress?.(95);
 

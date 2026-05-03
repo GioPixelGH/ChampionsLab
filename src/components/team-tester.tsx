@@ -29,6 +29,7 @@ import {
   identifyRoles,
   detectArchetypes,
   getSpeedTierReport,
+  calculateStats,
   translateInsights,
   translateStrategyTree,
   translateInsightsES,
@@ -108,6 +109,8 @@ export default function TeamTester() {
   const [isRunning, setIsRunning] = useState(false);
   const [result, setResult] = useState<TeamTestResult | null>(null);
   const [progress, setProgress] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
+  const startTimeRef = useRef<number>(0);
   const [selectedLeadIdx, setSelectedLeadIdx] = useState(0);
 
   // Picker
@@ -126,6 +129,12 @@ export default function TeamTester() {
   const replayTimerRef = useRef<NodeJS.Timeout | null>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+
+  // Speed tier overrides: key = `${team}-${name}`, value = speed
+  const [speedOverrides, setSpeedOverrides] = useState<Record<string, number>>({});
+  const [speedTailwind, setSpeedTailwind] = useState(false);
+  const [speedTailwindOpp, setSpeedTailwindOpp] = useState(false);
+  const [speedTrickRoom, setSpeedTrickRoom] = useState(false);
 
   // Pokemon detail modal
   const [detailMon, setDetailMon] = useState<{ pokemon: ChampionsPokemon; set: CommonSet; team: 1 | 2; editable?: boolean; slotIndex: number } | null>(null);
@@ -260,6 +269,24 @@ export default function TeamTester() {
   }, [locale, t, tp, tm, ta]);
 
   useEffect(() => { setSavedTeams(getSavedTeams()); }, []);
+
+  // Re-initialise speed overrides whenever teams or sets change
+  useEffect(() => {
+    const overrides: Record<string, number> = {};
+    team1Pokemon.forEach((p, i) => {
+      const s = team1Sets[i];
+      if (!s) return;
+      const stats = calculateStats(p.baseStats, s.sp, s.nature as Parameters<typeof calculateStats>[2]);
+      overrides[`1-${p.name}`] = stats.speed;
+    });
+    team2Pokemon.forEach((p, i) => {
+      const s = team2Sets[i];
+      if (!s) return;
+      const stats = calculateStats(p.baseStats, s.sp, s.nature as Parameters<typeof calculateStats>[2]);
+      overrides[`2-${p.name}`] = stats.speed;
+    });
+    setSpeedOverrides(overrides);
+  }, [team1Pokemon, team1Sets, team2Pokemon, team2Sets]);
 
   useEffect(() => {
     if (replayPlaying && result?.sampleBattle) {
@@ -457,6 +484,8 @@ export default function TeamTester() {
     setIsRunning(true);
     setResult(null);
     setProgress(0);
+    setElapsed(0);
+    startTimeRef.current = performance.now();
     setSelectedLeadIdx(0);
     setReplayTurn(0);
     setReplayPlaying(false);
@@ -472,6 +501,7 @@ export default function TeamTester() {
         if (prev >= 90) return prev;
         return prev + (90 - prev) * 0.08;
       });
+      setElapsed(Math.round((performance.now() - startTimeRef.current) / 100) / 10);
     }, 80);
 
     // Yield to let the interval and initial render happen
@@ -483,6 +513,7 @@ export default function TeamTester() {
 
     clearInterval(progressInterval);
     setProgress(100);
+    setElapsed(Math.round((performance.now() - startTimeRef.current) / 100) / 10);
 
     setResult({
       wins: simResult.wins,
@@ -639,7 +670,12 @@ export default function TeamTester() {
               </div>
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium">{t('teamTester.runningSimulation', { n: iterations })}</p>
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium">{t('teamTester.runningSimulation', { n: iterations })}</p>
+                <span className="text-xs font-mono tabular-nums text-muted-foreground bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-md">
+                  {elapsed.toFixed(1)}s
+                </span>
+              </div>
               <div className="h-2 bg-gray-100 dark:bg-white/10 rounded-full mt-2 overflow-hidden">
                 <div
                   className="h-full w-1/3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full"
@@ -694,6 +730,9 @@ export default function TeamTester() {
                   </div>
                   <p className="text-[10px] text-muted-foreground mt-1">{t('teamTester.nBattles', { n: iterations })}</p>
                   <p className="text-[10px] text-muted-foreground">{t('teamTester.turnsAvg', { n: result.avgTurns })}</p>
+                  {elapsed > 0 && (
+                    <p className="text-[10px] font-mono text-muted-foreground/70 mt-0.5">⏱ {elapsed.toFixed(1)}s</p>
+                  )}
                 </div>
 
                 {/* Team 2 side */}
@@ -946,6 +985,51 @@ export default function TeamTester() {
                             </button>
                           ))}
                         </div>
+
+                        {/* Back 2 Pokémon */}
+                        {(combo.back1 || combo.back2) && (() => {
+                          const backs = [
+                            combo.back1 ? { name: combo.back1, sprite: combo.back1Sprite! } : null,
+                            combo.back2 ? { name: combo.back2, sprite: combo.back2Sprite! } : null,
+                          ].filter(Boolean) as { name: string; sprite: string }[];
+                          if (backs.length === 0) return null;
+                          return (
+                            <div className="mt-2.5 pt-2.5 border-t border-gray-200/60 dark:border-white/10">
+                              <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60 mb-1.5">Back</p>
+                              <div className="flex gap-2">
+                                {backs.map(({ name, sprite }) => {
+                                  const pIdx = team1Pokemon.findIndex(p => p.name === name);
+                                  const p = pIdx >= 0 ? team1Pokemon[pIdx] : null;
+                                  const s = pIdx >= 0 ? team1Sets[pIdx] : null;
+                                  return (
+                                    <button
+                                      key={name}
+                                      onClick={(e) => { e.stopPropagation(); p && openPokemonDetail(name, 1); }}
+                                      className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-white/60 dark:bg-white/5 hover:bg-white/90 dark:hover:bg-white/10 border border-gray-100 dark:border-white/10 transition-all text-left cursor-pointer flex-1 min-w-0"
+                                    >
+                                      <Image src={sprite} alt={name} width={28} height={28} unoptimized className="flex-shrink-0" />
+                                      <div className="min-w-0">
+                                        <div className="flex items-center gap-1">
+                                          <span className="text-[10px] font-semibold truncate">{name}</span>
+                                          {p && (
+                                            <div className="flex gap-0.5 flex-shrink-0">
+                                              {p.types.map(ty => (
+                                                <span key={ty} className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: TYPE_COLORS[ty] }} />
+                                              ))}
+                                            </div>
+                                          )}
+                                        </div>
+                                        {s && (
+                                          <p className="text-[8px] text-muted-foreground truncate">{ta(s.ability)} · {ti(s.item)}</p>
+                                        )}
+                                      </div>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
                     );
                   })}
@@ -1037,6 +1121,113 @@ export default function TeamTester() {
                   </p>
                 </div>
               )}
+
+              {/* Speed Tiers */}
+              {(team1Pokemon.length > 0 || team2Pokemon.length > 0) && result && (() => {
+                const allMons: { name: string; sprite: string; speed: number; team: 1 | 2 }[] = [
+                  ...team1Pokemon.map(p => ({
+                    name: p.name, sprite: p.sprite,
+                    speed: Math.min(999, Math.floor((speedOverrides[`1-${p.name}`] ?? 0) * (speedTailwind ? 1.5 : 1))),
+                    team: 1 as const,
+                  })),
+                  ...team2Pokemon.map(p => ({
+                    name: p.name, sprite: p.sprite,
+                    speed: Math.min(999, Math.floor((speedOverrides[`2-${p.name}`] ?? 0) * (speedTailwindOpp ? 1.5 : 1))),
+                    team: 2 as const,
+                  })),
+                ].sort((a, b) => speedTrickRoom ? a.speed - b.speed : b.speed - a.speed);
+                const maxSpeed = Math.max(...allMons.map(m => m.speed), 1);
+                return (
+                  <div className="glass rounded-2xl p-5 border border-gray-200/60">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-yellow-500" />
+                        Speed Tiers
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setSpeedTailwind(v => !v)}
+                          className={cn(
+                            "flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all",
+                            speedTailwind
+                              ? "bg-blue-500 text-white border-blue-600 shadow-sm"
+                              : "bg-white/60 dark:bg-white/5 text-muted-foreground border-gray-200 dark:border-white/10 hover:border-blue-300"
+                          )}
+                        >
+                          🌬️ Tailwind
+                        </button>
+                        <button
+                          onClick={() => setSpeedTailwindOpp(v => !v)}
+                          className={cn(
+                            "flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all",
+                            speedTailwindOpp
+                              ? "bg-red-500 text-white border-red-600 shadow-sm"
+                              : "bg-white/60 dark:bg-white/5 text-muted-foreground border-gray-200 dark:border-white/10 hover:border-red-300"
+                          )}
+                        >
+                          🌬️ Tailwind Opp
+                        </button>
+                        <button
+                          onClick={() => setSpeedTrickRoom(v => !v)}
+                          className={cn(
+                            "flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all",
+                            speedTrickRoom
+                              ? "bg-violet-500 text-white border-violet-600 shadow-sm"
+                              : "bg-white/60 dark:bg-white/5 text-muted-foreground border-gray-200 dark:border-white/10 hover:border-violet-300"
+                          )}
+                        >
+                          🔀 Trick Room
+                        </button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      {allMons.map((mon, idx) => (
+                        <div
+                          key={`${mon.team}-${mon.name}`}
+                          className={cn(
+                            "flex items-center gap-3 p-2.5 rounded-xl border transition-all",
+                            mon.team === 1
+                              ? "bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800"
+                              : "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800"
+                          )}
+                        >
+                          <span className={cn(
+                              "text-[10px] font-bold w-4 text-center flex-shrink-0",
+                              speedTrickRoom ? "text-violet-500" : "text-muted-foreground/60"
+                            )}>{speedTrickRoom ? allMons.length - idx : idx + 1}</span>
+                          <Image src={mon.sprite} alt={mon.name} width={28} height={28} unoptimized className="flex-shrink-0" />
+                          <span className="text-xs font-semibold flex-1 truncate">{mon.name}</span>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <div className="w-20 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
+                              <div
+                                className={cn("h-full rounded-full transition-all duration-200", mon.team === 1 ? "bg-blue-400" : "bg-red-400")}
+                                style={{ width: `${(mon.speed / maxSpeed) * 100}%` }}
+                              />
+                            </div>
+                            <input
+                              type="number"
+                              min={1}
+                              max={999}
+                              value={mon.speed}
+                              onChange={e => {
+                                const val = Math.max(1, Math.min(999, parseInt(e.target.value) || 1));
+                                setSpeedOverrides(prev => ({ ...prev, [`${mon.team}-${mon.name}`]: val }));
+                              }}
+                              className={cn(
+                                "w-14 text-right text-sm font-black rounded-lg border px-1.5 py-0.5 bg-transparent focus:outline-none focus:ring-1",
+                                mon.team === 1
+                                  ? "text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 focus:ring-blue-400"
+                                  : "text-red-600 dark:text-red-400 border-red-200 dark:border-red-700 focus:ring-red-400"
+                              )}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-3">Edit speed values to simulate Tailwind, Choice Scarf, Trick Room and other modifiers.</p>
+                  </div>
+                );
+              })()}
 
               {/* Matchup Insights */}
               {result.insights.length > 0 && (
@@ -1942,13 +2133,20 @@ function StrategyFlowchart({
   onPokemonClick: (name: string, team: 1 | 2) => void;
 }) {
   const [activeScenario, setActiveScenario] = useState(0);
+  const [customOpp1, setCustomOpp1] = useState<string | null>(null);
+  const [customOpp2, setCustomOpp2] = useState<string | null>(null);
   const { t, tm, ta, locale } = useI18n();
+
+  const customOppLead: [string, string] | undefined =
+    customOpp1 && customOpp2 && customOpp1 !== customOpp2
+      ? [customOpp1, customOpp2]
+      : undefined;
 
   const tree = useMemo(() => {
     if (!bestLead || team1Pokemon.length < 2 || team2Pokemon.length < 2) return null;
-    const raw = generateStrategyTree(team1Pokemon, team1Sets, team2Pokemon, team2Sets, bestLead, winRate);
+    const raw = generateStrategyTree(team1Pokemon, team1Sets, team2Pokemon, team2Sets, bestLead, winRate, customOppLead);
     return raw && locale === 'fr' ? translateStrategyTree(raw, tm, ta) : raw && locale === 'es' ? translateStrategyTreeES(raw, tm, ta) : raw && locale === 'it' ? translateStrategyTreeIT(raw, tm, ta) : raw && locale === 'de' ? translateStrategyTreeDE(raw, tm, ta) : raw;
-  }, [team1Pokemon, team1Sets, team2Pokemon, team2Sets, bestLead, winRate, locale, tm, ta]);
+  }, [team1Pokemon, team1Sets, team2Pokemon, team2Sets, bestLead, winRate, customOppLead, locale, tm, ta]);
 
   // Reset scenario tab when lead changes
   useEffect(() => { setActiveScenario(0); }, [bestLead]);
@@ -1999,24 +2197,115 @@ function StrategyFlowchart({
       {arrow}
 
       {/* ── SCENARIO TABS ── */}
-      {scenarios.length > 1 && (
-        <div className="flex gap-2 mb-2">
-          {scenarios.map((s, i) => (
+      {(() => {
+        const autoScenarios = tree.root.children.filter(s => s.branchLabel !== "Custom");
+        const customScenario = tree.root.children.find(s => s.branchLabel === "Custom");
+        // customTabIdx = index in tree.root.children (same array used by `current`)
+        const customTabIdx = customScenario
+          ? tree.root.children.indexOf(customScenario)
+          : tree.root.children.length; // placeholder index (no scenario yet → current will be undefined)
+        return (
+          <div className="flex gap-2 mb-2 flex-wrap justify-center">
+            {autoScenarios.map((s) => {
+              const realIdx = tree.root.children.indexOf(s);
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => setActiveScenario(realIdx)}
+                  className={cn(
+                    "px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm",
+                    realIdx === activeScenario
+                      ? "bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-md shadow-red-500/20 scale-105"
+                      : "glass border border-gray-200 text-muted-foreground hover:border-violet-300 hover:text-foreground hover:shadow-md"
+                  )}
+                >
+                  {s.branchLabel ?? t('teamTester.scenarioN', { n: realIdx + 1 })}
+                </button>
+              );
+            })}
+            {/* Custom tab — always visible */}
             <button
-              key={s.id}
-              onClick={() => setActiveScenario(i)}
+              onClick={() => setActiveScenario(customTabIdx)}
               className={cn(
-                "px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm",
-                i === activeScenario
-                  ? "bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-md shadow-red-500/20 scale-105"
-                  : "glass border border-gray-200 text-muted-foreground hover:border-violet-300 hover:text-foreground hover:shadow-md"
+                "px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5",
+                activeScenario === customTabIdx
+                  ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/20 scale-105"
+                  : "glass border border-orange-200 dark:border-orange-800 text-orange-600 dark:text-orange-400 hover:border-orange-400 hover:shadow-md"
               )}
             >
-              {s.branchLabel ?? t('teamTester.scenarioN', { n: i + 1 })}
+              ✏️ Custom
             </button>
-          ))}
-        </div>
-      )}
+          </div>
+        );
+      })()}
+
+      {/* ── CUSTOM OPPONENT PICKER ── shown only when Custom tab is active ── */}
+      {(() => {
+        const autoScenarios = tree.root.children.filter(s => s.branchLabel !== "Custom");
+        const customScenario = tree.root.children.find(s => s.branchLabel === "Custom");
+        const customTabIdx = customScenario
+          ? tree.root.children.indexOf(customScenario)
+          : tree.root.children.length;
+        if (activeScenario !== customTabIdx) return null;
+        return (
+          <div className="w-full max-w-lg rounded-xl border p-3 mb-2 bg-orange-50 dark:bg-orange-950/30 border-orange-300 dark:border-orange-700">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
+              Custom opponent lead
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              {team2Pokemon.map(p => {
+                const isSelected = customOpp1 === p.name || customOpp2 === p.name;
+                const isFirst = customOpp1 === p.name;
+                return (
+                  <button
+                    key={p.name}
+                    onClick={() => {
+                      if (customOpp1 === p.name) {
+                        setCustomOpp1(customOpp2);
+                        setCustomOpp2(null);
+                      } else if (customOpp2 === p.name) {
+                        setCustomOpp2(null);
+                      } else if (!customOpp1) {
+                        setCustomOpp1(p.name);
+                      } else if (!customOpp2) {
+                        setCustomOpp2(p.name);
+                      } else {
+                        setCustomOpp2(p.name);
+                      }
+                    }}
+                    className={cn(
+                      "flex items-center gap-1.5 px-2 py-1.5 rounded-lg border text-[10px] font-semibold transition-all",
+                      isSelected
+                        ? isFirst
+                          ? "bg-red-500 text-white border-red-600"
+                          : "bg-orange-500 text-white border-orange-600"
+                        : "bg-white/80 dark:bg-white/5 border-gray-200 dark:border-white/10 hover:border-red-300 text-muted-foreground"
+                    )}
+                  >
+                    <Image src={p.sprite} alt={p.name} width={20} height={20} unoptimized className="flex-shrink-0" />
+                    <span className="truncate">{p.name}</span>
+                    {isSelected && <span className="text-[8px] opacity-80 flex-shrink-0">{isFirst ? "①" : "②"}</span>}
+                  </button>
+                );
+              })}
+            </div>
+            {(customOpp1 || customOpp2) && (
+              <button
+                onClick={() => { setCustomOpp1(null); setCustomOpp2(null); }}
+                className="mt-2 text-[9px] text-muted-foreground hover:text-red-500 transition-colors"
+              >
+                ✕ Clear selection
+              </button>
+            )}
+            {customOpp1 && !customOpp2 && (
+              <p className="mt-1.5 text-[9px] text-muted-foreground">Select a 2nd opponent Pokémon to generate the scenario</p>
+            )}
+            {!customOpp1 && (
+              <p className="mt-1.5 text-[9px] text-muted-foreground">Select 2 opponent Pokémon to simulate this matchup</p>
+            )}
+          </div>
+        );
+      })()}
 
       {/* ── OPPONENT LEAD ── */}
       {current && (
