@@ -5,9 +5,10 @@
     "battleBot": "Battle Bot",
     "meta": "Meta",
     "tournaments": "Tournaments",
-    "pokeSchool": "PokéSchool",
+    "pokeSchool": "Learn",
     "about": "About",
     "supportUs": "Support Us",
+    "shop": "Shop",
     "language": "Language",
     "subtitle": "Your competitive edge starts here"
   },
@@ -419,7 +420,7 @@
     "pickMoves": "(pick moves)",
     "roles": "Roles:",
     "tournamentTeams": "Tournament Teams",
-    "tournamentTeamsDesc": "Real teams from Champions tournaments. Click to load with competitive sets.",
+    "tournamentTeamsDesc": "Real teams from Champions tournaments. Click to load with actual moves, items and abilities.",
     "curatedTeams": "Curated Teams",
     "myTeam": "My Team",
     "savedTeams": "Saved Teams",
@@ -531,7 +532,25 @@
       "noSpeedControlThreat": "No speed control - add Tailwind or Trick Room user",
       "noIntimidateThreat": "No Intimidate - consider adding an Intimidate user",
       "poorCoverage": "Poor coverage - no super effective hits vs {types}"
-    }
+    },
+    "spLimitReached": "No more Stat Points available! Reduce another stat first."
+  },
+  "survivalCalc": {
+    "title": "Survival Calc",
+    "selectThreat": "Select a meta threat to test your bulk against",
+    "searchPlaceholder": "Search threats…",
+    "modeOHKO": "OHKO",
+    "mode2HKO": "2HKO",
+    "selectMove": "Select move…",
+    "incomingDamage": "Incoming Damage",
+    "suggestions": "Survival Suggestions",
+    "cannotSurvive": "Cannot survive even with max bulk investment",
+    "returnDamage": "Your Return Damage",
+    "survives": "Your Pokémon survives!",
+    "survives2HKO": "Survives 2 hits!",
+    "rollDependent": "Survival depends on damage roll",
+    "faints": "Your Pokémon faints!",
+    "remainingHP": "Remaining HP"
   },
   "battleBot": {
     "title": "Battle Bot",
@@ -809,7 +828,9 @@
     "corePairs": "Core Pairs",
     "corePairAnalysis": "Core Pair Analysis",
     "archetypes": "Archetype Matchups",
-    "antiMeta": "Anti-Meta Rankings",
+    "antiMeta": {
+      "strategy": "Built around {name} ({score} anti-meta score). Counters {c1} and {c2}."
+    },
     "antiMetaPokemon": "Anti-Meta Pokémon Ranking",
     "antiMetaTeams": "Anti-Meta Teams",
     "tournamentTeams": "Tournament Teams",
@@ -958,9 +979,6 @@
       "topMega": "Top Mega Pokémon:",
       "overrated": "Overrated Pokémon (high usage, low WR):",
       "bestArchetypes": "Best archetypes:"
-    },
-    "antiMeta": {
-      "strategy": "Built around {name} ({score} anti-meta score). Counters {c1} and {c2}."
     }
   },
   "learn": {
@@ -1137,7 +1155,10 @@
     "descCrit": "on a critical hit",
     "descWeather": "in {weather}",
     "descTerrain": "on {terrain} terrain",
-    "berryActivated": "{item} reduced damage"
+    "berryActivated": "{item} reduced damage",
+    "selectDefender": "Select opponent to test matchup",
+    "changeMove": "Change move",
+    "selectMove": "Select move"
   },
   "teamTester": {
     "team1": "Team 1",
@@ -1273,6 +1294,31 @@
     "ruleNoDupeItemsDesc": "Each held item can only be used once per team. Known as the Item Clause - forces diverse item choices and prevents stacking powerful items like Leftovers or Choice Scarf.",
     "ruleTimer": "20-min timer",
     "ruleTimerDesc": "Each game has a 20-minute time limit. If time runs out, the player with more remaining Pokémon wins. Prevents stalling and keeps games fast-paced."
+  },
+  "speedTiers": {
+    "title": "Speed Tiers",
+    "subtitle": "Rank #{rank} of {total}",
+    "base": "Base",
+    "ability": "Ability",
+    "afterSetup": "After Setup",
+    "itemSetup": "Item + Setup",
+    "weatherOn": "Weather active",
+    "weatherOff": "Toggle weather",
+    "searchPlaceholder": "Search Pokémon…",
+    "nearby": "Nearby",
+    "pokemon": "Pokémon",
+    "max": "Max",
+    "vsYou": "vs You",
+    "you": "YOU",
+    "needSp": "+{sp} SP to outspeed",
+    "needSp0": "Change nature to outspeed",
+    "outspeedBy": "+{diff} faster",
+    "outspeed": "Outspeed",
+    "outspedBy": "Outsped by",
+    "ties": "Ties",
+    "total": "Total",
+    "noResults": "No Pokémon found",
+    "openTooltip": "Open speed tier comparison"
   },
   "paste": {
     "noTeam": "No team data found. Use the Share button in the Team Builder to generate a paste link.",

@@ -5,9 +5,10 @@
     "battleBot": "Kampf-Bot",
     "meta": "Meta",
     "tournaments": "Turniere",
-    "pokeSchool": "PokéSchool",
+    "pokeSchool": "Lernen",
     "about": "Info",
     "supportUs": "Unterstütze uns",
+    "shop": "Shop",
     "language": "Sprache",
     "subtitle": "Werde Champion"
   },
@@ -419,7 +420,7 @@
     "pickMoves": "(Attacken wählen)",
     "roles": "Rollen:",
     "tournamentTeams": "Turnierteams",
-    "tournamentTeamsDesc": "Echte Teams aus Champions-Turnieren. Klicke, um mit Wettbewerbssets zu laden.",
+    "tournamentTeamsDesc": "Echte Teams aus Champions-Turnieren. Klicke, um mit echten Attacken, Items und Fähigkeiten zu laden.",
     "curatedTeams": "Kuratierte Teams",
     "myTeam": "Mein Team",
     "savedTeams": "Gespeicherte Teams",
@@ -531,7 +532,25 @@
       "noSpeedControlThreat": "Keine Initiativkontrolle - füge Rückenwind- oder Trick-Room-Nutzer hinzu",
       "noIntimidateThreat": "Kein Intimidate - erwäge, einen Intimidate-Nutzer hinzuzufügen",
       "poorCoverage": "Schlechte Abdeckung - keine sehr effektiven Treffer gegen {types}"
-    }
+    },
+    "spLimitReached": "No more Stat Points available! Reduce another stat first."
+  },
+  "survivalCalc": {
+    "title": "Survival Calc",
+    "selectThreat": "Select a meta threat to test your bulk against",
+    "searchPlaceholder": "Search threats…",
+    "modeOHKO": "OHKO",
+    "mode2HKO": "2HKO",
+    "selectMove": "Select move…",
+    "incomingDamage": "Incoming Damage",
+    "suggestions": "Survival Suggestions",
+    "cannotSurvive": "Cannot survive even with max bulk investment",
+    "returnDamage": "Your Return Damage",
+    "survives": "Your Pokémon survives!",
+    "survives2HKO": "Survives 2 hits!",
+    "rollDependent": "Survival depends on damage roll",
+    "faints": "Your Pokémon faints!",
+    "remainingHP": "Remaining HP"
   },
   "battleBot": {
     "title": "Kampf-Bot",
@@ -809,7 +828,9 @@
     "corePairs": "Core-Paare",
     "corePairAnalysis": "Core-Paar-Analyse",
     "archetypes": "Archetyp-Matchups",
-    "antiMeta": "Anti-Meta-Rankings",
+    "antiMeta": {
+      "strategy": "Aufgebaut um {name} ({score} Anti-Meta-Score). Kontert {c1} und {c2}."
+    },
     "antiMetaPokemon": "Anti-Meta-Pokémon-Ranking",
     "antiMetaTeams": "Anti-Meta-Teams",
     "tournamentTeams": "Turnierteams",
@@ -958,9 +979,6 @@
       "topMega": "Top-Mega-Pokémon:",
       "overrated": "Überschätzte Pokémon (hohe Nutzung, niedrige GR):",
       "bestArchetypes": "Beste Archetypen:"
-    },
-    "antiMeta": {
-      "strategy": "Aufgebaut um {name} ({score} Anti-Meta-Score). Kontert {c1} und {c2}."
     }
   },
   "learn": {
@@ -1137,7 +1155,10 @@
     "descCrit": "bei einem Volltreffer",
     "descWeather": "bei {weather}",
     "descTerrain": "auf {terrain}-Terrain",
-    "berryActivated": "{item} reduziert Schaden"
+    "berryActivated": "{item} reduziert Schaden",
+    "selectDefender": "Select opponent to test matchup",
+    "changeMove": "Attacke wechseln",
+    "selectMove": "Attacke auswählen"
   },
   "teamTester": {
     "team1": "Team 1",
