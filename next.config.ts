@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   // Types verified via standalone `npx tsc --noEmit --skipLibCheck`.
   // Next 16 Turbopack's built-in TS check OOMs on this project (16 GB RAM, 9 workers).
   typescript: { ignoreBuildErrors: true },
+  allowedDevOrigins: ["192.168.1.100"],
   experimental: {
     optimizePackageImports: ["framer-motion"],
   },

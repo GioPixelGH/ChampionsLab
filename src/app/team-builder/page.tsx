@@ -8,7 +8,8 @@ import {
   Plus, X, Download, Upload, Copy, Trash2, Shield, Zap, Swords,
   ChevronDown, ChevronUp, Check, AlertTriangle, Sparkles, Star,
   Users, Brain, Target, Award, Minus, Settings2,
-  Save, FolderOpen, Share2, SlidersHorizontal, ExternalLink,
+  Save, FolderOpen, Share2, SlidersHorizontal, ExternalLink, Trophy,
+  Lock, LockOpen,
 } from "lucide-react";
 import { POKEMON_SEED, STAT_PRESETS } from "@/lib/pokemon-data";
 import {
@@ -247,6 +248,15 @@ export default function TeamBuilderPage() {
   const [pasteHideAbility, setPasteHideAbility] = useState(false);
   const [pasteLinkCopied, setPasteLinkCopied] = useState(false);
 
+  // ── Best Team Optimizer ──
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchProgress, setSearchProgress] = useState(0);
+  const [searchBestScore, setSearchBestScore] = useState(0);
+  const [searchBestTeam, setSearchBestTeam] = useState<ChampionsPokemon[] | null>(null);
+  const [showOptimizerPanel, setShowOptimizerPanel] = useState(false);
+  const [lockedSlots, setLockedSlots] = useState<boolean[]>(Array(6).fill(false));
+  const searchAbortRef = useRef(false);
+
 
 
   // Tournament teams filtered to active roster, sorted by placement
@@ -425,6 +435,123 @@ export default function TeamBuilderPage() {
     deleteTeam(id);
     setSavedTeams(getSavedTeams());
     if (currentTeamId === id) setCurrentTeamId(undefined);
+  };
+
+  const runBestTeamSearch = async () => {
+    const { analyzeTeamSynergy } = await import("@/lib/engine/synergy");
+    const roster = POKEMON_SEED.filter(p => !p.hidden);
+    const RESTARTS = 60;
+    trackEvent("find_best_team", "team_builder");
+    searchAbortRef.current = false;
+    setIsSearching(true);
+    setSearchProgress(0);
+    setSearchBestScore(0);
+    setSearchBestTeam(null);
+    setShowOptimizerPanel(true);
+
+    // Snapshot locked Pokémon at the moment the search starts
+    const pinnedPokemon: (ChampionsPokemon | null)[] = slots.map((s, i) =>
+      lockedSlots[i] && s.pokemon ? s.pokemon : null
+    );
+    const pinnedList = pinnedPokemon.filter(Boolean) as ChampionsPokemon[];
+    const pinnedIds = new Set(pinnedList.map(p => p.id));
+    const freeSlotCount = 6 - pinnedList.length;
+
+    let globalBestScore = 0;
+
+    const buildFull = (freeSlots: ChampionsPokemon[]): ChampionsPokemon[] => {
+      // Rebuild the 6-slot array preserving pinned positions
+      const result: ChampionsPokemon[] = Array(6);
+      let fi = 0;
+      for (let i = 0; i < 6; i++) {
+        if (pinnedPokemon[i]) { result[i] = pinnedPokemon[i]!; }
+        else { result[i] = freeSlots[fi++]; }
+      }
+      return result;
+    };
+
+    // Shuffle free roster candidates
+    const freeRoster = roster.filter(p => !pinnedIds.has(p.id));
+    const shuffled = [...freeRoster].sort(() => Math.random() - 0.5);
+
+    for (let r = 0; r < RESTARTS; r++) {
+      if (searchAbortRef.current) break;
+
+      // If all 6 are pinned, just evaluate once
+      if (freeSlotCount === 0) {
+        const score = analyzeTeamSynergy(pinnedList).overallScore;
+        if (score > globalBestScore) {
+          globalBestScore = score;
+          setSearchBestScore(score);
+          setSearchBestTeam([...pinnedList]);
+        }
+        setSearchProgress(100);
+        break;
+      }
+
+      // Greedy build of the free slots, starting from an anchor
+      const anchor = shuffled[r % shuffled.length];
+      let freeTeam: ChampionsPokemon[] = [anchor];
+
+      while (freeTeam.length < freeSlotCount) {
+        const usedIds = new Set([...pinnedIds, ...freeTeam.map(p => p.id)]);
+        let bestNext: ChampionsPokemon | null = null;
+        let bestNextScore = -1;
+        for (const c of freeRoster) {
+          if (usedIds.has(c.id)) continue;
+          const s = analyzeTeamSynergy(buildFull([...freeTeam, c])).overallScore;
+          if (s > bestNextScore) { bestNextScore = s; bestNext = c; }
+        }
+        if (!bestNext) break;
+        freeTeam.push(bestNext);
+      }
+
+      // Hill-climb: swap each free slot
+      let improved = true;
+      while (improved) {
+        improved = false;
+        let currentScore = analyzeTeamSynergy(buildFull(freeTeam)).overallScore;
+        for (let i = 0; i < freeTeam.length; i++) {
+          const usedIds = new Set([...pinnedIds, ...freeTeam.filter((_, j) => j !== i).map(p => p.id)]);
+          for (const c of freeRoster) {
+            if (usedIds.has(c.id)) continue;
+            const candidate = [...freeTeam];
+            candidate[i] = c;
+            const s = analyzeTeamSynergy(buildFull(candidate)).overallScore;
+            if (s > currentScore) {
+              freeTeam = candidate;
+              currentScore = s;
+              improved = true;
+            }
+          }
+        }
+      }
+
+      const fullTeam = buildFull(freeTeam);
+      const finalScore = analyzeTeamSynergy(fullTeam).overallScore;
+      if (finalScore > globalBestScore) {
+        globalBestScore = finalScore;
+        setSearchBestScore(finalScore);
+        setSearchBestTeam([...fullTeam]);
+      }
+
+      setSearchProgress(Math.round((r + 1) / RESTARTS * 100));
+      if (r % 3 === 2) await new Promise(res => setTimeout(res, 0));
+    }
+
+    setIsSearching(false);
+    setSearchProgress(100);
+  };
+
+  const loadOptimizedTeam = () => {
+    if (!searchBestTeam) return;
+    trackEvent("load_optimized_team", "team_builder");
+    const newSlots = Array.from({ length: 6 }, createEmptySlot);
+    searchBestTeam.forEach((p, i) => { newSlots[i] = { ...newSlots[i], pokemon: p }; });
+    setSlots(newSlots);
+    setTeamName(t("teamBuilder.bestTeamName"));
+    setCurrentTeamId(undefined);
+    setSelectedSlotIndex(null);
   };
 
   const generateShareImage = async () => {
@@ -771,6 +898,24 @@ export default function TeamBuilderPage() {
     return analyzePartialTeam(teamPokemon);
   }, [teamPokemon.map(p => p.id).join(",")]);
 
+  // Scores for all saved teams (to identify the best one)
+  const savedTeamScores = useMemo<Record<string, number>>(() => {
+    const scores: Record<string, number> = {};
+    for (const st of savedTeams) {
+      const slots = deserializeTeam(st.slots);
+      const pokemon = slots.filter(s => s.pokemon !== null).map(s => s.pokemon!);
+      scores[st.id] = analyzePartialTeam(pokemon).synergy.overallScore;
+    }
+    return scores;
+  }, [savedTeams.map(s => s.id).join(",")]);
+
+  const bestSavedTeamId = useMemo(() => {
+    if (savedTeams.length === 0) return null;
+    return savedTeams.reduce((best, st) =>
+      (savedTeamScores[st.id] ?? 0) > (savedTeamScores[best.id] ?? 0) ? st : best
+    ).id;
+  }, [savedTeamScores, savedTeams]);
+
   const teammates = useMemo<TeammateSuggestion[]>(() => {
     if (teamPokemon.length >= 6) return [];
     return suggestTeammates(teamPokemon, 8);
@@ -844,6 +989,7 @@ export default function TeamBuilderPage() {
     newSlots[index] = createEmptySlot();
     setSlots(newSlots);
     if (selectedSlotIndex === index) setSelectedSlotIndex(null);
+    setLockedSlots(prev => { const n = [...prev]; n[index] = false; return n; });
   };
 
   const loadPrebuiltTeam = (team: PrebuiltTeam) => {
@@ -1445,11 +1591,30 @@ export default function TeamBuilderPage() {
               {t('common.export')}
             </button>
             <button
-              onClick={() => { trackEvent("new_team", "team_builder"); setSlots(Array.from({ length: 6 }, createEmptySlot)); setCurrentTeamId(undefined); setSelectedSlotIndex(null); setTeamName(t('teamBuilder.myTeam')); }}
+              onClick={() => { trackEvent("new_team", "team_builder"); setSlots(Array.from({ length: 6 }, createEmptySlot)); setCurrentTeamId(undefined); setSelectedSlotIndex(null); setTeamName(t('teamBuilder.myTeam')); setLockedSlots(Array(6).fill(false)); }}
               className="px-4 py-2 text-sm rounded-xl glass glass-hover flex items-center gap-2 text-red-400 hover:text-red-300 transition-colors shrink-0"
             >
               <Trash2 className="w-4 h-4" />
               {t('teamBuilder.newTeamClear')}
+            </button>
+            <button
+              onClick={() => {
+                if (isSearching) { searchAbortRef.current = true; } else { runBestTeamSearch(); }
+              }}
+              className={cn(
+                "px-4 py-2 text-sm rounded-xl flex items-center gap-2 transition-colors shrink-0 font-semibold",
+                isSearching
+                  ? "bg-amber-500/10 border border-amber-400/40 text-amber-600"
+                  : showOptimizerPanel && searchBestTeam
+                    ? "bg-emerald-500/10 border border-emerald-400/40 text-emerald-600"
+                    : "glass glass-hover text-violet-600 hover:text-violet-500"
+              )}
+            >
+              {isSearching ? (
+                <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>{t('teamBuilder.optimizer.stop')}</>
+              ) : (
+                <><Sparkles className="w-4 h-4" />{t('teamBuilder.optimizer.find')}</>
+              )}
             </button>
           </div>
         </div>
@@ -1470,8 +1635,16 @@ export default function TeamBuilderPage() {
                 {t('teamBuilder.savedTeams')}
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2">
-                {[...savedTeams].sort((a, b) => b.updatedAt - a.updatedAt).map(st => (
-                  <div key={st.id} className="flex items-center gap-2 p-3 rounded-xl glass glass-hover">
+                {[...savedTeams].sort((a, b) => (savedTeamScores[b.id] ?? 0) - (savedTeamScores[a.id] ?? 0)).map(st => {
+                  const score = savedTeamScores[st.id] ?? 0;
+                  const isBest = st.id === bestSavedTeamId;
+                  return (
+                  <div key={st.id} className={cn("flex items-center gap-2 p-3 rounded-xl glass glass-hover relative", isBest && "ring-2 ring-amber-400/60")}>
+                    {isBest && (
+                      <span className="absolute -top-2 -right-2 bg-amber-400 text-white rounded-full p-0.5 shadow">
+                        <Trophy className="w-3 h-3" />
+                      </span>
+                    )}
                     <button
                       onClick={() => handleLoadSavedTeam(st)}
                       className="flex-1 text-left min-w-0"
@@ -1479,6 +1652,10 @@ export default function TeamBuilderPage() {
                       <p className="text-xs font-medium truncate">{st.name}</p>
                       <p className="text-[10px] text-muted-foreground">{st.slots.length} Pokémon · {new Date(st.updatedAt).toLocaleDateString()} {new Date(st.updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
                     </button>
+                    <div className="flex flex-col items-center flex-shrink-0">
+                      <span className={cn("text-[11px] font-bold leading-tight", score >= 70 ? "text-green-600" : score >= 50 ? "text-amber-500" : "text-red-500")}>{score}</span>
+                      <span className="text-[8px] text-muted-foreground leading-tight">/100</span>
+                    </div>
                     <button
                       onClick={() => handleDeleteSavedTeam(st.id)}
                       className="p-1 rounded hover:bg-red-100 text-muted-foreground hover:text-red-600 transition-colors flex-shrink-0"
@@ -1486,7 +1663,8 @@ export default function TeamBuilderPage() {
                       <Trash2 className="w-3 h-3" />
                     </button>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </motion.div>
@@ -1498,6 +1676,117 @@ export default function TeamBuilderPage() {
           <p className="text-sm text-muted-foreground">{t('teamBuilder.noSavedTeams')}</p>
         </div>
       )}
+
+      {/* ── Best Team Optimizer Panel ── */}
+      <AnimatePresence>
+        {showOptimizerPanel && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden mb-6"
+          >
+            <div className="glass rounded-2xl p-4 border border-violet-200/60">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold uppercase tracking-wider flex items-center gap-2 text-violet-700">
+                  <Sparkles className="w-4 h-4" />
+                  {t('teamBuilder.optimizer.title')}
+                </h3>
+                <button
+                  title="Close"
+                  onClick={() => { searchAbortRef.current = true; setShowOptimizerPanel(false); }}
+                  className="p-1 rounded-lg hover:bg-gray-100 text-muted-foreground"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Progress bar */}
+              <div className="mb-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] text-muted-foreground uppercase">
+                    {isSearching ? t('teamBuilder.optimizer.searching', { pct: searchProgress }) : t('teamBuilder.optimizer.done')}
+                  </span>
+                  {searchBestScore > 0 && (
+                    <span className={cn("text-xs font-bold", searchBestScore >= 70 ? "text-green-600" : searchBestScore >= 50 ? "text-amber-500" : "text-red-500")}>
+                      {t('teamBuilder.optimizer.bestScore', { score: searchBestScore })}
+                    </span>
+                  )}
+                </div>
+                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full rounded-full bg-gradient-to-r from-violet-500 to-emerald-500"
+                    animate={{ width: `${searchProgress}%` }}
+                    transition={{ duration: 0.3 }}
+                  />
+                </div>
+              </div>
+
+              {/* Locked slots hint */}
+              {(() => {
+                const lockedCount = slots.filter((s, i) => lockedSlots[i] && s.pokemon).length;
+                return lockedCount > 0 ? (
+                  <div className="flex items-center gap-1.5 mb-3 px-2 py-1 rounded-lg bg-violet-50 border border-violet-200/60">
+                    <Lock className="w-3 h-3 text-violet-500 flex-shrink-0" />
+                    <span className="text-[10px] text-violet-700">
+                      {t('teamBuilder.optimizer.lockedHint', { count: lockedCount })}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 mb-3 px-2 py-1 rounded-lg bg-gray-50 border border-gray-200/60">
+                    <LockOpen className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                    <span className="text-[10px] text-muted-foreground">
+                      {t('teamBuilder.optimizer.noLocksHint')}
+                    </span>
+                  </div>
+                );
+              })()}
+
+              {/* Result team */}
+              {searchBestTeam && searchBestTeam.length > 0 && (
+                <div>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {searchBestTeam.map((p, idx) => {
+                      const isPin = lockedSlots[idx] && slots[idx]?.pokemon?.id === p.id;
+                      return (
+                      <div key={p.id} className="flex flex-col items-center gap-0.5 relative">
+                        <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden", isPin ? "bg-violet-100 ring-2 ring-violet-400/60" : "bg-gray-100")}>
+                          <Image src={p.sprite} alt={p.name} width={48} height={48} className="object-contain" />
+                        </div>
+                        {isPin && <Lock className="absolute -top-1 -right-1 w-3 h-3 text-violet-500" />}
+                        <span className="text-[9px] text-muted-foreground truncate max-w-[48px] text-center leading-tight">{tp(p.name)}</span>
+                        <div className="flex gap-0.5">
+                          {p.types.map(ty => <span key={ty} className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: TYPE_COLORS[ty] }} />)}
+                        </div>
+                      </div>
+                    )})}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={loadOptimizedTeam}
+                      className="px-4 py-1.5 text-xs rounded-xl font-semibold bg-gradient-to-r from-violet-600 to-emerald-600 text-white hover:opacity-90 transition-opacity"
+                    >
+                      {t('teamBuilder.optimizer.loadTeam')}
+                    </button>
+                    {!isSearching && (
+                      <button
+                        onClick={runBestTeamSearch}
+                        className="px-4 py-1.5 text-xs rounded-xl font-semibold glass glass-hover text-violet-600"
+                      >
+                        {t('teamBuilder.optimizer.searchAgain')}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {!searchBestTeam && !isSearching && (
+                <p className="text-xs text-muted-foreground">{t('teamBuilder.optimizer.noResult')}</p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Shared link error */}
       {shareLinkError && (
@@ -1770,6 +2059,23 @@ export default function TeamBuilderPage() {
                     <div className="absolute top-2 left-2 z-20 w-6 h-6 rounded-lg bg-gray-100 dark:bg-[#1a2540] flex items-center justify-center">
                       <span className="text-[10px] font-bold text-muted-foreground">{i + 1}</span>
                     </div>
+                    {/* Lock toggle for optimizer */}
+                    <button
+                      title={lockedSlots[i] ? t('teamBuilder.optimizer.unlockSlot') : t('teamBuilder.optimizer.lockSlot')}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLockedSlots(prev => { const n = [...prev]; n[i] = !n[i]; return n; });
+                        setShowOptimizerPanel(true);
+                      }}
+                      className={cn(
+                        "absolute bottom-2 right-2 z-20 p-1 rounded-lg transition-colors",
+                        lockedSlots[i]
+                          ? "bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400"
+                          : "bg-white/60 dark:bg-[#1a2540]/60 text-gray-400 hover:text-violet-500 hover:bg-violet-50"
+                      )}
+                    >
+                      {lockedSlots[i] ? <Lock className="w-3 h-3" /> : <LockOpen className="w-3 h-3" />}
+                    </button>
                     {slot.isMega && (() => {
                       const megaForms = slot.pokemon.forms?.filter(f => f.isMega && !f.hidden) ?? [];
                       const activeMega = megaForms[slot.megaFormIndex ?? 0];

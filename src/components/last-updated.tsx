@@ -12,6 +12,13 @@ interface ChangelogEntry {
 
   const SHARED_ENTRIES: ChangelogEntry[] = [
     {
+      date: "04/05/2026",
+      items: [
+        "✨ Team Builder — new Best Team Optimizer: click \"Find Best Team\" to automatically search for the highest-synergy team. Lock one or more Pokémon slots with the 🔒 icon to keep them fixed while the optimizer fills the rest",
+        "🏆 Team Builder — saved teams panel now shows the Analysis score (/100) for each team and sorts by score. The best-scoring team gets a gold trophy badge",
+      ],
+    },
+    {
       date: "02/05/2026",
       items: [
         "🛍️ New Shop button in navbar — divided support button now includes a direct link to the Champions Lab merch store alongside Support Us",
