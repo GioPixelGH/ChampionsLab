@@ -257,6 +257,11 @@ export default function TeamBuilderPage() {
   const [lockedSlots, setLockedSlots] = useState<boolean[]>(Array(6).fill(false));
   const searchAbortRef = useRef(false);
 
+  // ── Slot-level search ──
+  const [slotSearchIdx, setSlotSearchIdx] = useState<number | null>(null);
+  const [slotSearchResults, setSlotSearchResults] = useState<{ pokemon: ChampionsPokemon; score: number }[]>([]);
+  const [isSlotSearching, setIsSlotSearching] = useState(false);
+
 
 
   // Tournament teams filtered to active roster, sorted by placement
@@ -461,13 +466,13 @@ export default function TeamBuilderPage() {
 
     const buildFull = (freeSlots: ChampionsPokemon[]): ChampionsPokemon[] => {
       // Rebuild the 6-slot array preserving pinned positions
-      const result: ChampionsPokemon[] = Array(6);
+      const result: (ChampionsPokemon | undefined)[] = Array(6);
       let fi = 0;
       for (let i = 0; i < 6; i++) {
         if (pinnedPokemon[i]) { result[i] = pinnedPokemon[i]!; }
         else { result[i] = freeSlots[fi++]; }
       }
-      return result;
+      return result.filter((p): p is ChampionsPokemon => p !== undefined);
     };
 
     // Shuffle free roster candidates
@@ -552,6 +557,44 @@ export default function TeamBuilderPage() {
     setTeamName(t("teamBuilder.bestTeamName"));
     setCurrentTeamId(undefined);
     setSelectedSlotIndex(null);
+  };
+
+  const runSlotSearch = async (slotIdx: number) => {
+    if (!searchBestTeam || isSearching || isSlotSearching) return;
+    const { analyzeTeamSynergy } = await import("@/lib/engine/synergy");
+    const roster = POKEMON_SEED.filter(p => !p.hidden);
+    setSlotSearchIdx(slotIdx);
+    setSlotSearchResults([]);
+    setIsSlotSearching(true);
+
+    // The 5 teammates fixed in this team (excluding the slot being searched)
+    const teammates = searchBestTeam.filter((_, i) => i !== slotIdx);
+    const usedIds = new Set(teammates.map(p => p.id));
+    const candidates = roster.filter(p => !usedIds.has(p.id));
+
+    const results: { pokemon: ChampionsPokemon; score: number }[] = [];
+    for (let i = 0; i < candidates.length; i++) {
+      const c = candidates[i];
+      const team = [...teammates, c];
+      const score = analyzeTeamSynergy(team).overallScore;
+      results.push({ pokemon: c, score });
+      // Yield to UI every 200 candidates
+      if (i % 200 === 199) await new Promise(res => setTimeout(res, 0));
+    }
+
+    results.sort((a, b) => b.score - a.score);
+    // Auto-apply the best pick into searchBestTeam
+    if (results[0]) {
+      setSearchBestTeam(prev => {
+        if (!prev) return prev;
+        const updated = [...prev];
+        updated[slotIdx] = results[0].pokemon;
+        return updated;
+      });
+      setSearchBestScore(results[0].score);
+    }
+    setSlotSearchResults(results.slice(0, 20));
+    setIsSlotSearching(false);
   };
 
   const generateShareImage = async () => {
@@ -1745,22 +1788,78 @@ export default function TeamBuilderPage() {
               {/* Result team */}
               {searchBestTeam && searchBestTeam.length > 0 && (
                 <div>
+                  <p className="text-[10px] text-muted-foreground mb-1.5">Click a Pokémon to find the best replacement for that slot</p>
                   <div className="flex flex-wrap gap-2 mb-3">
                     {searchBestTeam.map((p, idx) => {
                       const isPin = lockedSlots[idx] && slots[idx]?.pokemon?.id === p.id;
+                      const isActiveSlot = slotSearchIdx === idx;
+                      const isLoadingSlot = isSlotSearching && isActiveSlot;
                       return (
-                      <div key={p.id} className="flex flex-col items-center gap-0.5 relative">
-                        <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden", isPin ? "bg-violet-100 ring-2 ring-violet-400/60" : "bg-gray-100")}>
-                          <Image src={p.sprite} alt={p.name} width={48} height={48} className="object-contain" />
+                      <button
+                        key={`${p.id}-${idx}`}
+                        onClick={() => slotSearchIdx === idx ? setSlotSearchIdx(null) : runSlotSearch(idx)}
+                        disabled={isSearching || isSlotSearching}
+                        className={cn(
+                          "flex flex-col items-center gap-0.5 relative rounded-xl p-1 transition-all border",
+                          isActiveSlot
+                            ? "bg-amber-50 border-amber-400 ring-2 ring-amber-300"
+                            : "bg-transparent border-transparent hover:bg-gray-100 hover:border-gray-200",
+                          (isSearching || isSlotSearching) && !isActiveSlot && "opacity-50 cursor-not-allowed"
+                        )}
+                      >
+                        <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden", isPin ? "bg-violet-100 ring-2 ring-violet-400/60" : isActiveSlot ? "bg-amber-100" : "bg-gray-100")}>
+                          {isLoadingSlot
+                            ? <div className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+                            : <Image src={p.sprite} alt={p.name} width={48} height={48} className="object-contain" />
+                          }
                         </div>
                         {isPin && <Lock className="absolute -top-1 -right-1 w-3 h-3 text-violet-500" />}
+                        {isActiveSlot && !isLoadingSlot && <div className="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 rounded-full" />}
                         <span className="text-[9px] text-muted-foreground truncate max-w-[48px] text-center leading-tight">{tp(p.name)}</span>
                         <div className="flex gap-0.5">
                           {p.types.map(ty => <span key={ty} className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: TYPE_COLORS[ty] }} />)}
                         </div>
-                      </div>
+                      </button>
                     )})}
                   </div>
+
+                  {/* Slot search ranked results */}
+                  {slotSearchIdx !== null && slotSearchResults.length > 0 && !isSlotSearching && (
+                    <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-800 overflow-hidden">
+                      <div className="px-3 py-2 bg-amber-100/60 dark:bg-amber-900/30 border-b border-amber-200 dark:border-amber-800 flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">
+                          Best picks for slot {slotSearchIdx + 1}
+                        </span>
+                        <button onClick={() => { setSlotSearchIdx(null); setSlotSearchResults([]); }} className="text-amber-500 hover:text-amber-700 text-[10px]">✕</button>
+                      </div>
+                      <div className="divide-y divide-amber-100 dark:divide-amber-900/40 max-h-48 overflow-y-auto">
+                        {slotSearchResults.map((r, i) => (
+                          <button
+                            key={r.pokemon.id}
+                            onClick={() => {
+                              setSearchBestTeam(prev => {
+                                if (!prev || slotSearchIdx === null) return prev;
+                                const updated = [...prev];
+                                updated[slotSearchIdx] = r.pokemon;
+                                return updated;
+                              });
+                              setSearchBestScore(r.score);
+                            }}
+                            className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-amber-100/60 dark:hover:bg-amber-900/20 transition-colors text-left"
+                          >
+                            <span className="text-[9px] font-bold text-amber-600/60 w-4 flex-shrink-0">#{i + 1}</span>
+                            <Image src={r.pokemon.sprite} alt={r.pokemon.name} width={28} height={28} unoptimized className="flex-shrink-0" />
+                            <span className="text-[10px] font-semibold flex-1 truncate">{tp(r.pokemon.name)}</span>
+                            <span className={cn(
+                              "text-[10px] font-bold flex-shrink-0",
+                              r.score >= 70 ? "text-green-600" : r.score >= 50 ? "text-amber-500" : "text-red-500"
+                            )}>{r.score}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex gap-2">
                     <button
                       onClick={loadOptimizedTeam}
