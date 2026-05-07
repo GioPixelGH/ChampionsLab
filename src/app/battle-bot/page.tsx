@@ -578,6 +578,19 @@ export default function BattleBotPage() {
   const [isSimulating, setIsSimulating] = useState(false);
   const [result, setResult] = useState<FullSimResult | null>(null);
   const [iterations, setIterations] = useState(200);
+
+  // Deep-link from Match Journal: ?tab=team-tester&opp=1,2,3,4
+  const [journalTeam2Ids, setJournalTeam2Ids] = useState<number[]>([]);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get("tab");
+    const opp = params.get("opp");
+    if (tab === "team-tester") setMainTab("team-tester");
+    if (opp) {
+      const ids = opp.split(",").map(Number).filter((n) => !isNaN(n) && n > 0);
+      if (ids.length > 0) setJournalTeam2Ids(ids);
+    }
+  }, []);
   const [opponentPool, setOpponentPool] = useState("prebuilt");
   const [pickerOpen, setPickerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -851,7 +864,7 @@ export default function BattleBotPage() {
       {mainTab === "damage-calc" && <DamageCalculator />}
 
       {/* ── TEAM TESTER TAB ──────────────────────────────────────────── */}
-      {mainTab === "team-tester" && <TeamTester />}
+      {mainTab === "team-tester" && <TeamTester initialTeam2Ids={journalTeam2Ids.length > 0 ? journalTeam2Ids : undefined} />}
 
       {/* ── BATTLE ENGINE TAB ────────────────────────────────────────── */}
       {mainTab === "battle-engine" && (

@@ -13,6 +13,7 @@ const KEYS = {
   SIM_RESULTS: "champions-lab:sim-results",
   SETTINGS: "champions-lab:settings",
   LAST_TEAM: "champions-lab:last-team",
+  MATCH_JOURNAL: "champions-lab:match-journal",
 } as const;
 
 // ── Types ───────────────────────────────────────────────────────────────
@@ -54,6 +55,20 @@ export interface UserSettings {
   defaultIterations: number;
   defaultOpponentPool: string;
   theme: "light" | "dark" | "system";
+}
+
+// ── Match Journal ────────────────────────────────────────────────────────
+
+export interface MatchRecord {
+  id: string;
+  date: number;           // timestamp
+  myTeam: number[];       // 6 pokemon IDs (full team shown)
+  myPicks: number[];      // 2–4 pokemon IDs I actually brought
+  opponentTeam: number[]; // 6 pokemon IDs opponent showed
+  opponentPicks: number[];// 2–4 pokemon IDs opponent brought
+  result: "win" | "loss" | "tie";
+  notes?: string;
+  format?: string;        // e.g. "BO3 G1", "Ladder"
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────
@@ -207,6 +222,33 @@ export function saveSimResult(result: Omit<SavedSimResult, "id" | "timestamp">):
 
 export function clearSimResults(): void {
   writeJSON(KEYS.SIM_RESULTS, []);
+}
+
+// ── Match Journal ────────────────────────────────────────────────────────
+
+export function getMatchRecords(): MatchRecord[] {
+  return readJSON<MatchRecord[]>(KEYS.MATCH_JOURNAL, []);
+}
+
+export function saveMatchRecord(record: Omit<MatchRecord, "id" | "date">): MatchRecord {
+  const records = getMatchRecords();
+  const saved: MatchRecord = {
+    ...record,
+    id: `match-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    date: Date.now(),
+  };
+  records.unshift(saved); // newest first
+  writeJSON(KEYS.MATCH_JOURNAL, records);
+  return saved;
+}
+
+export function deleteMatchRecord(id: string): void {
+  const records = getMatchRecords().filter((r) => r.id !== id);
+  writeJSON(KEYS.MATCH_JOURNAL, records);
+}
+
+export function clearMatchRecords(): void {
+  writeJSON(KEYS.MATCH_JOURNAL, []);
 }
 
 // ── Settings ────────────────────────────────────────────────────────────

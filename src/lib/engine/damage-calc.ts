@@ -602,9 +602,10 @@ export function calculateDamage(
   const minDamage = rolls[0];
   const maxDamage = rolls[rolls.length - 1];
 
-  const targetHP = defStats.hp;
-  const minPct = Math.round((minDamage / targetHP) * 1000) / 10;
-  const maxPct = Math.round((maxDamage / targetHP) * 1000) / 10;
+  const totalHP = defStats.hp;
+  const targetHP = Math.floor(totalHP * ((defender.currentHPPercent ?? 100) / 100));
+  const minPct = Math.round((minDamage / totalHP) * 1000) / 10;
+  const maxPct = Math.round((maxDamage / totalHP) * 1000) / 10;
 
   // Calculate hits to KO
   const avgDamage = (minDamage + maxDamage) / 2;

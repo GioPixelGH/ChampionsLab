@@ -10,7 +10,10 @@ import {
   TrendingUp, TrendingDown, GitBranch, Info, Shield,
   Settings2, Minus, Plus, Sparkles, Check, Zap, Download, ClipboardPaste,
 } from "lucide-react";
-import { exportTeamTesterPDF, PDF_LABELS_FR, PDF_LABELS_DE } from "@/lib/export-pdf";
+import { CalcdexPanel } from "@/components/calcdex-panel";
+import {
+  exportTeamTesterPDF, PDF_LABELS_FR, PDF_LABELS_DE,
+} from "@/lib/export-pdf";
 import { POKEMON_SEED, STAT_PRESETS } from "@/lib/pokemon-data";
 import type { ChampionsPokemon, CommonSet, PokemonType, StatPoints } from "@/lib/types";
 import { TYPE_COLORS } from "@/lib/types";
@@ -96,7 +99,11 @@ interface TeamTestResult {
 
 // ── Component ────────────────────────────────────────────────────────────
 
-export default function TeamTester() {
+interface TeamTesterProps {
+  initialTeam2Ids?: number[];
+}
+
+export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
   const { t, tm, ta, ti, tn, tp, ts, tt, tmd, tad, tid, locale } = useI18n();
   // Team 1
   const [team1Pokemon, setTeam1Pokemon] = useState<ChampionsPokemon[]>([]);
@@ -104,6 +111,18 @@ export default function TeamTester() {
   // Team 2
   const [team2Pokemon, setTeam2Pokemon] = useState<ChampionsPokemon[]>([]);
   const [team2Sets, setTeam2Sets] = useState<CommonSet[]>([]);
+
+  // Pre-load Team 2 from journal deep-link
+  useEffect(() => {
+    if (!initialTeam2Ids || initialTeam2Ids.length === 0) return;
+    const pokemon = initialTeam2Ids
+      .map((id) => POKEMON_SEED.find((p) => p.id === id))
+      .filter((p): p is ChampionsPokemon => !!p);
+    if (pokemon.length === 0) return;
+    setTeam2Pokemon(pokemon);
+    setTeam2Sets(pokemon.map((p) => bestAvailableSet(p)));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [iterations, setIterations] = useState(1000);
   const [isRunning, setIsRunning] = useState(false);
@@ -602,6 +621,14 @@ export default function TeamTester() {
           onPokemonClick={(name) => openPokemonDetail(name, 2, true)}
         />
       </div>
+
+      {/* Calcdex – Showdex-style damage calculator */}
+      <CalcdexPanel
+        team1Pokemon={team1Pokemon}
+        team1Sets={team1Sets}
+        team2Pokemon={team2Pokemon}
+        team2Sets={team2Sets}
+      />
 
       {/* Simulation Controls */}
       <div className="glass rounded-2xl p-5 border border-gray-200/60">

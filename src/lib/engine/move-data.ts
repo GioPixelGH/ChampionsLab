@@ -313,6 +313,12 @@ export const MOVE_DATA: Record<string, EngineMove> = {
     flags: { contact: true, slicing: true },
     secondary: { chance: 50, boosts: { defense: -1 } },
   },
+  "Water Spout": {
+    name: "Water Spout", type: "water", category: "special", basePower: 150,
+    accuracy: 100, pp: 5, priority: 0, target: "allAdjacentFoes",
+    flags: {},
+    effect: "Power scales with user's remaining HP (150 × current/max). Max power 150 at full HP.",
+  },
   "Weather Ball": {
     name: "Weather Ball", type: "normal", category: "special", basePower: 50,
     accuracy: 100, pp: 10, priority: 0, target: "normal",

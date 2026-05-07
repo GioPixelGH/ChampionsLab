@@ -12,6 +12,7 @@ import {
   Heart,
   CalendarDays,
   ShoppingBag,
+  BookOpen,
 } from "lucide-react";
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -24,6 +25,7 @@ const NAV_ITEMS = [
   { href: "/team-builder", i18nKey: "nav.teamBuilder", icon: Users },
   { href: "/battle-bot", i18nKey: "nav.battleBot", icon: Swords },
   { href: "/meta", i18nKey: "nav.meta", icon: TrendingUp },
+  { href: "/match-journal", i18nKey: "nav.matchJournal", icon: BookOpen },
   { href: "/events", i18nKey: "nav.tournaments", icon: CalendarDays },
   { href: "/learn", i18nKey: "nav.pokeSchool", icon: GraduationCap },
   { href: "/about", i18nKey: "nav.about", icon: Heart },
