@@ -1583,3 +1583,41 @@ export const USAGE_DATA: Record<number, CommonSet[]> = {
     {"name":"Bulky Pivot","nature":"Bold","ability":"Opportunist","item":"Sitrus Berry","moves":["Lumina Crash","Helping Hand","Trick Room","Protect"],"sp":{"hp":32,"attack":0,"defense":20,"spAtk":0,"spDef":14,"speed":0}},
   ],
 };
+
+// ── Meta Move Frequency ──────────────────────────────────────────────────────
+
+export interface MetaMoveEntry {
+  moveName: string;
+  /** Fraction of sets (0–1) that include this move. */
+  frequency: number;
+  /** How many sets include this move out of the total. */
+  count: number;
+  /** Total number of sets in USAGE_DATA for this Pokémon. */
+  total: number;
+}
+
+/**
+ * Returns the most-used moves for a Pokémon derived from its USAGE_DATA sets,
+ * sorted by frequency descending.
+ *
+ * @param pokemonId  National Dex ID (as used in USAGE_DATA keys)
+ * @param limit      Maximum number of results (default 10)
+ */
+export function getTopMovesForPokemon(pokemonId: number, limit = 10): MetaMoveEntry[] {
+  const sets = USAGE_DATA[pokemonId];
+  if (!sets || sets.length === 0) return [];
+
+  const total = sets.length;
+  const counts = new Map<string, number>();
+
+  for (const set of sets) {
+    for (const move of set.moves) {
+      counts.set(move, (counts.get(move) ?? 0) + 1);
+    }
+  }
+
+  return Array.from(counts.entries())
+    .map(([moveName, count]) => ({ moveName, frequency: count / total, count, total }))
+    .sort((a, b) => b.frequency - a.frequency || a.moveName.localeCompare(b.moveName))
+    .slice(0, limit);
+}

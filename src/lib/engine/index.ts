@@ -143,9 +143,17 @@ export {
 // Strategy Tree Generator
 export {
   generateStrategyTree,
+  computeBattleBoard,
   type StrategyTree,
   type StrategyNode,
   type StrategyNodeType,
+  type BattleBoardData,
+  type BattleSlotInfo,
+  type BattleMoveEntry,
+  type MegaOption,
+  type FieldOverrides,
+  type MonOverrides,
+  type SideScreens,
 } from "./strategy-tree";
 
 // Strategy Tree i18n

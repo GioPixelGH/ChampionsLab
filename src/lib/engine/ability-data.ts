@@ -39,6 +39,8 @@ export interface AbilityEffect {
   damageMultiplier?: number;
   // Weather-based speed doubling
   weatherSpeed?: "sun" | "rain" | "sand" | "snow";
+  // Terrain-based speed doubling
+  terrainSpeed?: "electric" | "grassy" | "misty" | "psychic";
   // Stat multipliers
   statMultiplier?: Partial<Record<"attack" | "defense" | "spAtk" | "spDef" | "speed", number>>;
   // Contact punishment
@@ -104,6 +106,11 @@ export const ABILITY_DATA: Record<string, AbilityEffect> = {
     name: "Slush Rush", category: "speed-control",
     description: "Doubles Speed in snow/hail.",
     weatherSpeed: "snow", vgcRelevance: 7,
+  },
+  "Surge Surfer": {
+    name: "Surge Surfer", category: "speed-control",
+    description: "Doubles Speed on Electric Terrain.",
+    terrainSpeed: "electric", vgcRelevance: 7,
   },
   "Unburden": {
     name: "Unburden", category: "speed-control",

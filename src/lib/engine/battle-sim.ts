@@ -417,7 +417,9 @@ function estimateThreatLevel(
       cachedStats: defender.stats,
     };
     const result = calculateDamage(atk, def, moveName, options);
-    if (result.percentHP[0] > maxPercent) maxPercent = result.percentHP[0];
+    // Use average of min/max rolls rather than only the minimum (85% roll)
+    const avgPct = (result.percentHP[0] + result.percentHP[1]) / 2;
+    if (avgPct > maxPercent) maxPercent = avgPct;
   }
   return maxPercent;
 }
@@ -569,8 +571,11 @@ function evaluateMoveOption(
     
     // Protect: essential VGC move - used 15-20% of turns by top players
     if (move.flags.protect) {
-      // Consecutive Protect penalty (only punish double-protecting)
-      const protectPenalty = user.protectCount * 60;
+      // Consecutive Protect penalty — context-sensitive:
+      // Under serious incoming threat, a second Protect is often the correct VGC play
+      // (stall while ally handles the threat). Under normal pressure, still penalise.
+      const threatModifier = maxIncomingThreat >= 80 ? 0.2 : beingDoubled ? 0.4 : 1.0;
+      const protectPenalty = Math.round(user.protectCount * 50 * threatModifier);
       score = 30 - protectPenalty;
       
       // Protect is good when being doubled into by heavy threats
@@ -869,22 +874,31 @@ function evaluateMoveOption(
     
     let score = 0;
     
-    // Damage-based scoring with current HP awareness
-    const percentOfCurrent = target.currentHP > 0 ? (result.damage[0] / target.currentHP) * 100 : 0;
+    // Use the average of the min (85%) and max (100%) rolls instead of always
+    // using the pessimistic minimum. This means a move that rolls 92-109% of
+    // the target's remaining HP is correctly treated as a likely KO, not a miss.
+    const avgDamage = (result.damage[0] + result.damage[1]) / 2;
+    const avgPercentOfCurrent = target.currentHP > 0 ? (avgDamage / target.currentHP) * 100 : 0;
+    const maxKOs = result.damage[1] >= target.currentHP; // max roll would KO
     
-    if (result.isOHKO || percentOfCurrent >= 100) {
-      score = 110; // Securing a KO is top priority
-    } else if (percentOfCurrent >= 80) {
-      score = 85 + percentOfCurrent * 0.1; // Near-KO
-    } else if (result.is2HKO) {
+    if (result.isOHKO) {
+      // Min roll already KOs — guaranteed regardless of RNG
+      score = 110;
+    } else if (maxKOs) {
+      // Only max roll KOs (~25-50% probability depending on spread).
+      // Still very high value: attempting the KO is correct VGC play.
+      score = 95 + avgPercentOfCurrent * 0.05;
+    } else if (avgPercentOfCurrent >= 80) {
+      score = 85 + avgPercentOfCurrent * 0.1; // Near-KO
+    } else if (result.is2HKO || avgDamage * 2 >= target.currentHP) {
       score = 65 + result.percentHP[0] * 0.2;
     } else {
-      score = result.percentHP[0] * 0.55;
+      score = avgPercentOfCurrent * 0.55;
     }
     
     // Priority move bonus: securing KOs on weakened mons
     if (move.priority > 0) {
-      if (percentOfCurrent >= 100) score += 25; // Priority KO is extremely safe
+      if (result.isOHKO || maxKOs) score += 25; // Priority KO is extremely safe
       else if (target.currentHP < target.maxHP * 0.4) score += 15;
     }
     
@@ -892,7 +906,7 @@ function evaluateMoveOption(
     if (isSpreadMove(move)) {
       const otherTarget = targets[1 - i];
       if (otherTarget && !otherTarget.isFainted) {
-        // Estimate combined damage value
+        // Estimate combined damage value using average roll
         const otherDef: DamageCalcTarget = {
           baseStats: otherTarget.effectiveBaseStats, sp: otherTarget.set.sp,
           nature: otherTarget.set.nature as NatureName, types: otherTarget.types,
@@ -902,7 +916,8 @@ function evaluateMoveOption(
           cachedStats: otherTarget.stats,
         };
         const otherResult = calculateDamage(attacker, otherDef, moveName, options);
-        score += otherResult.percentHP[0] * 0.35; // Add value from hitting second target
+        const otherAvgPct = (otherResult.percentHP[0] + otherResult.percentHP[1]) / 2;
+        score += otherAvgPct * 0.35; // Add value from hitting second target (avg roll)
       }
       score += 8; // Small inherent bonus for spread pressure
       
@@ -919,17 +934,25 @@ function evaluateMoveOption(
             cachedStats: allyMon.stats,
           };
           const allyDmg = calculateDamage(attacker, allyDef, moveName, options);
-          const allyDmgPercent = allyDmg.percentHP[0];
-          // Heavy penalty if it would KO the ally
-          if (allyDmg.isOHKO || (allyDmg.damage[1] / allyMon.currentHP) >= 1.0) {
-            score -= 80; // Don't KO your own ally!
-          } else if (allyDmgPercent >= 40) {
-            score -= 35; // Significant ally damage
-          } else if (allyDmgPercent >= 20) {
-            score -= 15; // Moderate ally damage
+          // ── Immunity check ──────────────────────────────────────────────
+          // If effectiveness is 0 or damage is 0 (type immune, Levitate, Water
+          // Absorb, Storm Drain, Flash Fire, Sap Sipper, Earth Eater, etc.)
+          // the ally won't be hit at all — skip all penalties and add a bonus.
+          if (allyDmg.damage[1] === 0 || allyDmg.effectiveness === 0) {
+            score += 15; // Free spread: ally is immune, use the move without hesitation
+          } else {
+            // Ally takes damage — apply context-aware penalties
+            const allyAvgDmgPct = ((allyDmg.damage[0] + allyDmg.damage[1]) / 2) / allyMon.maxHP * 100;
+            if (allyDmg.isOHKO || (allyDmg.damage[1] / allyMon.currentHP) >= 1.0) {
+              score -= 80; // Don't KO your own ally!
+            } else if (allyAvgDmgPct >= 40) {
+              score -= 35; // Significant ally damage
+            } else if (allyAvgDmgPct >= 20) {
+              score -= 15; // Moderate ally damage
+            }
+            // Less penalty if ally is Protected
+            if (allyMon.isProtected) score += 25;
           }
-          // Less penalty if ally is Protected
-          if (allyMon.isProtected) score += 25;
         }
       }
     }
@@ -959,7 +982,7 @@ function evaluateMoveOption(
     }
     
     // Endgame: when behind, prioritize highest immediate damage
-    if (isBehind && isEndgame) score += percentOfCurrent * 0.15;
+    if (isBehind && isEndgame) score += avgPercentOfCurrent * 0.15;
     
     // Target selection: prefer KO-ing the bigger threat
     const targetThreat = estimateThreatLevel(target, user, field, oppSide);

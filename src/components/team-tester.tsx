@@ -10,7 +10,6 @@ import {
   TrendingUp, TrendingDown, GitBranch, Info, Shield,
   Settings2, Minus, Plus, Sparkles, Check, Zap, Download, ClipboardPaste,
 } from "lucide-react";
-import { CalcdexPanel } from "@/components/calcdex-panel";
 import {
   exportTeamTesterPDF, PDF_LABELS_FR, PDF_LABELS_DE,
 } from "@/lib/export-pdf";
@@ -47,12 +46,23 @@ import {
   type LeadComboResult,
   type PokemonImpact,
   type StrategyTree,
+  type StrategyNode as StrategyNodeData,
+  computeBattleBoard,
+  type BattleBoardData,
+  type BattleSlotInfo,
+  type BattleMoveEntry,
+  type MegaOption,
+  type FieldOverrides,
+  type MonOverrides,
+  type SideScreens,
 } from "@/lib/engine";
 import { SearchSelect, type SearchSelectOption } from "@/components/search-select";
 import {
   type DetailedBattleResult,
 } from "@/lib/engine/battle-sim";
 import { USAGE_DATA } from "@/lib/usage-data";
+import { SIM_POKEMON } from "@/lib/simulation-data";
+import { TOURNAMENT_USAGE } from "@/lib/engine/vgc-data";
 import {
   getSavedTeams, deserializeTeam,
   type SavedTeam,
@@ -621,14 +631,6 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
           onPokemonClick={(name) => openPokemonDetail(name, 2, true)}
         />
       </div>
-
-      {/* Calcdex – Showdex-style damage calculator */}
-      <CalcdexPanel
-        team1Pokemon={team1Pokemon}
-        team1Sets={team1Sets}
-        team2Pokemon={team2Pokemon}
-        team2Sets={team2Sets}
-      />
 
       {/* Simulation Controls */}
       <div className="glass rounded-2xl p-5 border border-gray-200/60">
@@ -2141,15 +2143,963 @@ function TeamPanel({
 }
 
 // ══════════════════════════════════════════════════════════════════════════
-// STRATEGY FLOWCHART  -  Clean vertical VGC decision tree
+// BATTLE BOARD  -  Visual VGC battle field analyzer
 // ══════════════════════════════════════════════════════════════════════════
 
-import {
-  type StrategyNode as StrategyNodeData,
-} from "@/lib/engine";
+// (imports hoisted to file top)
 
+// ── Move cell (grid card) ───────────────────────────────────────────────────
+function MoveCell({ move, side }: { move: BattleMoveEntry; side: "mine" | "opp" }) {
+  const typeColor = TYPE_COLORS[move.moveType] ?? "#888";
+  const isStatus = move.category === "status";
+  const isImmune = !isStatus && move.effectiveness === 0 && move.percentHPMax === 0;
+  const isOpp = side === "opp";
+
+  const barColor = move.isOHKO
+    ? "#ef4444"
+    : move.is2HKO
+    ? "#f97316"
+    : move.effectiveness >= 2
+    ? "#10b981"
+    : isOpp
+    ? "#a855f7"
+    : "#6366f1";
+
+  const bgClass = move.isRecommended
+    ? isOpp
+      ? "bg-red-50/80 dark:bg-red-950/30 border-red-300 dark:border-red-700/50 ring-1 ring-red-200 dark:ring-red-700/30"
+      : "bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-700/50 ring-1 ring-emerald-200 dark:ring-emerald-700/30"
+    : move.isOHKO
+    ? "bg-red-50/40 dark:bg-red-950/10 border-gray-100 dark:border-white/10"
+    : move.is2HKO
+    ? "bg-orange-50/40 dark:bg-orange-950/10 border-gray-100 dark:border-white/10"
+    : "bg-white/50 dark:bg-white/5 border-gray-100 dark:border-white/10";
+
+  return (
+    <div className={`rounded-lg p-1.5 border flex flex-col gap-0.5 min-w-0 ${bgClass}`}>
+      {/* Type badge row */}
+      <div className="flex items-center gap-1 min-w-0">
+        <span
+          className="flex-shrink-0 px-1 py-px rounded text-[6px] font-bold text-white uppercase leading-none"
+          style={{ backgroundColor: typeColor }}
+        >
+          {move.moveType}
+        </span>
+        {move.priority > 0 && (
+          <span className="flex-shrink-0 text-[7px] font-bold text-amber-500">+{move.priority}</span>
+        )}
+        {move.priority < 0 && (
+          <span className="flex-shrink-0 text-[7px] text-muted-foreground/50">{move.priority}</span>
+        )}
+        <span className="text-[7px] text-muted-foreground ml-auto truncate">
+          {move.isSpread ? "→ all" : move.targetName !== "–" && move.targetName ? `→${move.targetName.split("-")[0]}` : ""}
+        </span>
+      </div>
+
+      {/* Move name */}
+      <div className="flex items-center gap-0.5 min-w-0">
+        {move.isRecommended && (
+          <span className={cn("text-[8px] flex-shrink-0 font-bold", isOpp ? "text-red-500" : "text-emerald-500")}>
+            ★
+          </span>
+        )}
+        <span className="font-semibold text-[10px] leading-tight truncate">{move.moveName}</span>
+      </div>
+
+      {/* Damage / effect */}
+      {isStatus ? (
+        move.effectLabel ? (
+          <div className="text-[8px] text-muted-foreground/80 leading-tight truncate italic">
+            {move.effectLabel}
+          </div>
+        ) : null
+      ) : isImmune ? (
+        <div className="text-[8px] text-muted-foreground/40">✗ Immune</div>
+      ) : (
+        <div className="flex items-center gap-1 mt-px">
+          <div className="flex-1 h-1 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden">
+            <div
+              className="h-full rounded-full"
+              style={{ width: `${Math.min(move.percentHPMax, 100)}%`, backgroundColor: barColor }}
+            />
+          </div>
+          <span className={cn("text-[7px] font-semibold flex-shrink-0 tabular-nums", move.koColor)}>
+            {move.koText}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Single Pokémon panel ────────────────────────────────────────────────────
+function StageBtn({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  return (
+    <div className="flex items-center gap-0.5">
+      <button
+        onClick={() => onChange(Math.max(-6, value - 1))}
+        className="w-4 h-4 rounded flex items-center justify-center hover:bg-gray-200 dark:hover:bg-white/15 text-muted-foreground text-[10px] leading-none"
+      >−</button>
+      <span className={cn("w-5 text-center text-[9px] font-mono font-bold tabular-nums",
+        value > 0 ? "text-green-500" : value < 0 ? "text-red-500" : "text-muted-foreground/50"
+      )}>
+        {value === 0 ? "0" : value > 0 ? `+${value}` : `${value}`}
+      </span>
+      <button
+        onClick={() => onChange(Math.min(6, value + 1))}
+        className="w-4 h-4 rounded flex items-center justify-center hover:bg-gray-200 dark:hover:bg-white/15 text-muted-foreground text-[10px] leading-none"
+      >+</button>
+    </div>
+  );
+}
+
+// ── Move picker panel (sub-component to allow hooks) ─────────────────────────
+function MovePickerPanel({
+  slot,
+  monOv,
+  onMonOvChange,
+  labelColor,
+}: {
+  slot: BattleSlotInfo;
+  monOv: MonOverrides;
+  onMonOvChange: (patch: Partial<MonOverrides>) => void;
+  labelColor: string;
+}) {
+  // Current 4 moves (from override or from the set)
+  const currentMoves: string[] = monOv.moveOverrides
+    ? [...monOv.moveOverrides]
+    : slot.set.moves.slice(0, 4).concat(["", "", "", ""]).slice(0, 4);
+
+  // Which slot (0-3) is being targeted for replacement
+  const [editSlotIdx, setEditSlotIdx] = useState<number | null>(null);
+
+  // All moves from the Pokémon's learnset, sorted alphabetically
+  const allMoves = slot.pokemon.moves.map((m) => m.name).sort((a, b) => a.localeCompare(b));
+
+  const setMove = (slotIdx: number, moveName: string) => {
+    const next = [...currentMoves] as [string, string, string, string];
+    next[slotIdx] = moveName;
+    onMonOvChange({ moveOverrides: next });
+    setEditSlotIdx(null);
+  };
+
+  const resetMoves = () => {
+    onMonOvChange({ moveOverrides: undefined });
+    setEditSlotIdx(null);
+  };
+
+  return (
+    <div className="px-2 pb-2 bg-orange-50/40 dark:bg-orange-950/10 border-t border-orange-200 dark:border-orange-800/30">
+      <div className={`text-[7px] font-bold uppercase tracking-wider text-orange-400 mb-1.5 pt-1.5`}>
+        Custom moves — click a slot to change
+      </div>
+      {/* 4 move slot buttons */}
+      <div className="grid grid-cols-2 gap-1 mb-2">
+        {currentMoves.map((moveName, i) => (
+          <button
+            key={i}
+            onClick={() => setEditSlotIdx(editSlotIdx === i ? null : i)}
+            className={cn(
+              "px-1.5 py-1 rounded-lg border text-[8px] font-medium text-left truncate transition-all",
+              editSlotIdx === i
+                ? "bg-orange-400 text-white border-orange-500 ring-1 ring-orange-300"
+                : moveName
+                  ? "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-foreground hover:border-orange-300"
+                  : "bg-white/50 dark:bg-white/[0.03] border-dashed border-gray-300 dark:border-white/10 text-muted-foreground/50",
+            )}
+          >
+            {moveName || `— Slot ${i + 1}`}
+            {editSlotIdx === i && <span className="ml-1 opacity-70">▾</span>}
+          </button>
+        ))}
+      </div>
+
+      {/* Move grid — shown when a slot is being edited */}
+      {editSlotIdx !== null && (
+        <div className="max-h-40 overflow-y-auto rounded-lg border border-orange-200 dark:border-orange-800/40 bg-white dark:bg-white/[0.03] p-1">
+          <div className="flex flex-wrap gap-1">
+            {allMoves.map((moveName) => (
+              <button
+                key={moveName}
+                onClick={() => setMove(editSlotIdx, moveName)}
+                className={cn(
+                  "px-1.5 py-0.5 rounded text-[7px] font-medium border transition-all",
+                  currentMoves[editSlotIdx] === moveName
+                    ? "bg-orange-400 text-white border-orange-500"
+                    : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-foreground hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:border-orange-300",
+                )}
+              >
+                {moveName}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Reset button */}
+      {monOv.moveOverrides && (
+        <button
+          onClick={resetMoves}
+          className="mt-1.5 text-[7px] text-orange-500 hover:text-orange-700 underline"
+        >
+          ↺ Reset to default moves
+        </button>
+      )}
+    </div>
+  );
+}
+
+function MonPanel({
+  slot,
+  side,
+  monOv,
+  onMonOvChange,
+  onSpriteClick,
+}: {
+  slot: BattleSlotInfo;
+  side: "mine" | "opp";
+  monOv: MonOverrides;
+  onMonOvChange: (patch: Partial<MonOverrides>) => void;
+  onSpriteClick: (name: string) => void;
+}) {
+  const [showCalcdex, setShowCalcdex] = useState(false);
+  const [showMovePicker, setShowMovePicker] = useState(false);
+  const isOpp = side === "opp";
+  const border = isOpp
+    ? "border-red-200 dark:border-red-800/60"
+    : "border-blue-200 dark:border-blue-800/60";
+  const headerGrad = isOpp
+    ? "from-red-50 to-orange-50 dark:from-red-950/40 dark:to-orange-950/30"
+    : "from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/30";
+  const labelColor = isOpp
+    ? "text-red-500 dark:text-red-400"
+    : "text-emerald-600 dark:text-emerald-400";
+
+  const hp = monOv.hpPct ?? 100;
+
+  return (
+    <div className={`rounded-2xl border ${border} overflow-hidden flex flex-col`}>
+      {/* Header: sprite + info */}
+      <div className={`bg-gradient-to-br ${headerGrad} px-3 pt-3 pb-2`}>
+        <div className="flex items-start gap-2">
+          <button
+            onClick={() => onSpriteClick(slot.pokemon.name)}
+            className="hover:scale-110 transition-transform flex-shrink-0"
+          >
+            <Image
+              src={slot.pokemon.sprite}
+              alt={slot.pokemon.name}
+              width={56}
+              height={56}
+              unoptimized
+              className="drop-shadow"
+            />
+          </button>
+          <div className="flex-1 min-w-0 pt-0.5">
+            <div className="font-bold text-[12px] truncate leading-tight">{slot.pokemon.name}</div>
+            <div className="flex flex-wrap gap-0.5 mt-1 items-center">
+              {slot.types.map((t) => (
+                <span
+                  key={t}
+                  className="px-1 py-px rounded text-[7px] font-bold text-white uppercase leading-none"
+                  style={{ backgroundColor: TYPE_COLORS[t] }}
+                >
+                  {t}
+                </span>
+              ))}
+              {/* Status condition badge */}
+              {(monOv.status || monOv.isBurned) && (() => {
+                const st = monOv.status ?? (monOv.isBurned ? "burn" : null);
+                const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
+                  burn:           { label: "BRN", cls: "bg-red-500 text-white" },
+                  paralysis:      { label: "PAR", cls: "bg-yellow-400 text-black" },
+                  sleep:          { label: "SLP", cls: "bg-indigo-500 text-white" },
+                  freeze:         { label: "FRZ", cls: "bg-cyan-400 text-black" },
+                  poison:         { label: "PSN", cls: "bg-purple-500 text-white" },
+                  "badly-poison": { label: "TOX", cls: "bg-fuchsia-600 text-white" },
+                };
+                const badge = st ? STATUS_BADGE[st] : null;
+                if (!badge) return null;
+                return (
+                  <span className={cn("px-1 py-px rounded text-[7px] font-bold leading-none", badge.cls)}>
+                    {badge.label}
+                  </span>
+                );
+              })()}
+            </div>
+
+            {/* Mega evolution buttons */}
+            {slot.megaOptions.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-1.5">
+                {/* Base form button */}
+                <button
+                  onClick={() => onMonOvChange({ megaFormIndex: -1 })}
+                  className={cn(
+                    "px-1.5 py-0.5 rounded text-[8px] font-bold border transition-all",
+                    slot.activeMegaIndex === -1
+                      ? "bg-gray-200 dark:bg-white/20 border-gray-400 dark:border-white/40 text-foreground"
+                      : "border-gray-200 dark:border-white/10 text-muted-foreground hover:border-gray-400",
+                  )}
+                >
+                  Base
+                </button>
+                {slot.megaOptions.map((mega) => {
+                  const isActive = slot.activeMegaIndex === mega.formIndex;
+                  // Label: "Mega", "Mega X", "Mega Y", "Mega Z"
+                  const suffix = mega.name.endsWith(" X") ? "X"
+                    : mega.name.endsWith(" Y") ? "Y"
+                    : mega.name.endsWith(" Z") ? "Z"
+                    : "";
+                  return (
+                    <button
+                      key={mega.formIndex}
+                      title={mega.name}
+                      onClick={() => onMonOvChange({ megaFormIndex: isActive ? -1 : mega.formIndex })}
+                      className={cn(
+                        "px-1.5 py-0.5 rounded text-[8px] font-bold border transition-all",
+                        isActive
+                          ? "bg-violet-600 text-white border-violet-700 shadow-sm shadow-violet-400/30"
+                          : "border-violet-200 dark:border-violet-500/30 text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10",
+                      )}
+                    >
+                      ◆ Mega{suffix ? ` ${suffix}` : ""}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="mt-1 space-y-px">
+              <div className="text-[9px] text-muted-foreground">
+                ⚡ <span className="font-semibold">{slot.speed}</span>
+                {slot.speedNote && (
+                  <span className="ml-1.5 text-sky-600 dark:text-sky-400 font-semibold text-[8px]">
+                    ({slot.speedNote})
+                  </span>
+                )}
+                {slot.priorityTag && (
+                  <span className="ml-2 text-amber-600 dark:text-amber-400 font-semibold">
+                    ▲ {slot.priorityTag}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-wrap items-center gap-1 mt-0.5">
+                <span className="text-[8px] text-muted-foreground/70 truncate">{slot.ability}</span>
+                {slot.fakeOutImmune && (
+                  <span
+                    className="text-[6px] font-bold uppercase px-1 py-px rounded leading-none bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-700/40"
+                    title="Ghost-type: immune to Normal-type Fake Out"
+                  >
+                    FO Immune
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* HP bar (always visible) */}
+        <div className="mt-2 flex items-center gap-1.5">
+          <span className="text-[8px] text-muted-foreground w-5">HP</span>
+          <div className="flex-1 h-1.5 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+            <div
+              className={cn("h-full rounded-full transition-all", hp > 50 ? "bg-green-400" : hp > 25 ? "bg-yellow-400" : "bg-red-400")}
+              style={{ width: `${hp}%` }}
+            />
+          </div>
+          <span className="text-[8px] text-muted-foreground w-7 text-right tabular-nums">{hp}%</span>
+        </div>
+        <input
+          type="range" min={1} max={100} value={hp}
+          onChange={(e) => onMonOvChange({ hpPct: Number(e.target.value) })}
+          className={cn("w-full mt-1 h-1", isOpp ? "accent-red-500" : "accent-blue-500")}
+        />
+      </div>
+
+      {/* Move grid — always shows all 4 moves in original slot order */}
+      <div className="p-2 bg-white/30 dark:bg-black/10">
+        <div className={`text-[8px] font-bold uppercase tracking-wider mb-1.5 ${labelColor}`}>
+          {isOpp ? "⚠ Likely attacks" : "★ Do this"}
+        </div>
+        {slot.topMoves.length === 0 ? (
+          <div className="text-[10px] text-muted-foreground italic py-2 text-center">—</div>
+        ) : (
+          <div className="grid grid-cols-2 gap-1.5">
+            {slot.topMoves.map((move, i) => (
+              <MoveCell key={i} move={move} side={side} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Meta move frequency — derived from all known competitive sets */}
+      {slot.metaMoves.length > 0 && (
+        <div className="px-2 pb-2 bg-white/30 dark:bg-black/10 border-t border-gray-100 dark:border-white/5">
+          <div className="text-[7px] font-bold uppercase tracking-wider text-muted-foreground/60 mb-1 pt-1.5">
+            Meta moves ({slot.metaMoves[0]?.total ?? 0} sets)
+          </div>
+          <div className="flex flex-col gap-px">
+            {slot.metaMoves.map((m) => {
+              const pct = Math.round(m.frequency * 100);
+              const barColor = pct === 100
+                ? "#6366f1"
+                : pct >= 67
+                ? "#8b5cf6"
+                : pct >= 34
+                ? "#a78bfa"
+                : "#c4b5fd";
+              return (
+                <div key={m.moveName} className="flex items-center gap-1.5">
+                  <span className="text-[8px] flex-1 truncate text-foreground/80">{m.moveName}</span>
+                  <div className="w-12 h-1 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden flex-shrink-0">
+                    <div
+                      className="h-full rounded-full"
+                      style={{ width: `${pct}%`, backgroundColor: barColor }}
+                    />
+                  </div>
+                  <span className="text-[7px] text-muted-foreground w-6 text-right tabular-nums flex-shrink-0">
+                    {pct}%
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Move picker toggle */}
+      <button
+        onClick={() => setShowMovePicker((v) => !v)}
+        className="w-full px-3 py-1.5 flex items-center justify-between text-[9px] font-semibold text-muted-foreground hover:text-foreground bg-gray-50/60 dark:bg-white/[0.03] border-t border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors"
+      >
+        <span className="flex items-center gap-1.5">
+          ✎ Edit moves
+          {monOv.moveOverrides && (
+            <span className="px-1 py-px rounded-full bg-orange-400 text-white text-[7px]">●</span>
+          )}
+        </span>
+        <ChevronRight className={cn("w-3 h-3 transition-transform", showMovePicker && "rotate-90")} />
+      </button>
+
+      {showMovePicker && (
+        <MovePickerPanel
+          slot={slot}
+          monOv={monOv}
+          onMonOvChange={onMonOvChange}
+          labelColor={labelColor}
+        />
+      )}
+
+      {/* Calcdex toggle footer */}
+      <button
+        onClick={() => setShowCalcdex((v) => !v)}
+        className="w-full px-3 py-1.5 flex items-center justify-between text-[9px] font-semibold text-muted-foreground hover:text-foreground bg-gray-50/60 dark:bg-white/[0.03] border-t border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors"
+      >
+        <span className="flex items-center gap-1.5">
+          <Shield className="w-3 h-3" /> Calcdex
+          {(monOv.atkStage || monOv.defStage || monOv.spAtkStage || monOv.spDefStage || monOv.spdStage || monOv.isBurned || monOv.status || monOv.helpingHand || (monOv.megaFormIndex != null && monOv.megaFormIndex >= 0)) && (
+            <span className="px-1 py-px rounded-full bg-violet-500 text-white text-[7px]">●</span>
+          )}
+        </span>
+        <ChevronRight className={cn("w-3 h-3 transition-transform", showCalcdex && "rotate-90")} />
+      </button>
+
+      {showCalcdex && (
+        <div className="px-3 py-2.5 border-t border-gray-200 dark:border-white/10 space-y-2.5 bg-gray-50/60 dark:bg-white/[0.03]">
+
+          {/* ── Actual stat spread ─────────────────────────────────── */}
+          <div>
+            <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Stats (Lv.50)</div>
+            <div className="grid grid-cols-3 gap-x-2 gap-y-0.5">
+              {([
+                ["HP",  slot.actualStats.hp,      "#6bce68"],
+                ["Atk", slot.actualStats.attack,   "#f56c2d"],
+                ["Def", slot.actualStats.defense,  "#e4cd51"],
+                ["SpA", slot.actualStats.spAtk,    "#8eb4e4"],
+                ["SpD", slot.actualStats.spDef,    "#97cf6e"],
+                ["Spe", slot.actualStats.speed,    "#e87ee3"],
+              ] as [string, number, string][]).map(([label, val, color]) => {
+                const barPct = Math.min(100, Math.round((val / 255) * 100));
+                return (
+                  <div key={label} className="flex items-center gap-1">
+                    <span className="text-[8px] text-muted-foreground w-6 flex-shrink-0">{label}</span>
+                    <div className="flex-1 h-1.5 rounded-full bg-gray-200 dark:bg-white/10 overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width: `${barPct}%`, backgroundColor: color }} />
+                    </div>
+                    <span className="text-[8px] tabular-nums text-foreground w-6 text-right flex-shrink-0">{val}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ── Stat stages ────────────────────────────────────────── */}
+          <div>
+            <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Stages</div>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+              {([
+                ["Atk", "atkStage"],
+                ["Def", "defStage"],
+                ["SpA", "spAtkStage"],
+                ["SpD", "spDefStage"],
+                ["Spe", "spdStage"],
+              ] as const).map(([label, key]) => (
+                <div key={key} className="flex items-center gap-1">
+                  <span className="text-[9px] text-muted-foreground w-6">{label}</span>
+                  <StageBtn
+                    value={(monOv[key] as number | undefined) ?? 0}
+                    onChange={(v) => onMonOvChange({ [key]: v })}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Status condition ────────────────────────────────────── */}
+          <div>
+            <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Status</div>
+            <div className="flex flex-wrap gap-1">
+              {([
+                ["BRN", "burn",          "bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700/50 text-red-700 dark:text-red-300"],
+                ["PAR", "paralysis",     "bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-700/50 text-yellow-700 dark:text-yellow-300"],
+                ["SLP", "sleep",         "bg-indigo-100 dark:bg-indigo-900/30 border-indigo-300 dark:border-indigo-700/50 text-indigo-700 dark:text-indigo-300"],
+                ["FRZ", "freeze",        "bg-cyan-100 dark:bg-cyan-900/30 border-cyan-300 dark:border-cyan-700/50 text-cyan-700 dark:text-cyan-300"],
+                ["PSN", "poison",        "bg-purple-100 dark:bg-purple-900/30 border-purple-300 dark:border-purple-700/50 text-purple-700 dark:text-purple-300"],
+                ["TOX", "badly-poison",  "bg-fuchsia-100 dark:bg-fuchsia-900/30 border-fuchsia-300 dark:border-fuchsia-700/50 text-fuchsia-700 dark:text-fuchsia-300"],
+              ] as [string, string, string][]).map(([label, val, activeClass]) => {
+                const active = (monOv.status === val) || (val === "burn" && monOv.isBurned);
+                return (
+                  <button
+                    key={val}
+                    onClick={() => {
+                      const newStatus = active ? null : val as MonOverrides["status"];
+                      onMonOvChange({ status: newStatus, isBurned: newStatus === "burn" });
+                    }}
+                    className={cn(
+                      "px-2 py-0.5 rounded-full border text-[9px] font-bold transition-colors",
+                      active ? activeClass : "border-border text-muted-foreground hover:border-violet-300 hover:text-violet-500"
+                    )}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ── Other toggles ───────────────────────────────────────── */}
+          <div className="flex flex-wrap gap-1">
+            <button
+              onClick={() => onMonOvChange({ helpingHand: !monOv.helpingHand })}
+              className={cn(
+                "px-2 py-0.5 rounded-full border text-[9px] font-semibold transition-colors",
+                monOv.helpingHand
+                  ? "bg-violet-100 dark:bg-violet-500/20 border-violet-300 dark:border-violet-500/40 text-violet-700 dark:text-violet-300"
+                  : "border-border text-muted-foreground hover:border-violet-300 hover:text-violet-500"
+              )}
+            >
+              🤝 HH
+            </button>
+
+            {/* Reset all */}
+            {(monOv.atkStage || monOv.defStage || monOv.spAtkStage || monOv.spDefStage || monOv.spdStage || monOv.isBurned || monOv.status || monOv.helpingHand || (monOv.megaFormIndex != null && monOv.megaFormIndex >= 0)) && (
+              <button
+                onClick={() => onMonOvChange({ atkStage: 0, defStage: 0, spAtkStage: 0, spDefStage: 0, spdStage: 0, isBurned: false, status: null, helpingHand: false, megaFormIndex: -1 })}
+                className="px-2 py-0.5 rounded-full border border-gray-200 dark:border-white/10 text-[9px] text-muted-foreground hover:text-red-500 hover:border-red-300 transition-colors"
+              >
+                ↺ Reset
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Speed order strip ───────────────────────────────────────────────────────
+function SpeedStrip({
+  speedOrder,
+  hasTrickRoom,
+}: {
+  speedOrder: BattleBoardData["speedOrder"];
+  hasTrickRoom: boolean;
+}) {
+  return (
+    <div className="w-full py-2 px-3 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 flex items-center gap-2">
+      <span className="text-[9px] font-bold text-muted-foreground flex-shrink-0 uppercase tracking-wide">
+        {hasTrickRoom ? "🔮 TR" : "⚡"}
+      </span>
+      <div className="flex items-center gap-1 flex-wrap">
+        {speedOrder.map((mon, i) => (
+          <div key={mon.name} className="flex items-center gap-0.5">
+            {i > 0 && <span className="text-[10px] text-muted-foreground">›</span>}
+            <div
+              className={cn(
+                "flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-[9px] font-bold",
+                mon.isOurs
+                  ? "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300"
+                  : "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300",
+              )}
+            >
+              <Image src={mon.sprite} alt={mon.name} width={16} height={16} unoptimized className="rounded-full" />
+              <span className="truncate max-w-[48px]">{mon.name.split("-")[0]}</span>
+              <span className="opacity-70">
+                {mon.hasTailwind ? (
+                  <><span className="line-through">{mon.speed}</span>→{mon.effectiveSpeed}</>
+                ) : mon.effectiveSpeed}
+              </span>
+              {mon.hasTailwind && <span className="text-cyan-500 dark:text-cyan-400">💨</span>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Field picker ─────────────────────────────────────────────────────────────
+/**
+ * Slot-explicit field picker: two clearly labelled slot buttons at the top,
+ * click a slot to "target" it, then click any Pokémon below to assign it.
+ * Clicking an already-active Pokémon in the non-targeted slot swaps it into
+ * the targeted slot. The two slots always stay filled.
+ */
+function FieldPicker({
+  label,
+  color,
+  allPokemon,
+  fieldIdx,
+  onSwap,
+}: {
+  label: string;
+  color: "blue" | "red";
+  allPokemon: ChampionsPokemon[];
+  fieldIdx: [number, number];
+  onSwap: (idx: [number, number]) => void;
+}) {
+  // Which slot is currently being targeted for replacement (0 = slot1, 1 = slot2, null = none)
+  const [targetSlot, setTargetSlot] = useState<0 | 1 | null>(null);
+
+  const activeClass = color === "blue"
+    ? "bg-blue-500 text-white border-blue-600"
+    : "bg-red-500 text-white border-red-600";
+  const targetClass = "bg-violet-500 text-white border-violet-600 ring-2 ring-violet-300 ring-offset-1";
+
+  return (
+    <div>
+      <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-2">{label}</div>
+
+      {/* Slot buttons — click to target a slot for replacement */}
+      <div className="flex gap-2 mb-3">
+        {([0, 1] as const).map((slotIdx) => {
+          const monIdx = fieldIdx[slotIdx];
+          const mon = allPokemon[monIdx];
+          const isTargeted = targetSlot === slotIdx;
+          return (
+            <button
+              key={slotIdx}
+              onClick={() => setTargetSlot(isTargeted ? null : slotIdx)}
+              className={cn(
+                "flex items-center gap-1.5 px-2 py-1.5 rounded-xl border text-[9px] font-semibold transition-all flex-1",
+                isTargeted ? targetClass : activeClass,
+              )}
+            >
+              <span className="text-[8px] opacity-70">Slot {slotIdx + 1}</span>
+              {mon && <Image src={mon.sprite} alt={mon.name} width={20} height={20} unoptimized />}
+              <span className="truncate">{mon?.name.split("-")[0] ?? "—"}</span>
+              {isTargeted && <span className="ml-auto text-[8px] opacity-80">✎</span>}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Pokémon grid */}
+      <div className="flex flex-wrap gap-1.5">
+        {allPokemon.map((p, i) => {
+          const inSlot0 = fieldIdx[0] === i;
+          const inSlot1 = fieldIdx[1] === i;
+          const inAnySlot = inSlot0 || inSlot1;
+          const mySlot: 0 | 1 | null = inSlot0 ? 0 : inSlot1 ? 1 : null;
+          return (
+            <button
+              key={p.name}
+              title={p.name}
+              onClick={() => {
+                if (targetSlot === null) {
+                  // No slot targeted: clicking the active slot selects it as target
+                  if (inAnySlot) {
+                    setTargetSlot(mySlot!);
+                  } else {
+                    // Clicking bench mon: put it in slot 1 (legacy behaviour)
+                    onSwap([i, fieldIdx[0]]);
+                  }
+                } else {
+                  // Slot targeted: put this mon into the targeted slot
+                  if (i === fieldIdx[targetSlot]) {
+                    // Clicked the mon already in the target slot → deselect
+                    setTargetSlot(null);
+                    return;
+                  }
+                  const newIdx: [number, number] = [...fieldIdx] as [number, number];
+                  // If the mon is already in the other slot, swap the two slots
+                  const otherSlot = targetSlot === 0 ? 1 : 0;
+                  if (newIdx[otherSlot] === i) {
+                    // Swap
+                    newIdx[targetSlot] = i;
+                    newIdx[otherSlot] = fieldIdx[targetSlot];
+                  } else {
+                    newIdx[targetSlot] = i;
+                  }
+                  onSwap(newIdx);
+                  setTargetSlot(null);
+                }
+              }}
+              className={cn(
+                "relative flex flex-col items-center gap-0.5 p-1.5 rounded-xl border text-[8px] font-medium transition-all",
+                targetSlot !== null && !inAnySlot
+                  ? "ring-1 ring-violet-300 hover:bg-violet-50 dark:hover:bg-violet-900/20 border-violet-200 dark:border-violet-700/40 bg-white/80 dark:bg-white/5 text-foreground"
+                  : inAnySlot
+                    ? color === "blue"
+                      ? "bg-blue-500 text-white border-blue-600 shadow-sm scale-105"
+                      : "bg-red-500 text-white border-red-600 shadow-sm scale-105"
+                    : "bg-white/80 dark:bg-white/5 border-gray-200 dark:border-white/10 hover:border-violet-300 text-muted-foreground",
+              )}
+            >
+              <Image src={p.sprite} alt={p.name} width={28} height={28} unoptimized />
+              <span className="max-w-[50px] truncate text-center leading-tight">{p.name.split("-")[0]}</span>
+              {inAnySlot && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[7px] font-bold flex items-center justify-center bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 shadow border border-gray-200 dark:border-white/20">
+                  {(mySlot! + 1)}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      {targetSlot !== null && (
+        <p className="text-[8px] text-violet-500 mt-1.5 animate-pulse">
+          Click a Pokémon to place it in Slot {targetSlot + 1}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ── Team prediction ──────────────────────────────────────────────────────────
+/**
+ * Given the opponent's full team and which Pokémon are currently on the field,
+ * returns the bench Pokémon (not on field) ranked by how likely they are to
+ * be brought in, based on:
+ *   1. Co-usage score: how often each bench mon appears as a bestPartner with
+ *      either of the leads in the simulation data (SIM_POKEMON.bestPartners).
+ *   2. Fallback: TOURNAMENT_USAGE bringRate when no sim pair data exists.
+ *
+ * Only Pokémon actually in the opponent's team are shown.
+ */
+function predictOpponentTeam(
+  allPokemon: ChampionsPokemon[],
+  fieldIdx: [number, number],
+): Array<{ pokemon: ChampionsPokemon; score: number; label: string }> {
+  const [i1, i2] = fieldIdx;
+  const lead1 = allPokemon[i1];
+  const lead2 = allPokemon[i2];
+  if (!lead1 || !lead2) return [];
+
+  // Bench = everyone NOT currently on field
+  const bench = allPokemon.filter((_, i) => i !== i1 && i !== i2);
+  if (bench.length === 0) return [];
+
+  // Build partner score from SIM_POKEMON.bestPartners
+  // bestPartners is [{name, winRate, games}] — use winRate*games as weight
+  const pairScore = (benchMon: ChampionsPokemon, lead: ChampionsPokemon): number => {
+    const simKey = String(benchMon.id);
+    const simData = SIM_POKEMON[simKey];
+    if (!simData) return 0;
+    const partner = simData.bestPartners.find(
+      (p) => p.name.toLowerCase() === lead.name.toLowerCase()
+    );
+    if (!partner) return 0;
+    // Normalise: winRate 50-100, games as weight
+    return (partner.winRate - 50) * partner.games;
+  };
+
+  const bringRate = (mon: ChampionsPokemon): number => {
+    const usage = TOURNAMENT_USAGE.find((u) => u.pokemonId === mon.id);
+    return usage?.bringRate ?? 50;
+  };
+
+  return bench
+    .map((mon) => {
+      const s1 = pairScore(mon, lead1);
+      const s2 = pairScore(mon, lead2);
+      const simScore = s1 + s2;
+      // Fallback to bringRate when no pair data
+      const finalScore = simScore > 0 ? simScore : bringRate(mon);
+      // Label: show which lead they pair best with
+      const hasPairData = s1 > 0 || s2 > 0;
+      const label = hasPairData
+        ? `pairs w/ ${s1 >= s2 ? lead1.name.split("-")[0] : lead2.name.split("-")[0]}`
+        : `${Math.round(bringRate(mon))}% bring rate`;
+      return { pokemon: mon, score: finalScore, label };
+    })
+    .sort((a, b) => b.score - a.score);
+}
+
+// ── Slot advice computation ─────────────────────────────────────────────────
+const PROTECT_MOVES = new Set([
+  "Protect", "Detect", "King's Shield", "Spiky Shield", "Baneful Bunker",
+  "Max Guard", "Silk Trap", "Burning Bulwark", "Obstruct",
+]);
+
+type SlotAdvice = {
+  action: "protect" | "switch" | "attack" | "support";
+  urgency: "high" | "medium" | "low";
+  reason: string;
+  detail: string;
+};
+
+function computeSlotAdvice(
+  mySlot: BattleSlotInfo,
+  allySlot: BattleSlotInfo,
+  oppSlot1: BattleSlotInfo,
+  oppSlot2: BattleSlotInfo,
+  myHpPct: number,
+): SlotAdvice {
+  const myName = mySlot.pokemon.name;
+
+  // Incoming threats from each opponent to THIS mon (% of max HP)
+  const threatsOpp1 = oppSlot1.topMoves.filter(m => m.targetName === myName && m.category !== "status");
+  const threatsOpp2 = oppSlot2.topMoves.filter(m => m.targetName === myName && m.category !== "status");
+
+  const maxThreatOpp1 = threatsOpp1.reduce((max, m) => Math.max(max, m.percentHPMax), 0);
+  const maxThreatOpp2 = threatsOpp2.reduce((max, m) => Math.max(max, m.percentHPMax), 0);
+
+  const opp1OHKOs = maxThreatOpp1 >= myHpPct;
+  const opp2OHKOs = maxThreatOpp2 >= myHpPct;
+  const opp1BigThreat = maxThreatOpp1 >= myHpPct * 0.6;
+  const opp2BigThreat = maxThreatOpp2 >= myHpPct * 0.6;
+
+  // My outgoing damage to each opponent
+  const myOHKOvsOpp1 = mySlot.topMoves.some(m => m.isOHKO && m.targetName === oppSlot1.pokemon.name);
+  const myOHKOvsOpp2 = mySlot.topMoves.some(m => m.isOHKO && m.targetName === oppSlot2.pokemon.name);
+
+  // Ally outgoing
+  const allyOHKOvsOpp1 = allySlot.topMoves.some(m => m.isOHKO && m.targetName === oppSlot1.pokemon.name);
+  const allyOHKOvsOpp2 = allySlot.topMoves.some(m => m.isOHKO && m.targetName === oppSlot2.pokemon.name);
+
+  const hasProtect = mySlot.set.moves.some(m => PROTECT_MOVES.has(m));
+
+  // ── Decision tree ────────────────────────────────────────────────────────
+
+  // Both opponents OHKO me
+  if (opp1OHKOs && opp2OHKOs) {
+    if (hasProtect) {
+      return {
+        action: "protect", urgency: "high",
+        reason: "Entrambi gli avversari possono OHKOarti",
+        detail: "Usa Protect per sopravvivere al turno mentre il tuo alleato gestisce la minaccia",
+      };
+    }
+    return {
+      action: "switch", urgency: "high",
+      reason: "Entrambi gli avversari possono OHKOarti",
+      detail: "Cambia con un Pokémon con matchup migliore — non puoi sopravvivere in campo",
+    };
+  }
+
+  // One OHKOs me, and my ally can remove that threat this turn
+  if (opp1OHKOs && allyOHKOvsOpp1) {
+    return {
+      action: "protect", urgency: "high",
+      reason: `${oppSlot1.pokemon.name} può OHKOarti`,
+      detail: `Il tuo alleato ${allySlot.pokemon.name} può eliminarlo — usa Protect per sopravvivere`,
+    };
+  }
+  if (opp2OHKOs && allyOHKOvsOpp2) {
+    return {
+      action: "protect", urgency: "high",
+      reason: `${oppSlot2.pokemon.name} può OHKOarti`,
+      detail: `Il tuo alleato ${allySlot.pokemon.name} può eliminarlo — usa Protect per sopravvivere`,
+    };
+  }
+
+  // I can OHKO something → attack
+  if (myOHKOvsOpp1) {
+    const mv = mySlot.topMoves.find(m => m.isOHKO && m.targetName === oppSlot1.pokemon.name);
+    return {
+      action: "attack", urgency: "high",
+      reason: `Puoi OHKOare ${oppSlot1.pokemon.name}`,
+      detail: `Usa ${mv?.moveName ?? "la tua mossa migliore"} per eliminarlo`,
+    };
+  }
+  if (myOHKOvsOpp2) {
+    const mv = mySlot.topMoves.find(m => m.isOHKO && m.targetName === oppSlot2.pokemon.name);
+    return {
+      action: "attack", urgency: "high",
+      reason: `Puoi OHKOare ${oppSlot2.pokemon.name}`,
+      detail: `Usa ${mv?.moveName ?? "la tua mossa migliore"} per eliminarlo`,
+    };
+  }
+
+  // One OHKOs me, can't respond well → protect if possible
+  if (opp1OHKOs || opp2OHKOs) {
+    const killer = opp1OHKOs ? oppSlot1 : oppSlot2;
+    if (hasProtect) {
+      return {
+        action: "protect", urgency: "medium",
+        reason: `${killer.pokemon.name} può OHKOarti`,
+        detail: "Considera Protect per guadagnare un turno — aspetta il momento migliore per attaccare",
+      };
+    }
+    return {
+      action: "switch", urgency: "medium",
+      reason: `${killer.pokemon.name} può OHKOarti`,
+      detail: "Considera il cambio se hai un Pokémon con resistenza al tipo della mossa in arrivo",
+    };
+  }
+
+  // Heavy combined pressure
+  if (opp1BigThreat && opp2BigThreat) {
+    if (hasProtect) {
+      return {
+        action: "protect", urgency: "medium",
+        reason: "Pressione combinata elevata",
+        detail: `${oppSlot1.pokemon.name} + ${oppSlot2.pokemon.name} coprono ${Math.round(maxThreatOpp1 + maxThreatOpp2)}% HP totale — considera Protect`,
+      };
+    }
+  }
+
+  // Default: attack with best move
+  const bestDmgMove = mySlot.topMoves
+    .filter(m => m.category !== "status" && !PROTECT_MOVES.has(m.moveName))
+    .sort((a, b) => b.percentHPMax - a.percentHPMax)[0];
+
+  if (bestDmgMove) {
+    const tgt = bestDmgMove.targetName !== "–" ? ` su ${bestDmgMove.targetName}` : "";
+    return {
+      action: "attack", urgency: "low",
+      reason: "Situazione stabile — attacca",
+      detail: `${bestDmgMove.moveName}${tgt} (${bestDmgMove.percentHPMax}% HP max)`,
+    };
+  }
+
+  return {
+    action: "support", urgency: "low",
+    reason: "Considera mosse di supporto",
+    detail: "Nessun danno rilevante — usa setup, redirect o supporto all'alleato",
+  };
+}
+
+// ── Main component ──────────────────────────────────────────────────────────
 function StrategyFlowchart({
-  team1Pokemon, team1Sets, team2Pokemon, team2Sets, bestLead, winRate, onPokemonClick,
+  team1Pokemon,
+  team1Sets,
+  team2Pokemon,
+  team2Sets,
+  bestLead,
+  winRate,
+  onPokemonClick,
 }: {
   team1Pokemon: ChampionsPokemon[];
   team1Sets: CommonSet[];
@@ -2159,379 +3109,368 @@ function StrategyFlowchart({
   winRate: number;
   onPokemonClick: (name: string, team: 1 | 2) => void;
 }) {
-  const [activeScenario, setActiveScenario] = useState(0);
-  const [customOpp1, setCustomOpp1] = useState<string | null>(null);
-  const [customOpp2, setCustomOpp2] = useState<string | null>(null);
-  const { t, tm, ta, locale } = useI18n();
+  const [myFieldIdx, setMyFieldIdx] = useState<[number, number]>([0, 1]);
+  const [oppFieldIdx, setOppFieldIdx] = useState<[number, number]>([0, 1]);
+  const [showPicker, setShowPicker] = useState(false);
 
-  const customOppLead: [string, string] | undefined =
-    customOpp1 && customOpp2 && customOpp1 !== customOpp2
-      ? [customOpp1, customOpp2]
-      : undefined;
+  // Field state overrides
+  const [manualWeather, setManualWeather] = useState<string | null | undefined>(undefined);
+  const [manualTR, setManualTR] = useState<boolean | undefined>(undefined);
+  const [myTailwind, setMyTailwind] = useState(false);
+  const [oppTailwind, setOppTailwind] = useState(false);
 
-  const tree = useMemo(() => {
-    if (!bestLead || team1Pokemon.length < 2 || team2Pokemon.length < 2) return null;
-    const raw = generateStrategyTree(team1Pokemon, team1Sets, team2Pokemon, team2Sets, bestLead, winRate, customOppLead);
-    return raw && locale === 'fr' ? translateStrategyTree(raw, tm, ta) : raw && locale === 'es' ? translateStrategyTreeES(raw, tm, ta) : raw && locale === 'it' ? translateStrategyTreeIT(raw, tm, ta) : raw && locale === 'de' ? translateStrategyTreeDE(raw, tm, ta) : raw;
-  }, [team1Pokemon, team1Sets, team2Pokemon, team2Sets, bestLead, winRate, customOppLead, locale, tm, ta]);
+  // Per-mon calcdex overrides
+  const [ovMyMon1, setOvMyMon1] = useState<MonOverrides>({});
+  const [ovMyMon2, setOvMyMon2] = useState<MonOverrides>({});
+  const [ovOppMon1, setOvOppMon1] = useState<MonOverrides>({});
+  const [ovOppMon2, setOvOppMon2] = useState<MonOverrides>({});
 
-  // Reset scenario tab when lead changes
-  useEffect(() => { setActiveScenario(0); }, [bestLead]);
+  // Reset per-mon overrides when field slots change
+  useEffect(() => { setOvMyMon1({}); setOvMyMon2({}); }, [myFieldIdx]);
+  useEffect(() => { setOvOppMon1({}); setOvOppMon2({}); }, [oppFieldIdx]);
 
-  if (!tree) return null;
+  // Default my leads from bestLead recommendation
+  useEffect(() => {
+    if (!bestLead || team1Pokemon.length < 2) return;
+    const i1 = team1Pokemon.findIndex((p) => p.name === bestLead.lead1);
+    const i2 = team1Pokemon.findIndex((p) => p.name === bestLead.lead2);
+    if (i1 >= 0 && i2 >= 0 && i1 !== i2) setMyFieldIdx([i1, i2]);
+  }, [bestLead, team1Pokemon]);
 
-  const scenarios = tree.root.children;
-  const current = scenarios[activeScenario];
+  const fieldOverrides = useMemo<FieldOverrides>(() => ({
+    ...(manualWeather !== undefined ? { weather: manualWeather } : {}),
+    ...(manualTR !== undefined ? { trickRoom: manualTR } : {}),
+    myTailwind,
+    oppTailwind,
+    myMon1: ovMyMon1,
+    myMon2: ovMyMon2,
+    oppMon1: ovOppMon1,
+    oppMon2: ovOppMon2,
+  }), [manualWeather, manualTR, myTailwind, oppTailwind, ovMyMon1, ovMyMon2, ovOppMon1, ovOppMon2]);
 
-  // Helper to determine which team a pokemon name belongs to
+  const board = useMemo(() => {
+    if (team1Pokemon.length < 2 || team2Pokemon.length < 2) return null;
+    const [a, b] = myFieldIdx;
+    const [c, d] = oppFieldIdx;
+    const m1 = team1Pokemon[a], m2 = team1Pokemon[b];
+    const o1 = team2Pokemon[c], o2 = team2Pokemon[d];
+    const s1 = team1Sets[a], s2 = team1Sets[b];
+    const os1 = team2Sets[c], os2 = team2Sets[d];
+    if (!m1 || !m2 || !o1 || !o2 || !s1 || !s2 || !os1 || !os2) return null;
+    return computeBattleBoard(m1, s1, m2, s2, o1, os1, o2, os2, winRate, fieldOverrides);
+  }, [team1Pokemon, team1Sets, team2Pokemon, team2Sets, myFieldIdx, oppFieldIdx, winRate, fieldOverrides]);
+
   const handleSpriteClick = (name: string) => {
-    if (team1Pokemon.some(p => p.name === name)) onPokemonClick(name, 1);
-    else if (team2Pokemon.some(p => p.name === name)) onPokemonClick(name, 2);
+    if (team1Pokemon.some((p) => p.name === name)) onPokemonClick(name, 1);
+    else if (team2Pokemon.some((p) => p.name === name)) onPokemonClick(name, 2);
   };
 
-  const arrow = <div className="w-px h-4 mx-auto bg-gray-300 dark:bg-gray-600" />;
-  const nodeBase = "px-4 py-2.5 rounded-xl text-[11px] font-medium border text-center max-w-md mx-auto w-full";
+  if (!board) return null;
+
+  const winPct = Math.round(board.winRate);
+  const winBarColor =
+    winPct >= 55 ? "bg-emerald-500" : winPct >= 45 ? "bg-amber-400" : "bg-red-500";
+  const winTextColor =
+    winPct >= 55
+      ? "text-emerald-600 dark:text-emerald-400"
+      : winPct >= 45
+      ? "text-amber-600 dark:text-amber-400"
+      : "text-red-600 dark:text-red-400";
+
+  // Weather options
+  const WEATHER_OPTIONS: Array<{ key: string; label: string; emoji: string; color: string; activeClass: string }> = [
+    { key: "sun",  label: "Sun",  emoji: "☀",  color: "text-amber-600",   activeClass: "bg-amber-400 text-white border-amber-500" },
+    { key: "rain", label: "Rain", emoji: "🌧", color: "text-blue-500",    activeClass: "bg-blue-500 text-white border-blue-600" },
+    { key: "sand", label: "Sand", emoji: "🏜", color: "text-yellow-600",  activeClass: "bg-yellow-500 text-white border-yellow-600" },
+    { key: "hail", label: "Snow", emoji: "❄",  color: "text-cyan-500",    activeClass: "bg-cyan-400 text-white border-cyan-500" },
+  ];
+
+  const toggleWeather = (key: string) => {
+    if (manualWeather === key) {
+      // clicking active weather: if it matches auto, go back to auto; else clear it
+      setManualWeather(undefined);
+    } else {
+      setManualWeather(key);
+    }
+  };
+
+  // Determine whether TR button reflects an auto-detected state
+  const autoTR = ((): boolean => {
+    const [a, b] = myFieldIdx;
+    const [c, d] = oppFieldIdx;
+    const s1 = team1Sets[a], s2 = team1Sets[b];
+    const os1 = team2Sets[c], os2 = team2Sets[d];
+    return [s1, s2, os1, os2].some(s => s?.moves?.includes("Trick Room") ?? false);
+  })();
+  const effectiveTR = manualTR ?? autoTR;
+
+  const toggleTR = () => {
+    if (manualTR === undefined) {
+      // first click: set opposite of auto
+      setManualTR(!autoTR);
+    } else if (manualTR === !autoTR) {
+      // second click: restore auto (set back to autoTR so it matches)
+      setManualTR(autoTR);
+    } else {
+      // third click: back to undefined (auto)
+      setManualTR(undefined);
+    }
+  };
 
   return (
-    <div className="flex flex-col items-center gap-0">
-      {/* Strategy + Win Condition  -  compact row */}
-      <div className="grid sm:grid-cols-2 gap-2 w-full max-w-lg mb-4">
-        <div className="px-3 py-1.5 rounded-lg bg-violet-50 dark:bg-violet-950/40 border border-violet-200 dark:border-violet-800 text-[10px] text-center">
-          <span className="font-semibold text-violet-700 dark:text-violet-300">{t('teamTester.strategy')} </span>
-          <span className="text-violet-600 dark:text-violet-400">{tree.archetype}</span>
+    <div className="space-y-3">
+      {/* ── Win rate ── */}
+      <div className="flex items-center gap-2">
+        <div className="flex-1 h-2 rounded-full bg-gray-200 dark:bg-white/10 overflow-hidden">
+          <div className={`h-full rounded-full transition-all ${winBarColor}`} style={{ width: `${winPct}%` }} />
         </div>
-        <div className="px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-[10px] text-center">
-          <span className="font-semibold text-emerald-700 dark:text-emerald-300">{t('teamTester.win')} </span>
-          <span className="text-emerald-600 dark:text-emerald-400">{tree.winCondition}</span>
-        </div>
+        <span className={`text-sm font-bold flex-shrink-0 tabular-nums ${winTextColor}`}>{winPct}%</span>
       </div>
 
-      {/* ── START NODE ── */}
-      <div className={cn(nodeBase, "bg-gradient-to-r from-violet-100 to-indigo-100 dark:from-violet-900/50 dark:to-indigo-900/50 border-violet-300 dark:border-violet-700 font-bold flex items-center justify-center gap-3")}>
-        <div className="flex -space-x-1">
-          {tree.root.sprites?.map((sprite, i) => (
-            <button key={i} onClick={() => tree.root.pokemon?.[i] && handleSpriteClick(tree.root.pokemon[i])} className="hover:scale-110 transition-transform cursor-pointer">
-              <Image src={sprite} alt={tree.root.pokemon?.[i] ?? ""} width={32} height={32} className="rounded-full bg-white/80 dark:bg-white/10 border border-violet-200 dark:border-violet-700" unoptimized />
-            </button>
-          ))}
-        </div>
-        <div>
-          <div className="text-violet-800 dark:text-violet-200">{tree.root.label}</div>
-          <div className="text-[9px] text-violet-500 font-normal">{tree.root.detail}</div>
-        </div>
-      </div>
+      {/* ── Field State Controls ── */}
+      <div className="rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50/60 dark:bg-white/[0.03] p-3 space-y-2.5">
+        <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Field State</div>
 
-      {arrow}
-
-      {/* ── SCENARIO TABS ── */}
-      {(() => {
-        const autoScenarios = tree.root.children.filter(s => s.branchLabel !== "Custom");
-        const customScenario = tree.root.children.find(s => s.branchLabel === "Custom");
-        // customTabIdx = index in tree.root.children (same array used by `current`)
-        const customTabIdx = customScenario
-          ? tree.root.children.indexOf(customScenario)
-          : tree.root.children.length; // placeholder index (no scenario yet → current will be undefined)
-        return (
-          <div className="flex gap-2 mb-2 flex-wrap justify-center">
-            {autoScenarios.map((s) => {
-              const realIdx = tree.root.children.indexOf(s);
+        {/* Weather row */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-[9px] text-muted-foreground w-10 flex-shrink-0">Weather</span>
+          <div className="flex gap-1 flex-wrap">
+            {WEATHER_OPTIONS.map(({ key, emoji, label, activeClass }) => {
+              const isActive = manualWeather === key || (manualWeather === undefined && board.weather === key);
               return (
                 <button
-                  key={s.id}
-                  onClick={() => setActiveScenario(realIdx)}
+                  key={key}
+                  title={label}
+                  onClick={() => toggleWeather(key)}
                   className={cn(
-                    "px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm",
-                    realIdx === activeScenario
-                      ? "bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-md shadow-red-500/20 scale-105"
-                      : "glass border border-gray-200 text-muted-foreground hover:border-violet-300 hover:text-foreground hover:shadow-md"
+                    "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all",
+                    isActive
+                      ? activeClass
+                      : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-gray-400 dark:hover:border-white/30",
                   )}
                 >
-                  {s.branchLabel ?? t('teamTester.scenarioN', { n: realIdx + 1 })}
+                  {emoji} {label}
                 </button>
               );
             })}
-            {/* Custom tab — always visible */}
-            <button
-              onClick={() => setActiveScenario(customTabIdx)}
-              className={cn(
-                "px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5",
-                activeScenario === customTabIdx
-                  ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/20 scale-105"
-                  : "glass border border-orange-200 dark:border-orange-800 text-orange-600 dark:text-orange-400 hover:border-orange-400 hover:shadow-md"
-              )}
-            >
-              ✏️ Custom
-            </button>
-          </div>
-        );
-      })()}
-
-      {/* ── CUSTOM OPPONENT PICKER ── shown only when Custom tab is active ── */}
-      {(() => {
-        const autoScenarios = tree.root.children.filter(s => s.branchLabel !== "Custom");
-        const customScenario = tree.root.children.find(s => s.branchLabel === "Custom");
-        const customTabIdx = customScenario
-          ? tree.root.children.indexOf(customScenario)
-          : tree.root.children.length;
-        if (activeScenario !== customTabIdx) return null;
-        return (
-          <div className="w-full max-w-lg rounded-xl border p-3 mb-2 bg-orange-50 dark:bg-orange-950/30 border-orange-300 dark:border-orange-700">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
-              Custom opponent lead
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              {team2Pokemon.map(p => {
-                const isSelected = customOpp1 === p.name || customOpp2 === p.name;
-                const isFirst = customOpp1 === p.name;
-                return (
-                  <button
-                    key={p.name}
-                    onClick={() => {
-                      if (customOpp1 === p.name) {
-                        setCustomOpp1(customOpp2);
-                        setCustomOpp2(null);
-                      } else if (customOpp2 === p.name) {
-                        setCustomOpp2(null);
-                      } else if (!customOpp1) {
-                        setCustomOpp1(p.name);
-                      } else if (!customOpp2) {
-                        setCustomOpp2(p.name);
-                      } else {
-                        setCustomOpp2(p.name);
-                      }
-                    }}
-                    className={cn(
-                      "flex items-center gap-1.5 px-2 py-1.5 rounded-lg border text-[10px] font-semibold transition-all",
-                      isSelected
-                        ? isFirst
-                          ? "bg-red-500 text-white border-red-600"
-                          : "bg-orange-500 text-white border-orange-600"
-                        : "bg-white/80 dark:bg-white/5 border-gray-200 dark:border-white/10 hover:border-red-300 text-muted-foreground"
-                    )}
-                  >
-                    <Image src={p.sprite} alt={p.name} width={20} height={20} unoptimized className="flex-shrink-0" />
-                    <span className="truncate">{p.name}</span>
-                    {isSelected && <span className="text-[8px] opacity-80 flex-shrink-0">{isFirst ? "①" : "②"}</span>}
-                  </button>
-                );
-              })}
-            </div>
-            {(customOpp1 || customOpp2) && (
+            {(manualWeather !== undefined || board.weather) && (
               <button
-                onClick={() => { setCustomOpp1(null); setCustomOpp2(null); }}
-                className="mt-2 text-[9px] text-muted-foreground hover:text-red-500 transition-colors"
+                title="Clear weather"
+                onClick={() => setManualWeather(null)}
+                className="px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 text-[10px] text-muted-foreground hover:text-red-500 hover:border-red-300 transition-all bg-white dark:bg-white/5"
               >
-                ✕ Clear selection
+                ✕
               </button>
             )}
-            {customOpp1 && !customOpp2 && (
-              <p className="mt-1.5 text-[9px] text-muted-foreground">Select a 2nd opponent Pokémon to generate the scenario</p>
-            )}
-            {!customOpp1 && (
-              <p className="mt-1.5 text-[9px] text-muted-foreground">Select 2 opponent Pokémon to simulate this matchup</p>
+          </div>
+        </div>
+
+        {/* TR + Tailwind row */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-[9px] text-muted-foreground w-10 flex-shrink-0">Misc</span>
+          <div className="flex gap-1 flex-wrap">
+            {/* Trick Room */}
+            <button
+              title="Trick Room"
+              onClick={toggleTR}
+              className={cn(
+                "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
+                effectiveTR
+                  ? "bg-purple-500 text-white border-purple-600"
+                  : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-purple-400 hover:text-purple-600",
+                manualTR !== undefined && manualTR !== autoTR && "ring-1 ring-orange-400 ring-offset-1",
+              )}
+            >
+              🔮 Trick Room
+              {manualTR !== undefined && manualTR !== autoTR && (
+                <span className="text-[7px] opacity-80">(manual)</span>
+              )}
+            </button>
+
+            {/* My Tailwind */}
+            <button
+              title="Your Tailwind active"
+              onClick={() => setMyTailwind((v) => !v)}
+              className={cn(
+                "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
+                myTailwind
+                  ? "bg-blue-500 text-white border-blue-600"
+                  : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-blue-400 hover:text-blue-600",
+              )}
+            >
+              💨 My TW
+            </button>
+
+            {/* Opp Tailwind */}
+            <button
+              title="Opponent Tailwind active"
+              onClick={() => setOppTailwind((v) => !v)}
+              className={cn(
+                "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
+                oppTailwind
+                  ? "bg-red-500 text-white border-red-600"
+                  : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-red-400 hover:text-red-600",
+              )}
+            >
+              💨 Opp TW
+            </button>
+
+            {/* Reset all overrides */}
+            {(manualWeather !== undefined || manualTR !== undefined || myTailwind || oppTailwind) && (
+              <button
+                title="Reset all field overrides"
+                onClick={() => {
+                  setManualWeather(undefined);
+                  setManualTR(undefined);
+                  setMyTailwind(false);
+                  setOppTailwind(false);
+                }}
+                className="px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 text-[10px] text-muted-foreground hover:text-red-500 hover:border-red-300 transition-all bg-white dark:bg-white/5"
+              >
+                ↺ Reset
+              </button>
             )}
           </div>
-        );
-      })()}
+        </div>
+      </div>
 
-      {/* ── OPPONENT LEAD ── */}
-      {current && (
-        <>
-          <div className={cn(nodeBase, "bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/50 dark:to-orange-950/50 border-red-200 dark:border-red-800 flex items-center justify-center gap-3")}>
-            <div className="flex -space-x-1">
-              {current.sprites?.map((sprite, i) => (
-                <button key={i} onClick={() => current.pokemon?.[i] && handleSpriteClick(current.pokemon[i])} className="hover:scale-110 transition-transform cursor-pointer">
-                  <Image src={sprite} alt={current.pokemon?.[i] ?? ""} width={28} height={28} className="rounded-full bg-white/80 dark:bg-white/10 border border-red-200 dark:border-red-700" unoptimized />
-                </button>
-              ))}
-            </div>
-            <div>
-              <div className="text-red-700 dark:text-red-300 font-semibold">{current.label}</div>
-              <div className="text-[9px] text-red-400 dark:text-red-500 font-normal">{current.detail}</div>
-            </div>
-          </div>
+      {/* ── Opponent side ── */}
+      <div>
+        <div className="text-[9px] font-bold uppercase tracking-wider text-red-500 dark:text-red-400 mb-2 flex items-center gap-1.5">
+          <Swords className="w-3 h-3" /> Opponent
+          {board.oppTailwind && <span className="ml-1 text-cyan-500 font-bold">💨 Tailwind</span>}
+        </div>
 
-          {arrow}
-
-          {/* ── RENDER EACH TURN ── */}
-          {current.children.map((turnNode, ti) => {
-            if (turnNode.type !== "turn-label") return null;
-            return (
-              <div key={turnNode.id} className="w-full flex flex-col items-center gap-0">
-                {ti > 0 && arrow}
-                {/* Turn header */}
-                <div className="px-4 py-1.5 rounded-lg bg-gray-100 dark:bg-white/10 border border-gray-200 dark:border-white/10 text-[11px] font-bold text-gray-600 dark:text-white/70 flex items-center gap-2 max-w-md w-full">
-                  <SkipForward className="w-3 h-3 text-gray-400" />
-                  <div>
-                    <span>{turnNode.label}</span>
-                    {turnNode.detail && <span className="font-normal text-[10px] text-muted-foreground ml-2">{turnNode.detail}</span>}
+        {/* Team prediction based on opponent's leads */}
+        {(() => {
+          const predictions = predictOpponentTeam(team2Pokemon, oppFieldIdx);
+          if (predictions.length === 0) return null;
+          return (
+            <div className="mb-2 rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50/50 dark:bg-red-950/10 p-2">
+              <div className="text-[8px] font-bold uppercase tracking-wider text-red-400 mb-1.5">
+                🔍 Likely back row (from sim data)
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {predictions.map(({ pokemon: p, label }) => (
+                  <div key={p.id} className="flex flex-col items-center gap-px p-1 rounded-lg border border-gray-200 dark:border-white/10 bg-white/60 dark:bg-white/5">
+                    <Image src={p.sprite} alt={p.name} width={28} height={28} unoptimized />
+                    <span className="text-[7px] text-muted-foreground truncate max-w-[48px] text-center">{p.name.split("-")[0]}</span>
+                    <span className="text-[6px] text-muted-foreground/70 truncate max-w-[48px] text-center">{label}</span>
                   </div>
-                </div>
-
-                {/* Turn children  -  clean vertical flow */}
-                {turnNode.children.map((child) => (
-                  <FlowNode key={child.id} node={child} onSpriteClick={handleSpriteClick} />
                 ))}
               </div>
-            );
-          })}
-        </>
-      )}
-
-      {arrow}
-
-      {/* ── KEY THREATS ── */}
-      {tree.keyThreats.length > 0 && (
-        <div className={cn(nodeBase, "bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300")}>
-          <Shield className="w-3 h-3 inline mr-1 -mt-0.5" />
-          <span className="font-semibold">{t('teamTester.keyThreats')}</span> {tree.keyThreats.join(", ")}
-        </div>
-      )}
-
-      {arrow}
-
-      {/* ── BACKUP PLAN ── */}
-      <div className={cn(nodeBase, "bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300")}>
-        <RotateCcw className="w-3 h-3 inline mr-1 -mt-0.5" />
-        <span className="font-semibold">{t('teamTester.backup')}</span> {tree.backupPlan}
-      </div>
-    </div>
-  );
-}
-
-/** Single flowchart node  -  clean card with optional children */
-function FlowNode({ node, onSpriteClick }: { node: StrategyNodeData; onSpriteClick: (name: string) => void }) {
-  const arrow = <div className="w-px h-3 mx-auto bg-gray-300 dark:bg-gray-600" />;
-  const style = getNodeStyle(node);
-  const { t } = useI18n();
-
-  return (
-    <div className="w-full flex flex-col items-center gap-0">
-      {arrow}
-
-      {/* Branch label */}
-      {node.branchLabel && (
-        <p className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
-          {node.branchLabel}
-        </p>
-      )}
-
-      <div className={cn(style.bg, "px-4 py-2 rounded-xl border text-[11px] max-w-md mx-auto w-full", style.border)}>
-        <div className="flex items-center gap-2">
-          <span className={cn("flex-shrink-0", style.icon)}>{getNodeIcon(node)}</span>
-
-          {/* Sprites */}
-          {node.sprites && node.sprites.length > 0 && (
-            <div className="flex -space-x-1.5 flex-shrink-0">
-              {node.sprites.map((sprite, i) => (
-                <button key={i} onClick={() => node.pokemon?.[i] && onSpriteClick(node.pokemon[i])} className="hover:scale-110 transition-transform cursor-pointer">
-                  <Image src={sprite} alt={node.pokemon?.[i] ?? ""} width={24} height={24} className="rounded-full bg-white border border-gray-200" unoptimized />
-                </button>
-              ))}
             </div>
-          )}
+          );
+        })()}
 
-          <div className="flex-1 min-w-0">
-            <span className={cn("font-semibold", style.text)}>{node.label}</span>
-            {node.moveType && (
-              <span className={cn("ml-1.5 px-1.5 py-0 rounded text-[8px] font-bold uppercase", TYPE_COLORS[node.moveType] ?? "bg-white/10 dark:bg-white/10 text-gray-600 dark:text-gray-400")}>
-                {node.moveType}
-              </span>
-            )}
-          </div>
+        <div className="grid grid-cols-2 gap-2">
+          <MonPanel slot={board.oppSlot1} side="opp" monOv={ovOppMon1} onMonOvChange={(p) => setOvOppMon1((prev) => ({ ...prev, ...p }))} onSpriteClick={handleSpriteClick} />
+          <MonPanel slot={board.oppSlot2} side="opp" monOv={ovOppMon2} onMonOvChange={(p) => setOvOppMon2((prev) => ({ ...prev, ...p }))} onSpriteClick={handleSpriteClick} />
         </div>
-
-        {node.detail && (
-          <p className="text-[10px] text-muted-foreground mt-0.5 ml-5">{node.detail}</p>
-        )}
-
-        {/* Field state badges */}
-        {node.fieldState && (
-          <div className="flex flex-wrap gap-1 mt-1 ml-5">
-            {node.fieldState.weather && (
-              <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-sky-100 text-sky-700">
-                ☀ {node.fieldState.weather.toUpperCase()}{node.fieldState.turnsLeft ? ` ${node.fieldState.turnsLeft}T` : ""}
-              </span>
-            )}
-            {node.fieldState.terrain && (
-              <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-green-100 text-green-700">
-                ⬡ {node.fieldState.terrain.toUpperCase()}{node.fieldState.turnsLeft ? ` ${node.fieldState.turnsLeft}T` : ""}
-              </span>
-            )}
-            {node.fieldState.tailwind && (
-              <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-cyan-100 text-cyan-700">
-                💨 {t('teamTester.tailwind').toUpperCase()}{node.fieldState.turnsLeft ? ` ${node.fieldState.turnsLeft}T` : ""}
-              </span>
-            )}
-            {node.fieldState.trickRoom && (
-              <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-purple-100 text-purple-700">
-                🔮 {t('teamTester.trickRoom').toUpperCase()}{node.fieldState.turnsLeft ? ` ${node.fieldState.turnsLeft}T` : ""}
-              </span>
-            )}
-          </div>
-        )}
       </div>
 
-      {/* Children  -  horizontal branch for decisions, vertical otherwise */}
-      {node.children.length > 0 && (
-        node.type === "decision" ? (
-          <div className="w-full flex flex-col items-center">
-            {/* Shared stem from decision card down to the fork */}
-            <div className="w-px h-3 bg-gray-300 dark:bg-gray-600" />
-            <div className="w-full max-w-lg mx-auto flex gap-2 justify-center items-start">
-              {node.children.map(child => (
-                <div key={child.id} className="flex-1 min-w-0 flex flex-col items-center">
-                  <FlowNode node={child} onSpriteClick={onSpriteClick} />
+      {/* ── Speed order ── */}
+      <SpeedStrip speedOrder={board.speedOrder} hasTrickRoom={board.hasTrickRoom} />
+
+      {/* ── Your side ── */}
+      <div>
+        <div className="text-[9px] font-bold uppercase tracking-wider text-blue-500 dark:text-blue-400 mb-2 flex items-center gap-1.5">
+          <Play className="w-3 h-3" /> Your side
+          {board.myTailwind && <span className="ml-1 text-cyan-500 font-bold">💨 Tailwind</span>}
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {/* Slot 1 + advice */}
+          <div className="space-y-1">
+            {(() => {
+              const adv = computeSlotAdvice(board.mySlot1, board.mySlot2, board.oppSlot1, board.oppSlot2, ovMyMon1.hpPct ?? 100);
+              const ADVICE_STYLE: Record<string, string> = {
+                "protect-high":  "border-red-400 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400",
+                "switch-high":   "border-orange-400 bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400",
+                "attack-high":   "border-green-400 bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400",
+                "protect-medium":"border-amber-400 bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400",
+                "switch-medium": "border-amber-400 bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400",
+                "attack-medium": "border-blue-400 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400",
+                "attack-low":    "border-gray-300 bg-gray-50 dark:bg-white/5 text-muted-foreground",
+                "support-low":   "border-gray-300 bg-gray-50 dark:bg-white/5 text-muted-foreground",
+              };
+              const ADVICE_ICON: Record<string, string> = { protect: "🛡️", switch: "🔄", attack: "⚔️", support: "🤝" };
+              const styleKey = `${adv.action}-${adv.urgency}`;
+              const cls = ADVICE_STYLE[styleKey] ?? ADVICE_STYLE["attack-low"];
+              return (
+                <div className={cn("rounded-lg border px-2 py-1.5", cls)}>
+                  <div className="text-[9px] font-bold flex items-center gap-1">
+                    {ADVICE_ICON[adv.action]} {adv.reason}
+                  </div>
+                  <div className="text-[8px] mt-0.5 opacity-80">{adv.detail}</div>
                 </div>
-              ))}
-            </div>
+              );
+            })()}
+            <MonPanel slot={board.mySlot1} side="mine" monOv={ovMyMon1} onMonOvChange={(p) => setOvMyMon1((prev) => ({ ...prev, ...p }))} onSpriteClick={handleSpriteClick} />
           </div>
-        ) : (
-          node.children.map(child => (
-            <FlowNode key={child.id} node={child} onSpriteClick={onSpriteClick} />
-          ))
-        )
-      )}
+          {/* Slot 2 + advice */}
+          <div className="space-y-1">
+            {(() => {
+              const adv = computeSlotAdvice(board.mySlot2, board.mySlot1, board.oppSlot1, board.oppSlot2, ovMyMon2.hpPct ?? 100);
+              const ADVICE_STYLE: Record<string, string> = {
+                "protect-high":  "border-red-400 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400",
+                "switch-high":   "border-orange-400 bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400",
+                "attack-high":   "border-green-400 bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400",
+                "protect-medium":"border-amber-400 bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400",
+                "switch-medium": "border-amber-400 bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400",
+                "attack-medium": "border-blue-400 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400",
+                "attack-low":    "border-gray-300 bg-gray-50 dark:bg-white/5 text-muted-foreground",
+                "support-low":   "border-gray-300 bg-gray-50 dark:bg-white/5 text-muted-foreground",
+              };
+              const ADVICE_ICON: Record<string, string> = { protect: "🛡️", switch: "🔄", attack: "⚔️", support: "🤝" };
+              const styleKey = `${adv.action}-${adv.urgency}`;
+              const cls = ADVICE_STYLE[styleKey] ?? ADVICE_STYLE["attack-low"];
+              return (
+                <div className={cn("rounded-lg border px-2 py-1.5", cls)}>
+                  <div className="text-[9px] font-bold flex items-center gap-1">
+                    {ADVICE_ICON[adv.action]} {adv.reason}
+                  </div>
+                  <div className="text-[8px] mt-0.5 opacity-80">{adv.detail}</div>
+                </div>
+              );
+            })()}
+            <MonPanel slot={board.mySlot2} side="mine" monOv={ovMyMon2} onMonOvChange={(p) => setOvMyMon2((prev) => ({ ...prev, ...p }))} onSpriteClick={handleSpriteClick} />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Field customizer ── */}
+      <div className="rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden">
+        <button
+          onClick={() => setShowPicker((p) => !p)}
+          className="w-full px-4 py-2.5 flex items-center justify-between text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+        >
+          <span className="flex items-center gap-2">
+            <ArrowRightLeft className="w-3.5 h-3.5" />
+            Change Pokémon on field
+          </span>
+          <ChevronRight
+            className={cn("w-3.5 h-3.5 transition-transform duration-200", showPicker && "rotate-90")}
+          />
+        </button>
+        {showPicker && (
+          <div className="px-4 pb-4 pt-3 border-t border-gray-200 dark:border-white/10 space-y-4 bg-gray-50/50 dark:bg-white/[0.02]">
+            <FieldPicker
+              label="Your team — pick 2 to lead"
+              color="blue"
+              allPokemon={team1Pokemon}
+              fieldIdx={myFieldIdx}
+              onSwap={setMyFieldIdx}
+            />
+            <FieldPicker
+              label="Opponent — pick 2 leads"
+              color="red"
+              allPokemon={team2Pokemon}
+              fieldIdx={oppFieldIdx}
+              onSwap={setOppFieldIdx}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
-}
-
-function getNodeStyle(node: StrategyNodeData) {
-  switch (node.type) {
-    case "field-state":
-      return node.severity === "bad"
-        ? { bg: "bg-red-50/60 dark:bg-red-950/40", border: "border-red-200 dark:border-red-800", icon: "text-red-400", text: "text-red-700 dark:text-red-300" }
-        : { bg: "bg-sky-50 dark:bg-sky-950/40", border: "border-sky-200 dark:border-sky-800", icon: "text-sky-500", text: "text-sky-700 dark:text-sky-300" };
-    case "action":
-      if (node.severity === "good") return { bg: "bg-emerald-50 dark:bg-emerald-950/40", border: "border-emerald-200 dark:border-emerald-800", icon: "text-emerald-500", text: "text-emerald-800 dark:text-emerald-300" };
-      if (node.severity === "bad") return { bg: "bg-red-50 dark:bg-red-950/40", border: "border-red-200 dark:border-red-800", icon: "text-red-500", text: "text-red-800 dark:text-red-300" };
-      return { bg: "bg-blue-50 dark:bg-blue-950/40", border: "border-blue-200 dark:border-blue-800", icon: "text-blue-500", text: "text-blue-800 dark:text-blue-300" };
-    case "decision":
-      return node.severity === "bad"
-        ? { bg: "bg-orange-50 dark:bg-orange-950/40", border: "border-orange-300 dark:border-orange-800", icon: "text-orange-500", text: "text-orange-800 dark:text-orange-300" }
-        : { bg: "bg-amber-50 dark:bg-amber-950/40", border: "border-amber-200 dark:border-amber-800", icon: "text-amber-500", text: "text-amber-800 dark:text-amber-300" };
-    case "outcome":
-      if (node.severity === "good") return { bg: "bg-green-50 dark:bg-green-950/40", border: "border-green-300 dark:border-green-800", icon: "text-green-500", text: "text-green-800 dark:text-green-300" };
-      if (node.severity === "bad") return { bg: "bg-red-50 dark:bg-red-950/40", border: "border-red-300 dark:border-red-800", icon: "text-red-500", text: "text-red-800 dark:text-red-300" };
-      return { bg: "bg-amber-50 dark:bg-amber-950/40", border: "border-amber-300 dark:border-amber-800", icon: "text-amber-500", text: "text-amber-800 dark:text-amber-300" };
-    case "switch":
-      return { bg: "bg-indigo-50 dark:bg-indigo-950/40", border: "border-indigo-200 dark:border-indigo-800", icon: "text-indigo-500", text: "text-indigo-800 dark:text-indigo-300" };
-    default:
-      return { bg: "bg-gray-50 dark:bg-white/5", border: "border-gray-200 dark:border-white/10", icon: "text-gray-500", text: "text-gray-700 dark:text-white/70" };
-  }
-}
-
-function getNodeIcon(node: StrategyNodeData) {
-  const size = "w-3.5 h-3.5";
-  switch (node.type) {
-    case "start": return <Play className={size} />;
-    case "opponent-lead": return <Swords className={size} />;
-    case "action": return <ChevronRight className={size} />;
-    case "decision": return <GitBranch className={size} />;
-    case "field-state": return <Info className={size} />;
-    case "outcome": return <Trophy className={size} />;
-    case "switch": return <ArrowRightLeft className={size} />;
-    case "turn-label": return <SkipForward className={size} />;
-    default: return <ChevronRight className={size} />;
-  }
 }

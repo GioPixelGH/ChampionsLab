@@ -582,7 +582,13 @@ export default function TeamBuilderPage() {
       if (i % 200 === 199) await new Promise(res => setTimeout(res, 0));
     }
 
-    results.sort((a, b) => b.score - a.score);
+    const TIER_ORDER: Record<string, number> = { S: 0, A: 1, B: 2, C: 3, D: 4 };
+    results.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      const ta = TIER_ORDER[a.pokemon.tier ?? "D"] ?? 4;
+      const tb = TIER_ORDER[b.pokemon.tier ?? "D"] ?? 4;
+      return ta - tb;
+    });
     // Auto-apply the best pick into searchBestTeam
     if (results[0]) {
       setSearchBestTeam(prev => {
@@ -1850,6 +1856,16 @@ export default function TeamBuilderPage() {
                             <span className="text-[9px] font-bold text-amber-600/60 w-4 flex-shrink-0">#{i + 1}</span>
                             <Image src={r.pokemon.sprite} alt={r.pokemon.name} width={28} height={28} unoptimized className="flex-shrink-0" />
                             <span className="text-[10px] font-semibold flex-1 truncate">{tp(r.pokemon.name)}</span>
+                            {r.pokemon.tier && (
+                              <span className={cn(
+                                "text-[9px] font-bold flex-shrink-0 px-1 rounded",
+                                r.pokemon.tier === "S" ? "bg-yellow-100 text-yellow-700" :
+                                r.pokemon.tier === "A" ? "bg-orange-100 text-orange-700" :
+                                r.pokemon.tier === "B" ? "bg-blue-100 text-blue-700" :
+                                r.pokemon.tier === "C" ? "bg-gray-100 text-gray-600" :
+                                "bg-gray-50 text-gray-400"
+                              )}>{r.pokemon.tier}</span>
+                            )}
                             <span className={cn(
                               "text-[10px] font-bold flex-shrink-0",
                               r.score >= 70 ? "text-green-600" : r.score >= 50 ? "text-amber-500" : "text-red-500"

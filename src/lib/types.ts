@@ -111,6 +111,7 @@ export interface WinningTeam {
   placement: string;
   event: string;
   pokemon: WinningTeamMember[];
+  archetype?: string;
 }
 
 export interface Team {
