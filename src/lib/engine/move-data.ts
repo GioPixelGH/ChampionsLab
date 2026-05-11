@@ -679,6 +679,12 @@ export const MOVE_DATA: Record<string, EngineMove> = {
     accuracy: 100, pp: 10, priority: 0, target: "allAdjacent",
     flags: {},
   },
+  "Bulldoze": {
+    name: "Bulldoze", type: "ground", category: "physical", basePower: 60,
+    accuracy: 100, pp: 20, priority: 0, target: "allAdjacent",
+    flags: {},
+    secondary: { chance: 100, boosts: { speed: -1 } },
+  },
   "High Horsepower": {
     name: "High Horsepower", type: "ground", category: "physical", basePower: 95,
     accuracy: 95, pp: 10, priority: 0, target: "normal",
@@ -1020,6 +1026,12 @@ export const MOVE_DATA: Record<string, EngineMove> = {
     accuracy: 95, pp: 12, priority: 0, target: "normal",
     flags: {},
     secondary: { chance: 40, boosts: { accuracy: -1 } },
+  },
+  "Throat Chop": {
+    name: "Throat Chop", type: "dark", category: "physical", basePower: 80,
+    accuracy: 100, pp: 15, priority: 0, target: "normal",
+    flags: { contact: true },
+    effect: "Prevents the target from using sound-based moves for 2 turns.",
   },
 
   // ── STEEL ──────────────────────────────────────────────────────────────────
@@ -1934,7 +1946,7 @@ export function getMoveRole(move: EngineMove): string {
   if (move.effect?.includes("switch") || move.name === "U-turn" || move.name === "Volt Switch") return "pivot";
   if (move.selfBoost) return "setup";
   if (move.fieldEffect) return "field-control";
-  if (move.name === "Tailwind" || move.name === "Trick Room" || move.name === "Icy Wind") return "speed-control";
+  if (move.name === "Tailwind" || move.name === "Trick Room" || move.name === "Icy Wind" || move.name === "Bulldoze") return "speed-control";
   if (move.name === "Helping Hand" || move.name === "Coaching") return "support";
   if (move.name === "Fake Out" || move.name === "First Impression") return "disruption";
   if (move.name === "Follow Me" || move.name === "Rage Powder") return "redirection";

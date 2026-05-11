@@ -2233,6 +2233,17 @@ const STATUS_MOVE_LABEL: Record<string, string> = {
   "Gravity": "Grounds all Pokémon · 5 turns",
 };
 
+export interface BattleMovePerTarget {
+  name: string;
+  label: string;      // damage range, "Immune", or "–" for status
+  percent: number;    // 0–100 for bar width
+  koText: string;
+  koColor: string;
+  effectiveness: number;
+  isOHKO: boolean;
+  is2HKO: boolean;
+}
+
 export interface BattleMoveEntry {
   moveName: string;
   moveType: PokemonType;
@@ -2248,6 +2259,9 @@ export interface BattleMoveEntry {
   koText: string;        // "OHKO", "2HKO", "56% OHKO", "—", etc.
   koColor: string;       // tailwind class for the KO label
   isRecommended: boolean; // highest-scoring move for this mon this turn
+  isProtection: boolean;  // Protect / Wide Guard / Quick Guard family
+  /** Per-opponent sub-cell data. Present for any move targeting opponent slots. */
+  perTarget?: { a: BattleMovePerTarget; b: BattleMovePerTarget; best: "a" | "b" | "both"; ally?: BattleMovePerTarget };
 }
 
 /** Describes one available mega form for a Pokémon on the board. */
@@ -2504,6 +2518,8 @@ export function computeBattleBoard(
     defSide: SideScreens,
     defB: AnalyzedMon,
     defBOv: MonOverrides | undefined,
+    ally: AnalyzedMon | undefined,
+    allyOv: MonOverrides | undefined,
   ): BattleMoveEntry[] {
     const scored: { entry: BattleMoveEntry; score: number }[] = [];
 
@@ -2531,6 +2547,8 @@ export function computeBattleBoard(
             koText: "—",
             koColor: "text-muted-foreground/40",
             isRecommended: false,
+            isProtection: false,
+            perTarget: undefined,
           },
           score: -1,
         });
@@ -2548,12 +2566,28 @@ export function computeBattleBoard(
           : isProtection ? 30
           : IMPACTFUL_STATUS.has(m.name) ? 50
           : 10;
+        // Derive targetName from the move's target field
+        const moveTgt = m.data.target;
+        const statusTargetName =
+          moveTgt === "self" ? "self"                         // self-buff/heal (Coil, Recover, …)
+          : moveTgt === "normal" ? defA.pokemon.name          // single opponent (Hypnosis, Parting Shot, …)
+          : moveTgt === "allAdjacentFoes" ? "both"            // spread on both foes (Icy Wind, Snarl, …)
+          : "–";                                              // field effects, ally-side, etc.
+        // Per-opponent sub-cells for opponent-targeting status moves
+        const statusPerTarget: BattleMoveEntry["perTarget"] =
+          (moveTgt === "normal" || moveTgt === "allAdjacentFoes")
+            ? {
+                a: { name: defA.pokemon.name, label: "–", percent: 0, koText: "—", koColor: "text-muted-foreground/40", effectiveness: 1, isOHKO: false, is2HKO: false },
+                b: { name: defB.pokemon.name, label: "–", percent: 0, koText: "—", koColor: "text-muted-foreground/40", effectiveness: 1, isOHKO: false, is2HKO: false },
+                best: moveTgt === "allAdjacentFoes" ? "both" : "a",
+              }
+            : undefined;
         scored.push({
           entry: {
             moveName: m.name,
             moveType: m.data.type,
             category: "status",
-            targetName: "–",
+            targetName: statusTargetName,
             effectLabel: label,
             percentHPMax: 0,
             isOHKO: false,
@@ -2564,6 +2598,8 @@ export function computeBattleBoard(
             koText: "—",
             koColor: "text-muted-foreground/40",
             isRecommended: false,
+            isProtection,
+            perTarget: statusPerTarget,
           },
           score,
         });
@@ -2583,6 +2619,7 @@ export function computeBattleBoard(
       const calcOpts = { ...sharedOpts, lightScreen: defSide.lightScreen, reflect: defSide.reflect, auroraVeil: defSide.auroraVeil };
 
       const spread = isSpreadMove(m.data);
+      const isAllAdjacent = m.data.target === "allAdjacent";
       if (spread) {
         const rA = calculateDamage(
           atkPokemon,
@@ -2596,15 +2633,25 @@ export function computeBattleBoard(
           m.name,
           calcOpts,
         );
+        // For allAdjacent moves (Earthquake, Bulldoze…), also calc damage on ally
+        const allyCalcOpts = { ...sharedOpts, lightScreen: atkSide.lightScreen, reflect: atkSide.reflect, auroraVeil: atkSide.auroraVeil };
+        const rAlly = isAllAdjacent && ally
+          ? calculateDamage(atkPokemon, withDefOverrides(toCalcTarget(ally), allyOv), m.name, allyCalcOpts)
+          : null;
         const bothImmune = rA.effectiveness === 0 && rB.effectiveness === 0;
         const loA = Math.round(rA.percentHP[0]), hiA = Math.round(rA.percentHP[1]);
         const loB = Math.round(rB.percentHP[0]), hiB = Math.round(rB.percentHP[1]);
         const bestR = rA.percentHP[1] >= rB.percentHP[1] ? rA : rB;
         const { koText, koColor } = koLabel(bestR);
+        const { koText: koTextA, koColor: koColorA } = koLabel(rA);
+        const { koText: koTextB, koColor: koColorB } = koLabel(rB);
+        const { koText: koTextAlly, koColor: koColorAlly } = rAlly ? koLabel(rAlly) : { koText: "—", koColor: "text-muted-foreground/40" };
         const score = bothImmune ? -999
           : bestR.isOHKO ? 300
           : bestR.is2HKO ? 100 + bestR.percentHP[1]
           : bestR.percentHP[1];
+        // Penalise allAdjacent moves if they hit the ally significantly
+        const allyPenalty = rAlly && rAlly.effectiveness > 0 ? rAlly.percentHP[1] * 0.5 : 0;
         scored.push({
           entry: {
             moveName: m.name,
@@ -2621,8 +2668,15 @@ export function computeBattleBoard(
             koText: bothImmune ? "—" : koText,
             koColor: bothImmune ? "text-muted-foreground/40" : koColor,
             isRecommended: false,
+            isProtection: false,
+            perTarget: bothImmune ? undefined : {
+              a: { name: defA.pokemon.name, label: rA.effectiveness === 0 ? "Immune" : makeDamageLabel(rA), percent: rA.effectiveness === 0 ? 0 : Math.round(rA.percentHP[1]), koText: koTextA, koColor: koColorA, effectiveness: rA.effectiveness, isOHKO: rA.isOHKO, is2HKO: rA.is2HKO },
+              b: { name: defB.pokemon.name, label: rB.effectiveness === 0 ? "Immune" : makeDamageLabel(rB), percent: rB.effectiveness === 0 ? 0 : Math.round(rB.percentHP[1]), koText: koTextB, koColor: koColorB, effectiveness: rB.effectiveness, isOHKO: rB.isOHKO, is2HKO: rB.is2HKO },
+              best: "both",
+              ally: rAlly && ally ? { name: ally.pokemon.name, label: rAlly.effectiveness === 0 ? "Immune" : makeDamageLabel(rAlly), percent: rAlly.effectiveness === 0 ? 0 : Math.round(rAlly.percentHP[1]), koText: koTextAlly, koColor: koColorAlly, effectiveness: rAlly.effectiveness, isOHKO: rAlly.isOHKO, is2HKO: rAlly.is2HKO } : undefined,
+            },
           },
-          score,
+          score: score - allyPenalty,
         });
       } else {
         const rA = calculateDamage(atkPokemon, withDefOverrides(toCalcTarget(defA), defAOv), m.name, calcOpts);
@@ -2632,6 +2686,8 @@ export function computeBattleBoard(
         const best = scoreA >= scoreB ? { r: rA, target: defA } : { r: rB, target: defB };
         const bothImmune = scoreA === -999 && scoreB === -999;
         const { koText, koColor } = koLabel(best.r);
+        const { koText: koTextA, koColor: koColorA } = koLabel(rA);
+        const { koText: koTextB, koColor: koColorB } = koLabel(rB);
         scored.push({
           entry: {
             moveName: m.name,
@@ -2648,6 +2704,12 @@ export function computeBattleBoard(
             koText: bothImmune ? "—" : koText,
             koColor: bothImmune ? "text-muted-foreground/40" : koColor,
             isRecommended: false,
+            isProtection: false,
+            perTarget: bothImmune ? undefined : {
+              a: { name: defA.pokemon.name, label: makeDamageLabel(rA), percent: rA.effectiveness === 0 ? 0 : Math.round(rA.percentHP[1]), koText: koTextA, koColor: koColorA, effectiveness: rA.effectiveness, isOHKO: rA.isOHKO, is2HKO: rA.is2HKO },
+              b: { name: defB.pokemon.name, label: makeDamageLabel(rB), percent: rB.effectiveness === 0 ? 0 : Math.round(rB.percentHP[1]), koText: koTextB, koColor: koColorB, effectiveness: rB.effectiveness, isOHKO: rB.isOHKO, is2HKO: rB.is2HKO },
+              best: scoreA >= scoreB ? "a" : "b",
+            },
           },
           score: Math.max(scoreA, scoreB),
         });
@@ -2720,6 +2782,8 @@ export function computeBattleBoard(
     monOv: MonOverrides | undefined,
     monSide: SideScreens,
     isOurs: boolean,
+    allyMon: AnalyzedMon,
+    allyMonOv: MonOverrides | undefined,
   ): BattleSlotInfo {
     const megaOptions = getMegaOptions(mon.pokemon);
     const activeMegaIndex = monOv?.megaFormIndex ?? -1;
@@ -2750,6 +2814,7 @@ export function computeBattleBoard(
         effectiveMon, monOv, monSide,
         isOurs ? effectiveDefA : effectiveDefAUs, defAOv, defSide,
         isOurs ? effectiveDefB : effectiveDefBUs, defBOv,
+        applyMegaToMon(allyMon, allyMonOv), allyMonOv,
       ),
       priorityTag: effectiveMon.hasFakeOut ? "Fake Out +3"
         : effectiveMon.highestPriorityMove ? `${effectiveMon.highestPriorityMove.name} +${effectiveMon.highestPriorityMove.priority}`
@@ -2788,10 +2853,10 @@ export function computeBattleBoard(
     : [...allFour].sort((a, b) => b.effectiveSpeed - a.effectiveSpeed);
 
   return {
-    mySlot1:  makeSlot(my1,  overrides?.myMon1,  mySide,  true),
-    mySlot2:  makeSlot(my2,  overrides?.myMon2,  mySide,  true),
-    oppSlot1: makeSlot(opp1, overrides?.oppMon1, oppSide, false),
-    oppSlot2: makeSlot(opp2, overrides?.oppMon2, oppSide, false),
+    mySlot1:  makeSlot(my1,  overrides?.myMon1,  mySide,  true,  my2,  overrides?.myMon2),
+    mySlot2:  makeSlot(my2,  overrides?.myMon2,  mySide,  true,  my1,  overrides?.myMon1),
+    oppSlot1: makeSlot(opp1, overrides?.oppMon1, oppSide, false, opp2, overrides?.oppMon2),
+    oppSlot2: makeSlot(opp2, overrides?.oppMon2, oppSide, false, opp1, overrides?.oppMon1),
     speedOrder,
     winRate,
     weather:  weather  ?? undefined,

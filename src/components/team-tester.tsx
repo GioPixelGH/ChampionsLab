@@ -4,10 +4,10 @@ import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "@/lib/motion";
 import {
-  Swords, Play, Search, X, Trophy, BarChart3, Loader2,
+  Swords, Play, Search, X, Trophy, Loader2,
   SkipForward, Pause, RotateCcw, ChevronRight, Trash2,
   ArrowRightLeft, FolderOpen, Save, Target, Star, Lightbulb,
-  TrendingUp, TrendingDown, GitBranch, Info, Shield,
+  TrendingUp, TrendingDown, GitBranch, Shield,
   Settings2, Minus, Plus, Sparkles, Check, Zap, Download, ClipboardPaste,
 } from "lucide-react";
 import {
@@ -42,19 +42,15 @@ import {
   translateStrategyTreeDE,
   generateStrategyTree,
   type PrebuiltTeam,
-  type TeamTestDetailedResult,
   type LeadComboResult,
   type PokemonImpact,
-  type StrategyTree,
   type StrategyNode as StrategyNodeData,
   computeBattleBoard,
   type BattleBoardData,
   type BattleSlotInfo,
   type BattleMoveEntry,
-  type MegaOption,
   type FieldOverrides,
   type MonOverrides,
-  type SideScreens,
 } from "@/lib/engine";
 import { SearchSelect, type SearchSelectOption } from "@/components/search-select";
 import {
@@ -73,7 +69,6 @@ import {
 const MAX_TOTAL_POINTS = 66;
 const MAX_PER_STAT = 32;
 const STAT_KEYS: (keyof StatPoints)[] = ["hp", "attack", "defense", "spAtk", "spDef", "speed"];
-const STAT_LABELS: Record<string, string> = { hp: "HP", attack: "Atk", defense: "Def", spAtk: "SpA", spDef: "SpD", speed: "Spe" };
 const allNatureNames = getAllNatures();
 const allItemNames = getAllItems();
 
@@ -137,7 +132,6 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
   const [iterations, setIterations] = useState(1000);
   const [isRunning, setIsRunning] = useState(false);
   const [result, setResult] = useState<TeamTestResult | null>(null);
-  const [progress, setProgress] = useState(0);
   const [elapsed, setElapsed] = useState(0);
   const startTimeRef = useRef<number>(0);
   const [selectedLeadIdx, setSelectedLeadIdx] = useState(0);
@@ -512,7 +506,6 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
     if (!canRun) return;
     setIsRunning(true);
     setResult(null);
-    setProgress(0);
     setElapsed(0);
     startTimeRef.current = performance.now();
     setSelectedLeadIdx(0);
@@ -524,12 +517,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
     progressRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
 
     // Start a fake smooth progress animation (sim is synchronous, blocks UI)
-    setProgress(5);
     const progressInterval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 90) return prev;
-        return prev + (90 - prev) * 0.08;
-      });
       setElapsed(Math.round((performance.now() - startTimeRef.current) / 100) / 10);
     }, 80);
 
@@ -541,7 +529,6 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
     );
 
     clearInterval(progressInterval);
-    setProgress(100);
     setElapsed(Math.round((performance.now() - startTimeRef.current) / 100) / 10);
 
     setResult({
@@ -1033,7 +1020,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                                   return (
                                     <button
                                       key={name}
-                                      onClick={(e) => { e.stopPropagation(); p && openPokemonDetail(name, 1); }}
+                                      onClick={(e) => { e.stopPropagation(); if (p) openPokemonDetail(name, 1); }}
                                       className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-white/60 dark:bg-white/5 hover:bg-white/90 dark:hover:bg-white/10 border border-gray-100 dark:border-white/10 transition-all text-left cursor-pointer flex-1 min-w-0"
                                     >
                                       <Image src={sprite} alt={name} width={28} height={28} unoptimized className="flex-shrink-0" />
@@ -1237,6 +1224,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                               type="number"
                               min={1}
                               max={999}
+                              title="Speed value"
                               value={mon.speed}
                               onChange={e => {
                                 const val = Math.max(1, Math.min(999, parseInt(e.target.value) || 1));
@@ -1338,6 +1326,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                       min={0}
                       max={result.sampleBattle.log.length - 1}
                       value={replayTurn}
+                      title="Battle replay turn"
                       onChange={(e) => { setReplayTurn(Number(e.target.value)); setReplayPlaying(false); }}
                       className="w-full accent-orange-500"
                     />
@@ -1484,7 +1473,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                   className="flex-1 bg-transparent focus:outline-none text-sm"
                   autoFocus
                 />
-                <button onClick={() => { setPickerTarget(null); setPickerSearch(""); setPickerTypeFilter(null); }}>
+                <button title="Close picker" onClick={() => { setPickerTarget(null); setPickerSearch(""); setPickerTypeFilter(null); }}>
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
@@ -1547,7 +1536,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
           <div className="fixed inset-4 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 z-50 sm:w-full sm:max-w-md sm:max-h-[70vh] glass rounded-2xl border border-gray-200/60 flex flex-col overflow-hidden">
             <div className="p-4 border-b border-gray-200/60 flex items-center justify-between">
               <p className="text-sm font-semibold">{t('teamTester.loadTeam', { n: showLoader })}</p>
-              <button onClick={() => { setShowLoader(null); setPasteText(""); setPasteError(""); }}>
+              <button title="Close" onClick={() => { setShowLoader(null); setPasteText(""); setPasteError(""); }}>
                 <X className="w-4 h-4 text-muted-foreground" />
               </button>
             </div>
@@ -1673,7 +1662,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                       <Trash2 className="w-4 h-4" />
                     </button>
                   )}
-                  <button onClick={() => setDetailMon(null)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+                  <button title="Close" onClick={() => setDetailMon(null)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
                     <X className="w-4 h-4" />
                   </button>
                 </div>
@@ -1844,10 +1833,10 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                             return (
                               <div key={stat} className="flex items-center gap-1.5">
                                 <span className="text-[9px] font-medium text-muted-foreground w-6">{ts(stat)}</span>
-                                <button onClick={() => updateTesterSetSP(team, idx, stat, -2)} className="w-5 h-5 rounded bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 flex items-center justify-center transition-colors"><Minus className="w-2.5 h-2.5" /></button>
+                                <button title={`Decrease ${stat}`} onClick={() => updateTesterSetSP(team, idx, stat, -2)} className="w-5 h-5 rounded bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 flex items-center justify-center transition-colors"><Minus className="w-2.5 h-2.5" /></button>
                                 <div className="flex-1 h-2 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden"><div className="h-full rounded-full bg-violet-400 transition-all duration-150" style={{ width: `${(value / MAX_PER_STAT) * 100}%` }} /></div>
-                                <button onClick={() => updateTesterSetSP(team, idx, stat, 2)} className="w-5 h-5 rounded bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 flex items-center justify-center transition-colors"><Plus className="w-2.5 h-2.5" /></button>
-                                <input type="number" min={0} max={MAX_PER_STAT} value={value} onChange={(e) => setTesterSPDirect(team, idx, stat, parseInt(e.target.value) || 0)} className="w-9 text-center text-[10px] font-medium rounded bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:outline-none focus:ring-1 focus:ring-violet-300 py-0.5" />
+                                <button title={`Increase ${stat}`} onClick={() => updateTesterSetSP(team, idx, stat, 2)} className="w-5 h-5 rounded bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 flex items-center justify-center transition-colors"><Plus className="w-2.5 h-2.5" /></button>
+                                <input type="number" min={0} max={MAX_PER_STAT} title={stat} value={value} onChange={(e) => setTesterSPDirect(team, idx, stat, parseInt(e.target.value) || 0)} className="w-9 text-center text-[10px] font-medium rounded bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:outline-none focus:ring-1 focus:ring-violet-300 py-0.5" />
                               </div>
                             );
                           })}
@@ -2051,7 +2040,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
 }
 
 function TeamPanel({
-  label, color, pokemon, sets, onPickerOpen, onRemove, onClear, onLoadTeam, onPokemonClick,
+  label, color, pokemon, onPickerOpen, onRemove, onClear, onLoadTeam, onPokemonClick,
 }: {
   label: string;
   color: "blue" | "red";
@@ -2148,22 +2137,71 @@ function TeamPanel({
 
 // (imports hoisted to file top)
 
-// ── Move cell (grid card) ───────────────────────────────────────────────────
-function MoveCell({ move, side }: { move: BattleMoveEntry; side: "mine" | "opp" }) {
-  const typeColor = TYPE_COLORS[move.moveType] ?? "#888";
-  const isStatus = move.category === "status";
-  const isImmune = !isStatus && move.effectiveness === 0 && move.percentHPMax === 0;
-  const isOpp = side === "opp";
-
-  const barColor = move.isOHKO
+// ── Target sub-cell (one per opponent inside a perTarget move card) ──────────
+function TargetSubCell({
+  tgt,
+  isOpp,
+  isStatus,
+  isBest,
+}: {
+  tgt: NonNullable<BattleMoveEntry["perTarget"]>["a"];
+  isOpp: boolean;
+  isStatus: boolean;
+  isBest: boolean;
+}) {
+  const isImmune = tgt.effectiveness === 0;
+  const barColor = tgt.isOHKO
     ? "#ef4444"
-    : move.is2HKO
+    : tgt.is2HKO
     ? "#f97316"
-    : move.effectiveness >= 2
+    : tgt.effectiveness >= 2
     ? "#10b981"
     : isOpp
     ? "#a855f7"
     : "#6366f1";
+
+  const cellClass = isBest
+    ? isOpp
+      ? "flex flex-col gap-0.5 px-1 py-0.5 rounded min-w-0 overflow-hidden ring-1 ring-red-400 dark:ring-red-500 bg-red-50/60 dark:bg-red-900/20"
+      : "flex flex-col gap-0.5 px-1 py-0.5 rounded min-w-0 overflow-hidden ring-1 ring-emerald-400 dark:ring-emerald-500 bg-emerald-50/60 dark:bg-emerald-900/20"
+    : "flex flex-col gap-0.5 px-1 py-0.5 rounded bg-black/5 dark:bg-white/5 min-w-0 overflow-hidden";
+
+  return (
+    <div className={cellClass}>
+      <div className="flex items-center gap-0.5 min-w-0">
+        {isBest && (
+          <span className={cn("text-[7px] font-bold flex-shrink-0", isOpp ? "text-red-500" : "text-emerald-500")}>★</span>
+        )}
+        <span className="text-[7px] text-muted-foreground/80 font-medium truncate">{tgt.name.split("-")[0]}</span>
+      </div>
+      {isStatus ? null : isImmune ? (
+        <span className="text-[7px] text-muted-foreground/40">✗ Immune</span>
+      ) : (
+        <>
+          <div className="flex items-center gap-0.5">
+            <div className="flex-1 h-1 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden">
+              <div
+                className="h-full rounded-full"
+                style={{ width: `${Math.min(tgt.percent, 100)}%`, backgroundColor: barColor }}
+              />
+            </div>
+            <span className={cn("text-[7px] font-semibold flex-shrink-0 tabular-nums", tgt.koColor)}>
+              {tgt.koText}
+            </span>
+          </div>
+          <span className="text-[7px] tabular-nums text-muted-foreground/70 truncate">{tgt.label}</span>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── Move cell (grid card) ───────────────────────────────────────────────────
+function MoveCell({ move, side }: { move: BattleMoveEntry; side: "mine" | "opp" }) {
+  const typeColor = TYPE_COLORS[move.moveType] ?? "#888";
+  const isStatus = move.category === "status";
+  const isOpp = side === "opp";
+  const hasPerTarget = !!move.perTarget;
 
   const bgClass = move.isRecommended
     ? isOpp
@@ -2174,6 +2212,65 @@ function MoveCell({ move, side }: { move: BattleMoveEntry; side: "mine" | "opp" 
     : move.is2HKO
     ? "bg-orange-50/40 dark:bg-orange-950/10 border-gray-100 dark:border-white/10"
     : "bg-white/50 dark:bg-white/5 border-gray-100 dark:border-white/10";
+
+  // ── Opponent-targeting moves: compact card with two stacked sub-cells ──
+  if (hasPerTarget) {
+    return (
+      <div className={`rounded-lg p-1.5 border flex flex-col gap-0.5 min-w-0 ${bgClass}`}>
+        {/* Type badge + priority + recommended star + move name */}
+        <div className="flex items-center gap-1 min-w-0">
+          <span
+            className="flex-shrink-0 px-1 py-px rounded text-[6px] font-bold text-white uppercase leading-none"
+            style={{ backgroundColor: typeColor }}
+          >
+            {move.moveType}
+          </span>
+          {move.priority > 0 && (
+            <span className="flex-shrink-0 text-[7px] font-bold text-amber-500">+{move.priority}</span>
+          )}
+          {move.priority < 0 && (
+            <span className="flex-shrink-0 text-[7px] text-muted-foreground/50">{move.priority}</span>
+          )}
+          {move.isRecommended && (
+            <span className={cn("text-[8px] flex-shrink-0 font-bold", isOpp ? "text-red-500" : "text-emerald-500")}>★</span>
+          )}
+          <span className="font-semibold text-[10px] leading-tight truncate">{move.moveName}</span>
+        </div>
+        {/* Sub-cells side by side, one per opponent */}
+        <div className="grid grid-cols-2 gap-0.5">
+          <TargetSubCell tgt={move.perTarget!.a} isOpp={isOpp} isStatus={isStatus} isBest={move.perTarget!.best === "a" || move.perTarget!.best === "both"} />
+          <TargetSubCell tgt={move.perTarget!.b} isOpp={isOpp} isStatus={isStatus} isBest={move.perTarget!.best === "b" || move.perTarget!.best === "both"} />
+        </div>
+        {/* Ally damage warning for allAdjacent moves (Earthquake, Bulldoze…) */}
+        {move.perTarget!.ally && move.perTarget!.ally.effectiveness > 0 && (
+          <div className="flex items-center gap-1 px-1 py-0.5 rounded bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40">
+            <span className="text-[8px] font-bold text-amber-600 dark:text-amber-400 flex-shrink-0">⚠ Ally</span>
+            <span className="text-[7px] text-amber-700 dark:text-amber-300 font-medium flex-shrink-0 truncate">{move.perTarget!.ally.name.split("-")[0]}</span>
+            <div className="flex-1 h-1 rounded-full bg-amber-100 dark:bg-amber-900/40 overflow-hidden">
+              <div className="h-full rounded-full bg-amber-400" style={{ width: `${Math.min(move.perTarget!.ally.percent, 100)}%` }} />
+            </div>
+            <span className={cn("text-[7px] font-semibold flex-shrink-0 tabular-nums", move.perTarget!.ally.koColor)}>{move.perTarget!.ally.koText !== "—" ? move.perTarget!.ally.koText : `${move.perTarget!.ally.percent}%`}</span>
+          </div>
+        )}
+        {/* Shared effect label (status moves) */}
+        {isStatus && move.effectLabel && move.effectLabel !== "–" && (
+          <div className="text-[8px] text-muted-foreground/80 leading-tight italic truncate">{move.effectLabel}</div>
+        )}
+      </div>
+    );
+  }
+
+  // ── Self / field moves: original compact single-cell layout ────────────
+  const isImmune = !isStatus && move.effectiveness === 0 && move.percentHPMax === 0;
+  const barColor = move.isOHKO
+    ? "#ef4444"
+    : move.is2HKO
+    ? "#f97316"
+    : move.effectiveness >= 2
+    ? "#10b981"
+    : isOpp
+    ? "#a855f7"
+    : "#6366f1";
 
   return (
     <div className={`rounded-lg p-1.5 border flex flex-col gap-0.5 min-w-0 ${bgClass}`}>
@@ -2192,7 +2289,7 @@ function MoveCell({ move, side }: { move: BattleMoveEntry; side: "mine" | "opp" 
           <span className="flex-shrink-0 text-[7px] text-muted-foreground/50">{move.priority}</span>
         )}
         <span className="text-[7px] text-muted-foreground ml-auto truncate">
-          {move.isSpread ? "→ all" : move.targetName !== "–" && move.targetName ? `→${move.targetName.split("-")[0]}` : ""}
+          {move.targetName === "self" ? "→ self" : ""}
         </span>
       </div>
 
@@ -2258,12 +2355,10 @@ function MovePickerPanel({
   slot,
   monOv,
   onMonOvChange,
-  labelColor,
 }: {
   slot: BattleSlotInfo;
   monOv: MonOverrides;
   onMonOvChange: (patch: Partial<MonOverrides>) => void;
-  labelColor: string;
 }) {
   // Current 4 moves (from override or from the set)
   const currentMoves: string[] = monOv.moveOverrides
@@ -2364,6 +2459,7 @@ function MonPanel({
 }) {
   const [showCalcdex, setShowCalcdex] = useState(false);
   const [showMovePicker, setShowMovePicker] = useState(false);
+  const [showMetaMoves, setShowMetaMoves] = useState(false);
   const isOpp = side === "opp";
   const border = isOpp
     ? "border-red-200 dark:border-red-800/60"
@@ -2376,6 +2472,25 @@ function MonPanel({
     : "text-emerald-600 dark:text-emerald-400";
 
   const hp = monOv.hpPct ?? 100;
+  const maxHp = slot.actualStats.hp;
+  const currentHp = Math.round(maxHp * hp / 100);
+
+  // Local draft for HP text input — avoids recalc-on-every-keystroke
+  const [hpDraft, setHpDraft] = useState<string | null>(null);
+
+  const commitHp = (raw: string) => {
+    const val = parseInt(raw, 10);
+    if (!isNaN(val)) {
+      const clamped = Math.max(1, Math.min(maxHp, val));
+      onMonOvChange({ hpPct: (clamped / maxHp) * 100 });
+    }
+    setHpDraft(null);
+  };
+
+  const stepHp = (delta: number) => {
+    const next = Math.max(1, Math.min(maxHp, currentHp + delta));
+    onMonOvChange({ hpPct: (next / maxHp) * 100 });
+  };
 
   return (
     <div className={`rounded-2xl border ${border} overflow-hidden flex flex-col`}>
@@ -2383,6 +2498,7 @@ function MonPanel({
       <div className={`bg-gradient-to-br ${headerGrad} px-3 pt-3 pb-2`}>
         <div className="flex items-start gap-2">
           <button
+            title={`View ${slot.pokemon.name}`}
             onClick={() => onSpriteClick(slot.pokemon.name)}
             className="hover:scale-110 transition-transform flex-shrink-0"
           >
@@ -2428,46 +2544,44 @@ function MonPanel({
               })()}
             </div>
 
-            {/* Mega evolution buttons */}
-            {slot.megaOptions.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-1.5">
-                {/* Base form button */}
-                <button
-                  onClick={() => onMonOvChange({ megaFormIndex: -1 })}
-                  className={cn(
-                    "px-1.5 py-0.5 rounded text-[8px] font-bold border transition-all",
-                    slot.activeMegaIndex === -1
-                      ? "bg-gray-200 dark:bg-white/20 border-gray-400 dark:border-white/40 text-foreground"
-                      : "border-gray-200 dark:border-white/10 text-muted-foreground hover:border-gray-400",
-                  )}
-                >
-                  Base
-                </button>
-                {slot.megaOptions.map((mega) => {
-                  const isActive = slot.activeMegaIndex === mega.formIndex;
-                  // Label: "Mega", "Mega X", "Mega Y", "Mega Z"
-                  const suffix = mega.name.endsWith(" X") ? "X"
-                    : mega.name.endsWith(" Y") ? "Y"
-                    : mega.name.endsWith(" Z") ? "Z"
-                    : "";
-                  return (
-                    <button
-                      key={mega.formIndex}
-                      title={mega.name}
-                      onClick={() => onMonOvChange({ megaFormIndex: isActive ? -1 : mega.formIndex })}
-                      className={cn(
-                        "px-1.5 py-0.5 rounded text-[8px] font-bold border transition-all",
-                        isActive
-                          ? "bg-violet-600 text-white border-violet-700 shadow-sm shadow-violet-400/30"
-                          : "border-violet-200 dark:border-violet-500/30 text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10",
-                      )}
-                    >
-                      ◆ Mega{suffix ? ` ${suffix}` : ""}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+            {/* Form buttons — Base always visible, Mega only if available */}
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              {/* Base form button */}
+              <button
+                onClick={() => onMonOvChange({ megaFormIndex: -1 })}
+                title="Base form"
+                className={cn(
+                  "px-1.5 py-0.5 rounded text-[8px] font-bold border transition-all",
+                  slot.activeMegaIndex === -1
+                    ? "bg-gray-200 dark:bg-white/20 border-gray-400 dark:border-white/40 text-foreground"
+                    : "border-gray-200 dark:border-white/10 text-muted-foreground hover:border-gray-400",
+                )}
+              >
+                Base
+              </button>
+              {slot.megaOptions.map((mega) => {
+                const isActive = slot.activeMegaIndex === mega.formIndex;
+                const suffix = mega.name.endsWith(" X") ? "X"
+                  : mega.name.endsWith(" Y") ? "Y"
+                  : mega.name.endsWith(" Z") ? "Z"
+                  : "";
+                return (
+                  <button
+                    key={mega.formIndex}
+                    title={mega.name}
+                    onClick={() => onMonOvChange({ megaFormIndex: isActive ? -1 : mega.formIndex })}
+                    className={cn(
+                      "px-1.5 py-0.5 rounded text-[8px] font-bold border transition-all",
+                      isActive
+                        ? "bg-violet-600 text-white border-violet-700 shadow-sm shadow-violet-400/30"
+                        : "border-violet-200 dark:border-violet-500/30 text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10",
+                    )}
+                  >
+                    ◆ Mega{suffix ? ` ${suffix}` : ""}
+                  </button>
+                );
+              })}
+            </div>
 
             <div className="mt-1 space-y-px">
               <div className="text-[9px] text-muted-foreground">
@@ -2507,10 +2621,40 @@ function MonPanel({
               style={{ width: `${hp}%` }}
             />
           </div>
-          <span className="text-[8px] text-muted-foreground w-7 text-right tabular-nums">{hp}%</span>
+          {!isOpp ? (
+            <div className="flex items-center gap-0.5 w-24 justify-end">
+              <button
+                title="−1 HP"
+                onClick={() => stepHp(-1)}
+                className="w-4 h-4 rounded text-[10px] font-bold leading-none flex items-center justify-center bg-black/5 dark:bg-white/10 hover:bg-red-100 dark:hover:bg-red-900/30 text-muted-foreground hover:text-red-500 transition-colors flex-shrink-0"
+              >−</button>
+              <input
+                type="text"
+                inputMode="numeric"
+                title="Current HP"
+                value={hpDraft ?? currentHp}
+                onChange={(e) => setHpDraft(e.target.value)}
+                onBlur={(e) => commitHp(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") commitHp((e.target as HTMLInputElement).value);
+                  if (e.key === "Escape") setHpDraft(null);
+                }}
+                className="w-9 text-center text-[8px] font-medium rounded bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/10 focus:outline-none focus:ring-1 focus:ring-green-400 tabular-nums py-px"
+              />
+              <span className="text-[8px] text-muted-foreground/50 tabular-nums flex-shrink-0">/{maxHp}</span>
+              <button
+                title="+1 HP"
+                onClick={() => stepHp(1)}
+                className="w-4 h-4 rounded text-[10px] font-bold leading-none flex items-center justify-center bg-black/5 dark:bg-white/10 hover:bg-green-100 dark:hover:bg-green-900/30 text-muted-foreground hover:text-green-500 transition-colors flex-shrink-0"
+              >+</button>
+            </div>
+          ) : (
+            <span className="text-[8px] text-muted-foreground w-7 text-right tabular-nums">{hp}%</span>
+          )}
         </div>
         <input
           type="range" min={1} max={100} value={hp}
+          title="HP percentage"
           onChange={(e) => onMonOvChange({ hpPct: Number(e.target.value) })}
           className={cn("w-full mt-1 h-1", isOpp ? "accent-red-500" : "accent-blue-500")}
         />
@@ -2519,7 +2663,11 @@ function MonPanel({
       {/* Move grid — always shows all 4 moves in original slot order */}
       <div className="p-2 bg-white/30 dark:bg-black/10">
         <div className={`text-[8px] font-bold uppercase tracking-wider mb-1.5 ${labelColor}`}>
-          {isOpp ? "⚠ Likely attacks" : "★ Do this"}
+          {isOpp
+            ? slot.topMoves.find(m => m.isRecommended)?.isProtection
+              ? "🛡 Likely protects"
+              : "⚠ Likely attacks"
+            : "★ Do this"}
         </div>
         {slot.topMoves.length === 0 ? (
           <div className="text-[10px] text-muted-foreground italic py-2 text-center">—</div>
@@ -2532,39 +2680,50 @@ function MonPanel({
         )}
       </div>
 
-      {/* Meta move frequency — derived from all known competitive sets */}
+      {/* Meta moves toggle */}
       {slot.metaMoves.length > 0 && (
-        <div className="px-2 pb-2 bg-white/30 dark:bg-black/10 border-t border-gray-100 dark:border-white/5">
-          <div className="text-[7px] font-bold uppercase tracking-wider text-muted-foreground/60 mb-1 pt-1.5">
-            Meta moves ({slot.metaMoves[0]?.total ?? 0} sets)
-          </div>
-          <div className="flex flex-col gap-px">
-            {slot.metaMoves.map((m) => {
-              const pct = Math.round(m.frequency * 100);
-              const barColor = pct === 100
-                ? "#6366f1"
-                : pct >= 67
-                ? "#8b5cf6"
-                : pct >= 34
-                ? "#a78bfa"
-                : "#c4b5fd";
-              return (
-                <div key={m.moveName} className="flex items-center gap-1.5">
-                  <span className="text-[8px] flex-1 truncate text-foreground/80">{m.moveName}</span>
-                  <div className="w-12 h-1 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden flex-shrink-0">
-                    <div
-                      className="h-full rounded-full"
-                      style={{ width: `${pct}%`, backgroundColor: barColor }}
-                    />
-                  </div>
-                  <span className="text-[7px] text-muted-foreground w-6 text-right tabular-nums flex-shrink-0">
-                    {pct}%
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <>
+          <button
+            onClick={() => setShowMetaMoves((v) => !v)}
+            className="w-full px-3 py-1.5 flex items-center justify-between text-[9px] font-semibold text-muted-foreground hover:text-foreground bg-gray-50/60 dark:bg-white/[0.03] border-t border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors"
+          >
+            <span className="flex items-center gap-1.5">
+              📊 Meta moves
+              <span className="text-[7px] text-muted-foreground/60">({slot.metaMoves[0]?.total ?? 0} sets)</span>
+            </span>
+            <ChevronRight className={cn("w-3 h-3 transition-transform", showMetaMoves && "rotate-90")} />
+          </button>
+          {showMetaMoves && (
+            <div className="px-2 pb-2 bg-gray-50/60 dark:bg-white/[0.03] border-t border-gray-200 dark:border-white/10">
+              <div className="flex flex-col gap-px pt-1.5">
+                {slot.metaMoves.map((m) => {
+                  const pct = Math.round(m.frequency * 100);
+                  const barColor = pct === 100
+                    ? "#6366f1"
+                    : pct >= 67
+                    ? "#8b5cf6"
+                    : pct >= 34
+                    ? "#a78bfa"
+                    : "#c4b5fd";
+                  return (
+                    <div key={m.moveName} className="flex items-center gap-1.5">
+                      <span className="text-[8px] flex-1 truncate text-foreground/80">{m.moveName}</span>
+                      <div className="w-12 h-1 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden flex-shrink-0">
+                        <div
+                          className="h-full rounded-full"
+                          style={{ width: `${pct}%`, backgroundColor: barColor }}
+                        />
+                      </div>
+                      <span className="text-[7px] text-muted-foreground w-6 text-right tabular-nums flex-shrink-0">
+                        {pct}%
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Move picker toggle */}
@@ -2586,7 +2745,6 @@ function MonPanel({
           slot={slot}
           monOv={monOv}
           onMonOvChange={onMonOvChange}
-          labelColor={labelColor}
         />
       )}
 
@@ -2732,7 +2890,7 @@ function SpeedStrip({
       </span>
       <div className="flex items-center gap-1 flex-wrap">
         {speedOrder.map((mon, i) => (
-          <div key={mon.name} className="flex items-center gap-0.5">
+          <div key={`${i}-${mon.name}`} className="flex items-center gap-0.5">
             {i > 0 && <span className="text-[10px] text-muted-foreground">›</span>}
             <div
               className={cn(
@@ -3126,15 +3284,15 @@ function StrategyFlowchart({
   const [ovOppMon2, setOvOppMon2] = useState<MonOverrides>({});
 
   // Reset per-mon overrides when field slots change
-  useEffect(() => { setOvMyMon1({}); setOvMyMon2({}); }, [myFieldIdx]);
-  useEffect(() => { setOvOppMon1({}); setOvOppMon2({}); }, [oppFieldIdx]);
+  useEffect(() => { setTimeout(() => { setOvMyMon1({}); setOvMyMon2({}); }, 0); }, [myFieldIdx]);
+  useEffect(() => { setTimeout(() => { setOvOppMon1({}); setOvOppMon2({}); }, 0); }, [oppFieldIdx]);
 
   // Default my leads from bestLead recommendation
   useEffect(() => {
     if (!bestLead || team1Pokemon.length < 2) return;
     const i1 = team1Pokemon.findIndex((p) => p.name === bestLead.lead1);
     const i2 = team1Pokemon.findIndex((p) => p.name === bestLead.lead2);
-    if (i1 >= 0 && i2 >= 0 && i1 !== i2) setMyFieldIdx([i1, i2]);
+    if (i1 >= 0 && i2 >= 0 && i1 !== i2) setTimeout(() => setMyFieldIdx([i1, i2]), 0);
   }, [bestLead, team1Pokemon]);
 
   const fieldOverrides = useMemo<FieldOverrides>(() => ({
