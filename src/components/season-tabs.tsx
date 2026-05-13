@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "@/lib/motion";
 import { SEASONS, POKEMON_SEED, getPokemonByRegulation } from "@/lib/pokemon-data";
 import { cn } from "@/lib/utils";
-import { Shield, Swords, Users, Timer, Sparkles, Ban, Gauge, ListChecks, Calendar, Dna, ChevronRight } from "lucide-react";
+import { Shield, Swords, Users, Timer, Sparkles, Ban, Gauge, ListChecks, Calendar, Dna } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import type { Regulation } from "@/lib/types";
 
@@ -78,9 +78,8 @@ export function SeasonTabs({ activeRegulation, onRegulationChange }: SeasonTabsP
             key={season.id}
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-1.5 pl-2"
+            className="flex items-center gap-1.5 ml-1 pl-3 border-l-2 border-violet-300/40 dark:border-violet-500/20"
           >
-            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/50 flex-shrink-0" />
             {season.regulations.map((reg) => {
               const isActive = reg.id === activeRegulation;
               return (
@@ -97,7 +96,7 @@ export function SeasonTabs({ activeRegulation, onRegulationChange }: SeasonTabsP
                   {isActive && (
                     <motion.div
                       layoutId="regulation-active"
-                      className="absolute inset-0 rounded-lg bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-500/20 dark:to-orange-500/20 border border-amber-300 dark:border-amber-500/30"
+                      className="absolute inset-0 rounded-lg bg-violet-100/80 dark:bg-violet-500/15 border border-violet-200 dark:border-violet-500/25"
                       transition={{ type: "spring", stiffness: 400, damping: 32 }}
                     />
                   )}

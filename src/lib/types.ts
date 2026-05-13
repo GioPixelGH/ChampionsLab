@@ -141,8 +141,6 @@ export interface Season {
   name: string;
   startDate: string;
   endDate?: string;
-  /** @deprecated use regulations[].id filtering instead */
-  rosterAdditions: number[];
   regulations: Regulation[];
   rules: string[];
   isActive: boolean;
