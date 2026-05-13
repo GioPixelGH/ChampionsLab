@@ -11,7 +11,8 @@ import {
   Save, FolderOpen, Share2, SlidersHorizontal, ExternalLink, Trophy,
   Lock, LockOpen,
 } from "lucide-react";
-import { POKEMON_SEED, STAT_PRESETS } from "@/lib/pokemon-data";
+import { POKEMON_SEED, STAT_PRESETS, getPokemonByRegulation, getActiveRegulation, SEASONS } from "@/lib/pokemon-data";
+import { SeasonTabs } from "@/components/season-tabs";
 import {
   ChampionsPokemon, TeamSlot, PokemonType, TYPE_COLORS, StatPoints,
 } from "@/lib/types";
@@ -238,6 +239,9 @@ export default function TeamBuilderPage() {
   const [shareImageUrl, setShareImageUrl] = useState<string | null>(null);
   const [editMode, setEditMode] = useState<"normal" | "speed" | "survival" | "damage">("normal");
   const [spToast, setSpToast] = useState<string | null>(null);
+
+  const defaultRegulation = getActiveRegulation()?.id ?? SEASONS[0]?.regulations[0]?.id ?? "M-A";
+  const [activeRegulation, setActiveRegulation] = useState(defaultRegulation);
 
   const [shareLinkError, setShareLinkError] = useState<string | null>(null);
   const [showMoreTournament, setShowMoreTournament] = useState(false);
@@ -1530,8 +1534,10 @@ export default function TeamBuilderPage() {
   const filteredPicker = useMemo(() => {
     const sf = pickerStatFilters;
     const hasStatFilter = sf.hp > 0 || sf.attack > 0 || sf.defense > 0 || sf.spAtk > 0 || sf.spDef > 0 || sf.speed > 0 || sf.bst > 0;
+    const regulationRoster = new Set(getPokemonByRegulation(activeRegulation).map(p => p.id));
     return POKEMON_SEED.filter((p) => {
       if (p.hidden) return false;
+      if (!regulationRoster.has(p.id)) return false;
       if (usedPokemonIds.includes(p.id)) return false;
       if (pickerTypeFilter && !p.types.includes(pickerTypeFilter)) return false;
       if (pickerCounterFilter) {
@@ -1559,7 +1565,7 @@ export default function TeamBuilderPage() {
         (p.hasMega && p.forms?.some((f) => f.isMega && f.abilities.some((a) => a.name.toLowerCase().includes(q) || ta(a.name).toLowerCase().includes(q))))
       );
     });
-  }, [pickerSearch, pickerTypeFilter, pickerCounterFilter, pickerRoleFilter, pickerStatFilters, usedPokemonIds, tp, tm, ta, t]);
+  }, [pickerSearch, pickerTypeFilter, pickerCounterFilter, pickerRoleFilter, pickerStatFilters, usedPokemonIds, activeRegulation, tp, tm, ta, t]);
 
   return (
     <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-x-hidden">
@@ -1595,6 +1601,8 @@ export default function TeamBuilderPage() {
               className="px-4 py-2 rounded-xl glass border border-gray-200 focus:border-emerald-500/50 focus:outline-none text-lg font-semibold bg-transparent w-full sm:w-64"
             />
           </div>
+
+          <SeasonTabs activeRegulation={activeRegulation} onRegulationChange={setActiveRegulation} />
 
           <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:overflow-visible sm:flex-wrap sm:justify-center">
             <button

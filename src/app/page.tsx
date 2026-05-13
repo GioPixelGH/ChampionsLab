@@ -5,11 +5,11 @@ import { motion } from "@/lib/motion";
 import Image from "next/image";
 import { LastUpdated } from "@/components/last-updated";
 import { Search, SlidersHorizontal, Sparkles, ChevronDown } from "lucide-react";
-import { getPokemonBySeason } from "@/lib/pokemon-data";
+import { getPokemonByRegulation, getActiveRegulation, SEASONS } from "@/lib/pokemon-data";
 import { PokemonType, ChampionsPokemon } from "@/lib/types";
 import { PokemonCard } from "@/components/pokemon-card";
 import { PokemonDetailModal } from "@/components/pokemon-detail-modal";
-import { SeasonInfo } from "@/components/season-tabs";
+import { SeasonTabs, SeasonInfo } from "@/components/season-tabs";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
 import { useI18n } from "@/lib/i18n";
@@ -46,7 +46,8 @@ type StatFilters = typeof EMPTY_STAT_FILTERS;
 function getBST(p: ChampionsPokemon) { return p.baseStats.hp + p.baseStats.attack + p.baseStats.defense + p.baseStats.spAtk + p.baseStats.spDef + p.baseStats.speed; }
 
 export default function HomePage() {
-  const [activeSeason, setActiveSeason] = useState(1);
+  const defaultRegulation = getActiveRegulation()?.id ?? SEASONS[0]?.regulations[0]?.id ?? "M-A";
+  const [activeRegulation, setActiveRegulation] = useState(defaultRegulation);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<PokemonType[]>([]);
   const [selectedGens, setSelectedGens] = useState<number[]>([]);
@@ -82,7 +83,7 @@ export default function HomePage() {
   }, []);
 
   const filteredPokemon = useMemo(() => {
-    let results = getPokemonBySeason(activeSeason);
+    let results = getPokemonByRegulation(activeRegulation);
 
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -145,7 +146,7 @@ export default function HomePage() {
     });
 
     return results;
-  }, [activeSeason, searchQuery, selectedTypes, selectedGens, showMegaOnly, sortBy, statFilters, tp, tm, ta, t]);
+  }, [activeRegulation, searchQuery, selectedTypes, selectedGens, showMegaOnly, sortBy, statFilters, tp, tm, ta, t]);
 
   const toggleType = (type: PokemonType) => {
     trackEvent("filter_type", "pokedex", type);
@@ -205,7 +206,7 @@ export default function HomePage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.12, duration: 0.25 }}
         >
-          {t("pokedex.description", { count: getPokemonBySeason(1).length })}
+          {t("pokedex.description", { count: getPokemonByRegulation(activeRegulation).length })}
         </motion.p>
 
         {/* Engine Promotion Banner */}
@@ -321,7 +322,8 @@ export default function HomePage() {
         transition={{ delay: 0.15, duration: 0.3 }}
         className="mb-8"
       >
-        <SeasonInfo seasonId={activeSeason} />
+        <SeasonTabs activeRegulation={activeRegulation} onRegulationChange={setActiveRegulation} />
+        <SeasonInfo regulationId={activeRegulation} />
       </motion.div>
 
       {/* Search & Filters bar */}

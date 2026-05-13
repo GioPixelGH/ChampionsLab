@@ -2,52 +2,115 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "@/lib/motion";
-import { SEASONS, POKEMON_SEED } from "@/lib/pokemon-data";
+import { SEASONS, POKEMON_SEED, getPokemonByRegulation } from "@/lib/pokemon-data";
 import { cn } from "@/lib/utils";
-import { Shield, Swords, Users, Timer, Sparkles, Ban, Gauge, ListChecks, Calendar, Dna, Package } from "lucide-react";
+import { Shield, Swords, Users, Timer, Sparkles, Ban, Gauge, ListChecks, Calendar, Dna, ChevronRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import type { Regulation } from "@/lib/types";
+
+// ── Season + Regulation selector ──────────────────────────────────────────────
 
 interface SeasonTabsProps {
-  activeSeason: number;
-  onSeasonChange: (season: number) => void;
+  activeRegulation: string;
+  onRegulationChange: (regulationId: string) => void;
 }
 
-export function SeasonTabs({ activeSeason, onSeasonChange }: SeasonTabsProps) {
+export function SeasonTabs({ activeRegulation, onRegulationChange }: SeasonTabsProps) {
   const { t } = useI18n();
-  const translateSeasonName = (name: string) =>
+
+  const translateName = (name: string) =>
     name
       .replace(/\bSeason\b/g, t('season.seasonWord'))
       .replace(/\bRegulation\b/g, t('season.regulationWord'));
+
+  // Determine which season owns the active regulation
+  const activeSeasonId =
+    SEASONS.find((s) => s.regulations.some((r) => r.id === activeRegulation))?.id ?? SEASONS[0]?.id;
+
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="space-y-2">
+      {/* Season row */}
+      <div className="flex flex-wrap gap-2">
+        {SEASONS.map((season) => {
+          const isCurrentSeason = season.id === activeSeasonId;
+          return (
+            <button
+              key={season.id}
+              onClick={() => {
+                // Select the active regulation of this season, or its last one
+                const target =
+                  season.regulations.find((r) => r.isActive) ??
+                  season.regulations[season.regulations.length - 1];
+                if (target) onRegulationChange(target.id);
+              }}
+              className={cn(
+                "relative px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 flex items-center gap-2",
+                isCurrentSeason
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-foreground glass glass-hover"
+              )}
+            >
+              {isCurrentSeason && (
+                <motion.div
+                  layoutId="season-active"
+                  className="absolute inset-0 rounded-xl bg-gradient-to-r from-violet-100 to-blue-100 dark:from-violet-500/20 dark:to-blue-500/20 border border-violet-300 dark:border-violet-500/30"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
+              <Shield className="w-4 h-4 relative z-10" />
+              <span className="relative z-10">{translateName(season.name)}</span>
+              {season.isActive && (
+                <span className="relative z-10 px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30">
+                  LIVE
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Regulation sub-tabs for the active season */}
       {SEASONS.map((season) => {
-        const isActive = activeSeason === season.id;
+        if (season.id !== activeSeasonId) return null;
+        if (season.regulations.length <= 1) return null;
         return (
-          <button
+          <motion.div
             key={season.id}
-            onClick={() => onSeasonChange(season.id)}
-            className={cn(
-              "relative px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 flex items-center gap-2",
-              isActive
-                ? "text-foreground"
-                : "text-muted-foreground hover:text-foreground glass glass-hover"
-            )}
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-1.5 pl-2"
           >
-            {isActive && (
-              <motion.div
-                layoutId="season-active"
-                className="absolute inset-0 rounded-xl bg-gradient-to-r from-violet-100 to-blue-100 dark:from-violet-500/20 dark:to-blue-500/20 border border-violet-300 dark:border-violet-500/30"
-                transition={{ type: "spring", stiffness: 380, damping: 30 }}
-              />
-            )}
-            <Shield className="w-4 h-4 relative z-10" />
-            <span className="relative z-10">{translateSeasonName(season.name)}</span>
-            {season.isActive && (
-              <span className="relative z-10 px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30">
-                LIVE
-              </span>
-            )}
-          </button>
+            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/50 flex-shrink-0" />
+            {season.regulations.map((reg) => {
+              const isActive = reg.id === activeRegulation;
+              return (
+                <button
+                  key={reg.id}
+                  onClick={() => onRegulationChange(reg.id)}
+                  className={cn(
+                    "relative px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 flex items-center gap-1.5",
+                    isActive
+                      ? "text-foreground"
+                      : "text-muted-foreground hover:text-foreground glass glass-hover"
+                  )}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="regulation-active"
+                      className="absolute inset-0 rounded-lg bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-500/20 dark:to-orange-500/20 border border-amber-300 dark:border-amber-500/30"
+                      transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                    />
+                  )}
+                  <span className="relative z-10">{translateName(reg.label)}</span>
+                  {reg.isActive && (
+                    <span className="relative z-10 px-1 py-0.5 text-[9px] font-bold rounded bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30">
+                      LIVE
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </motion.div>
         );
       })}
     </div>
@@ -182,13 +245,16 @@ function RuleCard({ rule }: { rule: string }) {
   );
 }
 
-export function SeasonInfo({ seasonId }: { seasonId: number }) {
+export function SeasonInfo({ regulationId }: { regulationId: string }) {
   const { t, locale } = useI18n();
-  const season = SEASONS.find((s) => s.id === seasonId);
-  if (!season) return null;
 
-  const rosterCount = POKEMON_SEED.filter(p => !(p as any).hidden).length;
-  const megaCount = POKEMON_SEED.filter(p => p.hasMega && !(p as any).hidden).length;
+  // Find the regulation and its parent season
+  const season = SEASONS.find((s) => s.regulations.some((r) => r.id === regulationId));
+  const regulation: Regulation | undefined = season?.regulations.find((r) => r.id === regulationId);
+  if (!season || !regulation) return null;
+
+  const rosterCount = getPokemonByRegulation(regulationId).length;
+  const megaCount = getPokemonByRegulation(regulationId).filter((p) => p.hasMega).length;
 
   const formatDate = (d: string) =>
     new Date(d + "T12:00:00Z").toLocaleDateString(
@@ -196,10 +262,14 @@ export function SeasonInfo({ seasonId }: { seasonId: number }) {
       { month: "long", day: "numeric", year: "numeric" }
     );
 
-  const regulationEnd = "2026-06-17";
+  const translateName = (name: string) =>
+    name
+      .replace(/\bSeason\b/g, t('season.seasonWord'))
+      .replace(/\bRegulation\b/g, t('season.regulationWord'));
 
   return (
     <motion.div
+      key={regulationId}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className="bg-white dark:bg-white/5 rounded-2xl p-6 border border-gray-100 dark:border-gray-200/10 shadow-sm"
@@ -210,20 +280,23 @@ export function SeasonInfo({ seasonId }: { seasonId: number }) {
             <Shield className="w-4.5 h-4.5 text-violet-600 dark:text-violet-400" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-foreground">{season.name.replace(/\bSeason\b/g, t('season.seasonWord')).replace(/\bRegulation\b/g, t('season.regulationWord'))}</h3>
+            <h3 className="text-sm font-semibold text-foreground">
+              {translateName(season.name)} — {translateName(regulation.label)}
+            </h3>
             <p className="text-xs text-muted-foreground">
-              {formatDate(season.startDate)}
+              {formatDate(regulation.startDate)}
+              {regulation.endDate ? ` – ${formatDate(regulation.endDate)}` : ""}
             </p>
           </div>
         </div>
-        {season.isActive && (
+        {regulation.isActive && (
           <span className="px-3 py-1 text-[10px] font-bold rounded-full bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-200 dark:ring-emerald-500/25 uppercase tracking-wider">
             {t('season.activeSeason')}
           </span>
         )}
       </div>
 
-      {/* Season details grid */}
+      {/* Regulation details grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
         <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 dark:bg-white/5 ring-1 ring-gray-100 dark:ring-gray-200/10">
           <Calendar className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
@@ -236,7 +309,7 @@ export function SeasonInfo({ seasonId }: { seasonId: number }) {
           <Calendar className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
           <div>
             <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{t('season.regulationUntil')}</p>
-            <p className="text-xs font-semibold text-foreground">{formatDate(regulationEnd)}</p>
+            <p className="text-xs font-semibold text-foreground">{regulation.endDate ? formatDate(regulation.endDate) : "TBD"}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 dark:bg-white/5 ring-1 ring-gray-100 dark:ring-gray-200/10">

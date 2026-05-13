@@ -68,6 +68,7 @@ export interface ChampionsPokemon {
   homeCompatible?: boolean;
   homeSource?: string[];
   season: number; // Season when first available
+  regulation: string; // Regulation when first available (e.g. "M-A")
   tier?: "S" | "A" | "B" | "C" | "D";
   usageRate?: number | null; // Meta usage percentage
   hidden?: boolean; // Hide from all UI/engine (not available in game)
@@ -120,8 +121,19 @@ export interface Team {
   slots: TeamSlot[];
   format: string;
   season: number;
+  regulation?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Regulation {
+  id: string;           // e.g. "M-A", "M-B", "M-C"
+  label: string;        // e.g. "Regulation M-A"
+  seasonId: number;     // parent Season id
+  startDate: string;
+  endDate?: string;
+  isActive: boolean;
+  bannedPokemonIds?: number[];
 }
 
 export interface Season {
@@ -129,7 +141,9 @@ export interface Season {
   name: string;
   startDate: string;
   endDate?: string;
+  /** @deprecated use regulations[].id filtering instead */
   rosterAdditions: number[];
+  regulations: Regulation[];
   rules: string[];
   isActive: boolean;
 }

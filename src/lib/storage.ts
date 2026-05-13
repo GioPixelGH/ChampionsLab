@@ -35,6 +35,7 @@ export interface SavedTeam {
   id: string;
   name: string;
   slots: SavedTeamSlot[];
+  regulation?: string;  // e.g. "M-A", "M-B"
   createdAt: number;
   updatedAt: number;
 }
@@ -158,7 +159,7 @@ export function getSavedTeams(): SavedTeam[] {
 }
 
 /** Save a team (create or update) */
-export function saveTeam(name: string, slots: TeamSlot[], existingId?: string): SavedTeam {
+export function saveTeam(name: string, slots: TeamSlot[], existingId?: string, regulation?: string): SavedTeam {
   const teams = getSavedTeams();
   const now = Date.now();
   const serialized = serializeTeam(slots);
@@ -166,7 +167,7 @@ export function saveTeam(name: string, slots: TeamSlot[], existingId?: string): 
   if (existingId) {
     const idx = teams.findIndex((t) => t.id === existingId);
     if (idx >= 0) {
-      teams[idx] = { ...teams[idx], name, slots: serialized, updatedAt: now };
+      teams[idx] = { ...teams[idx], name, slots: serialized, regulation, updatedAt: now };
       writeJSON(KEYS.SAVED_TEAMS, teams);
       return teams[idx];
     }
@@ -176,6 +177,7 @@ export function saveTeam(name: string, slots: TeamSlot[], existingId?: string): 
     id: `team-${now}-${Math.random().toString(36).slice(2, 8)}`,
     name,
     slots: serialized,
+    regulation,
     createdAt: now,
     updatedAt: now,
   };
