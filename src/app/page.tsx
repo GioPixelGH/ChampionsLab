@@ -10,6 +10,8 @@ import { PokemonType, ChampionsPokemon } from "@/lib/types";
 import { PokemonCard } from "@/components/pokemon-card";
 import { PokemonDetailModal } from "@/components/pokemon-detail-modal";
 import { SeasonTabs, SeasonInfo } from "@/components/season-tabs";
+import { fetchMeta, matchMetaToSeed } from "@/lib/meta-service";
+import type { MetaEntry } from "@/app/api/meta/route";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
 import { useI18n } from "@/lib/i18n";
@@ -30,7 +32,7 @@ const TYPE_COLORS_MAP: Record<PokemonType, string> = {
   steel: "#b8b8d0", fairy: "#ee99ac",
 };
 
-type SortOption = "name" | "dex" | "tier" | "hp" | "attack" | "defense" | "spAtk" | "spDef" | "speed" | "bst";
+type SortOption = "name" | "dex" | "tier" | "usage" | "hp" | "attack" | "defense" | "spAtk" | "spDef" | "speed" | "bst";
 
 type StatKey = "hp" | "attack" | "defense" | "spAtk" | "spDef" | "speed";
 const STAT_KEYS: { key: StatKey; label: string; color: string }[] = [
@@ -56,7 +58,22 @@ export default function HomePage() {
   const [sortBy, setSortBy] = useState<SortOption>("dex");
   const [statFilters, setStatFilters] = useState<StatFilters>({ ...EMPTY_STAT_FILTERS });
   const [selectedPokemon, setSelectedPokemon] = useState<ChampionsPokemon | null>(null);
+  const [liveMeta, setLiveMeta] = useState<Map<number, MetaEntry>>(new Map());
+  const [metaLoading, setMetaLoading] = useState(false);
   const { t, ts, tp, tm, ta } = useI18n();
+
+  // Live meta from Limitless
+  useEffect(() => {
+    let cancelled = false;
+    setMetaLoading(true);
+    fetchMeta(activeRegulation).then((data) => {
+      if (cancelled || !data) return;
+      const seed = getPokemonByRegulation(activeRegulation);
+      setLiveMeta(matchMetaToSeed(data.meta, seed));
+      setMetaLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [activeRegulation]);
 
   // Pokémon Champions release countdown  -  April 8, 2026 12:00 JST (03:00 UTC)
   const RELEASE_DATE = new Date("2026-04-08T03:00:00Z");
@@ -134,6 +151,11 @@ export default function HomePage() {
           const tierOrder = { S: 0, A: 1, B: 2, C: 3, D: 4 };
           return (tierOrder[a.tier ?? "D"] ?? 5) - (tierOrder[b.tier ?? "D"] ?? 5);
         }
+        case "usage": {
+          const ua = liveMeta.get(a.id)?.usageRate ?? (a.usageRate ?? -1);
+          const ub = liveMeta.get(b.id)?.usageRate ?? (b.usageRate ?? -1);
+          return ub - ua;
+        }
         case "hp": return b.baseStats.hp - a.baseStats.hp;
         case "attack": return b.baseStats.attack - a.baseStats.attack;
         case "defense": return b.baseStats.defense - a.baseStats.defense;
@@ -146,7 +168,7 @@ export default function HomePage() {
     });
 
     return results;
-  }, [activeRegulation, searchQuery, selectedTypes, selectedGens, showMegaOnly, sortBy, statFilters, tp, tm, ta, t]);
+  }, [activeRegulation, searchQuery, selectedTypes, selectedGens, showMegaOnly, sortBy, statFilters, liveMeta, tp, tm, ta, t]);
 
   const toggleType = (type: PokemonType) => {
     trackEvent("filter_type", "pokedex", type);
@@ -320,9 +342,11 @@ export default function HomePage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.15, duration: 0.3 }}
-        className="mb-8"
+        className="mb-8 space-y-3"
       >
-        <SeasonTabs activeRegulation={activeRegulation} onRegulationChange={setActiveRegulation} />
+        <div className="bg-white dark:bg-white/5 rounded-2xl px-5 py-4 border border-gray-100 dark:border-gray-200/10 shadow-sm">
+          <SeasonTabs activeRegulation={activeRegulation} onRegulationChange={setActiveRegulation} />
+        </div>
         <SeasonInfo regulationId={activeRegulation} />
       </motion.div>
 
@@ -364,6 +388,7 @@ export default function HomePage() {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as SortOption)}
+            aria-label={t("pokedex.filters.sortBy")}
             className="px-4 py-3 rounded-xl glass border border-gray-200 text-sm bg-transparent cursor-pointer focus:outline-none focus:border-violet-500/50"
           >
             <option value="tier">{t("pokedex.sort.tier")}</option>
@@ -376,6 +401,7 @@ export default function HomePage() {
             <option value="spDef">{t("pokedex.sort.spDef")}</option>
             <option value="speed">{t("pokedex.sort.speed")}</option>
             <option value="bst">{t("pokedex.sort.bst")}</option>
+            <option value="usage">📊 {t("pokedex.sort.usage") || "Usage (Live)"}{metaLoading ? " …" : liveMeta.size > 0 ? ` (${liveMeta.size})` : ""}</option>
           </select>
         </div>
 
@@ -395,20 +421,11 @@ export default function HomePage() {
                     key={type}
                     onClick={() => toggleType(type)}
                     className={cn(
-                      "px-3 py-1.5 text-[11px] font-bold uppercase rounded-lg transition-all tracking-wider",
+                      "px-3 py-1.5 text-[11px] font-bold uppercase rounded-lg transition-all tracking-wider border-[1.5px]",
                       selectedTypes.includes(type)
-                        ? "text-white shadow-lg"
-                        : "hover:opacity-90"
+                        ? `type-bg-cc-${type} text-white type-border-${type} shadow-lg`
+                        : `type-bg-30-${type} type-color-${type} type-border-55-${type} hover:opacity-90`
                     )}
-                    style={{
-                      backgroundColor: selectedTypes.includes(type)
-                        ? `${TYPE_COLORS_MAP[type]}CC`
-                        : `${TYPE_COLORS_MAP[type]}30`,
-                      color: selectedTypes.includes(type)
-                        ? "#fff"
-                        : TYPE_COLORS_MAP[type],
-                      border: `1.5px solid ${selectedTypes.includes(type) ? TYPE_COLORS_MAP[type] : `${TYPE_COLORS_MAP[type]}55`}`,
-                    }}
                   >
                     {t(`common.types.${type}`)}
                   </button>
@@ -480,7 +497,7 @@ export default function HomePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-3">
                 {STAT_KEYS.map(({ key, label, color }) => (
                   <div key={key} className="flex items-center gap-2.5">
-                    <span className="text-[11px] font-bold w-8 text-right" style={{ color }}>{ts(key)}</span>
+                    <span className={cn("text-[11px] font-bold w-8 text-right", `stat-color-${key}`)}>{ts(key)}</span>
                     <input
                       type="range"
                       min={0}
@@ -488,13 +505,13 @@ export default function HomePage() {
                       step={5}
                       value={statFilters[key]}
                       onChange={(e) => setStatFilters(prev => ({ ...prev, [key]: Number(e.target.value) }))}
-                      className="flex-1 h-1.5 cursor-pointer"
-                      style={{ accentColor: color }}
+                      aria-label={label}
+                      className={cn("flex-1 h-1.5 cursor-pointer", `stat-accent-${key}`)}
                     />
                     <span className={cn(
                       "text-[11px] font-mono w-9 tabular-nums text-right transition-colors",
-                      statFilters[key] > 0 ? "font-bold" : "text-gray-400 dark:text-gray-500"
-                    )} style={statFilters[key] > 0 ? { color } : undefined}>
+                      statFilters[key] > 0 ? `font-bold stat-color-${key}` : "text-gray-400 dark:text-gray-500"
+                    )}>
                       {statFilters[key] > 0 ? `≥${statFilters[key]}` : " - "}
                     </span>
                   </div>
@@ -509,8 +526,8 @@ export default function HomePage() {
                     step={10}
                     value={statFilters.bst}
                     onChange={(e) => setStatFilters(prev => ({ ...prev, bst: Number(e.target.value) }))}
-                    className="flex-1 h-1.5 cursor-pointer"
-                    style={{ accentColor: "#888" }}
+                    aria-label="BST"
+                    className="flex-1 h-1.5 cursor-pointer stat-accent-bst"
                   />
                   <span className={cn(
                     "text-[11px] font-mono w-9 tabular-nums text-right transition-colors",
@@ -565,6 +582,7 @@ export default function HomePage() {
       <PokemonDetailModal
         pokemon={selectedPokemon}
         onClose={() => setSelectedPokemon(null)}
+        liveMetaEntry={selectedPokemon ? liveMeta.get(selectedPokemon.id) : undefined}
       />
     </div>
   );

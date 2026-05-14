@@ -1598,11 +1598,14 @@ export default function TeamBuilderPage() {
               type="text"
               value={teamName}
               onChange={(e) => setTeamName(e.target.value)}
+              aria-label={t('teamBuilder.myTeam')}
               className="px-4 py-2 rounded-xl glass border border-gray-200 focus:border-emerald-500/50 focus:outline-none text-lg font-semibold bg-transparent w-full sm:w-64"
             />
           </div>
 
-          <SeasonTabs activeRegulation={activeRegulation} onRegulationChange={setActiveRegulation} />
+          <div className="bg-white dark:bg-white/5 rounded-2xl px-5 py-4 border border-gray-100 dark:border-gray-200/10 shadow-sm">
+            <SeasonTabs activeRegulation={activeRegulation} onRegulationChange={setActiveRegulation} />
+          </div>
 
           <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:overflow-visible sm:flex-wrap sm:justify-center">
             <button
@@ -1715,6 +1718,7 @@ export default function TeamBuilderPage() {
                     </div>
                     <button
                       onClick={() => handleDeleteSavedTeam(st.id)}
+                      aria-label={t('common.delete') || 'Delete team'}
                       className="p-1 rounded hover:bg-red-100 text-muted-foreground hover:text-red-600 transition-colors flex-shrink-0"
                     >
                       <Trash2 className="w-3 h-3" />
@@ -1831,7 +1835,7 @@ export default function TeamBuilderPage() {
                         {isActiveSlot && !isLoadingSlot && <div className="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 rounded-full" />}
                         <span className="text-[9px] text-muted-foreground truncate max-w-[48px] text-center leading-tight">{tp(p.name)}</span>
                         <div className="flex gap-0.5">
-                          {p.types.map(ty => <span key={ty} className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: TYPE_COLORS[ty] }} />)}
+                          {p.types.map(ty => <span key={ty} className={cn("w-1.5 h-1.5 rounded-full", `type-bg-${ty}`)} />)}
                         </div>
                       </button>
                     )})}
@@ -2005,7 +2009,7 @@ export default function TeamBuilderPage() {
                 <div className="p-2 rounded-lg bg-red-50 border border-red-100">
                   <p className="text-[10px] text-red-600 font-medium uppercase mb-1">{t('teamBuilder.criticalWeaknesses')}</p>
                   <div className="flex flex-wrap gap-1">
-                    {teamAnalysis.criticalWeaknesses.map(type => <span key={type} className="px-2 py-0.5 text-[10px] font-bold uppercase rounded text-white/90" style={{ backgroundColor: `${TYPE_COLORS[type]}CC` }}>{tFullType(type)}</span>)}
+                    {teamAnalysis.criticalWeaknesses.map(type => <span key={type} className={cn("px-2 py-0.5 text-[10px] font-bold uppercase rounded text-white/90", `type-bg-cc-${type}`)}>{tFullType(type)}</span>)}
                   </div>
                 </div>
               )}
@@ -2025,7 +2029,7 @@ export default function TeamBuilderPage() {
                   const resist = defensiveResists[type] ?? 0;
                   return (
                     <div key={type} className="text-center space-y-0.5">
-                      <span className="block w-full py-0.5 text-[7px] font-bold uppercase rounded text-white/90" style={{ backgroundColor: `${TYPE_COLORS[type]}AA` }}>{tt(type)}</span>
+                      <span className={cn("block w-full py-0.5 text-[7px] font-bold uppercase rounded text-white/90", `type-bg-aa-${type}`)}>{tt(type)}</span>
                       <span className={cn("block text-[10px] font-bold", se > 0 ? "text-green-600" : "text-muted-foreground/40")}>{se > 0 ? `${se}×` : " - "}</span>
                     </div>
                   );
@@ -2051,7 +2055,7 @@ export default function TeamBuilderPage() {
                           const bg = net >= 3 ? "bg-red-100 dark:bg-red-950/40 border-red-300 dark:border-red-800" : net >= 1 ? "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800" : "bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800";
                           return (
                             <div key={type} className={cn("flex items-center gap-1 px-1.5 py-1 rounded-lg border", bg)}>
-                              <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: TYPE_COLORS[type] }} />
+                              <span className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", `type-bg-${type}`)} />
                               <span className="text-[9px] font-semibold uppercase flex-1 truncate">{tFullType(type)}</span>
                               <span className="text-[9px] font-bold text-red-600 dark:text-red-400">{weak}↓</span>
                               {resist > 0 && <span className="text-[9px] font-bold text-green-600 dark:text-green-400">{resist}↑</span>}
@@ -2076,7 +2080,7 @@ export default function TeamBuilderPage() {
                       <div className="grid grid-cols-3 gap-1">
                         {resistTypes.map(type => (
                           <div key={type} className="flex items-center gap-1 px-1.5 py-1 rounded-lg border bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
-                            <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: TYPE_COLORS[type] }} />
+                            <span className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", `type-bg-${type}`)} />
                             <span className="text-[9px] font-semibold uppercase flex-1 truncate">{tFullType(type)}</span>
                             <span className="text-[9px] font-bold text-blue-600 dark:text-blue-400">{defensiveResists[type]}↑</span>
                           </div>
@@ -2097,7 +2101,7 @@ export default function TeamBuilderPage() {
                       <div className="grid grid-cols-3 gap-1">
                         {uncovered.map(type => (
                           <div key={type} className="flex items-center gap-1.5 px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.06]">
-                            <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: TYPE_COLORS[type] }} />
+                            <span className={cn("w-2 h-2 rounded-full flex-shrink-0", `type-bg-${type}`)} />
                             <span className="text-[9px] font-semibold uppercase text-gray-600 dark:text-white truncate">{tFullType(type)}</span>
                           </div>
                         ))}
@@ -2122,7 +2126,7 @@ export default function TeamBuilderPage() {
                       <Image src={s.pokemon.sprite} alt={tp(s.pokemon.name)} width={28} height={28} className="rounded-lg" unoptimized />
                       <div className="min-w-0 flex-1">
                         <p className="text-[11px] font-semibold truncate">{tp(s.pokemon.name)}</p>
-                        <div className="flex gap-0.5">{s.pokemon.types.map(ty => <span key={ty} className="w-2 h-2 rounded-full" style={{ backgroundColor: TYPE_COLORS[ty] }} />)}</div>
+                        <div className="flex gap-0.5">{s.pokemon.types.map(ty => <span key={ty} className={cn("w-2 h-2 rounded-full", `type-bg-${ty}`)} />)}</div>
                       </div>
                       <span className={cn("text-[11px] font-bold", s.score >= 70 ? "text-green-600" : s.score >= 50 ? "text-amber-600" : "text-gray-400")}>{s.score}</span>
                     </div>
@@ -2175,6 +2179,7 @@ export default function TeamBuilderPage() {
                   <>
                     <button
                       onClick={(e) => { e.stopPropagation(); removeSlot(i); }}
+                      aria-label={t('common.remove') || 'Remove Pokémon'}
                       className="absolute top-2 right-2 z-20 p-1 rounded-lg bg-white/80 dark:bg-[#1a2540]/80 hover:bg-red-100 dark:hover:bg-red-500/20 text-gray-600 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                     >
                       <X className="w-3.5 h-3.5" />
@@ -2204,7 +2209,7 @@ export default function TeamBuilderPage() {
                       const activeMega = megaForms[slot.megaFormIndex ?? 0];
                       const label = megaForms.length > 1 && activeMega ? activeMega.name.replace(slot.pokemon.name, "").replace("Mega ", "").trim() : "MEGA";
                       return (
-                        <div className="absolute top-2 left-10 z-20 px-1 rounded bg-amber-200/60 dark:bg-amber-500/20 border border-amber-400/50 dark:border-amber-500/30 flex items-center" style={{ height: 16 }}>
+                        <div className="absolute top-2 left-10 z-20 px-1 h-4 rounded bg-amber-200/60 dark:bg-amber-500/20 border border-amber-400/50 dark:border-amber-500/30 flex items-center">
                           <span className="text-[7px] font-bold text-amber-700 dark:text-amber-400">{label || "MEGA"}</span>
                         </div>
                       );
@@ -2218,8 +2223,7 @@ export default function TeamBuilderPage() {
                       return (
                         <>
                           <div
-                            className="h-24 flex items-center justify-center"
-                            style={{ background: `radial-gradient(ellipse, ${TYPE_COLORS[displayTypes[0]]}15 0%, transparent 70%)` }}
+                            className={cn("h-24 flex items-center justify-center", `radial-type-${displayTypes[0]}`)}
                           >
                             <Image src={displaySprite} alt={displayName} width={80} height={80} className="drop-shadow-lg object-contain" unoptimized />
                           </div>
@@ -2227,7 +2231,7 @@ export default function TeamBuilderPage() {
                             <h4 className="text-xs font-semibold truncate">{tp(displayName)}</h4>
                             <div className="flex gap-1">
                               {displayTypes.map((type) => (
-                                <span key={type} className="px-1 py-0.5 text-[8px] font-bold uppercase rounded text-white/80" style={{ backgroundColor: `${TYPE_COLORS[type]}AA` }}>{tt(type)}</span>
+                                <span key={type} className={cn("px-1 py-0.5 text-[8px] font-bold uppercase rounded text-white/80", `type-bg-aa-${type}`)}>{tt(type)}</span>
                               ))}
                             </div>
                             {slot.item && isItemAvailable(slot.item) && <div className="text-[8px] text-amber-700 bg-amber-50 rounded px-1 py-0.5 truncate font-medium">{ti(slot.item)}</div>}
@@ -2285,7 +2289,7 @@ export default function TeamBuilderPage() {
                             </h3>
                             <div className="flex gap-1 mt-0.5">
                               {displayTypes.map(ty => (
-                                <span key={ty} className="px-1.5 py-0.5 text-[8px] font-bold uppercase rounded text-white/80" style={{ backgroundColor: `${TYPE_COLORS[ty]}AA` }}>{ty}</span>
+                                <span key={ty} className={cn("px-1.5 py-0.5 text-[8px] font-bold uppercase rounded text-white/80", `type-bg-aa-${ty}`)}>{ty}</span>
                               ))}
                             </div>
                           </div>
@@ -2329,7 +2333,7 @@ export default function TeamBuilderPage() {
                         <Swords className="w-4 h-4" />
                         <span>Damage</span>
                       </button>
-                      <button onClick={() => setSelectedSlotIndex(null)} className="p-1.5 rounded-lg hover:bg-gray-100"><X className="w-4 h-4" /></button>
+                      <button onClick={() => setSelectedSlotIndex(null)} aria-label={t('common.close') || 'Close'} className="p-1.5 rounded-lg hover:bg-gray-100"><X className="w-4 h-4" /></button>
                     </div>
                   </div>
 
@@ -2655,10 +2659,10 @@ export default function TeamBuilderPage() {
                               <div key={stat} className="flex items-center gap-1.5">
                                 <span className={cn("text-[10px] font-medium w-7", isPlus ? "text-red-500" : isMinus ? "text-blue-500" : "text-muted-foreground")}>{ts(stat)}</span>
                                 <span className="text-[10px] font-bold text-muted-foreground w-6 text-right tabular-nums">{base}</span>
-                                <button onClick={() => updateSP(selectedSlotIndex, stat, -2)} className="w-5 h-5 rounded bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"><Minus className="w-2.5 h-2.5" /></button>
+                                <button aria-label={`${ts(stat)} -2`} onClick={() => updateSP(selectedSlotIndex, stat, -2)} className="w-5 h-5 rounded bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"><Minus className="w-2.5 h-2.5" /></button>
                                 <StatSlider value={value} max={MAX_PER_STAT} step={2} onChange={(v) => setSPDirect(selectedSlotIndex, stat, v)} />
-                                <button onClick={() => updateSP(selectedSlotIndex, stat, 2)} className="w-5 h-5 rounded bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"><Plus className="w-2.5 h-2.5" /></button>
-                                <input type="number" min={0} max={MAX_PER_STAT} value={value} onChange={(e) => setSPDirect(selectedSlotIndex, stat, parseInt(e.target.value) || 0)} className="w-8 text-center text-[10px] font-medium rounded bg-gray-50 border border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-300 py-0.5" />
+                                <button aria-label={`${ts(stat)} +2`} onClick={() => updateSP(selectedSlotIndex, stat, 2)} className="w-5 h-5 rounded bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"><Plus className="w-2.5 h-2.5" /></button>
+                                <input type="number" min={0} max={MAX_PER_STAT} value={value} aria-label={ts(stat)} onChange={(e) => setSPDirect(selectedSlotIndex, stat, parseInt(e.target.value) || 0)} className="w-8 text-center text-[10px] font-medium rounded bg-gray-50 border border-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-300 py-0.5" />
                                 <span className={cn("text-[11px] font-bold w-7 text-right tabular-nums", isPlus ? "text-red-500" : isMinus ? "text-blue-500" : "text-foreground")}>{final_}</span>
                               </div>
                             );
@@ -2812,7 +2816,7 @@ export default function TeamBuilderPage() {
                               else if (mult === 4) { label = "4\u00d7"; bg = "bg-red-100 dark:bg-red-500/25"; textColor = "text-red-700 dark:text-red-300"; }
                               return (
                                 <div key={type} className={cn("flex flex-col items-center gap-0.5 py-1 rounded-md", bg)}>
-                                  <span className="w-full text-center text-[7px] font-bold uppercase text-white/90 rounded px-0.5 py-px leading-none" style={{ backgroundColor: TYPE_COLORS[type as PokemonType] }}>{tt(type)}</span>
+                                  <span className={cn("w-full text-center text-[7px] font-bold uppercase text-white/90 rounded px-0.5 py-px leading-none", `type-bg-${type as PokemonType}`)}>{tt(type)}</span>
                                   <span className={cn("text-[10px] font-bold leading-none min-h-[14px]", textColor)}>{label}</span>
                                 </div>
                               );
@@ -2841,7 +2845,7 @@ export default function TeamBuilderPage() {
                               else { label = "0"; bg = "bg-black/60 dark:bg-black/40"; textColor = "text-gray-500 dark:text-gray-500"; }
                               return (
                                 <div key={type} className={cn("flex flex-col items-center gap-0.5 py-1 rounded-md", bg)}>
-                                  <span className="w-full text-center text-[7px] font-bold uppercase text-white/90 rounded px-0.5 py-px leading-none" style={{ backgroundColor: TYPE_COLORS[type as PokemonType] }}>{tt(type)}</span>
+                                  <span className={cn("w-full text-center text-[7px] font-bold uppercase text-white/90 rounded px-0.5 py-px leading-none", `type-bg-${type as PokemonType}`)}>{tt(type)}</span>
                                   <span className={cn("text-[10px] font-bold leading-none min-h-[14px]", textColor)}>{label}</span>
                                 </div>
                               );
@@ -2950,7 +2954,7 @@ export default function TeamBuilderPage() {
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">{t('teamBuilder.importTitle')}</h3>
-                <button onClick={() => setShowImport(false)} className="p-1 rounded-lg hover:bg-gray-100">
+                <button onClick={() => setShowImport(false)} aria-label={t('common.close') || 'Close'} className="p-1 rounded-lg hover:bg-gray-100">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -2959,6 +2963,7 @@ export default function TeamBuilderPage() {
                 value={importText}
                 onChange={(e) => { setImportText(e.target.value); setImportError(""); }}
                 placeholder={`Incineroar @ Figy Berry\nAbility: Intimidate\nCareful Nature\nEVs: 252 HP / 4 Def / 252 SpD\n- Flare Blitz\n- Fake Out\n- Darkest Lariat\n- Protect\n\nGarchomp @ Life Orb\n...`}
+                aria-label={t('teamBuilder.importTitle')}
                 className="w-full h-64 rounded-xl p-4 bg-gray-50 border border-gray-200 text-xs font-mono resize-none focus:outline-none focus:ring-2 focus:ring-emerald-400"
               />
               {importError && <p className="text-xs text-red-500 mt-2">{importError}</p>}
@@ -3002,13 +3007,14 @@ export default function TeamBuilderPage() {
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">{t('teamBuilder.exportTitle')}</h3>
-                <button onClick={() => setShowExport(false)} className="p-1 rounded-lg hover:bg-gray-100">
+                <button onClick={() => setShowExport(false)} aria-label={t('common.close') || 'Close'} className="p-1 rounded-lg hover:bg-gray-100">
                   <X className="w-5 h-5" />
                 </button>
               </div>
               <textarea
                 readOnly
                 value={exportPokepaste()}
+                aria-label={t('teamBuilder.exportTitle')}
                 className="w-full h-64 rounded-xl p-4 bg-gray-50 border border-gray-200 text-xs font-mono resize-none focus:outline-none"
               />
               <div className="flex gap-2 mt-4">
@@ -3059,7 +3065,7 @@ export default function TeamBuilderPage() {
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">{t('teamBuilder.shareTitle')}</h3>
-                <button onClick={() => setShowShare(false)} className="p-1 rounded-lg hover:bg-gray-100">
+                <button onClick={() => setShowShare(false)} aria-label={t('common.close') || 'Close'} className="p-1 rounded-lg hover:bg-gray-100">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -3072,6 +3078,7 @@ export default function TeamBuilderPage() {
                     type="text"
                     readOnly
                     value={shareUrl}
+                    aria-label={t('teamBuilder.shareLink') || 'Share link'}
                     className="flex-1 px-3 py-2 text-xs rounded-lg bg-gray-100 border border-gray-200 text-gray-600 truncate"
                     onClick={(e) => (e.target as HTMLInputElement).select()}
                   />
@@ -3132,6 +3139,7 @@ export default function TeamBuilderPage() {
                       type="text"
                       readOnly
                       value={pasteGenerating ? "..." : pasteUrl}
+                      aria-label={t('teamBuilder.copyPasteLink') || 'Pokepaste link'}
                       className="flex-1 px-3 py-2 text-xs rounded-lg bg-gray-100 border border-gray-200 text-gray-600 truncate"
                       onClick={(e) => (e.target as HTMLInputElement).select()}
                     />
@@ -3171,7 +3179,7 @@ export default function TeamBuilderPage() {
               <div className="p-4 border-b border-gray-200/60">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-lg font-semibold">{t('common.choosePokemon')}</h3>
-                  <button onClick={() => setShowPokemonPicker(false)} className="p-1 rounded-lg hover:bg-gray-100">
+                  <button onClick={() => setShowPokemonPicker(false)} aria-label={t('common.close') || 'Close'} className="p-1 rounded-lg hover:bg-gray-100">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
@@ -3196,15 +3204,9 @@ export default function TeamBuilderPage() {
                       className={cn(
                         "px-2.5 py-1 rounded-full text-[10px] font-bold capitalize transition-all border hover:scale-105",
                         pickerTypeFilter === ty
-                          ? "text-white shadow-sm"
-                          : "bg-white dark:bg-gray-800 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700"
+                          ? `type-bg-${ty} type-border-${ty} text-white shadow-sm`
+                          : `type-border-${ty} bg-white dark:bg-gray-800 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700`
                       )}
-                      style={pickerTypeFilter === ty ? {
-                        backgroundColor: TYPE_COLORS[ty],
-                        borderColor: TYPE_COLORS[ty],
-                      } : {
-                        borderColor: TYPE_COLORS[ty],
-                      }}
                     >
                       {t(`common.types.${ty}`)}
                     </button>
@@ -3238,14 +3240,9 @@ export default function TeamBuilderPage() {
                           className={cn(
                             "px-2 py-[3px] rounded-md text-[10px] font-bold capitalize transition-all border flex items-center gap-1 hover:scale-105",
                             pickerCounterFilter === ty
-                              ? "text-white shadow-sm border-transparent"
+                              ? `type-bg-${ty} type-border-${ty} text-white shadow-sm border-transparent`
                               : "bg-white dark:bg-gray-800 text-gray-700 dark:text-white border-dashed hover:border-solid hover:bg-gray-50 dark:hover:bg-gray-700"
                           )}
-                          style={pickerCounterFilter === ty ? {
-                            backgroundColor: TYPE_COLORS[ty],
-                          } : {
-                            borderColor: TYPE_COLORS[ty],
-                          }}
                         >
                           {pickerCounterFilter === ty && <span className="text-[8px] opacity-80 font-black">2×</span>}
                           {t(`common.types.${ty}`)}
@@ -3341,7 +3338,7 @@ export default function TeamBuilderPage() {
                           { key: "bst" as const, stat: "bst", color: "#888", max: 800 },
                         ]).map(({ key, stat, color, max }) => (
                           <div key={key} className="flex items-center gap-1.5">
-                            <span className="text-[10px] font-bold w-7 text-right shrink-0" style={{ color }}>{ts(stat)}</span>
+                            <span className={cn("text-[10px] font-bold w-7 text-right shrink-0", `stat-color-${key}`)}>{ts(stat)}</span>
                             <input
                               type="range"
                               min={0}
@@ -3349,13 +3346,13 @@ export default function TeamBuilderPage() {
                               step={key === "bst" ? 10 : 5}
                               value={pickerStatFilters[key]}
                               onChange={(e) => setPickerStatFilters(prev => ({ ...prev, [key]: Number(e.target.value) }))}
-                              className="stat-range flex-1 h-1.5 cursor-pointer appearance-none bg-transparent"
-                              style={{ accentColor: color, "--stat-color": color } as React.CSSProperties}
+                              aria-label={stat}
+                              className={cn("stat-range flex-1 h-1.5 cursor-pointer appearance-none bg-transparent", `stat-range-${key}`)}
                             />
                             <span className={cn(
                               "text-[10px] font-mono w-8 tabular-nums shrink-0 text-right transition-colors",
-                              pickerStatFilters[key] > 0 ? "font-bold" : "text-gray-400 dark:text-gray-400"
-                            )} style={pickerStatFilters[key] > 0 ? { color } : undefined}>
+                              pickerStatFilters[key] > 0 ? `font-bold stat-color-${key}` : "text-gray-400 dark:text-gray-400"
+                            )}>
                               {pickerStatFilters[key] > 0 ? `≥${pickerStatFilters[key]}` : " - "}
                             </span>
                           </div>
@@ -3408,8 +3405,7 @@ export default function TeamBuilderPage() {
                             {(matchedMegaForm?.types ?? pokemon.types).map((ty) => (
                               <span
                                 key={ty}
-                                className="w-2 h-2 rounded-full"
-                                style={{ backgroundColor: TYPE_COLORS[ty] }}
+                                className={cn("w-2 h-2 rounded-full", `type-bg-${ty}`)}
                               />
                             ))}
                           </div>

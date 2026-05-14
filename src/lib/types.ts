@@ -134,6 +134,8 @@ export interface Regulation {
   endDate?: string;
   isActive: boolean;
   bannedPokemonIds?: number[];
+  /** When set, only these Pokémon IDs are available (ignores regulation field on Pokémon). */
+  restrictToPokemonIds?: number[];
 }
 
 export interface Season {

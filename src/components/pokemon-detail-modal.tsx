@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "@/lib/motion";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ChampionsPokemon, TYPE_COLORS, CommonSet, WinningTeam, WinningTeamMember } from "@/lib/types";
+import type { MetaEntry } from "@/app/api/meta/route";
 import { USAGE_DATA } from "@/lib/usage-data";
 import { getTeamsForPokemon } from "@/lib/winning-teams";
 import { POKEMON_SEED } from "@/lib/pokemon-data";
@@ -19,6 +20,7 @@ import { SIM_POKEMON, SIM_TOTAL_BATTLES } from "@/lib/simulation-data";
 interface PokemonDetailModalProps {
   pokemon: ChampionsPokemon | null;
   onClose: () => void;
+  liveMetaEntry?: MetaEntry;
 }
 
 function getMemberSprite(member: WinningTeamMember): string {
@@ -183,7 +185,7 @@ function PresetPill({ set, index }: { set: CommonSet; index: number }) {
   );
 }
 
-export function PokemonDetailModal({ pokemon, onClose }: PokemonDetailModalProps) {
+export function PokemonDetailModal({ pokemon, onClose, liveMetaEntry }: PokemonDetailModalProps) {
   const [activeForm, setActiveForm] = useState(0);
   const [activeTab, setActiveTab] = useState<"stats" | "moves" | "abilities" | "usage" | "teams">("stats");
   const [formKey, setFormKey] = useState(0);
@@ -445,7 +447,18 @@ export function PokemonDetailModal({ pokemon, onClose }: PokemonDetailModalProps
                       <div className="px-3 py-2 rounded-lg bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-200/5 dark:to-transparent border border-gray-200/80 dark:border-gray-200/10 flex items-center gap-2.5">
                         <TrendingUp className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                         <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">{t('pokemonDetail.usage')}</span>
-                        <p className="ml-auto text-base font-bold tracking-tight text-gray-800">{pokemon.usageRate != null ? pokemon.usageRate : "-"} <span className="text-[10px] font-medium text-gray-400">%</span></p>
+                        {liveMetaEntry ? (
+                          <div className="ml-auto text-right">
+                            <p className="text-base font-bold tracking-tight text-gray-800 dark:text-gray-100">
+                              {liveMetaEntry.usageRate.toFixed(1)}<span className="text-[10px] font-medium text-gray-400">%</span>
+                            </p>
+                            <p className="text-[9px] text-emerald-600 dark:text-emerald-400 font-medium">
+                              {liveMetaEntry.top8}× top8 · {liveMetaEntry.wins}× 1st
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="ml-auto text-base font-bold tracking-tight text-gray-800 dark:text-gray-100">{pokemon.usageRate != null ? pokemon.usageRate : "-"} <span className="text-[10px] font-medium text-gray-400">%</span></p>
+                        )}
                       </div>
                     </div>
 

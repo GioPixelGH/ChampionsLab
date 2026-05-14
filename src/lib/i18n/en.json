@@ -274,7 +274,8 @@
       "spAtk": "Sp.Atk",
       "spDef": "Sp.Def",
       "speed": "Speed",
-      "bst": "BST"
+      "bst": "BST",
+      "usage": "Usage (Live)"
     },
     "noMatch": "No Pokémon found",
     "adjustFilters": "Try adjusting your filters or search query",

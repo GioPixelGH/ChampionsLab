@@ -17,6 +17,7 @@ import { trackEvent } from "@/lib/analytics";
 import { useI18n } from "@/lib/i18n";
 import { getMegaIdFromArchetype, getMegaSprite, getMegaName } from "@/lib/mega-utils";
 import { LastUpdated } from "@/components/last-updated";
+import { LiveUsage } from "@/components/live-usage";
 import { USAGE_DATA } from "@/lib/usage-data";
 import {
   predictMetaTeams,
@@ -131,7 +132,7 @@ const ML_ARCHETYPES = SIM_ARCHETYPES
 const ML_INSIGHTS: { type: "meta" | "synergy" | "counter" | "pokemon"; text: string; confidence: number }[] = (() => {
   const insights: { type: "meta" | "synergy" | "counter" | "pokemon"; text: string; confidence: number }[] = [];
   if (ML_POKEMON_RANKINGS.length >= 3) {
-    insights.push({ type: "meta", text: `Top meta threats: ${ML_POKEMON_RANKINGS.slice(0, 3).map(p => `${p.name} (${p.wr}% WR, ${p.elo.toLocaleString()} ELO)`).join(", ")}`, confidence: 95 });
+    insights.push({ type: "meta", text: `Top meta threats: ${ML_POKEMON_RANKINGS.slice(0, 3).map(p => `${p.name} (${p.wr}% WR, ${fmtNum(p.elo)} ELO)`).join(", ")}`, confidence: 95 });
   }
   if (ML_BEST_CORES.length >= 3) {
     insights.push({ type: "synergy", text: `Strongest cores: ${ML_BEST_CORES.slice(0, 4).map(c => `${c.pair} (${c.wr}%)`).join(", ")}`, confidence: 90 });
@@ -155,6 +156,9 @@ const ML_BEST_MOVES = SIM_MOVES
   .sort((a, b) => b.winRate - a.winRate)
   .slice(0, 15)
   .map(m => ({ name: m.name, wr: m.winRate, uses: m.appearances }));
+
+/** Number formatter with fixed locale to avoid SSR hydration mismatch */
+function fmtNum(n: number) { return n.toLocaleString('en-US'); }
 
 function getPokemonByName(name: string) {
   // Direct match first
@@ -444,7 +448,7 @@ export default function MetaPage() {
           <LastUpdated page="meta" />
         </div>
         <p className="text-muted-foreground mt-2 text-sm max-w-2xl">
-          {t('meta.description', { count: CHAMPIONS_TOURNAMENT_COUNT, teams: CHAMPIONS_TOURNAMENT_TOTAL_TEAMS.toLocaleString() })}
+          {t('meta.description', { count: CHAMPIONS_TOURNAMENT_COUNT, teams: fmtNum(CHAMPIONS_TOURNAMENT_TOTAL_TEAMS) })}
         </p>
         <div className="flex items-center gap-4 mt-3">
           <a href="/battle-bot" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-300 hover:border-amber-400 transition-colors">
@@ -904,7 +908,7 @@ export default function MetaPage() {
                       {sprite && <Image src={sprite} alt={p.name} width={28} height={28} className="rounded" unoptimized />}
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold truncate">{tp(p.name)}</p>
-                        <p className="text-[9px] text-muted-foreground">{p.elo.toLocaleString()} ELO{usageData ? ` · ${usageData.usageRate}% ${t('meta.realUsage')}` : ""}</p>
+                        <p className="text-[9px] text-muted-foreground">{fmtNum(p.elo)} ELO{usageData ? ` · ${usageData.usageRate}% ${t('meta.realUsage')}` : ""}</p>
                       </div>
                       <span className={cn("text-xs font-bold", p.wr >= 55 ? "text-green-600" : p.wr >= 50 ? "text-emerald-600" : "text-amber-600")}>{p.wr}%</span>
                     </div>
@@ -935,7 +939,7 @@ export default function MetaPage() {
                       </div>
                       <span className="text-xs font-bold text-green-600">{c.wr}%</span>
                     </div>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{c.games.toLocaleString()} {t('meta.games')}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{fmtNum(c.games)} {t('meta.games')}</p>
                   </div>
                 ))}
               </div>
@@ -1139,59 +1143,8 @@ export default function MetaPage() {
             )}
           </div>
 
-          {/* ═══ 2. CHAMPIONS OFFICIAL & COMMUNITY TOURNAMENT USAGE ═══ */}
-          <div className="glass rounded-2xl p-6 border border-indigo-200/60 dark:border-indigo-500/20 bg-gradient-to-br from-indigo-50/30 via-white to-violet-50/30 dark:from-indigo-950/20 dark:via-transparent dark:to-violet-950/20">
-            <div className="flex items-center justify-between mb-1">
-              <h2 className="text-lg font-bold flex items-center gap-2">
-                <Award className="w-5 h-5 text-indigo-500" /> {t('meta.communityUsage')}
-              </h2>
-              <span className="px-3 py-1 text-[10px] font-bold uppercase rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/30">
-                {t('meta.teamsCount', { count: CHAMPIONS_TOURNAMENT_TOTAL_TEAMS.toLocaleString() })} · {CHAMPIONS_TOURNAMENT_COUNT} {t('meta.tournament')}
-              </span>
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">
-              {t('meta.communityUsageDesc', { count: CHAMPIONS_TOURNAMENT_COUNT })}
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {CHAMPIONS_TOURNAMENT_USAGE.slice(0, 30).map((p, i) => {
-                const pokemon = getPokemonByName(p.name);
-                const sprite = pokemon?.sprite ?? getSpriteForName(p.name);
-                const maxUsage = CHAMPIONS_TOURNAMENT_USAGE[0]?.usagePct ?? 53;
-                const top8Rate = Math.round((p.top8Count / (CHAMPIONS_TOURNAMENT_COUNT * 8)) * 100);
-                return (
-                  <div
-                    key={p.name}
-                    className={cn(
-                      "flex items-center gap-3 p-3 rounded-xl transition-colors cursor-pointer",
-                      i < 5 ? "bg-gradient-to-r from-indigo-50 to-violet-50 dark:from-indigo-500/[0.08] dark:to-violet-500/[0.08] border border-indigo-200 dark:border-indigo-500/20 hover:border-indigo-300 dark:hover:border-indigo-500/30" :
-                      i < 15 ? "bg-gray-50/80 dark:bg-white/[0.04] border border-gray-100 dark:border-white/[0.06] hover:border-gray-200 dark:hover:border-white/10" :
-                      "bg-gray-50/50 dark:bg-white/[0.03] hover:bg-gray-100/80 dark:hover:bg-white/[0.06]"
-                    )}
-                    onClick={() => setModal({ kind: "pokemon", name: p.name })}
-                  >
-                    <span className={cn(
-                      "text-sm font-extrabold w-7 text-center tabular-nums",
-                      i < 3 ? "text-indigo-600 dark:text-indigo-400" : i < 10 ? "text-gray-600 dark:text-gray-300" : "text-gray-400 dark:text-gray-500"
-                    )}>{p.rank}</span>
-                    {sprite && <Image src={sprite} alt={p.name} width={36} height={36} className="drop-shadow-sm" unoptimized />}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold truncate">{tp(p.name)}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <div className="flex-1 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
-                          <div className="h-full rounded-full bg-gradient-to-r from-indigo-400 to-violet-400" style={{ width: `${Math.min(100, (p.usagePct / maxUsage) * 100)}%` }} />
-                        </div>
-                        <span className="text-xs font-bold text-indigo-700 dark:text-indigo-400 tabular-nums shrink-0">{p.usagePct}%</span>
-                      </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <span className="text-[10px] text-muted-foreground block">{p.count} teams</span>
-                      <span className={cn("text-[10px] font-bold", top8Rate >= 50 ? "text-green-600 dark:text-green-400" : top8Rate >= 30 ? "text-amber-600 dark:text-amber-400" : "text-gray-500 dark:text-gray-400")}>Top 8: {top8Rate}%</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          {/* ═══ 2. LIVE REGULATION USAGE (from Limitless) ═══ */}
+          <LiveUsage defaultRegulation="M-B" />
 
           {/* ═══ 3. ML RANKING + ANTI-META RANKING (Side by Side) ═══ */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -1202,7 +1155,7 @@ export default function MetaPage() {
                 <Brain className="w-4 h-4 text-emerald-500" /> {t('meta.mlSimulationRanking')}
               </h2>
               <p className="text-xs text-muted-foreground mb-3">
-                {t('meta.mlSimulationDesc', { count: SIM_TOTAL_BATTLES.toLocaleString() })}
+                {t('meta.mlSimulationDesc', { count: fmtNum(SIM_TOTAL_BATTLES) })}
               </p>
               <div className="space-y-1.5">
                 {ML_POKEMON_RANKINGS.slice(0, 15).map((p, i) => {
@@ -1218,7 +1171,7 @@ export default function MetaPage() {
                       <div className="flex-1 min-w-0">
                         <span className="text-sm font-semibold truncate block">{tp(p.name)}</span>
                       </div>
-                      <span className="text-xs font-mono font-bold text-gray-600 tabular-nums">{p.elo.toLocaleString()}</span>
+                      <span className="text-xs font-mono font-bold text-gray-600 tabular-nums">{fmtNum(p.elo)}</span>
                       <span className={cn("text-xs font-bold tabular-nums", p.wr >= 55 ? "text-green-600" : p.wr >= 50 ? "text-gray-700" : "text-red-500")}>{p.wr}%</span>
                       <span className={cn("px-1.5 py-0.5 text-[9px] font-bold rounded",
                         p.tier === "S" ? "bg-amber-100 text-amber-700" : p.tier === "A" ? "bg-blue-100 text-blue-700" : p.tier === "B" ? "bg-gray-100 text-gray-700" : p.tier === "C" ? "bg-gray-50 text-gray-500" : "bg-red-50 text-red-400"
@@ -1522,7 +1475,7 @@ export default function MetaPage() {
                         </div>
                       </td>
                       <td className={cn("py-2 px-3 text-right font-bold", c.wr >= 75 ? "text-green-600" : "text-emerald-600")}>{c.wr}%</td>
-                      <td className="py-2 px-3 text-right text-muted-foreground">{c.games.toLocaleString()}</td>
+                      <td className="py-2 px-3 text-right text-muted-foreground">{fmtNum(c.games)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -1589,7 +1542,7 @@ export default function MetaPage() {
                       <td className="py-2 px-3"><span className={cn("px-2 py-0.5 text-[10px] font-bold rounded", i < 2 ? "bg-amber-100 text-amber-700" : i < 5 ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-600")}>#{i + 1}</span></td>
                       <td className="py-2 px-3 font-semibold text-sm">{a.name}</td>
                       <td className={cn("py-2 px-3 text-right font-bold", a.wr >= 60 ? "text-green-600" : "text-gray-700")}>{a.wr}%</td>
-                      <td className="py-2 px-3 text-right text-muted-foreground">{a.elo.toLocaleString()}</td>
+                      <td className="py-2 px-3 text-right text-muted-foreground">{fmtNum(a.elo)}</td>
                       <td className="py-2 px-3">
                         <div className="h-2 bg-gray-200 rounded-full overflow-hidden"><div className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400" style={{ width: `${a.wr}%` }} /></div>
                       </td>
@@ -1626,7 +1579,7 @@ export default function MetaPage() {
                     <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400" style={{ width: `${m.wr}%` }} />
                     </div>
-                    <span className="text-xs text-muted-foreground">{m.uses.toLocaleString()} {t('meta.uses')}</span>
+                    <span className="text-xs text-muted-foreground">{fmtNum(m.uses)} {t('meta.uses')}</span>
                   </div>
                 </div>
               ))}
@@ -2080,7 +2033,7 @@ export default function MetaPage() {
                       <div className="flex gap-1.5 mt-1">{(megaTypes ?? pokemon.types).map(ty => <span key={ty} className="px-2.5 py-1 text-[10px] font-bold uppercase rounded-lg text-white" style={{ backgroundColor: TYPE_COLORS[ty as PokemonType] }}>{tty(ty)}</span>)}</div>
                       <div className="flex items-center gap-3 mt-2">
                         {tier !== "-" && <span className={cn("px-2.5 py-1 text-xs font-bold rounded-lg", tier === "S" ? "bg-amber-100 text-amber-700" : tier === "A" ? "bg-blue-100 text-blue-700" : tier === "B" ? "bg-gray-100 text-gray-700" : tier === "C" ? "bg-gray-50 text-gray-500" : "bg-red-50 text-red-400")}>{tier}-{t('meta.tier')}</span>}
-                        {mlData && <span className="text-sm text-muted-foreground">ML #{ML_POKEMON_RANKINGS.indexOf(mlData) + 1} · ELO {mlData.elo.toLocaleString()}</span>}
+                        {mlData && <span className="text-sm text-muted-foreground">ML #{ML_POKEMON_RANKINGS.indexOf(mlData) + 1} · ELO {fmtNum(mlData.elo)}</span>}
                       </div>
                     </div>
                   </div>
@@ -2106,7 +2059,7 @@ export default function MetaPage() {
                       <h4 className="text-sm font-bold uppercase text-muted-foreground">{t('meta.performance')}</h4>
                       {mlData && <>
                         <div className="flex justify-between p-2.5 bg-gray-50 rounded-xl"><span className="text-xs text-muted-foreground">{t('meta.mlWinRate')}</span><span className={cn("text-sm font-bold", mlData.wr >= 55 ? "text-green-600" : "text-foreground")}>{mlData.wr}%</span></div>
-                        <div className="flex justify-between p-2.5 bg-gray-50 rounded-xl"><span className="text-xs text-muted-foreground">{t('meta.mlGames')}</span><span className="text-sm font-bold">{mlData.games.toLocaleString()}</span></div>
+                        <div className="flex justify-between p-2.5 bg-gray-50 rounded-xl"><span className="text-xs text-muted-foreground">{t('meta.mlGames')}</span><span className="text-sm font-bold">{fmtNum(mlData.games)}</span></div>
                       </>}
                       {usageData && <>
                         <div className="flex justify-between p-2.5 bg-gray-50 rounded-xl"><span className="text-xs text-muted-foreground">{t('meta.tournamentUsage')}</span><span className="text-sm font-bold">{usageData.usageRate}%</span></div>
@@ -2210,13 +2163,13 @@ export default function MetaPage() {
                         )}
                         {simData?.bestSets && simData.bestSets.length > 0 && (
                           <div className="space-y-1.5">
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('meta.mlBestSets').replace('{count}', simData.appearances.toLocaleString())}</p>
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('meta.mlBestSets').replace('{count}', fmtNum(simData.appearances))}</p>
                             {simData.bestSets.slice(0, 3).map((s, i) => (
                               <div key={i} className="flex items-center gap-3 p-2.5 bg-emerald-50/50 rounded-xl border border-emerald-100">
                                 <span className="text-[9px] font-bold text-emerald-600 w-5">#{i + 1}</span>
                                 <span className="text-xs font-semibold flex-1">{s.set}</span>
                                 <span className={cn("text-xs font-bold", s.winRate >= 55 ? "text-green-600" : "text-gray-700")}>{s.winRate}%</span>
-                                <span className="text-[10px] text-muted-foreground">{s.games.toLocaleString()} {t('meta.games')}</span>
+                                <span className="text-[10px] text-muted-foreground">{fmtNum(s.games)} {t('meta.games')}</span>
                               </div>
                             ))}
                           </div>
@@ -2285,7 +2238,7 @@ export default function MetaPage() {
                       {mlArch && <span className={cn("px-2.5 py-1 text-xs font-bold rounded-lg", mlArch.wr >= 60 ? "bg-green-100 text-green-700" : mlArch.wr >= 52 ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-600")}>{mlArch.wr}% Win Rate</span>}
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {archTeams.length} tournament teams · {matchups.length} tracked matchups{mlArch ? ` · ELO ${mlArch.elo.toLocaleString()}` : ""}
+                      {archTeams.length} tournament teams · {matchups.length} tracked matchups{mlArch ? ` · ELO ${fmtNum(mlArch.elo)}` : ""}
                     </p>
                   </div>
 
@@ -2298,7 +2251,7 @@ export default function MetaPage() {
                         <div className="h-2.5 bg-emerald-200 rounded-full mt-2 overflow-hidden"><div className="h-full rounded-full bg-emerald-500" style={{ width: `${mlArch.wr}%` }} /></div>
                       </div>
                       <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center">
-                        <p className="text-3xl font-extrabold text-emerald-700">{mlArch.elo.toLocaleString()}</p>
+                        <p className="text-3xl font-extrabold text-emerald-700">{fmtNum(mlArch.elo)}</p>
                         <p className="text-xs text-muted-foreground">ML ELO Rating</p>
                         <div className="h-2.5 bg-emerald-200 rounded-full mt-2 overflow-hidden"><div className="h-full rounded-full bg-emerald-500" style={{ width: `${Math.min(100, (mlArch.elo / 30000) * 100)}%` }} /></div>
                       </div>
@@ -2448,7 +2401,7 @@ export default function MetaPage() {
                         <div className="h-3 bg-amber-200 rounded-full mt-2 overflow-hidden"><div className="h-full rounded-full bg-amber-500" style={{ width: `${mlMove.wr}%` }} /></div>
                       </div>
                       <div className="p-5 rounded-xl bg-cyan-50 border border-cyan-200 text-center">
-                        <p className="text-4xl font-extrabold text-cyan-700">{mlMove.uses.toLocaleString()}</p>
+                        <p className="text-4xl font-extrabold text-cyan-700">{fmtNum(mlMove.uses)}</p>
                         <p className="text-xs text-muted-foreground mt-1">{t('meta.totalUsesInSim')}</p>
                       </div>
                     </div>
@@ -2515,7 +2468,7 @@ export default function MetaPage() {
                     </>}
                     {mlCore && <>
                       <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center"><p className="text-3xl font-extrabold text-emerald-700">{mlCore.wr}%</p><p className="text-xs text-muted-foreground">{t('meta.mlWinRate')}</p></div>
-                      <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center"><p className="text-3xl font-extrabold text-emerald-700">{mlCore.games.toLocaleString()}</p><p className="text-xs text-muted-foreground">{t('meta.mlGames')}</p></div>
+                      <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center"><p className="text-3xl font-extrabold text-emerald-700">{fmtNum(mlCore.games)}</p><p className="text-xs text-muted-foreground">{t('meta.mlGames')}</p></div>
                     </>}
                   </div>
 
@@ -3205,3 +3158,5 @@ function TournamentTeamCard({ team, expanded, onToggle }: { team: TournamentTeam
     </motion.div>
   );
 }
+
+

@@ -1,4 +1,4 @@
-import { ChampionsPokemon, Season } from "./types";
+﻿import { ChampionsPokemon, Season } from "./types";
 import { spriteUrl } from "./sprite-url";
 
 // ============================================================
@@ -41,6 +41,34 @@ export const SEASONS: Season[] = [
       "20-minute game timer",
     ],
     isActive: true,
+  },
+  {
+    id: 2,
+    name: "Season M-2",
+    startDate: "2026-06-18",
+    regulations: [
+      {
+        id: "M-C",
+        label: "Regulation M-C",
+        seasonId: 2,
+        startDate: "2026-06-18",
+        endDate: "2026-08-31",
+        isActive: false,
+        // Test roster: 6 hand-picked Pokémon already in the project
+        restrictToPokemonIds: [25, 448, 658, 778, 877, 887],
+      },
+    ],
+    rules: [
+      "Doubles format",
+      "Bring 6, Pick 4",
+      "Level 50 auto-level",
+      "Stat Points (no IVs/EVs)",
+      "Mega Evolution",
+      "No duplicate Pokémon",
+      "No duplicate held items",
+      "20-minute game timer",
+    ],
+    isActive: false,
   },
 ];
 
@@ -29059,6 +29087,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
   }
 ];
 
+
 // Resolve sprite paths → CDN URLs at load time (once).
 for (const p of POKEMON_SEED) {
   p.sprite = spriteUrl(p.sprite);
@@ -29075,15 +29104,27 @@ export function getPokemonBySeason(season: number): ChampionsPokemon[] {
 }
 
 /**
- * Returns all Pokémon available in a given regulation and all earlier ones.
- * Regulations are ordered chronologically; each one includes everything before it.
+ * Returns all Pokémon available in a given regulation and all earlier ones
+ * within the *same season*. Each season is independent — regulations from
+ * a previous season are not carried over.
  */
 export function getPokemonByRegulation(regulationId: string): ChampionsPokemon[] {
-  // Build an ordered list of all regulation ids across all seasons
-  const allRegs = SEASONS.flatMap((s) => s.regulations).map((r) => r.id);
-  const idx = allRegs.indexOf(regulationId);
+  // Find the season and regulation
+  const season = SEASONS.find((s) => s.regulations.some((r) => r.id === regulationId));
+  if (!season) return POKEMON_SEED.filter((p) => !p.hidden);
+  const regulation = season.regulations.find((r) => r.id === regulationId);
+
+  // If the regulation has an explicit allow-list, return only those Pokémon
+  if (regulation?.restrictToPokemonIds) {
+    const allowed = new Set(regulation.restrictToPokemonIds);
+    return POKEMON_SEED.filter((p) => !p.hidden && allowed.has(p.id));
+  }
+
+  // Otherwise accumulate all regulations within the same season up to this one
+  const seasonRegs = season.regulations.map((r) => r.id);
+  const idx = seasonRegs.indexOf(regulationId);
   if (idx === -1) return POKEMON_SEED.filter((p) => !p.hidden);
-  const validRegs = new Set(allRegs.slice(0, idx + 1));
+  const validRegs = new Set(seasonRegs.slice(0, idx + 1));
   return POKEMON_SEED.filter((p) => !p.hidden && validRegs.has(p.regulation));
 }
 

@@ -107,6 +107,218 @@
   --sidebar-ring: oklch(0.55 0.22 270);
 }
 
+/* ── Pokémon type color utilities ───────────────────────────────────────────
+   Replaces runtime style={{ backgroundColor: TYPE_COLORS[type] }} with
+   static CSS classes so inline-style linting passes.
+   Variants: .type-bg (solid), .type-bg-aa (67% alpha), .type-bg-30 (19% alpha)
+   .type-color (foreground), .type-border (border)
+   ────────────────────────────────────────────────────────────────────────── */
+.type-bg-normal  { background-color: #a8a878; }
+.type-bg-fire    { background-color: #f08030; }
+.type-bg-water   { background-color: #6890f0; }
+.type-bg-electric{ background-color: #f8d030; }
+.type-bg-grass   { background-color: #78c850; }
+.type-bg-ice     { background-color: #98d8d8; }
+.type-bg-fighting{ background-color: #c03028; }
+.type-bg-poison  { background-color: #a040a0; }
+.type-bg-ground  { background-color: #e0c068; }
+.type-bg-flying  { background-color: #a890f0; }
+.type-bg-psychic { background-color: #f85888; }
+.type-bg-bug     { background-color: #a8b820; }
+.type-bg-rock    { background-color: #b8a038; }
+.type-bg-ghost   { background-color: #705898; }
+.type-bg-dragon  { background-color: #7038f8; }
+.type-bg-dark    { background-color: #705848; }
+.type-bg-steel   { background-color: #b8b8d0; }
+.type-bg-fairy   { background-color: #ee99ac; }
+
+/* 80% alpha (CC) */
+.type-bg-cc-normal  { background-color: rgba(168,168,120,.80); }
+.type-bg-cc-fire    { background-color: rgba(240,128, 48,.80); }
+.type-bg-cc-water   { background-color: rgba(104,144,240,.80); }
+.type-bg-cc-electric{ background-color: rgba(248,208, 48,.80); }
+.type-bg-cc-grass   { background-color: rgba(120,200, 80,.80); }
+.type-bg-cc-ice     { background-color: rgba(152,216,216,.80); }
+.type-bg-cc-fighting{ background-color: rgba(192, 48, 40,.80); }
+.type-bg-cc-poison  { background-color: rgba(160, 64,160,.80); }
+.type-bg-cc-ground  { background-color: rgba(224,192,104,.80); }
+.type-bg-cc-flying  { background-color: rgba(168,144,240,.80); }
+.type-bg-cc-psychic { background-color: rgba(248, 88,136,.80); }
+.type-bg-cc-bug     { background-color: rgba(168,184, 32,.80); }
+.type-bg-cc-rock    { background-color: rgba(184,160, 56,.80); }
+.type-bg-cc-ghost   { background-color: rgba(112, 88,152,.80); }
+.type-bg-cc-dragon  { background-color: rgba(112, 56,248,.80); }
+.type-bg-cc-dark    { background-color: rgba(112, 88, 72,.80); }
+.type-bg-cc-steel   { background-color: rgba(184,184,208,.80); }
+.type-bg-cc-fairy   { background-color: rgba(238,153,172,.80); }
+
+/* 67% alpha (AA) */
+.type-bg-aa-normal  { background-color: rgba(168,168,120,.67); }
+.type-bg-aa-fire    { background-color: rgba(240,128, 48,.67); }
+.type-bg-aa-water   { background-color: rgba(104,144,240,.67); }
+.type-bg-aa-electric{ background-color: rgba(248,208, 48,.67); }
+.type-bg-aa-grass   { background-color: rgba(120,200, 80,.67); }
+.type-bg-aa-ice     { background-color: rgba(152,216,216,.67); }
+.type-bg-aa-fighting{ background-color: rgba(192, 48, 40,.67); }
+.type-bg-aa-poison  { background-color: rgba(160, 64,160,.67); }
+.type-bg-aa-ground  { background-color: rgba(224,192,104,.67); }
+.type-bg-aa-flying  { background-color: rgba(168,144,240,.67); }
+.type-bg-aa-psychic { background-color: rgba(248, 88,136,.67); }
+.type-bg-aa-bug     { background-color: rgba(168,184, 32,.67); }
+.type-bg-aa-rock    { background-color: rgba(184,160, 56,.67); }
+.type-bg-aa-ghost   { background-color: rgba(112, 88,152,.67); }
+.type-bg-aa-dragon  { background-color: rgba(112, 56,248,.67); }
+.type-bg-aa-dark    { background-color: rgba(112, 88, 72,.67); }
+.type-bg-aa-steel   { background-color: rgba(184,184,208,.67); }
+.type-bg-aa-fairy   { background-color: rgba(238,153,172,.67); }
+
+/* 19% alpha (30) */
+.type-bg-30-normal  { background-color: rgba(168,168,120,.19); }
+.type-bg-30-fire    { background-color: rgba(240,128, 48,.19); }
+.type-bg-30-water   { background-color: rgba(104,144,240,.19); }
+.type-bg-30-electric{ background-color: rgba(248,208, 48,.19); }
+.type-bg-30-grass   { background-color: rgba(120,200, 80,.19); }
+.type-bg-30-ice     { background-color: rgba(152,216,216,.19); }
+.type-bg-30-fighting{ background-color: rgba(192, 48, 40,.19); }
+.type-bg-30-poison  { background-color: rgba(160, 64,160,.19); }
+.type-bg-30-ground  { background-color: rgba(224,192,104,.19); }
+.type-bg-30-flying  { background-color: rgba(168,144,240,.19); }
+.type-bg-30-psychic { background-color: rgba(248, 88,136,.19); }
+.type-bg-30-bug     { background-color: rgba(168,184, 32,.19); }
+.type-bg-30-rock    { background-color: rgba(184,160, 56,.19); }
+.type-bg-30-ghost   { background-color: rgba(112, 88,152,.19); }
+.type-bg-30-dragon  { background-color: rgba(112, 56,248,.19); }
+.type-bg-30-dark    { background-color: rgba(112, 88, 72,.19); }
+.type-bg-30-steel   { background-color: rgba(184,184,208,.19); }
+.type-bg-30-fairy   { background-color: rgba(238,153,172,.19); }
+
+/* foreground color */
+.type-color-normal  { color: #a8a878; }
+.type-color-fire    { color: #f08030; }
+.type-color-water   { color: #6890f0; }
+.type-color-electric{ color: #f8d030; }
+.type-color-grass   { color: #78c850; }
+.type-color-ice     { color: #98d8d8; }
+.type-color-fighting{ color: #c03028; }
+.type-color-poison  { color: #a040a0; }
+.type-color-ground  { color: #e0c068; }
+.type-color-flying  { color: #a890f0; }
+.type-color-psychic { color: #f85888; }
+.type-color-bug     { color: #a8b820; }
+.type-color-rock    { color: #b8a038; }
+.type-color-ghost   { color: #705898; }
+.type-color-dragon  { color: #7038f8; }
+.type-color-dark    { color: #705848; }
+.type-color-steel   { color: #b8b8d0; }
+.type-color-fairy   { color: #ee99ac; }
+
+/* border color */
+.type-border-normal  { border-color: #a8a878; }
+.type-border-fire    { border-color: #f08030; }
+.type-border-water   { border-color: #6890f0; }
+.type-border-electric{ border-color: #f8d030; }
+.type-border-grass   { border-color: #78c850; }
+.type-border-ice     { border-color: #98d8d8; }
+.type-border-fighting{ border-color: #c03028; }
+.type-border-poison  { border-color: #a040a0; }
+.type-border-ground  { border-color: #e0c068; }
+.type-border-flying  { border-color: #a890f0; }
+.type-border-psychic { border-color: #f85888; }
+.type-border-bug     { border-color: #a8b820; }
+.type-border-rock    { border-color: #b8a038; }
+.type-border-ghost   { border-color: #705898; }
+.type-border-dragon  { border-color: #7038f8; }
+.type-border-dark    { border-color: #705848; }
+.type-border-steel   { border-color: #b8b8d0; }
+.type-border-fairy   { border-color: #ee99ac; }
+
+/* 33% alpha border (55) */
+.type-border-55-normal  { border-color: rgba(168,168,120,.33); }
+.type-border-55-fire    { border-color: rgba(240,128, 48,.33); }
+.type-border-55-water   { border-color: rgba(104,144,240,.33); }
+.type-border-55-electric{ border-color: rgba(248,208, 48,.33); }
+.type-border-55-grass   { border-color: rgba(120,200, 80,.33); }
+.type-border-55-ice     { border-color: rgba(152,216,216,.33); }
+.type-border-55-fighting{ border-color: rgba(192, 48, 40,.33); }
+.type-border-55-poison  { border-color: rgba(160, 64,160,.33); }
+.type-border-55-ground  { border-color: rgba(224,192,104,.33); }
+.type-border-55-flying  { border-color: rgba(168,144,240,.33); }
+.type-border-55-psychic { border-color: rgba(248, 88,136,.33); }
+.type-border-55-bug     { border-color: rgba(168,184, 32,.33); }
+.type-border-55-rock    { border-color: rgba(184,160, 56,.33); }
+.type-border-55-ghost   { border-color: rgba(112, 88,152,.33); }
+.type-border-55-dragon  { border-color: rgba(112, 56,248,.33); }
+.type-border-55-dark    { border-color: rgba(112, 88, 72,.33); }
+.type-border-55-steel   { border-color: rgba(184,184,208,.33); }
+.type-border-55-fairy   { border-color: rgba(238,153,172,.33); }
+
+/* 9% alpha (18 hex) – team-tester type filter pills */
+.type-bg-10-normal  { background-color: rgba(168,168,120,.09); }
+.type-bg-10-fire    { background-color: rgba(240,128, 48,.09); }
+.type-bg-10-water   { background-color: rgba(104,144,240,.09); }
+.type-bg-10-electric{ background-color: rgba(248,208, 48,.09); }
+.type-bg-10-grass   { background-color: rgba(120,200, 80,.09); }
+.type-bg-10-ice     { background-color: rgba(152,216,216,.09); }
+.type-bg-10-fighting{ background-color: rgba(192, 48, 40,.09); }
+.type-bg-10-poison  { background-color: rgba(160, 64,160,.09); }
+.type-bg-10-ground  { background-color: rgba(224,192,104,.09); }
+.type-bg-10-flying  { background-color: rgba(168,144,240,.09); }
+.type-bg-10-psychic { background-color: rgba(248, 88,136,.09); }
+.type-bg-10-bug     { background-color: rgba(168,184, 32,.09); }
+.type-bg-10-rock    { background-color: rgba(184,160, 56,.09); }
+.type-bg-10-ghost   { background-color: rgba(112, 88,152,.09); }
+.type-bg-10-dragon  { background-color: rgba(112, 56,248,.09); }
+.type-bg-10-dark    { background-color: rgba(112, 88, 72,.09); }
+.type-bg-10-steel   { background-color: rgba(184,184,208,.09); }
+.type-bg-10-fairy   { background-color: rgba(238,153,172,.09); }
+
+/* ── Stat color utilities (text + accent-color + stat-range CSS var) ── */
+.stat-color-hp     { color: #ff5959; }
+.stat-color-attack { color: #f5ac78; }
+.stat-color-defense{ color: #fae078; }
+.stat-color-spAtk  { color: #9db7f5; }
+.stat-color-spDef  { color: #a7db8d; }
+.stat-color-speed  { color: #fa92b2; }
+.stat-color-bst    { color: #888888; }
+
+/* accent-color for range inputs in page.tsx (not using stat-range class) */
+.stat-accent-hp     { accent-color: #ff5959; }
+.stat-accent-attack { accent-color: #f5ac78; }
+.stat-accent-defense{ accent-color: #fae078; }
+.stat-accent-spAtk  { accent-color: #9db7f5; }
+.stat-accent-spDef  { accent-color: #a7db8d; }
+.stat-accent-speed  { accent-color: #fa92b2; }
+.stat-accent-bst    { accent-color: #888888; }
+
+/* stat-range per-stat (team-builder picker – sets --stat-color + accent-color) */
+.stat-range-hp     { --stat-color: #ff5959; accent-color: #ff5959; }
+.stat-range-attack { --stat-color: #f5ac78; accent-color: #f5ac78; }
+.stat-range-defense{ --stat-color: #fae078; accent-color: #fae078; }
+.stat-range-spAtk  { --stat-color: #9db7f5; accent-color: #9db7f5; }
+.stat-range-spDef  { --stat-color: #a7db8d; accent-color: #a7db8d; }
+.stat-range-speed  { --stat-color: #fa92b2; accent-color: #fa92b2; }
+.stat-range-bst    { --stat-color: #888888; accent-color: #888888; }
+
+/* radial type-colour spotlight behind Pokémon sprite (18 static classes) */
+.radial-type-normal   { background: radial-gradient(ellipse, rgba(168,168,120,.08) 0%, transparent 70%); }
+.radial-type-fire     { background: radial-gradient(ellipse, rgba(240,128, 48,.08) 0%, transparent 70%); }
+.radial-type-water    { background: radial-gradient(ellipse, rgba(104,144,240,.08) 0%, transparent 70%); }
+.radial-type-electric { background: radial-gradient(ellipse, rgba(248,208, 48,.08) 0%, transparent 70%); }
+.radial-type-grass    { background: radial-gradient(ellipse, rgba(120,200, 80,.08) 0%, transparent 70%); }
+.radial-type-ice      { background: radial-gradient(ellipse, rgba(152,216,216,.08) 0%, transparent 70%); }
+.radial-type-fighting { background: radial-gradient(ellipse, rgba(192, 48, 40,.08) 0%, transparent 70%); }
+.radial-type-poison   { background: radial-gradient(ellipse, rgba(160, 64,160,.08) 0%, transparent 70%); }
+.radial-type-ground   { background: radial-gradient(ellipse, rgba(224,192,104,.08) 0%, transparent 70%); }
+.radial-type-flying   { background: radial-gradient(ellipse, rgba(168,144,240,.08) 0%, transparent 70%); }
+.radial-type-psychic  { background: radial-gradient(ellipse, rgba(248, 88,136,.08) 0%, transparent 70%); }
+.radial-type-bug      { background: radial-gradient(ellipse, rgba(168,184, 32,.08) 0%, transparent 70%); }
+.radial-type-rock     { background: radial-gradient(ellipse, rgba(184,160, 56,.08) 0%, transparent 70%); }
+.radial-type-ghost    { background: radial-gradient(ellipse, rgba(112, 88,152,.08) 0%, transparent 70%); }
+.radial-type-dragon   { background: radial-gradient(ellipse, rgba(112, 56,248,.08) 0%, transparent 70%); }
+.radial-type-dark     { background: radial-gradient(ellipse, rgba(112, 88, 72,.08) 0%, transparent 70%); }
+.radial-type-steel    { background: radial-gradient(ellipse, rgba(184,184,208,.08) 0%, transparent 70%); }
+.radial-type-fairy    { background: radial-gradient(ellipse, rgba(238,153,172,.08) 0%, transparent 70%); }
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -131,6 +343,7 @@
 /* Glassmorphism card - light mode */
 .glass {
   background: rgba(255, 255, 255, 0.72);
+  -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(0, 0, 0, 0.06);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
@@ -259,6 +472,7 @@ body.mobile-open .mobile-nav-panel { display: block; }
 .sp-slider::-webkit-slider-thumb { border-color: var(--sp-thumb-border, #8b5cf6); }
 .sp-slider::-moz-range-thumb { border-color: var(--sp-thumb-border, #8b5cf6); }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
 
 /* Stat filter range inputs – dark mode track */
 .dark .stat-range::-webkit-slider-runnable-track {
@@ -434,6 +648,7 @@ body.mobile-open .mobile-nav-panel { display: block; }
 /* ── Glass morphism - dark mode ── */
 .dark .glass {
   background: rgba(14, 21, 40, 0.78);
+  -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(148, 163, 184, 0.08);
   box-shadow:
@@ -489,6 +704,7 @@ body.mobile-open .mobile-nav-panel { display: block; }
   transition: box-shadow 0.2s ease;
   /* Light mode style */
   background: rgba(255, 255, 255, 0.8);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.08),

@@ -979,7 +979,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                                   {p && (
                                     <div className="flex gap-0.5">
                                       {p.types.map(t => (
-                                        <span key={t} className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: TYPE_COLORS[t] }} />
+                                        <span key={t} className={cn("w-2 h-2 rounded-full flex-shrink-0", `type-bg-${t}`)} />
                                       ))}
                                     </div>
                                   )}
@@ -1030,7 +1030,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                                           {p && (
                                             <div className="flex gap-0.5 flex-shrink-0">
                                               {p.types.map(ty => (
-                                                <span key={ty} className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: TYPE_COLORS[ty] }} />
+                                                <span key={ty} className={cn("w-1.5 h-1.5 rounded-full", `type-bg-${ty}`)} />
                                               ))}
                                             </div>
                                           )}
@@ -1482,12 +1482,12 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                   <button
                     key={ty}
                     onClick={() => setPickerTypeFilter(pickerTypeFilter === ty ? null : ty)}
-                    className="px-2 py-1 rounded-full text-[10px] font-semibold capitalize transition-all"
-                    style={{
-                      backgroundColor: pickerTypeFilter === ty ? TYPE_COLORS[ty] : `${TYPE_COLORS[ty]}18`,
-                      color: pickerTypeFilter === ty ? "#fff" : TYPE_COLORS[ty],
-                      border: `1px solid ${pickerTypeFilter === ty ? TYPE_COLORS[ty] : `${TYPE_COLORS[ty]}40`}`,
-                    }}
+                    className={cn(
+                      "px-2 py-1 rounded-full text-[10px] font-semibold capitalize transition-all border",
+                      pickerTypeFilter === ty
+                        ? `type-bg-${ty} type-border-${ty} text-white`
+                        : `type-bg-10-${ty} type-color-${ty} type-border-55-${ty}`
+                    )}
                   >
                     {t(`common.types.${ty}`)}
                   </button>
@@ -1514,7 +1514,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                       <p className="text-xs font-medium">{p.name}</p>
                       <div className="flex gap-1 mt-0.5">
                         {p.types.map(t => (
-                          <span key={t} className="w-2 h-2 rounded-full" style={{ backgroundColor: TYPE_COLORS[t] }} />
+                          <span key={t} className={cn("w-2 h-2 rounded-full", `type-bg-${t}`)} />
                         ))}
                       </div>
                     </div>
@@ -1641,7 +1641,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                     </h3>
                     <div className="flex gap-1 mt-0.5">
                       {displayTypes.map(t => (
-                        <span key={t} className="px-1.5 py-0.5 text-[7px] font-bold uppercase rounded text-white/80" style={{ backgroundColor: `${TYPE_COLORS[t]}AA` }}>{t}</span>
+                        <span key={t} className={cn("px-1.5 py-0.5 text-[7px] font-bold uppercase rounded text-white/80", `type-bg-aa-${t}`)}>{t}</span>
                       ))}
                     </div>
                   </div>
@@ -1970,7 +1970,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                             <div key={moveName} className="p-2.5 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10">
                               <div className="flex items-center gap-1.5 mb-1">
                                 {moveData && (
-                                  <span className="px-1 py-px text-[8px] font-bold uppercase rounded text-white" style={{ backgroundColor: TYPE_COLORS[moveData.type] }}>
+                                  <span className={cn("px-1 py-px text-[8px] font-bold uppercase rounded text-white", `type-bg-${moveData.type}`)}>
                                     {moveData.type}
                                   </span>
                                 )}
@@ -2198,7 +2198,8 @@ function TargetSubCell({
 
 // ── Move cell (grid card) ───────────────────────────────────────────────────
 function MoveCell({ move, side }: { move: BattleMoveEntry; side: "mine" | "opp" }) {
-  const typeColor = TYPE_COLORS[move.moveType] ?? "#888";
+  const typeColor = TYPE_COLORS[move.moveType] ?? "#888"; // kept for potential non-type moves
+  // use type-bg-* CSS class where possible (all 18 known types)
   const isStatus = move.category === "status";
   const isOpp = side === "opp";
   const hasPerTarget = !!move.perTarget;
@@ -2220,14 +2221,10 @@ function MoveCell({ move, side }: { move: BattleMoveEntry; side: "mine" | "opp" 
         {/* Type badge + priority + recommended star + move name */}
         <div className="flex items-center gap-1 min-w-0">
           <span
-            className="flex-shrink-0 px-1 py-px rounded text-[6px] font-bold text-white uppercase leading-none"
-            style={{ backgroundColor: typeColor }}
+            className={cn("flex-shrink-0 px-1 py-px rounded text-[6px] font-bold text-white uppercase leading-none", `type-bg-${move.moveType}`)}
           >
             {move.moveType}
           </span>
-          {move.priority > 0 && (
-            <span className="flex-shrink-0 text-[7px] font-bold text-amber-500">+{move.priority}</span>
-          )}
           {move.priority < 0 && (
             <span className="flex-shrink-0 text-[7px] text-muted-foreground/50">{move.priority}</span>
           )}
@@ -2277,8 +2274,7 @@ function MoveCell({ move, side }: { move: BattleMoveEntry; side: "mine" | "opp" 
       {/* Type badge row */}
       <div className="flex items-center gap-1 min-w-0">
         <span
-          className="flex-shrink-0 px-1 py-px rounded text-[6px] font-bold text-white uppercase leading-none"
-          style={{ backgroundColor: typeColor }}
+          className={cn("flex-shrink-0 px-1 py-px rounded text-[6px] font-bold text-white uppercase leading-none", `type-bg-${move.moveType}`)}
         >
           {move.moveType}
         </span>
@@ -2517,8 +2513,7 @@ function MonPanel({
               {slot.types.map((t) => (
                 <span
                   key={t}
-                  className="px-1 py-px rounded text-[7px] font-bold text-white uppercase leading-none"
-                  style={{ backgroundColor: TYPE_COLORS[t] }}
+                  className={cn("px-1 py-px rounded text-[7px] font-bold text-white uppercase leading-none", `type-bg-${t}`)}
                 >
                   {t}
                 </span>
