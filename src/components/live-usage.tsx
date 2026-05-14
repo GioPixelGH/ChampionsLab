@@ -7,17 +7,28 @@ import { cn } from "@/lib/utils";
 import { POKEMON_SEED } from "@/lib/pokemon-data";
 import type { MetaResponse, TournamentBreakdown, TournamentPokemonUsage } from "@/app/api/meta/route";
 
-// ── Regulation options ────────────────────────────────────────────────────────
 const REGULATIONS = [
-  { value: "M-A", label: "Reg M-A" },
-  { value: "M-B", label: "Reg M-B" },
-  { value: "M-C", label: "Reg M-C" },
+  { value: "M-A", label: "Regulation M-A" },
 ];
 
-const TIME_OPTIONS = [
-  { value: "7days", label: "7 days" },
-  { value: "30days", label: "30 days" },
-  { value: "all", label: "All time" },
+// Generate last N months as { value: "YYYY-MM", label: "Month YYYY" }
+function getMonthOptions(count = 18) {
+  const months: { value: string; label: string }[] = [];
+  const now = new Date();
+  for (let i = 0; i < count; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const label = d.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    months.push({ value, label });
+  }
+  return months;
+}
+const MONTH_OPTIONS = getMonthOptions(18);
+
+const SHOW_OPTIONS = [
+  { value: 25, label: "25" },
+  { value: 50, label: "50" },
+  { value: 100, label: "100" },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -32,7 +43,9 @@ function getSpriteForShowdownId(showdownId: string, displayName: string): string
   const baseName = displayName.startsWith("Mega ")
     ? displayName.replace(/^Mega /, "").replace(/ [XYZ]$/, "")
     : displayName;
-  const byName = POKEMON_SEED.find((p) => p.name === baseName || p.name === displayName);
+  const byName =
+    POKEMON_SEED.find((p) => p.name === baseName || p.name === displayName) ??
+    POKEMON_SEED.find((p) => p.name.startsWith(baseName + "-"));
   if (!byName) return null;
 
   if (displayName.startsWith("Mega ")) {
@@ -155,13 +168,10 @@ function TournamentDetail({
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export function LiveUsage({
-  defaultRegulation = "M-B",
-}: {
-  defaultRegulation?: string;
-}) {
-  const [regulation, setRegulation] = useState(defaultRegulation);
+export function LiveUsage() {
+  const [regulation, setRegulation] = useState("M-A");
   const [time, setTime] = useState<string>("7days");
+  const [show, setShow] = useState<number>(25);
   const [data, setData] = useState<MetaResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -174,7 +184,7 @@ export function LiveUsage({
     setError(null);
     try {
       const res = await fetch(
-        `/api/meta?regulation=${encodeURIComponent(regulation)}&time=${time}&limit=25`
+        `/api/meta?regulation=${encodeURIComponent(regulation)}&time=${time}&limit=${show}`
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json: MetaResponse = await res.json();
@@ -187,7 +197,7 @@ export function LiveUsage({
     } finally {
       setLoading(false);
     }
-  }, [regulation, time]);
+  }, [regulation, time, show]);
 
   useEffect(() => {
     fetchData();
@@ -218,41 +228,43 @@ export function LiveUsage({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {/* Regulation selector */}
-          <div className="flex rounded-lg border border-gray-200 dark:border-white/10 overflow-hidden text-xs">
+          {/* Regulation dropdown */}
+          <select
+            value={regulation}
+            onChange={(e) => setRegulation(e.target.value)}
+            className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-700 dark:text-white text-xs font-semibold transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-indigo-400/50 cursor-pointer"
+          >
             {REGULATIONS.map((r) => (
-              <button
-                key={r.value}
-                onClick={() => setRegulation(r.value)}
-                className={cn(
-                  "px-3 py-1.5 font-semibold transition-colors",
-                  regulation === r.value
-                    ? "bg-indigo-500 text-white"
-                    : "bg-white dark:bg-white/[0.04] text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/[0.07]"
-                )}
-              >
-                {r.label}
-              </button>
+              <option key={r.value} value={r.value}>{r.label}</option>
             ))}
-          </div>
+          </select>
 
-          {/* Time selector */}
-          <div className="flex rounded-lg border border-gray-200 dark:border-white/10 overflow-hidden text-xs">
-            {TIME_OPTIONS.map((t) => (
-              <button
-                key={t.value}
-                onClick={() => setTime(t.value)}
-                className={cn(
-                  "px-3 py-1.5 font-semibold transition-colors",
-                  time === t.value
-                    ? "bg-violet-500 text-white"
-                    : "bg-white dark:bg-white/[0.04] text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/[0.07]"
-                )}
-              >
-                {t.label}
-              </button>
+          {/* Time dropdown */}
+          <select
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-700 dark:text-white text-xs font-semibold transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-violet-400/50 cursor-pointer"
+          >
+            <option value="7days">Past 7 days</option>
+            <option value="4weeks">Past 4 weeks</option>
+            <option value="all">All time</option>
+            <optgroup label="By month">
+              {MONTH_OPTIONS.map((m) => (
+                <option key={m.value} value={m.value}>{m.label}</option>
+              ))}
+            </optgroup>
+          </select>
+
+          {/* Tournament count dropdown */}
+          <select
+            value={show}
+            onChange={(e) => setShow(Number(e.target.value))}
+            className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-700 dark:text-white text-xs font-semibold transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-indigo-400/50 cursor-pointer"
+          >
+            {SHOW_OPTIONS.map((s) => (
+              <option key={s.value} value={s.value}>{s.label} tournaments</option>
             ))}
-          </div>
+          </select>
 
           {/* Refresh */}
           <button

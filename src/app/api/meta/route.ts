@@ -75,17 +75,21 @@ const REVALIDATE_SECONDS = 6 * 60 * 60; // 6 h
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const regulation = searchParams.get("regulation") ?? "M-B";
-  const limit = Math.min(parseInt(searchParams.get("limit") ?? "25", 10), 50);
-  const time = searchParams.get("time") ?? "7days"; // "7days" | "30days" | "all"
+  const regulation = searchParams.get("regulation") ?? "M-A";
+  const limit = Math.min(parseInt(searchParams.get("limit") ?? "25", 10), 100);
+  const time = searchParams.get("time") ?? "7days"; // "7days" | "4weeks" | "YYYY-MM" | "all"
 
   // ── 1. Fetch tournament list ──────────────────────────────────────────────
-  // Fetch a slightly larger pool so we can filter by date when time != "all"
-  const fetchLimit = time === "all" ? limit : Math.min(limit * 3, 100);
+  // Fetch a larger pool so local date filtering always has enough data.
+  // The Limitless JSON API may not honour the `time` param, so we filter locally too.
+  const isMonth = /^\d{4}-\d{2}$/.test(time);
+  const timeQuery = time !== "all" ? `&time=${encodeURIComponent(time)}` : "";
+  // For relative windows fetch 3× to ensure the window is fully covered; for months/all use limit directly.
+  const fetchLimit = (time === "7days" || time === "4weeks") ? Math.min(limit * 4, 200) : limit;
   let tournaments: LimitlessTournament[] = [];
   try {
     const res = await fetch(
-      `${LIMITLESS_API}/tournaments?game=VGC&format=${encodeURIComponent(regulation)}&limit=${fetchLimit}`,
+      `${LIMITLESS_API}/tournaments?game=VGC&format=${encodeURIComponent(regulation)}&limit=${fetchLimit}${timeQuery}`,
       { next: { revalidate: REVALIDATE_SECONDS } }
     );
     if (!res.ok) throw new Error(`tournaments list HTTP ${res.status}`);
@@ -95,14 +99,23 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Failed to fetch tournaments from Limitless" }, { status: 502 });
   }
 
-  // ── 1b. Apply time filter ─────────────────────────────────────────────────
-  if (time !== "all") {
-    const days = time === "30days" ? 30 : 7;
+  // ── 1b. Local date filter (safety net in case Limitless ignores `time`) ──
+  if (time === "7days" || time === "4weeks") {
+    const days = time === "7days" ? 7 : 28;
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - days);
-    tournaments = tournaments.filter(t => new Date(t.date) >= cutoff);
+    tournaments = tournaments.filter((t) => new Date(t.date) >= cutoff);
+  } else if (isMonth) {
+    const [y, m] = time.split("-").map(Number);
+    const start = new Date(y, m - 1, 1);
+    const end   = new Date(y, m, 1);
+    tournaments = tournaments.filter((t) => {
+      const d = new Date(t.date);
+      return d >= start && d < end;
+    });
   }
-  // Cap to requested limit after date filtering
+
+  // Cap to requested limit after filtering
   tournaments = tournaments.slice(0, limit);
 
   if (!tournaments.length) {

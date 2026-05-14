@@ -1144,7 +1144,7 @@ export default function MetaPage() {
           </div>
 
           {/* ═══ 2. LIVE REGULATION USAGE (from Limitless) ═══ */}
-          <LiveUsage defaultRegulation="M-B" />
+          <LiveUsage />
 
           {/* ═══ 3. ML RANKING + ANTI-META RANKING (Side by Side) ═══ */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
