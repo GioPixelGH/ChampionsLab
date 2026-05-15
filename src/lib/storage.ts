@@ -14,6 +14,7 @@ const KEYS = {
   SETTINGS: "champions-lab:settings",
   LAST_TEAM: "champions-lab:last-team",
   MATCH_JOURNAL: "champions-lab:match-journal",
+  MY_ROSTER: "champions-lab:my-roster",
 } as const;
 
 // ── Types ───────────────────────────────────────────────────────────────
@@ -270,4 +271,25 @@ export function updateSettings(partial: Partial<UserSettings>): UserSettings {
   const updated = { ...current, ...partial };
   writeJSON(KEYS.SETTINGS, updated);
   return updated;
+}
+
+// ── My Roster ────────────────────────────────────────────────────────────
+
+/** Get the set of Pokémon IDs the user owns */
+export function getMyRoster(): Set<number> {
+  const ids = readJSON<number[]>(KEYS.MY_ROSTER, []);
+  return new Set(ids);
+}
+
+/** Save the full set of owned Pokémon IDs */
+export function saveMyRoster(ids: Set<number>): void {
+  writeJSON(KEYS.MY_ROSTER, Array.from(ids));
+}
+
+/** Toggle a single Pokémon in/out of the roster and persist */
+export function toggleRosterPokemon(id: number): Set<number> {
+  const roster = getMyRoster();
+  if (roster.has(id)) { roster.delete(id); } else { roster.add(id); }
+  saveMyRoster(roster);
+  return roster;
 }

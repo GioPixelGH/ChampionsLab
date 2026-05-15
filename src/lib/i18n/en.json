@@ -443,7 +443,19 @@
       "lockSlot": "Lock this Pokémon — keep it in the optimized team",
       "unlockSlot": "Unlock this Pokémon",
       "lockedHint": "{{count}} Pokémon locked — optimizer will build the best team around them",
-      "noLocksHint": "Lock Pokémon on any slot to keep them in the optimized team"
+      "noLocksHint": "Lock Pokémon on any slot to keep them in the optimized team",
+      "useMyRoster": "My Roster",
+      "useAllPokemon": "All Pokémon",
+      "rosterFilterActive": "Searching within your {{count}} owned Pokémon",
+      "rosterEmpty": "Your roster is empty — add Pokémon in the My Roster panel"
+    },
+    "myRoster": {
+      "title": "My Roster",
+      "subtitle": "Mark the Pokémon you own. The optimizer can then search only within your collection.",
+      "owned": "{{count}} owned",
+      "selectAll": "Select All",
+      "clearAll": "Clear All",
+      "close": "Close"
     },
     "baseStatFilter": "Base Stat",
     "typeFilter": "Type",

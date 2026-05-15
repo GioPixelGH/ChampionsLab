@@ -2,9 +2,12 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { Award, ChevronDown, ChevronUp, Trophy, Users, RefreshCw, Calendar, List, BarChart3 } from "lucide-react";
+import Link from "next/link";
+import { Award, ChevronDown, ChevronUp, Trophy, Users, RefreshCw, Calendar, List, BarChart3, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { POKEMON_SEED } from "@/lib/pokemon-data";
+import { USAGE_DATA } from "@/lib/usage-data";
+import { deflateRaw } from "pako";
 import type { MetaResponse, TournamentBreakdown, TournamentPokemonUsage } from "@/app/api/meta/route";
 
 const REGULATIONS = [
@@ -23,13 +26,116 @@ function getMonthOptions(count = 18) {
   }
   return months;
 }
-const MONTH_OPTIONS = getMonthOptions(18);
+const MONTH_OPTIONS = getMonthOptions(2);
 
 const SHOW_OPTIONS = [
   { value: 25, label: "25" },
   { value: 50, label: "50" },
   { value: 100, label: "100" },
 ];
+
+const SORT_OPTIONS = [
+  { value: "date-desc",    label: "Newest first" },
+  { value: "date-asc",     label: "Oldest first" },
+  { value: "players-desc", label: "Most players" },
+  { value: "players-asc",  label: "Fewest players" },
+];
+
+// ── Build Team Builder URL from Limitless decklist ───────────────────────────
+function buildWinnerTeamUrl(
+  pokemon: { id: string; name: string; item?: string; ability?: string; moves?: string[] }[],
+  tournamentName: string
+): string {
+  const isMegaId = (id: string) => /-mega(-[xy])?$/.test(id.toLowerCase());
+  const isMegaStoneItem = (item: string) =>
+    item.endsWith("ite") || item.endsWith("ite X") || item.endsWith("ite Y") || item.endsWith("ite Z");
+
+  const slots = pokemon.slice(0, 6).map((mon) => {
+    // Detect mega: either the id ends in -mega, or the held item is a mega stone
+    const isMegaById = isMegaId(mon.id);
+    const isMegaByItem = !!(mon.item && isMegaStoneItem(mon.item));
+    const isMega = isMegaById || isMegaByItem;
+    const baseId = isMegaById
+      ? mon.id.toLowerCase().replace(/-mega(-[xy])?$/, "")
+      : mon.id.toLowerCase();
+
+    // Find the POKEMON_SEED entry
+    // Also handle gender-symbol names from Limitless (e.g. "Basculegion ♂" / "Basculegion ♀")
+    const genderMatch = mon.name.match(/^(.+?)\s([♀♂])$/);
+    const genderSuffix = genderMatch ? (genderMatch[2] === "♀" ? "-F" : "-M") : null;
+    const baseName = genderMatch ? genderMatch[1] : mon.name.replace(/^Mega /, "");
+    const pkm =
+      POKEMON_SEED.find((p) => p.showdownName?.toLowerCase() === baseId) ??
+      POKEMON_SEED.find((p) => p.name.toLowerCase().replace(/[^a-z0-9]/g, "") === baseId.replace(/-/g, "")) ??
+      POKEMON_SEED.find((p) => p.name.toLowerCase() === mon.name.toLowerCase().replace(/^Mega /, "")) ??
+      (genderSuffix ? POKEMON_SEED.find((p) => p.name.toLowerCase() === (baseName + genderSuffix).toLowerCase()) : undefined) ??
+      POKEMON_SEED.find((p) => p.name.toLowerCase().startsWith(baseId + "-"));
+
+    if (!pkm) return null;
+
+    // Resolve mega form index from ability (for team builder slot)
+    const megaForms = pkm.forms?.filter((f) => f.isMega && !f.hidden) ?? [];
+    let mgi: number | undefined;
+    if (isMega && mon.ability) {
+      const idx = megaForms.findIndex((f) => f.abilities.some((a) => a.name === mon.ability));
+      mgi = idx >= 0 ? idx : 0;
+    } else if (isMega) {
+      mgi = 0;
+    }
+
+    // Use actual Limitless data when available; fall back to USAGE_DATA for SP spread and nature
+    if (mon.ability && mon.moves && mon.moves.length > 0) {
+      const sets = USAGE_DATA[pkm.id] ?? [];
+      const matchedSet = sets.find((s) => s.ability === mon.ability) ?? sets[0];
+      return {
+        p: pkm.id,
+        a: mon.ability,
+        t: matchedSet?.nature,
+        m: mon.moves.slice(0, 4),
+        sp: matchedSet
+          ? [matchedSet.sp.hp, matchedSet.sp.attack, matchedSet.sp.defense, matchedSet.sp.spAtk, matchedSet.sp.spDef, matchedSet.sp.speed]
+          : [0, 0, 0, 0, 0, 0],
+        i: mon.item ?? matchedSet?.item,
+        mg: isMega || undefined,
+        mgi,
+      };
+    }
+
+    // No actual data – fall back to best USAGE_DATA set
+    const sets = USAGE_DATA[pkm.id] ?? [];
+    const bestSet = isMega
+      ? (sets.find((s) => isMegaStoneItem(s.item)) ?? sets[0])
+      : (sets.find((s) => !isMegaStoneItem(s.item)) ?? sets[0]);
+    if (bestSet) {
+      return {
+        p: pkm.id,
+        a: bestSet.ability,
+        t: bestSet.nature,
+        m: bestSet.moves,
+        sp: [bestSet.sp.hp, bestSet.sp.attack, bestSet.sp.defense, bestSet.sp.spAtk, bestSet.sp.spDef, bestSet.sp.speed],
+        i: bestSet.item,
+        mg: isMega || undefined,
+        mgi,
+      };
+    }
+    return {
+      p: pkm.id,
+      a: pkm.abilities[0]?.name,
+      m: pkm.moves.slice(0, 4).map((mv) => mv.name),
+      sp: [0, 0, 0, 0, 0, 0],
+      mg: isMega || undefined,
+      mgi,
+    };
+  }).filter(Boolean);
+
+  if (slots.length === 0) return "/team-builder";
+
+  const data = { n: tournamentName, s: slots };
+  const compressed = deflateRaw(JSON.stringify(data));
+  const b64 = btoa(String.fromCharCode(...compressed))
+    .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return `/team-builder?t=${b64}`;
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function getSpriteForShowdownId(showdownId: string, displayName: string): string | null {
@@ -43,9 +149,20 @@ function getSpriteForShowdownId(showdownId: string, displayName: string): string
   const baseName = displayName.startsWith("Mega ")
     ? displayName.replace(/^Mega /, "").replace(/ [XYZ]$/, "")
     : displayName;
+
+  // Strip gender symbols (e.g. "Basculegion ♀" → "Basculegion", "Basculegion ♂" → "Basculegion")
+  // Also map gender symbol to the -F / -M suffix used in POKEMON_SEED
+  const genderMatch = baseName.match(/^(.+?)\s([♀♂])$/);
+  const baseNameNoGender = genderMatch ? genderMatch[1] : baseName;
+  const genderSuffix = genderMatch ? (genderMatch[2] === "♀" ? "-F" : "-M") : null;
+
   const byName =
     POKEMON_SEED.find((p) => p.name === baseName || p.name === displayName) ??
-    POKEMON_SEED.find((p) => p.name.startsWith(baseName + "-"));
+    // Try with gender suffix (e.g. "Basculegion-F")
+    (genderSuffix ? POKEMON_SEED.find((p) => p.name === baseNameNoGender + genderSuffix) : undefined) ??
+    POKEMON_SEED.find((p) => p.name.startsWith(baseName + "-")) ??
+    // Fallback: match by base name without gender (returns the first form found)
+    (genderMatch ? POKEMON_SEED.find((p) => p.name.startsWith(baseNameNoGender + "-")) : undefined);
   if (!byName) return null;
 
   if (displayName.startsWith("Mega ")) {
@@ -150,6 +267,76 @@ function TournamentDetail({
           <ChevronUp className="w-4 h-4" />
         </button>
       </div>
+
+      {/* Winner section */}
+      {tournament.winner && (
+        <div className="mb-4 p-3 rounded-xl bg-amber-50/60 dark:bg-amber-500/[0.08] border border-amber-200 dark:border-amber-500/20">
+          {/* Header row */}
+          <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+            <div className="flex items-center gap-2 min-w-0">
+              <Trophy className="w-4 h-4 text-amber-500 shrink-0" />
+              <p className="text-xs font-bold text-amber-700 dark:text-amber-400 truncate">
+                {tournament.winner.player}
+                <span className="ml-1.5 font-normal text-muted-foreground">({tournament.winner.record})</span>
+              </p>
+            </div>
+            <Link
+              href={buildWinnerTeamUrl(tournament.winner.pokemon, `${tournament.winner.player} - ${tournament.name}`)}
+              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-colors"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              Open in Team Builder
+            </Link>
+          </div>
+          {/* Full team cards */}
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+            {tournament.winner.pokemon.map((mon) => {
+              const isMegaMon = /-mega(-[xy])?$/.test(mon.id.toLowerCase());
+              const baseId = isMegaMon ? mon.id.toLowerCase().replace(/-mega(-[xy])?$/, "") : mon.id.toLowerCase();
+              const gm = mon.name.match(/^(.+?)\s([♀♂])$/);
+              const gSuffix = gm ? (gm[2] === "♀" ? "-F" : "-M") : null;
+              const bName = gm ? gm[1] : mon.name.replace(/^Mega /, "");
+              const isMegaStone = (item: string) => item.endsWith("ite") || item.endsWith("ite X") || item.endsWith("ite Y") || item.endsWith("ite Z");
+              const pkm =
+                POKEMON_SEED.find((p) => p.showdownName?.toLowerCase() === baseId) ??
+                POKEMON_SEED.find((p) => p.name.toLowerCase().replace(/[^a-z0-9]/g, "") === baseId.replace(/-/g, "")) ??
+                POKEMON_SEED.find((p) => p.name.toLowerCase() === mon.name.toLowerCase().replace(/^Mega /, "")) ??
+                (gSuffix ? POKEMON_SEED.find((p) => p.name.toLowerCase() === (bName + gSuffix).toLowerCase()) : undefined) ??
+                POKEMON_SEED.find((p) => p.name.toLowerCase().startsWith(baseId + "-"));
+              const sets = pkm ? (USAGE_DATA[pkm.id] ?? []) : [];
+              const set = isMegaMon
+                ? (sets.find((s) => isMegaStone(s.item)) ?? sets[0])
+                : (sets.find((s) => !isMegaStone(s.item)) ?? sets[0]);
+              const sprite = getSpriteForShowdownId(mon.id, mon.name);
+              return (
+                <div key={mon.id + mon.name} className="bg-white/60 dark:bg-white/[0.05] rounded-xl p-2 flex flex-col">
+                  <div className="flex justify-center mb-1">
+                    {sprite
+                      ? <Image src={sprite} alt={mon.name} width={44} height={44} className="drop-shadow-sm" unoptimized />
+                      : <div className="w-11 h-11 rounded bg-gray-200 dark:bg-white/10" />
+                    }
+                  </div>
+                  <p className="text-[10px] font-bold truncate text-center leading-tight mb-1">{mon.name}</p>
+                  {set ? (
+                    <>
+                      {set.item && <p className="text-[9px] text-amber-700 dark:text-amber-400 truncate font-medium">{set.item}</p>}
+                      {set.nature && <p className="text-[9px] text-emerald-600 dark:text-emerald-400 truncate">{set.nature}</p>}
+                      <div className="mt-0.5">
+                        {set.moves.slice(0, 4).map((m) => (
+                          <p key={m} className="text-[8px] text-muted-foreground truncate leading-tight">• {m}</p>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-[8px] text-muted-foreground italic">No set data</p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
         {displayed.map((entry, i) => (
           <UsageBar key={entry.showdownId} entry={entry} maxUsage={maxUsage} rank={i + 1} />
@@ -176,6 +363,7 @@ export function LiveUsage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [view, setView] = useState<"aggregated" | "byTournament">("aggregated");
+  const [sort, setSort] = useState<string>("date-desc");
   const [expandedTournament, setExpandedTournament] = useState<string | null>(null);
   const [showAllAggregated, setShowAllAggregated] = useState(false);
 
@@ -263,6 +451,17 @@ export function LiveUsage() {
           >
             {SHOW_OPTIONS.map((s) => (
               <option key={s.value} value={s.value}>{s.label} tournaments</option>
+            ))}
+          </select>
+
+          {/* Sort dropdown */}
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-700 dark:text-white text-xs font-semibold transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-indigo-400/50 cursor-pointer"
+          >
+            {SORT_OPTIONS.map((s) => (
+              <option key={s.value} value={s.value}>{s.label}</option>
             ))}
           </select>
 
@@ -371,7 +570,12 @@ export function LiveUsage() {
       {/* Per-tournament view */}
       {!loading && !error && data && view === "byTournament" && (
         <div className="space-y-3">
-          {data.byTournament.map((t) => (
+          {[...data.byTournament].sort((a, b) => {
+            if (sort === "date-asc")     return new Date(a.date).getTime() - new Date(b.date).getTime();
+            if (sort === "players-desc") return b.players - a.players;
+            if (sort === "players-asc")  return a.players - b.players;
+            return new Date(b.date).getTime() - new Date(a.date).getTime(); // date-desc default
+          }).map((t) => (
             <div key={t.id}>
               <button
                 className={cn(

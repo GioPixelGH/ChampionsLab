@@ -14,8 +14,12 @@ interface LimitlessTournament {
 }
 
 interface LimitlessMon {
-  id: string;   // Showdown-style ID  e.g. "rotom-wash", "ninetales-alola"
-  name: string; // Display name       e.g. "Wash Rotom", "Alolan Ninetales"
+  id: string;      // Showdown-style ID  e.g. "rotom-wash", "ninetales-alola"
+  name: string;    // Display name       e.g. "Wash Rotom", "Alolan Ninetales"
+  item?: string;   // Held item          e.g. "Sitrus Berry"
+  ability?: string; // Ability            e.g. "Intimidate"
+  attacks?: string[]; // Moves            e.g. ["Fake Out", "Flare Blitz", ...]
+  tera?: string | null;
 }
 
 interface LimitlessStanding {
@@ -51,6 +55,7 @@ export interface TournamentBreakdown {
   players: number;
   teams: number; // players with valid decklists
   usage: TournamentPokemonUsage[];
+  winner: { player: string; record: string; pokemon: { id: string; name: string; item?: string; ability?: string; moves?: string[] }[] } | null;
 }
 
 export interface MetaResponse {
@@ -80,18 +85,32 @@ export async function GET(req: Request) {
   const time = searchParams.get("time") ?? "7days"; // "7days" | "4weeks" | "YYYY-MM" | "all"
 
   // ── 1. Fetch tournament list ──────────────────────────────────────────────
-  // Fetch a larger pool so local date filtering always has enough data.
-  // The Limitless JSON API may not honour the `time` param, so we filter locally too.
+  // The Limitless JSON API ignores time= for monthly values (YYYY-MM) — it always
+  // returns the most-recent tournaments sorted by date desc. We must fetch a large
+  // enough pool and filter locally.
+  // Empirically: ~100 VGC tournaments/month, so to reach month M we need
+  // (months_since_M * 100) + limit entries. We cap at 300 to stay safe.
   const isMonth = /^\d{4}-\d{2}$/.test(time);
-  const timeQuery = time !== "all" ? `&time=${encodeURIComponent(time)}` : "";
-  // For relative windows fetch 3× to ensure the window is fully covered; for months/all use limit directly.
-  const fetchLimit = (time === "7days" || time === "4weeks") ? Math.min(limit * 4, 200) : limit;
+
+  // For rolling windows (7days / 4weeks) the param MAY work server-side; keep it.
+  // For months, the param is ignored, so don't send it (avoids confusion).
+  const timeQuery = !isMonth && time !== "all" ? `&time=${encodeURIComponent(time)}` : "";
+
+  const fetchLimit = isMonth
+    ? 300                              // must reach back into target month
+    : Math.min(limit * 2, 100);       // rolling window: small pool is enough
+
+  const listUrl = `${LIMITLESS_API}/tournaments?game=VGC&format=${encodeURIComponent(regulation)}&limit=${fetchLimit}${timeQuery}`;
+
   let tournaments: LimitlessTournament[] = [];
   try {
-    const res = await fetch(
-      `${LIMITLESS_API}/tournaments?game=VGC&format=${encodeURIComponent(regulation)}&limit=${fetchLimit}${timeQuery}`,
-      { next: { revalidate: REVALIDATE_SECONDS } }
-    );
+    let res = await fetch(listUrl, { next: { revalidate: REVALIDATE_SECONDS } });
+    // Retry once on 429 after the suggested delay (or 2 s)
+    if (res.status === 429) {
+      const retryAfter = parseInt(res.headers.get("Retry-After") ?? "2", 10);
+      await new Promise((r) => setTimeout(r, retryAfter * 1000));
+      res = await fetch(listUrl, { next: { revalidate: REVALIDATE_SECONDS } });
+    }
     if (!res.ok) throw new Error(`tournaments list HTTP ${res.status}`);
     tournaments = await res.json();
   } catch (e) {
@@ -129,21 +148,32 @@ export async function GET(req: Request) {
     });
   }
 
-  // ── 2. Fetch standings for each tournament in parallel ───────────────────
-  const standingsByTournament: LimitlessStanding[][] = await Promise.all(
-    tournaments.map(async (t) => {
-      try {
-        const res = await fetch(
-          `${LIMITLESS_API}/tournaments/${t.id}/standings`,
-          { next: { revalidate: REVALIDATE_SECONDS } }
-        );
-        if (!res.ok) return [];
-        return (await res.json()) as LimitlessStanding[];
-      } catch {
-        return [];
-      }
-    })
-  );
+  // ── 2. Fetch standings in batches to avoid rate-limiting ─────────────────
+  const BATCH_SIZE = 8;
+  const BATCH_DELAY_MS = 150;
+
+  async function fetchStandings(t: LimitlessTournament): Promise<LimitlessStanding[]> {
+    try {
+      const res = await fetch(
+        `${LIMITLESS_API}/tournaments/${t.id}/standings`,
+        { next: { revalidate: REVALIDATE_SECONDS } }
+      );
+      if (!res.ok) return [];
+      return (await res.json()) as LimitlessStanding[];
+    } catch {
+      return [];
+    }
+  }
+
+  const standingsByTournament: LimitlessStanding[][] = [];
+  for (let i = 0; i < tournaments.length; i += BATCH_SIZE) {
+    const batch = tournaments.slice(i, i + BATCH_SIZE);
+    const results = await Promise.all(batch.map(fetchStandings));
+    standingsByTournament.push(...results);
+    if (i + BATCH_SIZE < tournaments.length) {
+      await new Promise((r) => setTimeout(r, BATCH_DELAY_MS));
+    }
+  }
 
   // ── 3. Aggregate global usage + per-tournament breakdown ─────────────────
   const usageMap = new Map<
@@ -201,6 +231,18 @@ export async function GET(req: Request) {
       }))
       .sort((a, b) => b.count - a.count);
 
+    // Find the winner (placing 1 with a valid decklist)
+    const winnerStanding = standings.find(
+      (p) => p.placing === 1 && Array.isArray(p.decklist) && p.decklist.length > 0
+    ) ?? null;
+    const winner = winnerStanding
+      ? {
+          player: winnerStanding.player,
+          record: `${winnerStanding.record?.wins ?? 0}-${winnerStanding.record?.losses ?? 0}-${winnerStanding.record?.ties ?? 0}`,
+          pokemon: winnerStanding.decklist!.map((m) => ({ id: m.id, name: m.name, item: m.item, ability: m.ability, moves: m.attacks })),
+        }
+      : null;
+
     byTournament.push({
       id: t.id,
       name: t.name,
@@ -208,6 +250,7 @@ export async function GET(req: Request) {
       players: t.players,
       teams: tourneyTeams,
       usage: tourneyUsageList,
+      winner,
     });
   }
 

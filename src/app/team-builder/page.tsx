@@ -51,7 +51,7 @@ import {
 } from "@/lib/engine/picker-roles";
 import {
   getSavedTeams, saveTeam, deleteTeam, deserializeTeam, saveLastTeam, getLastTeam,
-  serializeTeam,
+  serializeTeam, getMyRoster, toggleRosterPokemon, saveMyRoster,
   type SavedTeam, type SavedTeamSlot,
 } from "@/lib/storage";
 import {
@@ -230,6 +230,7 @@ export default function TeamBuilderPage() {
   const [selectedPokemonDetail, setSelectedPokemonDetail] = useState<ChampionsPokemon | null>(null);
   const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(null);
   const editPanelRef = useRef<HTMLDivElement>(null);
+  const initialSearchRef = useRef("");
   const [savedTeams, setSavedTeams] = useState<SavedTeam[]>([]);
   const [currentTeamId, setCurrentTeamId] = useState<string | undefined>();
   const [showSavedTeams, setShowSavedTeams] = useState(false);
@@ -260,6 +261,12 @@ export default function TeamBuilderPage() {
   const [showOptimizerPanel, setShowOptimizerPanel] = useState(false);
   const [lockedSlots, setLockedSlots] = useState<boolean[]>(Array(6).fill(false));
   const searchAbortRef = useRef(false);
+
+  // ── My Roster ──
+  const [myRosterIds, setMyRosterIds] = useState<Set<number>>(() => new Set());
+  const [optimizerUseMyRoster, setOptimizerUseMyRoster] = useState(false);
+  const [showMyRosterPanel, setShowMyRosterPanel] = useState(false);
+  const [rosterSearch, setRosterSearch] = useState("");
 
   // ── Slot-level search ──
   const [slotSearchIdx, setSlotSearchIdx] = useState<number | null>(null);
@@ -320,10 +327,17 @@ export default function TeamBuilderPage() {
 
   // Load saved teams on mount + restore last team if available OR load from share URL
   useEffect(() => {
-    setSavedTeams(getSavedTeams());
+    // Capture URL params once before any window.history.replaceState call.
+    // The ref persists across React Strict Mode's double effect-run, so the
+    // second run still sees the original search string even after replaceState.
+    if (!initialSearchRef.current) {
+      initialSearchRef.current = window.location.search;
+    }
 
-    // Check for shared team URL first
-    const params = new URLSearchParams(window.location.search);
+    setSavedTeams(getSavedTeams());
+    setMyRosterIds(getMyRoster());
+
+    const params = new URLSearchParams(initialSearchRef.current);
     const shortId = params.get("s");
     const teamParam = params.get("t") || params.get("team"); // "t" = compressed, "team" = legacy
 
@@ -448,7 +462,10 @@ export default function TeamBuilderPage() {
 
   const runBestTeamSearch = async () => {
     const { analyzeTeamSynergy } = await import("@/lib/engine/synergy");
-    const roster = POKEMON_SEED.filter(p => !p.hidden);
+    const fullRoster = POKEMON_SEED.filter(p => !p.hidden);
+    const roster = optimizerUseMyRoster && myRosterIds.size > 0
+      ? fullRoster.filter(p => myRosterIds.has(p.id))
+      : fullRoster;
     const RESTARTS = 60;
     trackEvent("find_best_team", "team_builder");
     searchAbortRef.current = false;
@@ -1676,9 +1693,153 @@ export default function TeamBuilderPage() {
                 <><Sparkles className="w-4 h-4" />{t('teamBuilder.optimizer.find')}</>
               )}
             </button>
+            {/* My Roster button */}
+            <button
+              onClick={() => setShowMyRosterPanel(v => !v)}
+              className={cn(
+                "px-4 py-2 text-sm rounded-xl flex items-center gap-2 transition-colors shrink-0 font-semibold",
+                showMyRosterPanel
+                  ? "bg-emerald-500/10 border border-emerald-400/40 text-emerald-600"
+                  : "glass glass-hover text-emerald-600 hover:text-emerald-500"
+              )}
+              title={t('teamBuilder.myRoster.title')}
+            >
+              <Users className="w-4 h-4" />
+              {t('teamBuilder.myRoster.title')}
+              {myRosterIds.size > 0 && (
+                <span className="text-xs bg-emerald-500/20 text-emerald-600 rounded-full px-1.5 py-0.5 leading-none">
+                  {myRosterIds.size}
+                </span>
+              )}
+            </button>
+            {/* Optimizer roster toggle */}
+            {myRosterIds.size > 0 && (
+              <button
+                onClick={() => setOptimizerUseMyRoster(v => !v)}
+                className={cn(
+                  "px-3 py-2 text-sm rounded-xl flex items-center gap-2 transition-colors shrink-0",
+                  optimizerUseMyRoster
+                    ? "bg-violet-500/20 border border-violet-400/50 text-violet-600 font-semibold"
+                    : "glass glass-hover text-muted-foreground"
+                )}
+                title={optimizerUseMyRoster ? t('teamBuilder.optimizer.useAllPokemon') : t('teamBuilder.optimizer.useMyRoster')}
+              >
+                {optimizerUseMyRoster ? <Lock className="w-3.5 h-3.5" /> : <LockOpen className="w-3.5 h-3.5" />}
+                <span className="hidden sm:inline">
+                  {optimizerUseMyRoster ? t('teamBuilder.optimizer.useMyRoster') : t('teamBuilder.optimizer.useAllPokemon')}
+                </span>
+              </button>
+            )}
           </div>
         </div>
       </motion.div>
+
+      {/* My Roster Panel */}
+      <AnimatePresence>
+        {showMyRosterPanel && (() => {
+          const regulationPokemon = POKEMON_SEED.filter(p => !p.hidden)
+            .sort((a, b) => a.dexNumber - b.dexNumber || a.id - b.id);
+          const filtered = rosterSearch.trim()
+            ? regulationPokemon.filter(p => p.name.toLowerCase().includes(rosterSearch.toLowerCase()))
+            : regulationPokemon;
+          return (
+            <motion.div
+              key="my-roster-panel"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden mb-6"
+            >
+              <div className="glass rounded-2xl p-4 border border-gray-200/60">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold flex items-center gap-2">
+                      <Users className="w-4 h-4 text-emerald-500" />
+                      {t('teamBuilder.myRoster.title')}
+                      <span className="text-xs font-normal text-muted-foreground">
+                        {t('teamBuilder.myRoster.owned', { count: myRosterIds.size })}
+                      </span>
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t('teamBuilder.myRoster.subtitle')}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => {
+                        const all = new Set(regulationPokemon.map(p => p.id));
+                        setMyRosterIds(all);
+                        saveMyRoster(all);
+                      }}
+                      className="px-3 py-1.5 text-xs rounded-lg glass glass-hover text-emerald-600 font-medium"
+                    >
+                      {t('teamBuilder.myRoster.selectAll')}
+                    </button>
+                    <button
+                      onClick={() => {
+                        const empty = new Set<number>();
+                        setMyRosterIds(empty);
+                        saveMyRoster(empty);
+                        if (optimizerUseMyRoster) setOptimizerUseMyRoster(false);
+                      }}
+                      className="px-3 py-1.5 text-xs rounded-lg glass glass-hover text-red-400 font-medium"
+                    >
+                      {t('teamBuilder.myRoster.clearAll')}
+                    </button>
+                    <button
+                      onClick={() => setShowMyRosterPanel(false)}
+                      className="p-1.5 rounded-lg glass glass-hover text-muted-foreground"
+                      aria-label={t('teamBuilder.myRoster.close')}
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+                <input
+                  type="text"
+                  value={rosterSearch}
+                  onChange={e => setRosterSearch(e.target.value)}
+                  placeholder="Search Pokémon..."
+                  className="w-full mb-3 px-3 py-1.5 text-sm rounded-xl glass border border-gray-200/40 bg-transparent focus:outline-none focus:ring-1 focus:ring-violet-400/50 placeholder:text-muted-foreground/50"
+                />
+                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-1.5 max-h-80 overflow-y-auto pr-1">
+                  {filtered.map(p => {
+                    const owned = myRosterIds.has(p.id);
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => {
+                          const updated = toggleRosterPokemon(p.id);
+                          setMyRosterIds(new Set(updated));
+                        }}
+                        title={p.name}
+                        className={cn(
+                          "relative flex flex-col items-center rounded-xl p-1 transition-all border",
+                          owned
+                            ? "bg-emerald-500/15 border-emerald-400/50 ring-1 ring-emerald-400/30"
+                            : "glass border-transparent opacity-50 hover:opacity-80"
+                        )}
+                      >
+                        <Image
+                          src={p.sprite}
+                          alt={p.name}
+                          width={40}
+                          height={40}
+                          className="w-10 h-10 object-contain"
+                          unoptimized
+                        />
+                        {owned && (
+                          <span className="absolute top-0.5 right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full flex items-center justify-center">
+                            <Check className="w-2 h-2 text-white" />
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
 
       {/* Saved Teams Panel */}
       <AnimatePresence>
@@ -1802,6 +1963,24 @@ export default function TeamBuilderPage() {
                   </div>
                 );
               })()}
+
+              {/* My Roster filter hint */}
+              {optimizerUseMyRoster && myRosterIds.size > 0 && (
+                <div className="flex items-center gap-1.5 mb-3 px-2 py-1 rounded-lg bg-emerald-50 border border-emerald-200/60">
+                  <Users className="w-3 h-3 text-emerald-600 flex-shrink-0" />
+                  <span className="text-[10px] text-emerald-700">
+                    {t('teamBuilder.optimizer.rosterFilterActive', { count: myRosterIds.size })}
+                  </span>
+                </div>
+              )}
+              {optimizerUseMyRoster && myRosterIds.size === 0 && (
+                <div className="flex items-center gap-1.5 mb-3 px-2 py-1 rounded-lg bg-amber-50 border border-amber-200/60">
+                  <AlertTriangle className="w-3 h-3 text-amber-500 flex-shrink-0" />
+                  <span className="text-[10px] text-amber-700">
+                    {t('teamBuilder.optimizer.rosterEmpty')}
+                  </span>
+                </div>
+              )}
 
               {/* Result team */}
               {searchBestTeam && searchBestTeam.length > 0 && (
