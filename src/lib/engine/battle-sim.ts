@@ -3225,6 +3225,11 @@ function scorePokemonForBring(
         if (eff < 1) score += 3;
       }
     }
+    // VGC role bonuses: utility moves/abilities that are always valuable to bring
+    if (s.moves.includes("Fake Out")) score += 12;
+    if (s.moves.includes("Tailwind") || s.moves.includes("Trick Room")) score += 10;
+    if (s.ability === "Intimidate") score += 10;
+    if (s.moves.includes("Follow Me") || s.moves.includes("Rage Powder")) score += 8;
     if (isMegaStoneItem(s.item)) score += 10;
     scores.push({ idx: i, score });
   }
@@ -3327,9 +3332,8 @@ export function runTeamTestSimulation(
       combo.back1Sprite = remaining[0] ? team1Pokemon[remaining[0].idx].sprite : undefined;
       combo.back2Sprite = remaining[1] ? team1Pokemon[remaining[1].idx].sprite : undefined;
 
-      totalWins += res.wins;
-      totalGames += pass2Trials;
-      totalTurns += res.avgTurns * pass2Trials;
+      // Pass 2 battles are refinements only — do not add to the global aggregate
+      // to avoid double-counting the top combos in the overall win rate.
 
       onProgress?.(50 + Math.round(((r + 1) / refineCount) * 15));
     }
@@ -3396,6 +3400,26 @@ export function runTeamTestSimulation(
       combo.back2 = backs[1]?.name;
       combo.back2Sprite = backs[1]?.sprite;
     }
+
+    // ── Phase 3.5: Re-simulate top-3 combos with impact-backed brings ──────
+    // Win rates were measured in Phase 1 with heuristic backs. Now that backs
+    // are updated to impact-backed selections, refresh the displayed win rates
+    // so the shown data is consistent with the shown team composition.
+    const reTestTrials = Math.max(100, Math.round(iterations * 0.3));
+    for (let r = 0; r < Math.min(3, leadCombos.length); r++) {
+      const combo = leadCombos[r];
+      const ci = team1Pokemon.findIndex(p => p.name === combo.lead1);
+      const cj = team1Pokemon.findIndex(p => p.name === combo.lead2);
+      const cb1 = combo.back1 ? team1Pokemon.findIndex(p => p.name === combo.back1) : -1;
+      const cb2 = combo.back2 ? team1Pokemon.findIndex(p => p.name === combo.back2) : -1;
+      if (ci < 0 || cj < 0 || cb1 < 0 || cb2 < 0) continue;
+      const reTestTeam = [team1Pokemon[ci], team1Pokemon[cj], team1Pokemon[cb1], team1Pokemon[cb2]];
+      const reTestSets = [team1Sets[ci], team1Sets[cj], team1Sets[cb1], team1Sets[cb2]];
+      const res = runSimulation(reTestTeam, reTestSets, team2Pokemon, team2Sets, reTestTrials);
+      combo.winRate = res.winRate;
+      combo.games = reTestTrials;
+    }
+    leadCombos.sort((a, b) => b.winRate - a.winRate);
   }
   onProgress?.(95);
 

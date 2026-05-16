@@ -517,6 +517,14 @@ function predictOpponentLeads(
     // High threat vs our leads
     score += threatScore(opp, myLead1) * 0.05;
     score += threatScore(opp, myLead2) * 0.05;
+    // Direct type super-effectiveness vs our specific leads
+    for (const m of opp.moves) {
+      if (!m.data || m.data.category === "status") continue;
+      const eff1 = getMatchup(m.data.type, myLead1.pokemon.types);
+      const eff2 = getMatchup(m.data.type, myLead2.pokemon.types);
+      if (eff1 >= 2) score += 15;
+      if (eff2 >= 2) score += 15;
+    }
     // Lead role
     if (opp.roles.roles.includes("lead")) score += 15;
     if (opp.roles.roles.includes("support")) score += 10;
@@ -587,6 +595,51 @@ function speedTierLabel(speed: number): string {
   if (speed >= 90) return "moderate";
   if (speed >= 60) return "slow";
   return "very slow";
+}
+
+// ── TURN STATE ────────────────────────────────────────────────────────────────
+// Logical summary of what Turn 1 is expected to accomplish.
+// Derived from team configuration rather than text-searching rendered nodes —
+// stays accurate regardless of label wording, locale, or tree nesting depth.
+interface TurnState {
+  fakeOutUsed: boolean;   // we have an unblocked Fake Out user
+  tailwindUp: boolean;    // Tailwind is expected to go up Turn 1 (primary plan)
+  trickRoomUp: boolean;   // Trick Room is expected to go up Turn 1 (primary plan)
+  setupDelayed: boolean;  // speed control threatened by opp Fake Out — likely delayed to Turn 2
+  setupUsed: boolean;     // generic setup move likely used Turn 1 (e.g. redirect + setup)
+}
+
+function deriveTurn1State(
+  lead1: AnalyzedMon,
+  lead2: AnalyzedMon,
+  opp1: AnalyzedMon,
+  opp2: AnalyzedMon,
+): TurnState {
+  const fakeOutUser = lead1.hasFakeOut ? lead1 : lead2.hasFakeOut ? lead2 : null;
+  const tailwindUser = lead1.hasTailwind ? lead1 : lead2.hasTailwind ? lead2 : null;
+  const trUser = lead1.hasTrickRoom ? lead1 : lead2.hasTrickRoom ? lead2 : null;
+  const redirector = lead1.hasRedirection ? lead1 : lead2.hasRedirection ? lead2 : null;
+  const setupUser = lead1.hasSetup ? lead1 : lead2.hasSetup ? lead2 : null;
+  const priorityBlocker = opp1.blocksPriority ? opp1 : opp2.blocksPriority ? opp2 : null;
+  const oppHasFakeOut = opp1.hasFakeOut || opp2.hasFakeOut;
+  const speedUser = tailwindUser ?? trUser;
+
+  // Fake Out usable if we have a user and opponent doesn't block priority
+  const fakeOutUsed = !!(fakeOutUser && !priorityBlocker);
+
+  // Speed control is at risk when opp has Fake Out that can target our setter
+  const speedControlThreatened = !!(
+    speedUser && oppHasFakeOut && !isFakeOutImmune(speedUser.pokemon)
+  );
+  // Our own Fake Out counters the threat if FO user ≠ speed setter
+  const ourFOCounters = !!(fakeOutUsed && fakeOutUser && speedUser && fakeOutUser !== speedUser);
+
+  const tailwindUp = !!(tailwindUser && (!speedControlThreatened || ourFOCounters));
+  const trickRoomUp = !!(trUser && (!speedControlThreatened || ourFOCounters));
+  const setupDelayed = !!(speedUser && speedControlThreatened && !ourFOCounters);
+  const setupUsed = !!(redirector && setupUser && redirector !== setupUser);
+
+  return { fakeOutUsed, tailwindUp, trickRoomUp, setupDelayed, setupUsed };
 }
 
 let nodeCounter = 0;
@@ -932,14 +985,15 @@ function buildScenarioBranch(
     });
   }
 
-  // Build Turn 1 actions
+  // Derive logical Turn 1 state before building nodes — used for Turn 2/3/4 consistency
+  const turn1State = deriveTurn1State(lead1, lead2, opp1, opp2);
   const turn1Actions = buildTurn1Actions(lead1, lead2, opp1, opp2, weFaster, myArchetype, activeWeatherForCalc);
   turn1Label.children.push(...turn1Actions);
 
   // ── TURN 2 ───────────────────────────────────────────────────────────
 
-  const planHasTailwind = treeContains(turn1Actions, "Tailwind");
-  const planHasTrickRoom = treeContains(turn1Actions, "Trick Room");
+  const planHasTailwind = turn1State.tailwindUp;
+  const planHasTrickRoom = turn1State.trickRoomUp;
 
   const turn2Label: StrategyNode = {
     id: nextId(),
@@ -979,7 +1033,7 @@ function buildScenarioBranch(
     });
   }
 
-  const turn2Actions = buildTurn2Actions(lead1, lead2, opp1, opp2, turn1Actions, myArchetype, fullTeam, activeWeatherForCalc, oppFullTeam ?? []);
+  const turn2Actions = buildTurn2Actions(lead1, lead2, opp1, opp2, turn1State, myArchetype, fullTeam, activeWeatherForCalc, oppFullTeam ?? []);
   turn2Label.children.push(...turn2Actions);
 
   // ── TURN 3 ───────────────────────────────────────────────────────────
@@ -994,7 +1048,7 @@ function buildScenarioBranch(
   };
   scenarioNode.children.push(turn3Node);
 
-  const turn3Actions = buildTurn3Actions(lead1, lead2, opp1, opp2, turn1Actions, myArchetype, fullTeam, activeWeatherForCalc, oppFullTeam ?? []);
+  const turn3Actions = buildTurn3Actions(lead1, lead2, opp1, opp2, turn1State, myArchetype, fullTeam, activeWeatherForCalc, oppFullTeam ?? []);
   turn3Node.children.push(...turn3Actions);
 
   // ── ENDGAME (Turn 4+) ─────────────────────────────────────────────────
@@ -1605,7 +1659,7 @@ function buildTurn2Actions(
   lead2: AnalyzedMon,
   opp1: AnalyzedMon,
   opp2: AnalyzedMon,
-  turn1Actions: StrategyNode[],
+  turn1State: TurnState,
   archetype: string,
   fullTeam: AnalyzedMon[],
   weather?: import("./damage-calc").DamageCalcOptions["weather"],
@@ -1613,11 +1667,10 @@ function buildTurn2Actions(
 ): StrategyNode[] {
   const actions: StrategyNode[] = [];
 
-  const usedFakeOut = treeContains(turn1Actions, "Fake Out");
-  const planHasTailwind = treeContains(turn1Actions, "Tailwind");
-  const planHasTrickRoom = treeContains(turn1Actions, "Trick Room");
-  const setupMaybeDelayed = treeContains(turn1Actions, "Protect") ||
-    treeContains(turn1Actions, "No Protect");
+  const usedFakeOut = turn1State.fakeOutUsed;
+  const planHasTailwind = turn1State.tailwindUp;
+  const planHasTrickRoom = turn1State.trickRoomUp;
+  const setupMaybeDelayed = turn1State.setupDelayed;
   const hasSpeedControl = planHasTailwind || planHasTrickRoom;
 
   /** Shared helper: format attack label with damage info */
@@ -1838,9 +1891,7 @@ function buildTurn2Actions(
     }
 
     // Setup path
-    const setupLeads = [lead1, lead2].filter(l =>
-      l.hasSetup && !l.moves.some(m => m.role === "setup" && treeContains(turn1Actions, m.name))
-    );
+    const setupLeads = [lead1, lead2].filter((l) => l.hasSetup && !turn1State.setupUsed);
     if (setupLeads.length > 0) {
       const s = setupLeads[0];
       const setupMove = s.moves.find(m => m.role === "setup")!;
@@ -1972,15 +2023,15 @@ function buildTurn3Actions(
   lead2: AnalyzedMon,
   opp1: AnalyzedMon,
   opp2: AnalyzedMon,
-  turn1Actions: StrategyNode[],
+  turn1State: TurnState,
   archetype: string,
   fullTeam: AnalyzedMon[],
   weather?: import("./damage-calc").DamageCalcOptions["weather"],
   oppFullTeam: AnalyzedMon[] = [],
 ): StrategyNode[] {
   const actions: StrategyNode[] = [];
-  const planHasTailwind = treeContains(turn1Actions, "Tailwind");
-  const planHasTrickRoom = treeContains(turn1Actions, "Trick Room");
+  const planHasTailwind = turn1State.tailwindUp;
+  const planHasTrickRoom = turn1State.trickRoomUp;
   const backMons = fullTeam.filter(m => m !== lead1 && m !== lead2);
 
   // ── SPEED CONTROL STATUS ─────────────────────────────────────────────────
@@ -2089,16 +2140,23 @@ function findBestTarget(attacker: AnalyzedMon, opp1: AnalyzedMon, opp2: Analyzed
   const bestVs1 = getBestAttack(attacker, opp1, weather);
   const bestVs2 = getBestAttack(attacker, opp2, weather);
 
-  // Score: OHKO > 2HKO > max damage %
-  const score = (r: AttackResult | null) => {
+  // Score: OHKO > 2HKO > max damage %, with bonus for eliminating high-priority threats
+  const score = (r: AttackResult | null, opp: AnalyzedMon) => {
     if (!r) return 0;
-    if (r.isOHKO) return 300;
-    if (r.is2HKO) return 100 + r.percentHP[1];
-    return r.percentHP[1];
+    let s = 0;
+    if (r.isOHKO) s = 300;
+    else if (r.is2HKO) s = 100 + r.percentHP[1];
+    else s = r.percentHP[1];
+    // Threat-priority bonus: neutralise setup/speed control/disruption users first
+    if (opp.hasSetup || opp.hasTailwind || opp.hasTrickRoom) s += 30;
+    if (opp.hasFakeOut) s += 25;
+    if (opp.hasRedirection) s += 15;
+    if (opp.isIntimidateUser) s += 10;
+    return s;
   };
 
-  const s1 = score(bestVs1);
-  const s2 = score(bestVs2);
+  const s1 = score(bestVs1, opp1);
+  const s2 = score(bestVs2, opp2);
   if (s1 > s2) return opp1;
   if (s2 > s1) return opp2;
   // Tie-break: frailer target (lower bulk)

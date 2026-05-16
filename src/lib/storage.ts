@@ -71,6 +71,7 @@ export interface MatchRecord {
   result: "win" | "loss" | "tie";
   notes?: string;
   format?: string;        // e.g. "BO3 G1", "Ladder"
+  teamTesterReport?: unknown; // optional saved Team Tester PDF payload
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────

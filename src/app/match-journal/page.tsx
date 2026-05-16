@@ -4,10 +4,11 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "@/lib/motion";
 import Image from "next/image";
 import Link from "next/link";
+import { exportTeamTesterPDF, PDF_LABELS_FR, PDF_LABELS_DE } from "@/lib/export-pdf";
 import {
   Plus, Trash2, X, Trophy, Swords,
   BarChart3, BookOpen, Check, ClipboardList, Flame,
-  TrendingUp, TrendingDown, Minus, AlertCircle, ExternalLink, FlaskConical,
+  TrendingUp, TrendingDown, Minus, AlertCircle, ExternalLink, FlaskConical, Download,
   ArrowUp, ArrowDown, ArrowUpDown, Users, Tag,
 } from "lucide-react";
 import { POKEMON_SEED } from "@/lib/pokemon-data";
@@ -409,7 +410,7 @@ const STEPS: { key: FormStep; label: string; description: string }[] = [
 // ── Main page ─────────────────────────────────────────────────────────────
 
 export default function MatchJournalPage() {
-  const { tp } = useI18n();
+  const { tp, locale } = useI18n();
 
   const [records, setRecords] = useState<MatchRecord[]>([]);
   useEffect(() => setRecords(getMatchRecords()), []);
@@ -498,6 +499,12 @@ export default function MatchJournalPage() {
 
   function handleClearAll() {
     clearMatchRecords(); setRecords([]); setConfirmClear(false);
+  }
+
+  function exportSavedReport(record: MatchRecord) {
+    const report = record.teamTesterReport as Parameters<typeof exportTeamTesterPDF>[0] | undefined;
+    if (!report) return;
+    void exportTeamTesterPDF(report, locale === "fr" ? PDF_LABELS_FR : locale === "de" ? PDF_LABELS_DE : undefined);
   }
 
   const stats = useMemo(() => computeStats(records), [records]);
@@ -958,21 +965,35 @@ export default function MatchJournalPage() {
                           </div>
                         )}
 
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
                           <button
                             onClick={() => handleDelete(r.id)}
                             className="flex items-center gap-1 text-xs text-red-500 dark:text-red-400 hover:text-red-600 transition-colors"
                           >
                             <Trash2 size={11} /> Delete this record
                           </button>
-                          <Link
-                            href={`/battle-bot?tab=team-tester&opp=${r.opponentTeam.join(',')}`}
-                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30 hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-colors"
-                          >
-                            <FlaskConical size={11} />
-                            Test vs this team
-                            <ExternalLink size={10} />
-                          </Link>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {r.teamTesterReport && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  exportSavedReport(r);
+                                }}
+                                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-colors"
+                              >
+                                <Download size={11} />
+                                Matchup PDF
+                              </button>
+                            )}
+                            <Link
+                              href={`/battle-bot?tab=team-tester&opp=${r.opponentTeam.join(',')}`}
+                              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30 hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-colors"
+                            >
+                              <FlaskConical size={11} />
+                              Test vs this team
+                              <ExternalLink size={10} />
+                            </Link>
+                          </div>
                         </div>
                       </div>
                     </motion.div>

@@ -2,13 +2,14 @@
 
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion, AnimatePresence } from "@/lib/motion";
 import {
   Swords, Play, Search, X, Trophy, Loader2,
   SkipForward, Pause, RotateCcw, ChevronRight, Trash2,
   ArrowRightLeft, FolderOpen, Save, Target, Star, Lightbulb,
   TrendingUp, TrendingDown, GitBranch, Shield,
-  Settings2, Minus, Plus, Sparkles, Check, Zap, Download, ClipboardPaste,
+  Settings2, Minus, Plus, Sparkles, Check, Zap, Download, ClipboardPaste, BookOpen,
 } from "lucide-react";
 import {
   exportTeamTesterPDF, PDF_LABELS_FR, PDF_LABELS_DE,
@@ -60,7 +61,7 @@ import { USAGE_DATA } from "@/lib/usage-data";
 import { SIM_POKEMON } from "@/lib/simulation-data";
 import { TOURNAMENT_USAGE } from "@/lib/engine/vgc-data";
 import {
-  getSavedTeams, deserializeTeam,
+  getSavedTeams, deserializeTeam, saveMatchRecord,
   type SavedTeam,
 } from "@/lib/storage";
 
@@ -102,6 +103,8 @@ interface TeamTestResult {
   insights: string[];
 }
 
+type TeamTesterPdfData = Parameters<typeof exportTeamTesterPDF>[0];
+
 // ── Component ────────────────────────────────────────────────────────────
 
 interface TeamTesterProps {
@@ -135,6 +138,122 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
   const [elapsed, setElapsed] = useState(0);
   const startTimeRef = useRef<number>(0);
   const [selectedLeadIdx, setSelectedLeadIdx] = useState(0);
+
+  // Match Journal logging state
+  const [journalOpen, setJournalOpen] = useState(false);
+  const [journalResult, setJournalResult] = useState<"win" | "loss" | "tie">("win");
+  const [journalMyPicks, setJournalMyPicks] = useState<number[]>([]);
+  const [journalOppPicks, setJournalOppPicks] = useState<number[]>([]);
+  const [journalNotes, setJournalNotes] = useState("");
+  const [journalSaved, setJournalSaved] = useState(false);
+
+  const buildTeamTesterPdfData = useCallback((): TeamTesterPdfData | null => {
+    if (!result) return null;
+
+    const activeLead = result.leadCombos[selectedLeadIdx] ?? result.leadCombos[0];
+    const rawTree = activeLead
+      ? generateStrategyTree(team1Pokemon, team1Sets, team2Pokemon, team2Sets, activeLead, result.winRate)
+      : null;
+    const tree = rawTree && locale === "fr"
+      ? translateStrategyTree(rawTree, tm, ta)
+      : rawTree && locale === "es"
+      ? translateStrategyTreeES(rawTree, tm, ta)
+      : rawTree && locale === "it"
+      ? translateStrategyTreeIT(rawTree, tm, ta)
+      : rawTree && locale === "de"
+      ? translateStrategyTreeDE(rawTree, tm, ta)
+      : rawTree;
+
+    let strategyData: TeamTesterPdfData["strategy"] = null;
+    if (tree) {
+      const flatSteps: { label: string; detail?: string; severity?: "good" | "neutral" | "bad" }[] = [];
+      const flatten = (node: StrategyNodeData) => {
+        if (node.type !== "start" && node.type !== "opponent-lead") {
+          flatSteps.push({
+            label: (node.branchLabel ? `${node.branchLabel}: ` : "") + node.label,
+            detail: node.detail,
+            severity: node.severity,
+          });
+        }
+        for (const child of node.children) flatten(child);
+      };
+      const firstScenario = tree.root.children[0];
+      if (firstScenario) {
+        flatSteps.push({ label: `vs ${firstScenario.label}`, detail: firstScenario.detail, severity: "neutral" });
+        for (const child of firstScenario.children) flatten(child);
+      }
+      strategyData = {
+        archetype: tree.archetype,
+        winCondition: tree.winCondition,
+        keyThreats: tree.keyThreats,
+        backupPlan: tree.backupPlan,
+        steps: flatSteps,
+      };
+    }
+
+    const syn1 = analyzeTeamSynergy(team1Pokemon);
+    const syn2 = analyzeTeamSynergy(team2Pokemon);
+    const speed1 = getSpeedTierReport(team1Pokemon);
+    const speed2 = getSpeedTierReport(team2Pokemon);
+    const roles1 = team1Pokemon.map((p) => {
+      const roleInfo = identifyRoles(p);
+      return { name: p.name, primaryRole: roleInfo.primaryRole, roles: roleInfo.roles };
+    });
+    const roles2 = team2Pokemon.map((p) => {
+      const roleInfo = identifyRoles(p);
+      return { name: p.name, primaryRole: roleInfo.primaryRole, roles: roleInfo.roles };
+    });
+    const arch1 = detectArchetypes(team1Pokemon).filter((a) => a.confidence >= 0.3).map((a) => ({ archetype: a.archetype, confidence: a.confidence, keyPokemon: a.keyPokemon }));
+    const arch2 = detectArchetypes(team2Pokemon).filter((a) => a.confidence >= 0.3).map((a) => ({ archetype: a.archetype, confidence: a.confidence, keyPokemon: a.keyPokemon }));
+
+    return {
+      team1: team1Pokemon.map((p, i) => ({
+        name: tp(p.name),
+        ability: ta(String(team1Sets[i]?.ability || p.abilities?.[0] || "")),
+        item: ti(team1Sets[i]?.item || ""),
+        moves: (team1Sets[i]?.moves || []).map((m) => tm(m)),
+      })),
+      team2: team2Pokemon.map((p, i) => ({
+        name: tp(p.name),
+        ability: ta(String(team2Sets[i]?.ability || p.abilities?.[0] || "")),
+        item: ti(team2Sets[i]?.item || ""),
+        moves: (team2Sets[i]?.moves || []).map((m) => tm(m)),
+      })),
+      wins: result.wins,
+      losses: result.losses,
+      winRate: result.winRate,
+      avgTurns: result.avgTurns,
+      totalGames: result.totalGames,
+      leadCombos: result.leadCombos.map((lc) => ({ lead1: lc.lead1, lead2: lc.lead2, winRate: lc.winRate, games: lc.games })),
+      pokemonImpact: result.pokemonImpact.map((pi) => ({ name: pi.name, impact: pi.impact, excludeWinRate: pi.excludeWinRate })),
+      insights: locale === "fr"
+        ? translateInsights(result.insights, tm)
+        : locale === "es"
+        ? translateInsightsES(result.insights, tm)
+        : locale === "it"
+        ? translateInsightsIT(result.insights, tm)
+        : locale === "de"
+        ? translateInsightsDE(result.insights, tm)
+        : result.insights,
+      strategy: strategyData,
+      speedTiers: { team1: speed1, team2: speed2 },
+      typeProfile: {
+        team1: {
+          weaknesses: syn1.weaknessProfile.map((w) => ({ type: w.type, count: w.count })),
+          resistances: syn1.resistanceProfile.map((r) => ({ type: r.type, count: r.count })),
+          uncovered: syn1.uncoveredTypes,
+        },
+        team2: {
+          weaknesses: syn2.weaknessProfile.map((w) => ({ type: w.type, count: w.count })),
+          resistances: syn2.resistanceProfile.map((r) => ({ type: r.type, count: r.count })),
+          uncovered: syn2.uncoveredTypes,
+        },
+      },
+      roles: { team1: roles1, team2: roles2 },
+      archetypes: { team1: arch1, team2: arch2 },
+      synergyScores: { team1: syn1.overallScore, team2: syn2.overallScore },
+    };
+  }, [locale, result, selectedLeadIdx, ta, team1Pokemon, team1Sets, team2Pokemon, team2Sets, ti, tm, tp]);
 
   // Picker
   const [pickerTarget, setPickerTarget] = useState<{ team: 1 | 2 } | null>(null);
@@ -810,94 +929,211 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                  t('teamTester.verdictDominate2')}
               </div>
 
-              {/* Export PDF */}
-              <div className="mt-3 flex justify-center">
+              {/* Export PDF + Log to Journal */}
+              <div className="mt-3 flex justify-center gap-2 flex-wrap">
                 <button
                   onClick={() => {
                     trackEvent("export_pdf", "team_tester");
-                    // Build strategy overview from tree
-                    const bestLead = result.leadCombos[0];
-                    const rawTree = bestLead ? generateStrategyTree(team1Pokemon, team1Sets, team2Pokemon, team2Sets, bestLead, result.winRate) : null;
-                    const tree = rawTree && locale === 'fr' ? translateStrategyTree(rawTree, tm, ta) : rawTree && locale === 'es' ? translateStrategyTreeES(rawTree, tm, ta) : rawTree && locale === 'it' ? translateStrategyTreeIT(rawTree, tm, ta) : rawTree && locale === 'de' ? translateStrategyTreeDE(rawTree, tm, ta) : rawTree;
-                    let strategyData: Parameters<typeof exportTeamTesterPDF>[0]["strategy"] = null;
-                    if (tree) {
-                      // Flatten the first scenario's nodes into linear steps
-                      const flatSteps: { label: string; detail?: string; severity?: "good" | "neutral" | "bad" }[] = [];
-                      const flatten = (node: StrategyNodeData) => {
-                        if (node.type !== "start" && node.type !== "opponent-lead") {
-                          flatSteps.push({ label: (node.branchLabel ? node.branchLabel + ": " : "") + node.label, detail: node.detail, severity: node.severity });
-                        }
-                        for (const child of node.children) flatten(child);
-                      };
-                      const firstScenario = tree.root.children[0];
-                      if (firstScenario) {
-                        flatSteps.push({ label: `vs ${firstScenario.label}`, detail: firstScenario.detail, severity: "neutral" });
-                        for (const child of firstScenario.children) flatten(child);
-                      }
-                      strategyData = {
-                        archetype: tree.archetype,
-                        winCondition: tree.winCondition,
-                        keyThreats: tree.keyThreats,
-                        backupPlan: tree.backupPlan,
-                        steps: flatSteps,
-                      };
-                    }
-                    // Build extended analysis data
-                    const syn1 = analyzeTeamSynergy(team1Pokemon);
-                    const syn2 = analyzeTeamSynergy(team2Pokemon);
-                    const speed1 = getSpeedTierReport(team1Pokemon);
-                    const speed2 = getSpeedTierReport(team2Pokemon);
-                    const roles1 = team1Pokemon.map(p => { const r = identifyRoles(p); return { name: p.name, primaryRole: r.primaryRole, roles: r.roles }; });
-                    const roles2 = team2Pokemon.map(p => { const r = identifyRoles(p); return { name: p.name, primaryRole: r.primaryRole, roles: r.roles }; });
-                    const arch1 = detectArchetypes(team1Pokemon).filter(a => a.confidence >= 0.3).map(a => ({ archetype: a.archetype, confidence: a.confidence, keyPokemon: a.keyPokemon }));
-                    const arch2 = detectArchetypes(team2Pokemon).filter(a => a.confidence >= 0.3).map(a => ({ archetype: a.archetype, confidence: a.confidence, keyPokemon: a.keyPokemon }));
-
-                    exportTeamTesterPDF({
-                      team1: team1Pokemon.map((p, i) => ({
-                        name: tp(p.name),
-                        ability: ta(String(team1Sets[i]?.ability || p.abilities?.[0] || "")),
-                        item: ti(team1Sets[i]?.item || ""),
-                        moves: (team1Sets[i]?.moves || []).map(m => tm(m)),
-                      })),
-                      team2: team2Pokemon.map((p, i) => ({
-                        name: tp(p.name),
-                        ability: ta(String(team2Sets[i]?.ability || p.abilities?.[0] || "")),
-                        item: ti(team2Sets[i]?.item || ""),
-                        moves: (team2Sets[i]?.moves || []).map(m => tm(m)),
-                      })),
-                      wins: result.wins,
-                      losses: result.losses,
-                      winRate: result.winRate,
-                      avgTurns: result.avgTurns,
-                      totalGames: result.totalGames,
-                      leadCombos: result.leadCombos.map(lc => ({ lead1: lc.lead1, lead2: lc.lead2, winRate: lc.winRate, games: lc.games })),
-                      pokemonImpact: result.pokemonImpact.map(pi => ({ name: pi.name, impact: pi.impact, excludeWinRate: pi.excludeWinRate })),
-                      insights: locale === 'fr' ? translateInsights(result.insights, tm) : locale === 'es' ? translateInsightsES(result.insights, tm) : locale === 'it' ? translateInsightsIT(result.insights, tm) : locale === 'de' ? translateInsightsDE(result.insights, tm) : result.insights,
-                      strategy: strategyData,
-                      speedTiers: { team1: speed1, team2: speed2 },
-                      typeProfile: {
-                        team1: {
-                          weaknesses: syn1.weaknessProfile.map(w => ({ type: w.type, count: w.count })),
-                          resistances: syn1.resistanceProfile.map(r => ({ type: r.type, count: r.count })),
-                          uncovered: syn1.uncoveredTypes,
-                        },
-                        team2: {
-                          weaknesses: syn2.weaknessProfile.map(w => ({ type: w.type, count: w.count })),
-                          resistances: syn2.resistanceProfile.map(r => ({ type: r.type, count: r.count })),
-                          uncovered: syn2.uncoveredTypes,
-                        },
-                      },
-                      roles: { team1: roles1, team2: roles2 },
-                      archetypes: { team1: arch1, team2: arch2 },
-                      synergyScores: { team1: syn1.overallScore, team2: syn2.overallScore },
-                    }, locale === "fr" ? PDF_LABELS_FR : locale === "de" ? PDF_LABELS_DE : undefined);
+                    const pdfData = buildTeamTesterPdfData();
+                    if (!pdfData) return;
+                    void exportTeamTesterPDF(pdfData, locale === "fr" ? PDF_LABELS_FR : locale === "de" ? PDF_LABELS_DE : undefined);
                   }}
                   className="px-4 py-2 text-xs rounded-xl flex items-center gap-2 font-heading font-semibold bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:scale-[1.02] transition-all"
                 >
                   <Download className="w-3.5 h-3.5" />
                   {t('battleBot.downloadMatchupStudy')}
                 </button>
+
+                {/* Log to Match Journal */}
+                <button
+                  onClick={() => {
+                    const combo = result.leadCombos[selectedLeadIdx] ?? result.leadCombos[0];
+                    const picks: number[] = [];
+                    if (combo) {
+                      [combo.lead1, combo.lead2, combo.back1, combo.back2]
+                        .filter(Boolean)
+                        .forEach(name => {
+                          const id = team1Pokemon.find(p => p.name === name)?.id;
+                          if (id != null && !picks.includes(id)) picks.push(id);
+                        });
+                    }
+                    for (const mon of team1Pokemon) {
+                      if (picks.length >= 4) break;
+                      if (!picks.includes(mon.id)) picks.push(mon.id);
+                    }
+                    setJournalMyPicks(picks);
+                    setJournalOppPicks(team2Pokemon.slice(0, 4).map((p) => p.id));
+                    setJournalResult("win");
+                    setJournalNotes("");
+                    setJournalSaved(false);
+                    setJournalOpen(true);
+                  }}
+                  className="px-4 py-2 text-xs rounded-xl flex items-center gap-2 font-heading font-semibold bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm shadow-violet-500/20 hover:shadow-violet-500/40 hover:scale-[1.02] transition-all"
+                >
+                  <BookOpen className="w-3.5 h-3.5" />
+                  Log to Journal
+                </button>
               </div>
+
+              {/* ── Journal Form (inline, collapsible) ────────────────────── */}
+              <AnimatePresence>
+                {journalOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-4 pt-4 border-t border-gray-200/60 dark:border-white/10 space-y-4">
+                      {journalSaved ? (
+                        <div className="flex flex-col items-center gap-3 py-4">
+                          <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center">
+                            <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                          </div>
+                          <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Saved to Match Journal!</p>
+                          <Link
+                            href="/match-journal"
+                            className="flex items-center gap-1 text-xs text-violet-600 dark:text-violet-400 hover:underline"
+                          >
+                            View in Journal <ChevronRight className="w-3 h-3" />
+                          </Link>
+                        </div>
+                      ) : (
+                        <>
+                          {/* My Picks */}
+                          <div>
+                            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                              My Picks <span className="normal-case font-normal opacity-60">— default: selected lead combo (2–4)</span>
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {team1Pokemon.map(p => {
+                                const sel = journalMyPicks.includes(p.id);
+                                return (
+                                  <button
+                                    key={p.id}
+                                    onClick={() => setJournalMyPicks(prev =>
+                                      sel ? prev.filter(id => id !== p.id)
+                                          : prev.length < 4 ? [...prev, p.id] : prev
+                                    )}
+                                    className={cn(
+                                      "flex items-center gap-1 px-2 py-1 rounded-lg text-xs border transition-all",
+                                      sel
+                                        ? "bg-blue-50 dark:bg-blue-500/10 border-blue-300 dark:border-blue-500/40 text-blue-800 dark:text-blue-300"
+                                        : "bg-muted border-border text-muted-foreground hover:border-gray-400 dark:hover:border-white/30"
+                                    )}
+                                  >
+                                    <Image src={p.sprite} alt={p.name} width={20} height={20} unoptimized />
+                                    <span>{p.name}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                            <p className="text-[10px] text-muted-foreground mt-1">{journalMyPicks.length}/4 selected</p>
+                          </div>
+
+                          {/* Opponent Picks */}
+                          <div>
+                            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                              Opponent Picks <span className="normal-case font-normal opacity-60">— what they brought (2–4)</span>
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {team2Pokemon.map(p => {
+                                const sel = journalOppPicks.includes(p.id);
+                                return (
+                                  <button
+                                    key={p.id}
+                                    onClick={() => setJournalOppPicks(prev =>
+                                      sel ? prev.filter(id => id !== p.id)
+                                          : prev.length < 4 ? [...prev, p.id] : prev
+                                    )}
+                                    className={cn(
+                                      "flex items-center gap-1 px-2 py-1 rounded-lg text-xs border transition-all",
+                                      sel
+                                        ? "bg-red-50 dark:bg-red-500/10 border-red-300 dark:border-red-500/40 text-red-800 dark:text-red-300"
+                                        : "bg-muted border-border text-muted-foreground hover:border-gray-400 dark:hover:border-white/30"
+                                    )}
+                                  >
+                                    <Image src={p.sprite} alt={p.name} width={20} height={20} unoptimized />
+                                    <span>{p.name}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                            <p className="text-[10px] text-muted-foreground mt-1">{journalOppPicks.length}/4 selected</p>
+                          </div>
+
+                          {/* Result */}
+                          <div>
+                            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Result</p>
+                            <div className="flex gap-2">
+                              {(["win", "loss", "tie"] as const).map(r => (
+                                <button
+                                  key={r}
+                                  onClick={() => setJournalResult(r)}
+                                  className={cn(
+                                    "flex-1 py-2 rounded-xl border-2 font-bold uppercase tracking-wide text-xs transition-all",
+                                    journalResult === r
+                                      ? r === "win"  ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                                        : r === "loss" ? "border-red-500 bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400"
+                                        : "border-muted-foreground/50 bg-muted text-foreground"
+                                      : "border-border text-muted-foreground hover:border-muted-foreground/40"
+                                  )}
+                                >
+                                  {r === "win" ? "Win" : r === "loss" ? "Loss" : "Tie"}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Notes */}
+                          <div>
+                            <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+                              Notes <span className="normal-case font-normal opacity-60">(optional)</span>
+                            </label>
+                            <textarea
+                              value={journalNotes}
+                              onChange={e => setJournalNotes(e.target.value)}
+                              placeholder="Key plays, reads, what went well..."
+                              rows={2}
+                              className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-colors resize-none"
+                            />
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex items-center justify-between pt-1">
+                            <button
+                              onClick={() => setJournalOpen(false)}
+                              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              disabled={journalMyPicks.length < 2 || journalOppPicks.length < 2}
+                              onClick={() => {
+                                const pdfData = buildTeamTesterPdfData();
+                                saveMatchRecord({
+                                  myTeam: team1Pokemon.map(p => p.id),
+                                  myPicks: journalMyPicks,
+                                  opponentTeam: team2Pokemon.map(p => p.id),
+                                  opponentPicks: journalOppPicks,
+                                  result: journalResult,
+                                  notes: journalNotes.trim() || undefined,
+                                  format: "Team Tester",
+                                  teamTesterReport: pdfData ?? undefined,
+                                });
+                                setJournalSaved(true);
+                              }}
+                              className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:opacity-30 disabled:cursor-not-allowed text-white text-xs font-semibold transition-all"
+                            >
+                              Save to Journal
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Best Lead Combos  -  Full Width with Detailed Cards */}
