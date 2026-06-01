@@ -6,14 +6,15 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   TrendingUp, TrendingDown, Award, Shield, Zap, Target, Brain,
-  ChevronDown, ChevronUp, X, Swords, Users, Star, Crown, Flame,
-  BarChart3, ArrowRight, Sparkles, Timer, Search, Info, Filter, Trophy,
+  ChevronDown, ChevronUp, X, Swords, Users, Star, Crown,
+  BarChart3, ArrowRight, Sparkles, Timer, Search, Info, Trophy,
   LayoutGrid, Table as TableIcon,
 } from "lucide-react";
 import { POKEMON_SEED } from "@/lib/pokemon-data";
 import { TYPE_COLORS, type PokemonType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
+import { getMyRoster } from "@/lib/storage";
 import { useI18n } from "@/lib/i18n";
 import { getMegaIdFromArchetype, getMegaSprite, getMegaName } from "@/lib/mega-utils";
 import { LastUpdated } from "@/components/last-updated";
@@ -29,19 +30,16 @@ import {
   getMetaTrends,
   getCorePairsForPokemon,
   getTournamentTeamsWithPokemon,
-  getArchetypeWinRate,
   getPrebuiltTeamsWithPokemon,
   PREBUILT_TEAMS,
   type TournamentTeam,
-  type CorePair,
   type MetaTeamPrediction,
 } from "@/lib/engine";
 import {
-  SIM_POKEMON, SIM_PAIRS, SIM_ARCHETYPES, SIM_META,
+  SIM_POKEMON, SIM_PAIRS, SIM_ARCHETYPES,
   SIM_TOTAL_BATTLES, SIM_MOVES, ANTI_META_RANKINGS, ANTI_META_TEAMS,
-  CHAMPIONS_TOURNAMENT_USAGE, CHAMPIONS_TOURNAMENT_TOTAL_TEAMS, CHAMPIONS_TOURNAMENT_COUNT,
+  CHAMPIONS_TOURNAMENT_TOTAL_TEAMS, CHAMPIONS_TOURNAMENT_COUNT,
   CHAMPIONS_TOURNAMENT_TEAMS,
-  type ChampionsTournamentTeam,
 } from "@/lib/simulation-data";
 
 // ── ROSTER FILTER: exclude hidden Pokemon from all meta calculations ──────
@@ -52,15 +50,15 @@ for (const p of POKEMON_SEED.filter(p => !p.hidden)) {
   if (p.forms) for (const f of p.forms) if (f.isMega) _VALID_NAMES.add(f.name);
 }
 // Filtered tournament teams: only teams where ALL Pokemon are in the active roster
-const _VALID_TOURNAMENT_TEAMS = TOURNAMENT_TEAMS.filter(t => t.pokemonIds.every(id => _VALID_IDS.has(id)));
+const _VALID_TOURNAMENT_TEAMS = TOURNAMENT_TEAMS.filter(t => t.pokemonIds.every((id: number) => _VALID_IDS.has(id)));
 // Champions tournament teams (from Limitless scrape)
-const _VALID_CHAMPIONS_TEAMS = CHAMPIONS_TOURNAMENT_TEAMS.filter(t => t.pokemonIds.every(id => _VALID_IDS.has(id)));
+const _VALID_CHAMPIONS_TEAMS = CHAMPIONS_TOURNAMENT_TEAMS.filter(t => t.pokemonIds.every((id: number) => _VALID_IDS.has(id)));
 // Filtered core pairs
 const _VALID_CORE_PAIRS = CORE_PAIRS.filter(c => _VALID_IDS.has(c.pokemon1) && _VALID_IDS.has(c.pokemon2));
 // Filtered tournament usage
 const _VALID_TOURNAMENT_USAGE = TOURNAMENT_USAGE.filter(u => _VALID_IDS.has(u.pokemonId));
 // Filtered prebuilt teams
-const _VALID_PREBUILT_TEAMS = PREBUILT_TEAMS.filter(t => t.pokemonIds.every(id => _VALID_IDS.has(id)));
+const _VALID_PREBUILT_TEAMS = PREBUILT_TEAMS.filter(t => t.pokemonIds.every((id: number) => _VALID_IDS.has(id)));
 
 // ── HYBRID TIER CALCULATION (ML + Tournament Data) ────────────────────────
 // Thresholds from ML data only (keeps percentiles stable). Individual Pokemon
@@ -86,7 +84,6 @@ const TIER_B = _qualifiedCWRs[Math.max(0, Math.floor(_qLen * 0.65))] ?? 46;  // 
 const TIER_C = _qualifiedCWRs[Math.max(0, Math.floor(_qLen * 0.88))] ?? 40;  // Top 88%
 
 const TIER_ORDER = { S: 0, A: 1, B: 2, C: 3, D: 4 } as const;
-const TIERS_BY_ORDER = ["S", "A", "B", "C", "D"] as const;
 
 function getMLTier(compositeWR: number, games: number, pokemonId?: number): "S" | "A" | "B" | "C" | "D" {
   let baseTier: "S" | "A" | "B" | "C" | "D" = "D";
@@ -227,7 +224,6 @@ export default function MetaPage() {
   const { t, tp, tm, ta, ti, tn, ts, tt, tty, tad } = useI18n();
   const [activeTab, setActiveTabRaw] = useState<ActiveTab>("overview");
   const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
-  const [selectedPokemon, setSelectedPokemon] = useState<string | null>(null);
   const [modal, setModalRaw] = useState<ModalType | null>(null);
 
   const setActiveTab = (tab: ActiveTab) => { trackEvent("tab_switch", "meta", tab); setActiveTabRaw(tab); };
@@ -303,6 +299,49 @@ export default function MetaPage() {
   const [showAllTournament, setShowAllTournament] = useState(false);
   const [showAllCurated, setShowAllCurated] = useState(false);
 
+  // ── Roster filter for tournament teams ───────────────────────────
+  const [myRoster] = useState<Set<number>>(() => getMyRoster());
+  const [rosterFilter, setRosterFilter] = useState<"all" | "roster" | "off">("all");
+  const [findTeamsRosterFilter, setFindTeamsRosterFilter] = useState<"all" | "roster" | "off">("all");
+
+  // ── Manual sync state ─────────────────────────────────────────
+  const [syncState, setSyncState] = useState<"idle" | "running" | "done" | "error">("idle");
+  const [syncLog, setSyncLog] = useState<string>("");
+
+  const handleSync = async () => {
+    setSyncState("running");
+    setSyncLog("");
+    try {
+      const res = await fetch("/api/sync-tournaments", { method: "POST" });
+      const json = await res.json();
+      if (!json.ok && json.error) {
+        setSyncState("error");
+        setSyncLog(json.error);
+        return;
+      }
+      // Fire-and-forget: poll the log until done
+      const poll = setInterval(async () => {
+        try {
+          const lr = await fetch("/api/sync-tournaments/log");
+          const lj = await lr.json();
+          if (lj.log) setSyncLog(lj.log);
+          if (lj.done) {
+            clearInterval(poll);
+            setSyncState(lj.failed ? "error" : "done");
+          }
+        } catch { /* keep polling */ }
+      }, 4000);
+    } catch (e) {
+      setSyncState("error");
+      setSyncLog(String(e));
+    }
+  };
+
+  // ── Find Teams by Pokémon filter ──────────────────────────────
+  const [teamFilterIds, setTeamFilterIds] = useState<number[]>([]);
+  const [teamFilterSearch, setTeamFilterSearch] = useState("");
+  const [showTeamFilterDropdown, setShowTeamFilterDropdown] = useState(false);
+
   // ── Speed Tiers state ─────────────────────────────────────────
   const [speedSearch, setSpeedSearch] = useState("");
   const [speedTypeFilter, setSpeedTypeFilter] = useState<PokemonType | "all">("all");
@@ -315,7 +354,6 @@ export default function MetaPage() {
   const speedEntries = useMemo(() => {
     const calcSpd = (base: number, sp: number, natureMod: number) =>
       Math.floor((Math.floor(((2 * base + 31) * 50) / 100) + 5 + sp) * natureMod);
-    const tw = (v: number) => Math.floor(v * 2);
 
     type SpeedEntry = {
       key: string; id: number; name: string; sprite: string;
@@ -386,6 +424,20 @@ export default function MetaPage() {
     });
     return trickRoomMode ? sorted.reverse() : sorted;
   }, [speedEntries, speedSearch, speedTypeFilter, showMegas, trickRoomMode]);
+
+  // ── Filtered tournament teams by selected Pokémon ──────────────
+  const teamFilterResults = useMemo(() => {
+    if (teamFilterIds.length === 0) return [];
+    return [..._VALID_CHAMPIONS_TEAMS]
+      .filter(t => teamFilterIds.every(id => t.pokemonIds.includes(id)))
+      .sort((a, b) => a.placement - b.placement || b.players - a.players);
+  }, [teamFilterIds]);
+
+  const teamFilterSearchResults = useMemo(() => {
+    if (!teamFilterSearch.trim()) return [];
+    const q = teamFilterSearch.toLowerCase();
+    return POKEMON_SEED.filter(p => !p.hidden && p.name.toLowerCase().includes(q)).slice(0, 12);
+  }, [teamFilterSearch]);
 
   // Pre-compute original rank for each entry (before search/type filtering)
   const speedOriginalRank = useMemo(() => {
@@ -831,7 +883,7 @@ export default function MetaPage() {
                       <span className="text-[9px] text-muted-foreground">{meta.metaShare}% share</span>
                     </div>
                     <div className="flex gap-1">
-                      {meta.pokemonIds.map(id => { const p = POKEMON_SEED.find(pk => pk.id === id); return p ? <Image key={id} src={p.sprite} alt={p.name} width={24} height={24} className="rounded" unoptimized /> : null; })}
+                      {meta.pokemonIds.map((id: number) => { const p = POKEMON_SEED.find(pk => pk.id === id); return p ? <Image key={id} src={p.sprite} alt={p.name} width={24} height={24} className="rounded" unoptimized /> : null; })}
                     </div>
                   </div>
                 ))}
@@ -1233,15 +1285,85 @@ export default function MetaPage() {
               <h2 className="text-lg font-bold flex items-center gap-2">
                 <Award className="w-5 h-5 text-amber-500" /> {t('meta.tournamentTeams')}
               </h2>
-              <span className="px-3 py-1 text-[10px] font-bold uppercase rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30">
-                {t('meta.teamsCount', { count: _VALID_CHAMPIONS_TEAMS.length })}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 text-[10px] font-bold uppercase rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30">
+                  {t('meta.teamsCount', { count: _VALID_CHAMPIONS_TEAMS.length })}
+                </span>
+                <button
+                  onClick={handleSync}
+                  disabled={syncState === "running"}
+                  title="Sincronizza dati da Limitless"
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all",
+                    syncState === "running"
+                      ? "bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30 text-amber-600 dark:text-amber-400 cursor-wait"
+                      : syncState === "done"
+                      ? "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
+                      : syncState === "error"
+                      ? "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400"
+                      : "bg-white dark:bg-white/[0.05] border-gray-200 dark:border-white/10 text-muted-foreground hover:text-amber-700 hover:border-amber-300 dark:hover:border-amber-500/40"
+                  )}
+                >
+                  {syncState === "running" ? (
+                    <><span className="animate-spin inline-block w-3 h-3 border-2 border-amber-400 border-t-transparent rounded-full" />Sync in corso…</>
+                  ) : syncState === "done" ? (
+                    <><Sparkles className="w-3 h-3" />Fatto — ricarica la pagina</>
+                  ) : syncState === "error" ? (
+                    <><X className="w-3 h-3" />Errore</>
+                  ) : (
+                    <><TrendingUp className="w-3 h-3" />Sync Limitless</>
+                  )}
+                </button>
+              </div>
             </div>
+            {(syncState === "done" || syncState === "error") && syncLog && (
+              <div className={cn(
+                "mb-3 p-3 rounded-xl text-[10px] font-mono whitespace-pre-wrap max-h-32 overflow-y-auto border",
+                syncState === "done"
+                  ? "bg-emerald-50 dark:bg-emerald-500/[0.08] border-emerald-200 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-300"
+                  : "bg-red-50 dark:bg-red-500/[0.08] border-red-200 dark:border-red-500/20 text-red-800 dark:text-red-300"
+              )}>
+                {syncLog.slice(-2000)}
+              </div>
+            )}
             <p className="text-sm text-muted-foreground mb-4">
               {t('meta.tournamentTeamsDesc', { count: CHAMPIONS_TOURNAMENT_COUNT })}
             </p>
+            {/* ── Roster filter toggle ── */}
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+              <span className="text-xs text-muted-foreground font-medium">Filtra per roster:</span>
+              {(["all", "roster", "off"] as const).map(opt => (
+                <button
+                  key={opt}
+                  onClick={() => { setRosterFilter(opt); setShowAllTournament(false); }}
+                  className={cn(
+                    "px-3 py-1 rounded-xl text-xs font-semibold border transition-all",
+                    rosterFilter === opt
+                      ? opt === "roster"
+                        ? "bg-emerald-100 dark:bg-emerald-500/20 border-emerald-300 dark:border-emerald-500/40 text-emerald-700 dark:text-emerald-400"
+                        : opt === "off"
+                        ? "bg-red-100 dark:bg-red-500/20 border-red-300 dark:border-red-500/40 text-red-700 dark:text-red-400"
+                        : "bg-amber-100 dark:bg-amber-500/20 border-amber-300 dark:border-amber-500/40 text-amber-700 dark:text-amber-400"
+                      : "bg-white/50 dark:bg-white/[0.04] border-gray-200 dark:border-white/10 text-muted-foreground hover:border-gray-300 dark:hover:border-white/20"
+                  )}
+                >
+                  {opt === "all" ? "Tutti" : opt === "roster" ? "✓ Solo mio roster" : "✗ Fuori roster"}
+                </button>
+              ))}
+              {rosterFilter !== "all" && (
+                <span className="text-[10px] text-muted-foreground">
+                  {myRoster.size === 0 ? "(nessun Pokémon nel roster)" : ""}
+                </span>
+              )}
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {([..._VALID_CHAMPIONS_TEAMS]
+                .filter(team => {
+                  if (rosterFilter === "all") return true;
+                  const inRoster = team.pokemonIds.every(id => myRoster.has(id));
+                  return rosterFilter === "roster" ? inRoster : !inRoster;
+                })
                 .sort((a, b) => a.placement === b.placement ? b.players - a.players : a.placement - b.placement)
                 .slice(0, showAllTournament ? undefined : 12)
               ).map(team => {
@@ -1274,21 +1396,197 @@ export default function MetaPage() {
                 );
               })}
             </div>
-            {!showAllTournament && _VALID_CHAMPIONS_TEAMS.length > 12 && (
-              <button
-                onClick={() => setShowAllTournament(true)}
-                className="mt-4 w-full py-2.5 rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-700 text-sm font-bold hover:border-amber-300 hover:shadow-md transition-all flex items-center justify-center gap-2"
-              >
-                Show All {_VALID_CHAMPIONS_TEAMS.length} Teams <ChevronDown className="w-4 h-4" />
-              </button>
+            {(() => {
+              const filteredCount = _VALID_CHAMPIONS_TEAMS.filter(team => {
+                if (rosterFilter === "all") return true;
+                const inRoster = team.pokemonIds.every(id => myRoster.has(id));
+                return rosterFilter === "roster" ? inRoster : !inRoster;
+              }).length;
+              return (<>
+                {!showAllTournament && filteredCount > 12 && (
+                  <button
+                    onClick={() => setShowAllTournament(true)}
+                    className="mt-4 w-full py-2.5 rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-700 text-sm font-bold hover:border-amber-300 hover:shadow-md transition-all flex items-center justify-center gap-2"
+                  >
+                    Show All {filteredCount} Teams <ChevronDown className="w-4 h-4" />
+                  </button>
+                )}
+                {showAllTournament && (
+                  <button
+                    onClick={() => setShowAllTournament(false)}
+                    className="mt-4 w-full py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.04] text-gray-600 dark:text-gray-400 text-sm font-medium hover:bg-gray-100 dark:hover:bg-white/[0.07] transition-all flex items-center justify-center gap-2"
+                  >
+                    {t('common.showLess')} <ChevronUp className="w-4 h-4" />
+                  </button>
+                )}
+              </>);
+            })()}
+          </div>
+
+          {/* ═══ 1b. FIND TEAMS BY POKÉMON ═══ */}
+          <div className="glass rounded-2xl p-6 border border-cyan-200/60 dark:border-cyan-500/20 bg-gradient-to-br from-cyan-50/30 via-white to-blue-50/30 dark:from-cyan-950/20 dark:via-transparent dark:to-blue-950/20">
+            <div className="flex items-center justify-between mb-1">
+              <h2 className="text-lg font-bold flex items-center gap-2">
+                <Search className="w-5 h-5 text-cyan-500" /> Find Teams by Pokémon
+              </h2>
+              <span className="px-3 py-1 text-[10px] font-bold uppercase rounded-full bg-cyan-100 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/30">
+                {_VALID_CHAMPIONS_TEAMS.length} teams
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              Select up to 6 Pokémon to find every tournament team that used them together.
+            </p>
+
+            {/* ── Pokémon selector ── */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              {teamFilterIds.map(id => {
+                const pkm = POKEMON_SEED.find(p => p.id === id);
+                if (!pkm) return null;
+                return (
+                  <div key={id} className="flex items-center gap-1.5 pl-2 pr-1.5 py-1 rounded-full bg-cyan-100 dark:bg-cyan-500/20 border border-cyan-300 dark:border-cyan-500/40 text-cyan-800 dark:text-cyan-300">
+                    <Image src={pkm.sprite} alt={pkm.name} width={20} height={20} unoptimized />
+                    <span className="text-xs font-semibold">{pkm.name}</span>
+                    <button
+                      onClick={() => setTeamFilterIds(prev => prev.filter(i => i !== id))}
+                      className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-cyan-300 dark:hover:bg-cyan-500/40 transition-colors"
+                      aria-label={`Remove ${pkm.name}`}
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                );
+              })}
+              {teamFilterIds.length < 6 && (
+                <div className="relative">
+                  <div className="flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-xl border border-dashed border-cyan-300 dark:border-cyan-500/40 bg-white dark:bg-white/[0.04]">
+                    <Search className="w-3.5 h-3.5 text-cyan-500" />
+                    <input
+                      type="text"
+                      value={teamFilterSearch}
+                      onChange={e => { setTeamFilterSearch(e.target.value); setShowTeamFilterDropdown(true); }}
+                      onFocus={() => setShowTeamFilterDropdown(true)}
+                      onBlur={() => setTimeout(() => setShowTeamFilterDropdown(false), 150)}
+                      placeholder="Add Pokémon…"
+                      className="text-xs w-28 bg-transparent outline-none placeholder:text-muted-foreground"
+                    />
+                  </div>
+                  {showTeamFilterDropdown && teamFilterSearchResults.length > 0 && (
+                    <div className="absolute top-full mt-1 left-0 z-20 w-52 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-white/10 rounded-xl shadow-xl overflow-hidden">
+                      {teamFilterSearchResults.map(pkm => (
+                        <button
+                          key={pkm.id}
+                          onMouseDown={() => {
+                            if (!teamFilterIds.includes(pkm.id)) {
+                              setTeamFilterIds(prev => [...prev, pkm.id]);
+                            }
+                            setTeamFilterSearch("");
+                            setShowTeamFilterDropdown(false);
+                          }}
+                          className="w-full flex items-center gap-2 px-3 py-2 hover:bg-cyan-50 dark:hover:bg-cyan-500/10 transition-colors"
+                        >
+                          <Image src={pkm.sprite} alt={pkm.name} width={24} height={24} unoptimized />
+                          <span className="text-sm font-medium">{pkm.name}</span>
+                          {teamFilterIds.includes(pkm.id) && <span className="ml-auto text-[10px] text-cyan-600 font-bold">Added</span>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              {teamFilterIds.length > 0 && (
+                <button
+                  onClick={() => setTeamFilterIds([])}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-medium text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors border border-transparent hover:border-red-200 dark:hover:border-red-500/30"
+                >
+                  <X className="w-3 h-3" /> Clear
+                </button>
+              )}
+            </div>
+
+            {/* ── Results ── */}
+            {teamFilterIds.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <div className="w-14 h-14 rounded-2xl bg-cyan-50 dark:bg-cyan-500/10 flex items-center justify-center mb-3">
+                  <Users className="w-7 h-7 text-cyan-400" />
+                </div>
+                <p className="text-sm font-semibold text-muted-foreground">Search for Pokémon above</p>
+                <p className="text-xs text-muted-foreground mt-1">All tournament teams that ran your selection will appear here</p>
+              </div>
             )}
-            {showAllTournament && (
-              <button
-                onClick={() => setShowAllTournament(false)}
-                className="mt-4 w-full py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.04] text-gray-600 dark:text-gray-400 text-sm font-medium hover:bg-gray-100 dark:hover:bg-white/[0.07] transition-all flex items-center justify-center gap-2"
-              >
-                {t('common.showLess')} <ChevronUp className="w-4 h-4" />
-              </button>
+            {teamFilterIds.length > 0 && teamFilterResults.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <div className="w-14 h-14 rounded-2xl bg-gray-50 dark:bg-white/[0.04] flex items-center justify-center mb-3">
+                  <Trophy className="w-7 h-7 text-gray-300" />
+                </div>
+                <p className="text-sm font-semibold text-muted-foreground">No teams found</p>
+                <p className="text-xs text-muted-foreground mt-1">No tournament team ran all {teamFilterIds.length} selected Pokémon together</p>
+              </div>
+            )}
+            {teamFilterResults.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <p className="text-xs font-semibold text-cyan-600 dark:text-cyan-400">
+                    {teamFilterResults.length} team{teamFilterResults.length !== 1 ? "s" : ""} found
+                  </p>
+                  <div className="flex items-center gap-1.5 ml-auto">
+                    {(["all", "roster", "off"] as const).map(opt => (
+                      <button
+                        key={opt}
+                        onClick={() => setFindTeamsRosterFilter(opt)}
+                        className={cn(
+                          "px-2.5 py-0.5 rounded-lg text-[11px] font-semibold border transition-all",
+                          findTeamsRosterFilter === opt
+                            ? opt === "roster"
+                              ? "bg-emerald-100 dark:bg-emerald-500/20 border-emerald-300 dark:border-emerald-500/40 text-emerald-700 dark:text-emerald-400"
+                              : opt === "off"
+                              ? "bg-red-100 dark:bg-red-500/20 border-red-300 dark:border-red-500/40 text-red-700 dark:text-red-400"
+                              : "bg-cyan-100 dark:bg-cyan-500/20 border-cyan-300 dark:border-cyan-500/40 text-cyan-700 dark:text-cyan-400"
+                            : "bg-white/50 dark:bg-white/[0.04] border-gray-200 dark:border-white/10 text-muted-foreground hover:border-gray-300"
+                        )}
+                      >
+                        {opt === "all" ? "Tutti" : opt === "roster" ? "✓ Roster" : "✗ Fuori"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {teamFilterResults.map(team => {
+                    const teamPokemon = team.pokemonIds.map(id => POKEMON_SEED.find(p => p.id === id)).filter((p): p is NonNullable<typeof p> => !!p);
+                    return (
+                      <div
+                        key={team.id}
+                        className="p-4 rounded-xl border border-cyan-100 dark:border-cyan-500/15 bg-white/60 dark:bg-white/[0.04] hover:border-cyan-300 dark:hover:border-cyan-500/30 hover:shadow-md transition-all cursor-pointer"
+                        onClick={() => setModal({ kind: "tournament-team", id: team.id })}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className={cn("px-2 py-0.5 text-[10px] font-bold rounded", team.placement === 1 ? "bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400" : team.placement === 2 ? "bg-gray-200 dark:bg-gray-500/20 text-gray-700 dark:text-gray-300" : "bg-gray-100 dark:bg-gray-500/15 text-gray-600 dark:text-gray-400")}>
+                            {team.placement === 1 ? "🥇" : team.placement === 2 ? "🥈" : `#${team.placement}`}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold truncate">{team.player}</p>
+                            <p className="text-[10px] text-muted-foreground truncate">{team.tournament}</p>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{team.wins}W-{team.losses}L</span>
+                            <p className="text-[9px] text-muted-foreground">{team.players} players</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-1.5 flex-wrap">
+                          {teamPokemon.map(p => (
+                            <div key={p.id} className="flex flex-col items-center">
+                              <Image
+                                src={p.sprite} alt={p.name} width={30} height={30}
+                                className={cn("rounded", teamFilterIds.includes(p.id) && "ring-2 ring-cyan-400")}
+                                unoptimized
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             )}
           </div>
 
@@ -1370,8 +1668,8 @@ export default function MetaPage() {
               </p>
               <div className="space-y-2">
                 {ANTI_META_TEAMS.map(team => {
-                  const teamPokemon = team.pokemonIds.map(id => POKEMON_SEED.find(p => p.id === id)).filter(Boolean);
-                  const corePokemon = team.coreIds.map(id => POKEMON_SEED.find(p => p.id === id)).filter(Boolean);
+                  const teamPokemon = team.pokemonIds.map((id: number) => POKEMON_SEED.find(p => p.id === id)).filter(Boolean);
+                  const corePokemon = team.coreIds.map((id: number) => POKEMON_SEED.find(p => p.id === id)).filter(Boolean);
                   return (
                     <div
                       key={team.id}
@@ -1645,6 +1943,7 @@ export default function MetaPage() {
                 value={speedTypeFilter}
                 onChange={e => setSpeedTypeFilter(e.target.value as PokemonType | "all")}
                 className="px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-cyan-300 dark:focus:ring-cyan-500/40"
+                aria-label="Filter by type"
               >
                 <option value="all">{t('meta.allTypes')}</option>
                 {(["normal","fire","water","electric","grass","ice","fighting","poison","ground","flying","psychic","bug","rock","ghost","dragon","dark","steel","fairy"] as PokemonType[]).map(ty => (
@@ -2000,7 +2299,7 @@ export default function MetaPage() {
           <motion.div initial={{ opacity: 0, y: 30, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 30, scale: 0.97 }} transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="relative bg-white rounded-2xl shadow-2xl border border-gray-200 max-w-4xl w-full max-h-[85vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}>
-            <button onClick={() => setModal(null)} className="absolute top-4 right-4 z-10 p-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"><X className="w-5 h-5" /></button>
+            <button onClick={() => setModal(null)} aria-label="Close" className="absolute top-4 right-4 z-10 p-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"><X className="w-5 h-5" /></button>
 
             {/* ── POKEMON MODAL ── */}
             {modal.kind === "pokemon" && (() => {
@@ -2095,7 +2394,7 @@ export default function MetaPage() {
                       <h4 className="text-sm font-bold uppercase text-muted-foreground">{t('meta.abilities')}</h4>
                       {pokemon.abilities.map(a => (
                         <div key={a.name} className="p-2.5 bg-gray-50 rounded-xl">
-                          <div className="flex items-center gap-2"><span className="text-xs font-bold">{ta(a.name)}</span>{a.isHidden && <span className="text-[9px] px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded font-medium">{t('meta.hidden')}</span>}{(a as any).isChampions && <span className="text-[9px] px-1.5 py-0.5 bg-violet-100 text-violet-700 rounded font-medium" title="New ability introduced in Pokémon Champions">{t('meta.champions')}</span>}</div>
+                          <div className="flex items-center gap-2"><span className="text-xs font-bold">{ta(a.name)}</span>{a.isHidden && <span className="text-[9px] px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded font-medium">{t('meta.hidden')}</span>}{a.isChampions && <span className="text-[9px] px-1.5 py-0.5 bg-violet-100 text-violet-700 rounded font-medium" title="New ability introduced in Pokémon Champions">{t('meta.champions')}</span>}</div>
                           <p className="text-[10px] text-muted-foreground mt-0.5">{tad(a.name, a.description)}</p>
                         </div>
                       ))}
@@ -2183,7 +2482,7 @@ export default function MetaPage() {
                     <div>
                       <h4 className="text-sm font-bold uppercase text-muted-foreground mb-3">{t('meta.tournamentAppearances', { count: teamAppearances.length })}</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        {teamAppearances.sort((a, b) => b.year - a.year).slice(0, 6).map(tm => (
+                        {teamAppearances.sort((a: { year: number }, b: { year: number }) => b.year - a.year).slice(0, 6).map(tm => (
                           <div key={tm.id} className="flex items-center gap-2 p-2.5 bg-gray-50 rounded-xl">
                             <span className={cn("px-1.5 py-0.5 text-[9px] font-bold rounded", tm.placement <= 1 ? "bg-amber-100 text-amber-700" : "bg-gray-100 text-gray-600")}>{tm.placement === 1 ? "🥇" : `#${tm.placement}`}</span>
                             <div className="flex-1 min-w-0">
@@ -2208,7 +2507,7 @@ export default function MetaPage() {
                               <span className={cn("px-1.5 py-0.5 text-[9px] font-bold rounded", tm.tier === "S" ? "bg-amber-100 text-amber-700" : tm.tier === "A" ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-600")}>{tm.tier}</span>
                               <span className="text-xs font-bold">{tm.name}</span>
                             </div>
-                            <div className="flex gap-1">{tm.pokemonIds.map(id => { const pm = POKEMON_SEED.find(pk => pk.id === id); return pm ? <Image key={id} src={pm.sprite} alt={pm.name} width={24} height={24} className="rounded" unoptimized /> : null; })}</div>
+                            <div className="flex gap-1">{tm.pokemonIds.map((id: number) => { const pm = POKEMON_SEED.find(pk => pk.id === id); return pm ? <Image key={id} src={pm.sprite} alt={pm.name} width={24} height={24} className="rounded" unoptimized /> : null; })}</div>
                           </div>
                         ))}
                       </div>
@@ -2228,7 +2527,7 @@ export default function MetaPage() {
               const metaPredictions = metaTeams.filter(m => m.archetype.toLowerCase().includes(arch.toLowerCase()) || arch.toLowerCase().includes(m.archetype.toLowerCase()));
               const archPokemon = archTeams.flatMap(tm => tm.pokemonIds);
               const pokemonFreq: Record<number, number> = {};
-              archPokemon.forEach(id => { pokemonFreq[id] = (pokemonFreq[id] || 0) + 1; });
+              archPokemon.forEach((id: number) => { pokemonFreq[id] = (pokemonFreq[id] || 0) + 1; });
               const topPokemon = Object.entries(pokemonFreq).sort((a, b) => b[1] - a[1]).slice(0, 12);
               return (
                 <div className="p-6 space-y-6">
@@ -2344,7 +2643,7 @@ export default function MetaPage() {
                           <div key={tm.id} className="p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors" onClick={() => setModal({ kind: "prebuilt", id: tm.id })}>
                             <div className="flex items-center gap-2 mb-1"><span className={cn("px-1.5 py-0.5 text-[9px] font-bold rounded", tm.tier === "S" ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700")}>{tm.tier}</span><span className="text-xs font-bold">{tm.name}</span></div>
                             <p className="text-[10px] text-muted-foreground mb-1">{tm.description}</p>
-                            <div className="flex gap-1">{tm.pokemonIds.map(id => { const pm = POKEMON_SEED.find(pk => pk.id === id); return pm ? <Image key={id} src={pm.sprite} alt={pm.name} width={24} height={24} className="rounded" unoptimized /> : null; })}</div>
+                            <div className="flex gap-1">{tm.pokemonIds.map((id: number) => { const pm = POKEMON_SEED.find(pk => pk.id === id); return pm ? <Image key={id} src={pm.sprite} alt={pm.name} width={24} height={24} className="rounded" unoptimized /> : null; })}</div>
                           </div>
                         ))}
                       </div>
@@ -2358,7 +2657,7 @@ export default function MetaPage() {
                       {metaPredictions.map(m => (
                         <div key={m.id} className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 mb-2">
                           <div className="flex items-center gap-2 mb-2"><span className="text-xs font-bold">{m.name}</span><span className="text-[10px] text-emerald-600">{m.confidence}% confidence · {m.metaShare}% meta share</span></div>
-                          <div className="flex gap-1.5 mb-2">{m.pokemonIds.map(id => { const pm = POKEMON_SEED.find(pk => pk.id === id); return pm ? <Image key={id} src={pm.sprite} alt={pm.name} width={28} height={28} className="rounded" unoptimized /> : null; })}</div>
+                          <div className="flex gap-1.5 mb-2">{m.pokemonIds.map((id: number) => { const pm = POKEMON_SEED.find(pk => pk.id === id); return pm ? <Image key={id} src={pm.sprite} alt={pm.name} width={28} height={28} className="rounded" unoptimized /> : null; })}</div>
                           <div className="space-y-1">{m.reasoning.map((r, ri) => <p key={ri} className="text-[10px] text-foreground"><span className="text-emerald-500">•</span> {r}</p>)}</div>
                         </div>
                       ))}
@@ -2508,7 +2807,7 @@ export default function MetaPage() {
                         {teamsWithBoth.sort((a, b) => a.placement - b.placement || b.players - a.players).slice(0, 6).map(tm => (
                           <div key={tm.id} className="p-3 bg-gray-50 rounded-xl">
                             <div className="flex items-center gap-2 mb-1"><span className={cn("px-1.5 py-0.5 text-[9px] font-bold rounded", tm.placement === 1 ? "bg-amber-100 text-amber-700" : "bg-gray-100 text-gray-600")}>{tm.placement === 1 ? "🥇" : `#${tm.placement}`}</span><span className="text-xs font-bold">{tm.tournament}</span><span className="text-[10px] text-muted-foreground">{tm.player}</span></div>
-                            <div className="flex gap-1">{tm.pokemonIds.map(id => { const pm = POKEMON_SEED.find(pk => pk.id === id); return pm ? <Image key={id} src={pm.sprite} alt={pm.name} width={24} height={24} className="rounded" unoptimized /> : null; })}</div>
+                            <div className="flex gap-1">{tm.pokemonIds.map((id: number) => { const pm = POKEMON_SEED.find(pk => pk.id === id); return pm ? <Image key={id} src={pm.sprite} alt={pm.name} width={24} height={24} className="rounded" unoptimized /> : null; })}</div>
                           </div>
                         ))}
                       </div>
@@ -2621,7 +2920,7 @@ export default function MetaPage() {
               if (!team) return <div className="p-8 text-center text-muted-foreground">{t('meta.teamNotFound')}</div>;
               const teamPokemon = team.pokemonIds.map(id => POKEMON_SEED.find(p => p.id === id)).filter((p): p is NonNullable<typeof p> => !!p);
               const corePokemon = team.coreIds.map(id => POKEMON_SEED.find(p => p.id === id)).filter((p): p is NonNullable<typeof p> => !!p);
-              const builderSlots = team.pokemonIds.map(id => {
+              const builderSlots = team.pokemonIds.map((id: number) => {
                 const sets = USAGE_DATA[id];
                 const set = sets?.[0];
                 return {
@@ -2840,11 +3139,11 @@ export default function MetaPage() {
                       <h5 className="text-xs font-semibold text-muted-foreground uppercase mb-2">{t('meta.corePairsInTeam')}</h5>
                       {corePairs.length > 0 ? (
                         <div className="space-y-2">
-                          {corePairs.sort((a, b) => b.winRate - a.winRate).map(cp => {
+                          {corePairs.sort((a, b) => b.winRate - a.winRate).map((cp, cpIdx) => {
                             const p1 = POKEMON_SEED.find(p => p.id === cp.pokemon1);
                             const p2 = POKEMON_SEED.find(p => p.id === cp.pokemon2);
                             return (
-                              <div key={cp.name} className="p-2 rounded-lg bg-white/50 border border-gray-100 cursor-pointer hover:bg-gray-50" onClick={() => setModal({ kind: "core", pair: cp.name })}>
+                              <div key={`${cp.name}-${cpIdx}`} className="p-2 rounded-lg bg-white/50 border border-gray-100 cursor-pointer hover:bg-gray-50" onClick={() => setModal({ kind: "core", pair: cp.name })}>
                                 <div className="flex items-center gap-2">
                                   {p1 && <Image src={p1.sprite} alt={p1.name} width={20} height={20} className="rounded" unoptimized />}
                                   <span className="text-[10px] text-muted-foreground">+</span>
@@ -2912,7 +3211,7 @@ function MetaTeamCard({ meta, expanded, onToggle }: { meta: MetaTeamPrediction; 
           </div>
         </div>
         <div className="flex gap-2 mb-2">
-          {meta.pokemonIds.map(id => {
+          {meta.pokemonIds.map((id: number) => {
             const p = POKEMON_SEED.find(pk => pk.id === id);
             return p ? (
               <div key={id} className="flex flex-col items-center">
@@ -2949,8 +3248,8 @@ function MetaTeamCard({ meta, expanded, onToggle }: { meta: MetaTeamPrediction; 
                 <div>
                   <h5 className="text-xs font-semibold text-muted-foreground uppercase mb-2">{t('meta.teamComposition')}</h5>
                   <div className="space-y-1.5">
-                    {meta.pokemonIds.map(id => {
-                      const p = POKEMON_SEED.find(pk => pk.id === id);
+                    {meta.pokemonIds.map((id: number) => {
+                      const p = POKEMON_SEED.find((pk) => pk.id === id);
                       if (!p) return null;
                       const usage = _VALID_TOURNAMENT_USAGE.find(u => u.pokemonId === id);
                       return (
@@ -2958,7 +3257,7 @@ function MetaTeamCard({ meta, expanded, onToggle }: { meta: MetaTeamPrediction; 
                           <Image src={p.sprite} alt={p.name} width={24} height={24} className="rounded" unoptimized />
                           <div className="flex-1 min-w-0">
                             <p className="text-xs font-semibold truncate">{tp(p.name)}</p>
-                            <div className="flex gap-0.5">{p.types.map(ty => <span key={ty} className="w-2 h-2 rounded-full" style={{ backgroundColor: TYPE_COLORS[ty] }} />)}</div>
+                            <div className="flex gap-0.5">{p.types.map((ty: PokemonType) => <span key={ty} className="w-2 h-2 rounded-full" style={{ backgroundColor: TYPE_COLORS[ty] }} />)}</div>
                           </div>
                           <div className="text-right">
                             {usage && <p className="text-[10px] text-muted-foreground">{usage.usageRate}% use · {usage.winRate}% WR</p>}
@@ -2997,8 +3296,8 @@ function MetaTeamCard({ meta, expanded, onToggle }: { meta: MetaTeamPrediction; 
 function TournamentTeamCard({ team, expanded, onToggle }: { team: TournamentTeam; expanded: boolean; onToggle: () => void }) {
   const { t, tp, tm, ta, ti, tn, ts, tt } = useI18n();
   const megaId = getMegaIdFromArchetype(team.archetype);
-  const teamPokemon = team.pokemonIds.map(id => POKEMON_SEED.find(p => p.id === id)).filter((p): p is NonNullable<typeof p> => !!p);
-  const allTypes = [...new Set(teamPokemon.flatMap(p => p.types))];
+  const teamPokemon = team.pokemonIds.map((id: number) => POKEMON_SEED.find(p => p.id === id)).filter((p): p is NonNullable<typeof p> => !!p);
+  const allTypes: PokemonType[] = [...new Set(teamPokemon.flatMap(p => p.types))];
   const corePairs = _VALID_CORE_PAIRS.filter(cp => team.pokemonIds.includes(cp.pokemon1) && team.pokemonIds.includes(cp.pokemon2));
 
   return (

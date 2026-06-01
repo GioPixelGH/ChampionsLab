@@ -249,6 +249,18 @@ export const TOURNAMENT_USAGE: TournamentUsage[] = [
   { pokemonId:   512, name: "Simisage"                          , usageRate:   0.04, winRate: 49.9, avgPlacement: 45, topCutRate: 0.6, leadRate: 23.3, bringRate: 30 },
 ];
 
+export interface TournamentTeam {
+  id: string;
+  tournament: string;
+  year: number;
+  format: string;
+  player: string;
+  placement: number;
+  pokemonIds: number[];
+  archetype: string;
+  region: string;
+}
+
 export const TOURNAMENT_TEAMS: TournamentTeam[] = [
 
   // ────────────────────────────────── 2025 ──────────────────────────────────
