@@ -1,0 +1,45 @@
+import { NextResponse } from "next/server";
+import { spawn } from "child_process";
+import * as path from "path";
+import * as fs from "fs";
+
+export async function POST(req: Request) {
+  // Optional secret guard (set SYNC_SECRET in .env.local to enable)
+  const secret = process.env.SYNC_SECRET;
+  if (secret) {
+    const { secret: provided } = await req.json().catch(() => ({ secret: "" }));
+    if (provided !== secret) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+  }
+
+  const cwd = process.cwd();
+  const scriptPath = path.join(cwd, "scripts", "sync-limitless-tournaments.ts");
+  const isWin = process.platform === "win32";
+  const tsxCmd = isWin ? `"${path.join(cwd, "node_modules", ".bin", "tsx.cmd")}"` : path.join(cwd, "node_modules", ".bin", "tsx");
+  const logPath = path.join(cwd, "scripts", "sync-last-run.log");
+
+  // Write a "started" marker so the UI can poll
+  fs.writeFileSync(logPath, `[${new Date().toISOString()}] Sync started\n`);
+
+  // Spawn detached — returns immediately, script runs in background
+  const child = spawn(tsxCmd, [scriptPath], {
+    cwd,
+    shell: isWin,
+    detached: true,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+
+  // Stream output to log file
+  const logStream = fs.createWriteStream(logPath, { flags: "a" });
+  child.stdout?.pipe(logStream);
+  child.stderr?.pipe(logStream);
+  child.on("close", code => {
+    fs.appendFileSync(logPath, `\n[${new Date().toISOString()}] Exited with code ${code}\n`);
+    logStream.close();
+  });
+
+  child.unref();
+
+  return NextResponse.json({ ok: true, status: "started", logPath: "scripts/sync-last-run.log" });
+}

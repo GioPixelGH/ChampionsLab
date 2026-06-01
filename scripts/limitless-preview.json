@@ -2,405 +2,415 @@
   "teams": [
     {
       "id": "ct-1",
-      "tournament": "Pokémon CHAMPIONS Mi Dulce Japón Tournament #3",
-      "players": 8,
+      "tournament": "Champions Collective Invitational I",
+      "players": 19,
       "placement": 1,
-      "player": "Franco1989",
-      "wins": 3,
-      "losses": 1,
+      "player": "megathorn",
+      "wins": 7,
+      "losses": 2,
       "pokemonIds": [
-        6,
-        350,
-        3,
-        445,
+        212,
+        784,
         727,
-        903
+        1013,
+        248,
+        10009
       ],
       "pokemonNames": [
-        "Charizard",
-        "Milotic",
-        "Venusaur",
-        "Garchomp",
+        "Scizor",
+        "Kommo-o",
         "Incineroar",
-        "Sneasler"
+        "Sinistcha",
+        "Tyranitar",
+        "Wash Rotom"
       ],
       "sets": [
         {
-          "ability": "Blaze",
-          "item": "Charizardite Y",
+          "ability": "Technician",
+          "item": "Scizorite",
           "moves": [
-            "Heat Wave",
-            "Weather Ball",
-            "Solar Beam",
+            "Bullet Punch",
+            "Bug Bite",
+            "Swords Dance",
             "Protect"
           ]
         },
         {
-          "ability": "Competitive",
+          "ability": "Soundproof",
           "item": "Leftovers",
           "moves": [
-            "Ice Beam",
-            "Coil",
-            "Hypnosis",
-            "Recover"
-          ]
-        },
-        {
-          "ability": "Chlorophyll",
-          "item": "Focus Sash",
-          "moves": [
-            "Energy Ball",
-            "Weather Ball",
-            "Sludge Bomb",
-            "Sleep Powder"
-          ]
-        },
-        {
-          "ability": "Rough Skin",
-          "item": "Sitrus Berry",
-          "moves": [
-            "Dragon Claw",
-            "Earthquake",
-            "Avalanche",
-            "Protect"
+            "Aura Sphere",
+            "Clanging Scales",
+            "Protect",
+            "Clangorous Soul"
           ]
         },
         {
           "ability": "Intimidate",
-          "item": "Chople Berry",
+          "item": "Sitrus Berry",
           "moves": [
-            "Facade",
-            "Parting Shot",
-            "Eruption",
-            "Throat Chop"
+            "Fake Out",
+            "Helping Hand",
+            "Flare Blitz",
+            "Parting Shot"
           ]
         },
         {
-          "ability": "Unburden",
-          "item": "White Herb",
+          "ability": "Hospitality",
+          "item": "Coba Berry",
           "moves": [
-            "Close Combat",
-            "Protect",
-            "Dire Claw",
-            "Fake Out"
+            "Matcha Gotcha",
+            "Trick Room",
+            "Rage Powder",
+            "Life Dew"
+          ]
+        },
+        {
+          "ability": "Sand Stream",
+          "item": "Tyranitarite",
+          "moves": [
+            "Rock Slide",
+            "Knock Off",
+            "Low Kick",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Levitate",
+          "item": "Choice Scarf",
+          "moves": [
+            "Hydro Pump",
+            "Volt Switch",
+            "Thunderbolt",
+            "Electroweb"
           ]
         }
       ]
     },
     {
       "id": "ct-2",
-      "tournament": "Pokémon CHAMPIONS Mi Dulce Japón Tournament #3",
-      "players": 8,
+      "tournament": "Champions Collective Invitational I",
+      "players": 19,
       "placement": 2,
-      "player": "flownixx",
-      "wins": 3,
+      "player": "ICPX",
+      "wins": 8,
       "losses": 1,
       "pokemonIds": [
-        981,
-        1013,
-        937,
-        959,
-        730,
-        740
+        3,
+        6,
+        670,
+        983,
+        547,
+        445
       ],
       "pokemonNames": [
-        "Farigiraf",
-        "Sinistcha",
-        "Ceruledge",
-        "Tinkaton",
-        "Primarina",
-        "Crabominable"
+        "Venusaur",
+        "Charizard",
+        "Floette",
+        "Kingambit",
+        "Whimsicott",
+        "Garchomp"
       ],
       "sets": [
         {
-          "ability": "Armor Tail",
-          "item": "Sitrus Berry",
+          "ability": "Chlorophyll",
+          "item": "Occa Berry",
           "moves": [
-            "Protect",
-            "Trick Room",
-            "Twin Beam",
-            "Helping Hand"
+            "Leaf Storm",
+            "Sludge Bomb",
+            "Sleep Powder",
+            "Protect"
           ]
         },
         {
-          "ability": "Hospitality",
-          "item": "Miracle Seed",
+          "ability": "Blaze",
+          "item": "Charizardite Y",
           "moves": [
-            "Trick Room",
-            "Matcha Gotcha",
-            "Shadow Ball",
-            "Rage Powder"
+            "Weather Ball",
+            "Heat Crash",
+            "Solar Beam",
+            "Protect"
           ]
         },
         {
-          "ability": "Flash Fire",
+          "ability": "Flower Veil",
+          "item": "Floettite",
+          "moves": [
+            "Moonblast",
+            "Light of Ruin",
+            "Dazzling Gleam",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Defiant",
+          "item": "Chople Berry",
+          "moves": [
+            "Kowtow Cleave",
+            "Sucker Punch",
+            "Low Kick",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Prankster",
           "item": "Focus Sash",
           "moves": [
-            "Protect",
-            "Shadow Sneak",
-            "Bitter Blade",
-            "Taunt"
-          ]
-        },
-        {
-          "ability": "Own Tempo",
-          "item": "Lum Berry",
-          "moves": [
-            "Fake Out",
-            "Protect",
-            "Play Rough",
-            "Gigaton Hammer"
-          ]
-        },
-        {
-          "ability": "Liquid Voice",
-          "item": "Leftovers",
-          "moves": [
-            "Protect",
             "Moonblast",
-            "Hyper Voice",
-            "Calm Mind"
+            "Tailwind",
+            "Encore",
+            "Protect"
           ]
         },
         {
-          "ability": "Hyper Cutter",
-          "item": "Crabominite",
+          "ability": "Rough Skin",
+          "item": "Choice Scarf",
           "moves": [
-            "Protect",
-            "Ice Hammer",
-            "Drain Punch",
-            "Mach Punch"
+            "Earthquake",
+            "Stomping Tantrum",
+            "Dragon Claw",
+            "Rock Slide"
           ]
         }
       ]
     },
     {
       "id": "ct-3",
-      "tournament": "Pokémon CHAMPIONS Mi Dulce Japón Tournament #3",
-      "players": 8,
+      "tournament": "Champions Collective Invitational I",
+      "players": 19,
       "placement": 3,
-      "player": "ItzChable",
-      "wins": 3,
-      "losses": 1,
+      "player": "Cfoowl",
+      "wins": 6,
+      "losses": 2,
       "pokemonIds": [
-        428,
-        461,
-        655,
-        10340,
-        784,
-        302
+        952,
+        730,
+        1018,
+        956,
+        727,
+        186
       ],
       "pokemonNames": [
-        "Lopunny",
-        "Weavile",
-        "Delphox",
-        "Hisuian Zoroark",
-        "Kommo-o",
-        "Sableye"
+        "Scovillain",
+        "Primarina",
+        "Archaludon",
+        "Espathra",
+        "Incineroar",
+        "Politoed"
       ],
       "sets": [
         {
-          "ability": "Limber",
-          "item": "Lopunnite",
+          "ability": "Insomnia",
+          "item": "Scovillainite",
           "moves": [
-            "Fake Out",
-            "Close Combat",
-            "Thunder Punch",
+            "Overheat",
+            "Leech Seed",
+            "Rage Powder",
             "Protect"
           ]
         },
         {
-          "ability": "Pickpocket",
-          "item": "King's Rock",
-          "moves": [
-            "Fake Out",
-            "Low Kick",
-            "Taunt",
-            "Fling"
-          ]
-        },
-        {
-          "ability": "Magician",
-          "item": "Delphoxite",
-          "moves": [
-            "Heat Wave",
-            "Psyshock",
-            "Nasty Plot",
-            "Protect"
-          ]
-        },
-        {
-          "ability": "Illusion",
-          "item": "Silk Scarf",
+          "ability": "Liquid Voice",
+          "item": "Mystic Water",
           "moves": [
             "Hyper Voice",
-            "Shadow Ball",
-            "Icy Wind",
+            "Moonblast",
+            "Calm Mind",
             "Protect"
           ]
         },
         {
-          "ability": "Soundproof",
-          "item": "Dragon Fang",
+          "ability": "Stamina",
+          "item": "Leftovers",
           "moves": [
-            "Clanging Scales",
-            "Clangorous Soul",
+            "Dragon Pulse",
             "Flash Cannon",
+            "Electro Shot",
             "Protect"
           ]
         },
         {
-          "ability": "Prankster",
-          "item": "Sitrus Berry",
+          "ability": "Speed Boost",
+          "item": "Mental Herb",
+          "moves": [
+            "Lumina Crash",
+            "Calm Mind",
+            "Baton Pass",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Intimidate",
+          "item": "Charcoal",
           "moves": [
             "Fake Out",
-            "Disable",
-            "Helping Hand",
-            "Encore"
+            "Flare Blitz",
+            "Throat Chop",
+            "Parting Shot"
+          ]
+        },
+        {
+          "ability": "Drizzle",
+          "item": "Sitrus Berry",
+          "moves": [
+            "Weather Ball",
+            "Muddy Water",
+            "Psych Up",
+            "Rain Dance"
           ]
         }
       ]
     },
     {
       "id": "ct-4",
-      "tournament": "Pokémon CHAMPIONS Mi Dulce Japón Tournament #3",
-      "players": 8,
+      "tournament": "Champions Collective Invitational I",
+      "players": 19,
       "placement": 4,
-      "player": "MarioMass89",
-      "wins": 3,
-      "losses": 1,
+      "player": "HeraDitCation",
+      "wins": 5,
+      "losses": 3,
       "pokemonIds": [
-        306,
-        903,
-        1013,
-        10009,
-        248,
-        981
+        981,
+        858,
+        324,
+        727,
+        983,
+        6
       ],
       "pokemonNames": [
-        "Aggron",
-        "Sneasler",
-        "Sinistcha",
-        "Wash Rotom",
-        "Tyranitar",
-        "Farigiraf"
+        "Farigiraf",
+        "Hatterene",
+        "Torkoal",
+        "Incineroar",
+        "Kingambit",
+        "Charizard"
       ],
       "sets": [
-        {
-          "ability": "Sturdy",
-          "item": "Aggronite",
-          "moves": [
-            "Heavy Slam",
-            "Iron Defense",
-            "Protect",
-            "Body Press"
-          ]
-        },
-        {
-          "ability": "Unburden",
-          "item": "White Herb",
-          "moves": [
-            "Dire Claw",
-            "Close Combat",
-            "Fake Out",
-            "Protect"
-          ]
-        },
-        {
-          "ability": "Hospitality",
-          "item": "Leftovers",
-          "moves": [
-            "Matcha Gotcha",
-            "Rage Powder",
-            "Trick Room",
-            "Protect"
-          ]
-        },
-        {
-          "ability": "Levitate",
-          "item": "Mystic Water",
-          "moves": [
-            "Hydro Pump",
-            "Will-O-Wisp",
-            "Thunderbolt",
-            "Protect"
-          ]
-        },
-        {
-          "ability": "Sand Stream",
-          "item": "Chople Berry",
-          "moves": [
-            "Rock Slide",
-            "Ice Punch",
-            "Knock Off",
-            "Protect"
-          ]
-        },
         {
           "ability": "Armor Tail",
           "item": "Sitrus Berry",
           "moves": [
+            "Thunderbolt",
             "Psychic",
-            "Protect",
             "Trick Room",
-            "Hyper Voice"
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Magic Bounce",
+          "item": "Fairy Feather",
+          "moves": [
+            "Psychic",
+            "Dazzling Gleam",
+            "Trick Room",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Drought",
+          "item": "Charcoal",
+          "moves": [
+            "Eruption",
+            "Weather Ball",
+            "Earth Power",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Intimidate",
+          "item": "White Herb",
+          "moves": [
+            "Fake Out",
+            "Flare Blitz",
+            "Darkest Lariat",
+            "Close Combat"
+          ]
+        },
+        {
+          "ability": "Defiant",
+          "item": "Black Glasses",
+          "moves": [
+            "Kowtow Cleave",
+            "Sucker Punch",
+            "Iron Head",
+            "Swords Dance"
+          ]
+        },
+        {
+          "ability": "Solar Power",
+          "item": "Charizardite Y",
+          "moves": [
+            "Heat Wave",
+            "Overheat",
+            "Solar Beam",
+            "Protect"
           ]
         }
       ]
     },
     {
       "id": "ct-5",
-      "tournament": "Pokémon CHAMPIONS Mi Dulce Japón Tournament #3",
-      "players": 8,
+      "tournament": "Champions Collective Invitational I",
+      "players": 19,
       "placement": 5,
-      "player": "xCalsi",
-      "wins": 2,
+      "player": "Rururinillo",
+      "wins": 5,
       "losses": 2,
       "pokemonIds": [
-        478,
-        903,
+        6,
+        547,
+        983,
         902,
         445,
-        142,
-        983
+        670
       ],
       "pokemonNames": [
-        "Froslass",
-        "Sneasler",
+        "Charizard",
+        "Whimsicott",
+        "Kingambit",
         "Basculegion-M",
         "Garchomp",
-        "Aerodactyl",
-        "Kingambit"
+        "Floette"
       ],
       "sets": [
         {
-          "ability": "Cursed Body",
-          "item": "Froslassite",
+          "ability": "Solar Power",
+          "item": "Charizardite Y",
           "moves": [
-            "Aurora Veil",
-            "Blizzard",
+            "Weather Ball",
             "Protect",
-            "Shadow Ball"
+            "Heat Wave",
+            "Solar Beam"
           ]
         },
         {
-          "ability": "Unburden",
-          "item": "Mental Herb",
+          "ability": "Prankster",
+          "item": "Fairy Feather",
           "moves": [
-            "Close Combat",
-            "Fake Out",
+            "Moonblast",
+            "Tailwind",
+            "Encore",
+            "Protect"
+          ]
+        },
+        {
+          "ability": "Defiant",
+          "item": "Occa Berry",
+          "moves": [
+            "Kowtow Cleave",
+            "Sucker Punch",
             "Protect",
-            "Dire Claw"
+            "Iron Head"
           ]
         },
         {
           "ability": "Adaptability",
           "item": "Focus Sash",
           "moves": [
-            "Protect",
-            "Aqua Jet",
             "Liquidation",
-            "Last Respects"
+            "Last Respects",
+            "Protect",
+            "Aqua Jet"
           ]
         },
         {
@@ -414,23 +424,13 @@
           ]
         },
         {
-          "ability": "Unnerve",
-          "item": "Aerodactylite",
+          "ability": "Flower Veil",
+          "item": "Floettite",
           "moves": [
-            "Tailwind",
-            "Rock Slide",
+            "Moonblast",
+            "Dazzling Gleam",
             "Protect",
-            "Dual Wingbeat"
-          ]
-        },
-        {
-          "ability": "Defiant",
-          "item": "Chople Berry",
-          "moves": [
-            "Low Kick",
-            "Sucker Punch",
-            "Iron Head",
-            "Kowtow Cleave"
+            "Light of Ruin"
           ]
         }
       ]
@@ -439,73 +439,73 @@
   "usage": [
     {
       "rank": 1,
-      "name": "Sneasler",
-      "count": 6240,
-      "usagePct": 50.5,
-      "top8Count": 570
+      "name": "Basculegion-M",
+      "count": 266,
+      "usagePct": 45.2,
+      "top8Count": 89
     },
     {
       "rank": 2,
-      "name": "Incineroar",
-      "count": 5063,
-      "usagePct": 41,
-      "top8Count": 390
+      "name": "Garchomp",
+      "count": 239,
+      "usagePct": 40.6,
+      "top8Count": 81
     },
     {
       "rank": 3,
-      "name": "Garchomp",
-      "count": 4994,
-      "usagePct": 40.4,
-      "top8Count": 442
+      "name": "Kingambit",
+      "count": 216,
+      "usagePct": 36.7,
+      "top8Count": 72
     },
     {
       "rank": 4,
-      "name": "Kingambit",
-      "count": 3818,
-      "usagePct": 30.9,
-      "top8Count": 414
+      "name": "Incineroar",
+      "count": 171,
+      "usagePct": 29.1,
+      "top8Count": 65
     },
     {
       "rank": 5,
-      "name": "Sinistcha",
-      "count": 3373,
-      "usagePct": 27.3,
-      "top8Count": 287
+      "name": "Charizard",
+      "count": 165,
+      "usagePct": 28.1,
+      "top8Count": 56
     },
     {
       "rank": 6,
-      "name": "Basculegion-M",
-      "count": 3373,
-      "usagePct": 27.3,
-      "top8Count": 344
+      "name": "Sneasler",
+      "count": 163,
+      "usagePct": 27.7,
+      "top8Count": 50
     },
     {
       "rank": 7,
-      "name": "Aerodactyl",
-      "count": 2849,
-      "usagePct": 23.1,
-      "top8Count": 273
+      "name": "Whimsicott",
+      "count": 127,
+      "usagePct": 21.6,
+      "top8Count": 40
     },
     {
       "rank": 8,
-      "name": "Charizard",
-      "count": 2349,
-      "usagePct": 19,
-      "top8Count": 175
+      "name": "Sinistcha",
+      "count": 126,
+      "usagePct": 21.4,
+      "top8Count": 40
     },
     {
       "rank": 9,
-      "name": "Wash Rotom",
-      "count": 2196,
-      "usagePct": 17.8,
-      "top8Count": 175
+      "name": "Floette",
+      "count": 104,
+      "usagePct": 17.7,
+      "top8Count": 42
     },
     {
       "rank": 10,
-      "name": "Floette",
-      "count": 2047,
-      "usagePct": 16.6,
-      "top8Count": 226
+      "name": "Archaludon",
+      "count": 102,
+      "usagePct": 17.3,
+      "top8Count": 39
     }
   ]
 }
