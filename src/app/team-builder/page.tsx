@@ -1280,8 +1280,23 @@ export default function TeamBuilderPage() {
   };
   const teamTypes = filledSlots.flatMap((s) => resolveSlotTypes(s));
 
+  // Infer active weather from team abilities (first setter wins)
+  const WEATHER_SETTERS: Record<string, string> = {
+    "Drizzle": "rain", "Primordial Sea": "rain",
+    "Drought": "sun", "Desolate Land": "sun", "Orichalcum Pulse": "sun",
+    "Sand Stream": "sand",
+    "Snow Warning": "snow",
+  };
+  const WEATHER_BALL_TYPES: Record<string, PokemonType> = {
+    rain: "water", sun: "fire", sand: "rock", snow: "ice",
+  };
+  const teamWeather = filledSlots.reduce<string>((w, s) => {
+    if (w !== "none") return w;
+    return WEATHER_SETTERS[resolveSlotAbility(s)] ?? "none";
+  }, "none");
+
   // Offensive coverage: check selected moves (slot.moves), not full movepool
-  // Accounts for -ate abilities converting Normal-type moves
+  // Accounts for -ate abilities converting Normal-type moves and weather-dependent moves
   const offensiveCoverage: Record<string, number> = {};
   ALL_TYPES.forEach((defType) => {
     let count = 0;
@@ -1292,9 +1307,11 @@ export default function TeamBuilderPage() {
       const hasHit = s.moves.some((moveName) => {
         const moveData = s.pokemon!.moves.find((m) => m.name === moveName);
         if (!moveData || moveData.category === "status") return false;
-        // -ate abilities convert Normal moves to the ability's type
         let moveType = moveData.type as PokemonType;
+        // -ate abilities convert Normal moves to the ability's type
         if (ateType && moveType === "normal") moveType = ateType;
+        // Weather Ball changes type based on active weather
+        if (moveName === "Weather Ball" && WEATHER_BALL_TYPES[teamWeather]) moveType = WEATHER_BALL_TYPES[teamWeather];
         // Freeze Dry is super effective vs Water regardless of type chart
         if (moveName === "Freeze Dry" && defType === "water") return true;
         const eff = TYPE_CHART[moveType]?.[defType] ?? 1;

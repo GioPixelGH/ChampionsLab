@@ -138,6 +138,10 @@ interface BattlePokemon {
   // Tracking for log: spread move per-target results
   spreadMissed: string[];
   spreadImmune: string[];
+  // Perish Song countdown (null = not affected)
+  perishTurns: number | null;
+  // Two-turn charge move in progress (null = not charging)
+  chargingMove: string | null;
 }
 
 interface FieldState {
@@ -239,6 +243,8 @@ function createBattlePokemon(pokemon: ChampionsPokemon, set: CommonSet, teamForI
     lastMoveImmune: false,
     spreadMissed: [],
     spreadImmune: [],
+    perishTurns: null,
+    chargingMove: null,
   };
 }
 
@@ -480,6 +486,15 @@ function isBeingDoubled(
   }
   return threatsAbove50 >= 2;
 }
+
+// Moves that require a charge turn before firing
+const TWO_TURN_MOVES = new Set(["Electro Shot", "Solar Beam", "Solar Blade", "Skull Bash", "Sky Attack"]);
+// Weather that bypasses the charge turn (instant fire)
+const CHARGE_WEATHER_BYPASS: Record<string, string> = {
+  "Electro Shot": "rain",
+  "Solar Beam": "sun",
+  "Solar Blade": "sun",
+};
 
 function evaluateMoveOption(
   user: BattlePokemon,
@@ -819,7 +834,64 @@ function evaluateMoveOption(
       choices.push({ moveIndex: 0, moveName, targetSlot: 0, score });
       return choices;
     }
-    
+
+    // Parting Shot: -1 Atk/-1 SpAtk on target then switch out — high utility
+    if (moveName === "Parting Shot") {
+      const bench = myTeam.filter(p =>
+        p.isAlive && !p.isFainted &&
+        p !== (userSide === 1 ? state.active1[0] : state.active2[0]) &&
+        p !== (userSide === 1 ? state.active1[1] : state.active2[1])
+      );
+      if (bench.length === 0) {
+        // No one to switch to — still apply debuff but no switch value
+        score = 30;
+      } else {
+        score = 55; // Base: significant dual-stat drop + free switch
+        // More valuable vs high-attack threats
+        for (const t of targets) {
+          if (!t || t.isFainted) continue;
+          if (t.effectiveBaseStats.attack > 100 || t.effectiveBaseStats.spAtk > 100) score += 15;
+          if (t.ability === "Soundproof") { score = 0; break; } // Soundproof blocks
+        }
+        // More valuable early (keeps debuff relevant for longer)
+        if (state.turn <= 2) score += 10;
+        // Less valuable if already at -6 or if nothing to switch to
+        const alreadyNerfed = targets.some(t => t && !t.isFainted && t.boosts.attack <= -6 && t.boosts.spAtk <= -6);
+        if (alreadyNerfed) score = 5;
+      }
+      for (let i = 0; i < targets.length; i++) {
+        const t = targets[i];
+        if (!t || t.isFainted) continue;
+        choices.push({ moveIndex: 0, moveName, targetSlot: i, score });
+      }
+      if (choices.length === 0) choices.push({ moveIndex: 0, moveName, targetSlot: -1, score: 5 });
+      return choices;
+    }
+
+    // Perish Song: all active Pokémon faint in 3 turns — Gengar's wincon
+    if (moveName === "Perish Song") {
+      // Only worth using if we have not already triggered it this battle
+      const alreadyActive = [
+        ...((userSide === 1 ? state.active1 : state.active2)),
+        ...((userSide === 1 ? state.active2 : state.active1)),
+      ].some(m => m && m.perishTurns !== null);
+      if (alreadyActive) {
+        choices.push({ moveIndex: 0, moveName, targetSlot: -1, score: 5 });
+        return choices;
+      }
+      score = 65; // Powerful win condition
+      // More valuable if we can switch away (Gengar has Protect/Shadow Ball — we just set and pivot)
+      const hasProtect = user.set.moves.some(m => ["Protect", "Detect"].includes(m));
+      if (hasProtect) score += 15;
+      // Less valuable early (opponents can pivot out)
+      if (state.turn <= 1) score -= 20;
+      // More valuable when opponents are weakened (harder to pivot all out)
+      const oppHP = targets.filter(Boolean).map(t => (t!.currentHP / t!.maxHP));
+      if (oppHP.some(hp => hp < 0.5)) score += 10;
+      choices.push({ moveIndex: 0, moveName, targetSlot: -1, score });
+      return choices;
+    }
+
     // Generic status moves
     if (move.secondary?.status) {
       for (let i = 0; i < targets.length; i++) {
@@ -1006,7 +1078,12 @@ function aiChooseAction(
   state: BattleState
 ): { moveName: string; targetSlot: number; switchOut?: boolean } {
   const allChoices: MoveChoice[] = [];
-  
+
+  // Charging move: must fire this turn (no choice)
+  if (mon.chargingMove) {
+    return { moveName: mon.chargingMove, targetSlot: 0 };
+  }
+
   // Evaluate each move
   for (const moveName of mon.set.moves) {
     // Can't use Fake Out after turn 1
@@ -1459,6 +1536,18 @@ function applyEndOfTurn(state: BattleState): string[] {
         events.push(`${mon.pokemon.name} fainted!`);
       }
     }
+
+    // Perish Song countdown (after all other end-of-turn effects)
+    for (const mon of active) {
+      if (!mon || mon.isFainted || mon.perishTurns === null) continue;
+      mon.perishTurns--;
+      if (mon.perishTurns <= 0) {
+        mon.currentHP = 0;
+        mon.isAlive = false;
+        mon.isFainted = true;
+        events.push(`${mon.pokemon.name} fainted from Perish Song!`);
+      }
+    }
   }
   return events;
 }
@@ -1580,12 +1669,68 @@ function executeMove(
     if (moveName === "Rage Powder" || moveName === "Follow Me") {
       user.isRedirecting = true;
     }
+
+    // Parting Shot: -1 Atk/-1 SpAtk on target, then user switches out
+    if (moveName === "Parting Shot") {
+      if (target && !target.isFainted && target.ability !== "Soundproof") {
+        const contraryMult = target.ability === "Contrary" ? -1 : 1;
+        target.boosts.attack = Math.max(-6, Math.min(6, target.boosts.attack - 1 * contraryMult));
+        target.boosts.spAtk  = Math.max(-6, Math.min(6, target.boosts.spAtk  - 1 * contraryMult));
+      }
+      // Switch user out (Regenerator heals on switch-out inside applySwitch)
+      const myActive = userSide === 1 ? state.active1 : state.active2;
+      const slotRaw = myActive.indexOf(user);
+      if (slotRaw !== -1) applySwitch(state, userSide, slotRaw as 0 | 1);
+      return;
+    }
+
+    // Perish Song: all currently active Pokémon faint after 3 turns
+    if (moveName === "Perish Song") {
+      const myActive  = userSide === 1 ? state.active1 : state.active2;
+      const oppActive = userSide === 1 ? state.active2 : state.active1;
+      for (const mon of [...myActive, ...oppActive]) {
+        if (mon && !mon.isFainted && mon.perishTurns === null) {
+          mon.perishTurns = 3;
+        }
+      }
+      return;
+    }
+
     return;
   }
   
   // Damaging moves
+
+  // ── Two-turn charge moves (Electro Shot, Solar Beam, Solar Blade…) ──────
+  if (user.chargingMove === moveName) {
+    // Fire turn: this is the execution — clear charge state and fall through
+    user.chargingMove = null;
+  } else if (TWO_TURN_MOVES.has(moveName)) {
+    const bypassWeather = CHARGE_WEATHER_BYPASS[moveName];
+    const weatherBypasses = bypassWeather ? state.field.weather === bypassWeather : false;
+    const herbSkips = user.item === "Power Herb" && !user.itemConsumed;
+    if (herbSkips) {
+      user.itemConsumed = true; // herb consumed, fire immediately
+    } else if (!weatherBypasses) {
+      // Charge turn: lock move, apply charge-turn boost (Electro Shot +1 SpAtk), return
+      user.chargingMove = moveName;
+      if (move.selfBoost) {
+        const contraryMult = user.ability === "Contrary" ? -1 : 1;
+        for (const [stat, stages] of Object.entries(move.selfBoost)) {
+          if (stat in user.boosts) {
+            (user.boosts as Record<string, number>)[stat] = Math.max(-6, Math.min(6,
+              (user.boosts as Record<string, number>)[stat] + (stages as number) * contraryMult
+            ));
+          }
+        }
+      }
+      return; // Don't deal damage yet
+    }
+    // Weather bypass or herb: fall through and fire immediately
+  }
+
   const targets: BattlePokemon[] = [];
-  
+
   if (isSpreadMove(move)) {
     // Hit all opponents
     for (const opp of opponents) {
@@ -1869,8 +2014,8 @@ function executeMove(
       }
     }
     
-    // Self boosts from move
-    if (move.selfBoost) {
+    // Self boosts from move (two-turn moves apply boost on charge turn, skip here)
+    if (move.selfBoost && !TWO_TURN_MOVES.has(moveName)) {
       // Contrary: reverse self-boosts
       const contraryMult = user.ability === "Contrary" ? -1 : 1;
       for (const [stat, stages] of Object.entries(move.selfBoost)) {
@@ -3347,7 +3492,13 @@ export function runTeamTestSimulation(
     onProgress?.(65);
   }
 
-  const overallWinRate = totalGames > 0 ? Math.round((totalWins / totalGames) * 1000) / 10 : 0;
+  // Overall win rate = best lead combo's WR after exhaustive Phase 1+2 testing.
+  // Represents the team's ceiling: "expected WR when the player uses their optimal lead."
+  // Phase 3 exclusion tests use the same best-available lead on the 5-Pokémon team,
+  // so impact = ceiling(6-mon) − ceiling(5-mon without Pokémon X): a fair comparison.
+  const overallWinRate = leadCombos.length > 0
+    ? leadCombos[0].winRate
+    : (totalGames > 0 ? Math.round((totalWins / totalGames) * 1000) / 10 : 0);
   const overallAvgTurns = totalGames > 0 ? Math.round(totalTurns / totalGames * 10) / 10 : 0;
 
   // ── Phase 2: Sample battle for replay (65-70%) ─────────────────────────
@@ -3371,19 +3522,49 @@ export function runTeamTestSimulation(
   onProgress?.(70);
 
   // ── Phase 3: Per-Pokemon impact analysis (70-95%) ──────────────────────
-  // Use 150+ battles per exclusion test for reliable impact scores
+  // For each excluded Pokémon, simulate the best lead combo that still works without it.
+  // Impact = overallWinRate(best 6-mon lead) − bestWR(best available 5-mon lead).
+  // This measures: "how much does my optimal strategy degrade without this Pokémon?"
+  // Using the same lead-forcing method for both baseline and exclusion prevents the
+  // smartPick4 heuristic from accidentally choosing better leads on the smaller team.
   const pokemonImpact: PokemonImpact[] = [];
   if (team1Pokemon.length > 4) {
     const trialsPerExclude = Math.max(150, iterations);
     for (let i = 0; i < team1Pokemon.length; i++) {
+      const excludedName = team1Pokemon[i].name;
       const withoutTeam = team1Pokemon.filter((_, idx) => idx !== i);
       const withoutSets = team1Sets.filter((_, idx) => idx !== i);
-      const res = runSimulation(withoutTeam, withoutSets, team2Pokemon, team2Sets, trialsPerExclude);
+
+      // Best lead combo still available without the excluded Pokémon
+      const bestAvail = leadCombos.find(
+        c => c.lead1 !== excludedName && c.lead2 !== excludedName
+      );
+
+      let excludeWinRate: number;
+      const li = bestAvail ? withoutTeam.findIndex(p => p.name === bestAvail.lead1) : -1;
+      const lj = bestAvail ? withoutTeam.findIndex(p => p.name === bestAvail.lead2) : -1;
+
+      if (bestAvail && li >= 0 && lj >= 0 && withoutTeam.length >= 4) {
+        // Pick 2 best backs from the remaining Pokémon (re-score against opponent)
+        const backs = scorePokemonForBring(withoutTeam, withoutSets, team2Pokemon)
+          .filter(s => s.idx !== li && s.idx !== lj)
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 2);
+        const forcedTeam = [withoutTeam[li], withoutTeam[lj], ...backs.map(b => withoutTeam[b.idx])];
+        const forcedSets = [withoutSets[li], withoutSets[lj], ...backs.map(b => withoutSets[b.idx])];
+        const res = runSimulation(forcedTeam, forcedSets, team2Pokemon, team2Sets, trialsPerExclude);
+        excludeWinRate = res.winRate;
+      } else {
+        // Excluded Pokémon appears in every top lead combo — simulate freely (no forced lead)
+        const res = runSimulation(withoutTeam, withoutSets, team2Pokemon, team2Sets, trialsPerExclude);
+        excludeWinRate = res.winRate;
+      }
+
       pokemonImpact.push({
         name: team1Pokemon[i].name,
         sprite: team1Pokemon[i].sprite,
-        excludeWinRate: res.winRate,
-        impact: Math.round((overallWinRate - res.winRate) * 10) / 10,
+        excludeWinRate,
+        impact: Math.round((overallWinRate - excludeWinRate) * 10) / 10,
       });
       onProgress?.(70 + Math.round(((i + 1) / team1Pokemon.length) * 25));
     }
@@ -3466,12 +3647,16 @@ export function runTeamTestSimulation(
   }
   onProgress?.(100);
 
+  // Derive displayed W/L counts from overallWinRate so the percentage and
+  // the win/loss numbers are always consistent with each other.
+  const displayGames = Math.max(totalGames, iterations);
+  const displayWins  = Math.round(overallWinRate / 100 * displayGames);
   return {
-    wins: totalWins,
-    losses: totalGames - totalWins,
+    wins: displayWins,
+    losses: displayGames - displayWins,
     winRate: overallWinRate,
     avgTurns: overallAvgTurns,
-    totalGames,
+    totalGames: displayGames,
     sampleBattle,
     leadCombos,
     pokemonImpact,

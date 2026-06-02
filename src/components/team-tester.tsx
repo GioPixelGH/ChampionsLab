@@ -61,8 +61,8 @@ import { USAGE_DATA } from "@/lib/usage-data";
 import { SIM_POKEMON } from "@/lib/simulation-data";
 import { TOURNAMENT_USAGE } from "@/lib/engine/vgc-data";
 import {
-  getSavedTeams, deserializeTeam, saveMatchRecord,
-  type SavedTeam,
+  getSavedTeams, deserializeTeam, saveMatchRecord, getMatchRecords,
+  type SavedTeam, type MatchRecord,
 } from "@/lib/storage";
 
 // ── Helpers ──────────────────────────────────────────────────────────────
@@ -670,6 +670,70 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
       window.scrollTo({ top, behavior: "smooth" });
     }
   }, [canRun, team1Pokemon, team1Sets, team2Pokemon, team2Sets, iterations]);
+
+  // ── Match Journal Intelligence ────────────────────────────────────────────
+  interface JournalInsight {
+    name: string; sprite: string; pokemonId: number;
+    journalGames: number; journalWins: number;
+    journalWinRate: number | null; // null = no data
+    bringRate: number | null;
+    isLeadFavorite: boolean;
+    simImpact: number;
+    recommendation: "core" | "underrated" | "overrated" | "situational" | "no-data";
+  }
+  interface JournalInsights {
+    insights: JournalInsight[];
+    isTeamSpecific: boolean;
+    totalRecords: number;
+    hasAnyData: boolean;
+  }
+
+  const journalInsights = useMemo((): JournalInsights | null => {
+    if (!result || team1Pokemon.length === 0) return null;
+    const allRecords: MatchRecord[] = getMatchRecords();
+    const team1Ids = new Set(team1Pokemon.map(p => p.id));
+
+    // Prefer team-specific records (myTeam shares ≥4 Pokémon with current team)
+    const teamRecords = allRecords.filter(r =>
+      r.myTeam.filter(id => team1Ids.has(id)).length >= Math.min(4, team1Ids.size)
+    );
+    const isTeamSpecific = teamRecords.length >= 3;
+    const baseRecords = isTeamSpecific ? teamRecords : allRecords;
+    const totalRecords = baseRecords.length;
+
+    const insights: JournalInsight[] = team1Pokemon.map(pokemon => {
+      const simMon = result.pokemonImpact.find(pi => pi.name === pokemon.name);
+      const simImpact = simMon?.impact ?? 0;
+
+      const pickedRecords = baseRecords.filter(r => r.myPicks.includes(pokemon.id));
+      const journalGames = pickedRecords.length;
+      const journalWins = pickedRecords.filter(r => r.result === "win").length;
+      const journalWinRate = journalGames > 0
+        ? Math.round((journalWins / journalGames) * 100)
+        : null;
+      const bringRate = totalRecords > 0
+        ? Math.round((journalGames / totalRecords) * 100)
+        : null;
+      const leadCount = pickedRecords.filter(r => r.myPicks.slice(0, 2).includes(pokemon.id)).length;
+      const isLeadFavorite = journalGames >= 3 && leadCount >= journalGames * 0.5;
+
+      let recommendation: JournalInsight["recommendation"] = "no-data";
+      if (journalGames >= 3 && journalWinRate !== null) {
+        if (journalWinRate >= 55 && simImpact > 1)       recommendation = "core";
+        else if (journalWinRate >= 52 && simImpact <= 1) recommendation = "underrated";
+        else if (journalWinRate < 45 && simImpact > 3)   recommendation = "overrated";
+        else                                               recommendation = "situational";
+      }
+
+      return { name: pokemon.name, sprite: pokemon.sprite, pokemonId: pokemon.id,
+               journalGames, journalWins, journalWinRate, bringRate,
+               isLeadFavorite, simImpact, recommendation };
+    });
+
+    const hasAnyData = insights.some(i => i.journalGames > 0);
+    return { insights, isTeamSpecific, totalRecords, hasAnyData };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result, team1Pokemon]);
 
   const filteredPokemon = useMemo(() => {
     if (!pickerTarget) return [];
@@ -1371,6 +1435,136 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                   <p className="text-[10px] text-muted-foreground mt-3">
                     {t('teamTester.impactHelp')}
                   </p>
+                </div>
+              )}
+
+              {/* Match Journal Intelligence */}
+              {result && journalInsights && (
+                <div className="glass rounded-2xl p-5 border border-violet-200/60 dark:border-violet-500/20 bg-gradient-to-br from-violet-50/30 via-white to-purple-50/30 dark:from-violet-950/20 dark:via-transparent dark:to-purple-950/20">
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-violet-500" />
+                    Match Journal Intelligence
+                  </h3>
+                  <p className="text-[10px] text-muted-foreground mb-4">
+                    {journalInsights.totalRecords === 0
+                      ? "Nessuna partita nel Match Journal. Inizia a loggare per ricevere insights personalizzati."
+                      : journalInsights.isTeamSpecific
+                        ? `Dati da ${journalInsights.totalRecords} partite con questo team specifico`
+                        : `Dati da ${journalInsights.totalRecords} partite totali (nessun record specifico per questo team)`}
+                  </p>
+
+                  <div className="space-y-2">
+                    {journalInsights.insights.map(insight => (
+                      <div key={insight.name} className={cn(
+                        "p-3 rounded-xl border transition-all",
+                        insight.recommendation === "core"        ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/40" :
+                        insight.recommendation === "underrated"  ? "bg-violet-50 dark:bg-violet-950/30 border-violet-200 dark:border-violet-800/40" :
+                        insight.recommendation === "overrated"   ? "bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800/40" :
+                        "bg-gray-50 dark:bg-white/[0.04] border-gray-200 dark:border-white/10"
+                      )}>
+                        <div className="flex items-center gap-3">
+                          <Image src={insight.sprite} alt={insight.name} width={36} height={36} unoptimized className="flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+                              <span className="text-xs font-bold">{insight.name}</span>
+                              {insight.isLeadFavorite && (
+                                <span className="px-1.5 py-0.5 text-[8px] font-black uppercase rounded bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400">LEAD</span>
+                              )}
+                              {insight.recommendation === "core" && (
+                                <span className="px-1.5 py-0.5 text-[8px] font-black uppercase rounded bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">Core pick</span>
+                              )}
+                              {insight.recommendation === "underrated" && (
+                                <span className="px-1.5 py-0.5 text-[8px] font-black uppercase rounded bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-400">Utility gem</span>
+                              )}
+                              {insight.recommendation === "overrated" && (
+                                <span className="px-1.5 py-0.5 text-[8px] font-black uppercase rounded bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400">Overrated</span>
+                              )}
+                              {insight.recommendation === "situational" && (
+                                <span className="px-1.5 py-0.5 text-[8px] font-black uppercase rounded bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-gray-400">Situational</span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+                              {insight.journalWinRate !== null ? (
+                                <>
+                                  <span>
+                                    WR reale:{" "}
+                                    <strong className={cn(
+                                      insight.journalWinRate >= 55 ? "text-emerald-600 dark:text-emerald-400" :
+                                      insight.journalWinRate < 45 ? "text-red-500 dark:text-red-400" :
+                                      "text-foreground"
+                                    )}>
+                                      {insight.journalWinRate}%
+                                    </strong>
+                                    <span className="text-muted-foreground/60 ml-1">({insight.journalWins}/{insight.journalGames})</span>
+                                  </span>
+                                  {insight.bringRate !== null && (
+                                    <span>Pick rate: <strong>{insight.bringRate}%</strong></span>
+                                  )}
+                                </>
+                              ) : (
+                                <span className="italic">Nessun dato — inizia a loggare partite</span>
+                              )}
+                            </div>
+                          </div>
+                          {/* Sim impact */}
+                          <div className="text-right flex-shrink-0">
+                            <div className="text-[9px] text-muted-foreground uppercase">Sim</div>
+                            <div className={cn("text-sm font-bold",
+                              insight.simImpact > 3  ? "text-emerald-600 dark:text-emerald-400" :
+                              insight.simImpact > 0  ? "text-emerald-500" :
+                              insight.simImpact === 0 ? "text-muted-foreground" :
+                              "text-red-500"
+                            )}>
+                              {insight.simImpact > 0 ? "+" : ""}{insight.simImpact}%
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Dual progress bars */}
+                        {insight.journalWinRate !== null && (
+                          <div className="mt-2.5 space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[9px] text-muted-foreground w-14 shrink-0">WR reale</span>
+                              <div className="flex-1 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
+                                <div
+                                  className={cn("h-full rounded-full transition-all",
+                                    insight.journalWinRate >= 55 ? "bg-emerald-500" :
+                                    insight.journalWinRate < 45 ? "bg-red-400" : "bg-amber-400"
+                                  )}
+                                  style={{ width: `${Math.min(100, insight.journalWinRate)}%` }}
+                                />
+                              </div>
+                              <span className="text-[9px] font-mono w-8 text-right shrink-0">{insight.journalWinRate}%</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[9px] text-muted-foreground w-14 shrink-0">Sim impact</span>
+                              <div className="flex-1 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
+                                <div
+                                  className={cn("h-full rounded-full transition-all",
+                                    insight.simImpact > 0 ? "bg-blue-400" : "bg-red-300"
+                                  )}
+                                  style={{ width: `${Math.min(100, Math.abs(insight.simImpact) * 10 + 50)}%` }}
+                                />
+                              </div>
+                              <span className={cn("text-[9px] font-mono w-8 text-right shrink-0",
+                                insight.simImpact > 0 ? "text-blue-500" : "text-red-400"
+                              )}>
+                                {insight.simImpact > 0 ? "+" : ""}{insight.simImpact}%
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Legend */}
+                  <div className="mt-4 pt-3 border-t border-violet-200/40 dark:border-violet-500/20 flex flex-wrap gap-3 text-[10px] text-muted-foreground">
+                    <span><strong className="text-emerald-600">Core pick</strong> — forte sia in sim che in partita</span>
+                    <span><strong className="text-violet-600">Utility gem</strong> — vince in partita ma non emerge nel sim (es. Perish Song, support)</span>
+                    <span><strong className="text-orange-500">Overrated</strong> — buono in sim, delude in partita reale</span>
+                    <span className="text-muted-foreground/60">(Soglia minima: 3 partite per Pokémon)</span>
+                  </div>
                 </div>
               )}
 

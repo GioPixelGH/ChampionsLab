@@ -341,6 +341,7 @@ export default function MetaPage() {
   const [teamFilterIds, setTeamFilterIds] = useState<number[]>([]);
   const [teamFilterSearch, setTeamFilterSearch] = useState("");
   const [showTeamFilterDropdown, setShowTeamFilterDropdown] = useState(false);
+  const [teamTypeFilter, setTeamTypeFilter] = useState<PokemonType[]>([]);
 
   // ── Speed Tiers state ─────────────────────────────────────────
   const [speedSearch, setSpeedSearch] = useState("");
@@ -426,12 +427,27 @@ export default function MetaPage() {
   }, [speedEntries, speedSearch, speedTypeFilter, showMegas, trickRoomMode]);
 
   // ── Filtered tournament teams by selected Pokémon ──────────────
-  const teamFilterResults = useMemo(() => {
-    if (teamFilterIds.length === 0) return [];
+  const teamFilterMatches = useMemo(() => {
+    if (teamFilterIds.length === 0 && teamTypeFilter.length === 0) return [];
     return [..._VALID_CHAMPIONS_TEAMS]
-      .filter(t => teamFilterIds.every(id => t.pokemonIds.includes(id)))
+      .filter(t => {
+        if (teamFilterIds.length > 0 && !teamFilterIds.every(id => t.pokemonIds.includes(id))) return false;
+        if (teamTypeFilter.length > 0) {
+          const teamTypes = new Set(t.pokemonIds.flatMap(id => POKEMON_SEED.find(p => p.id === id)?.types ?? []));
+          if (!teamTypeFilter.every(ty => teamTypes.has(ty))) return false;
+        }
+        return true;
+      })
       .sort((a, b) => a.placement - b.placement || b.players - a.players);
-  }, [teamFilterIds]);
+  }, [teamFilterIds, teamTypeFilter]);
+
+  const teamFilterResults = useMemo(() => {
+    if (findTeamsRosterFilter === "all") return teamFilterMatches;
+    return teamFilterMatches.filter(team => {
+      const inRoster = team.pokemonIds.every((id: number) => myRoster.has(id));
+      return findTeamsRosterFilter === "roster" ? inRoster : !inRoster;
+    });
+  }, [teamFilterMatches, findTeamsRosterFilter]);
 
   const teamFilterSearchResults = useMemo(() => {
     if (!teamFilterSearch.trim()) return [];
@@ -1503,8 +1519,38 @@ export default function MetaPage() {
               )}
             </div>
 
+            {/* ── Type filter ── */}
+            <div className="mb-3">
+              <span className="text-xs text-muted-foreground font-medium block mb-1.5">Filtra per tipo:</span>
+              <div className="flex flex-wrap gap-1">
+                {(["normal","fire","water","electric","grass","ice","fighting","poison","ground","flying","psychic","bug","rock","ghost","dragon","dark","steel","fairy"] as PokemonType[]).map(ty => (
+                  <button
+                    key={ty}
+                    onClick={() => setTeamTypeFilter(prev => prev.includes(ty) ? prev.filter(t => t !== ty) : [...prev, ty])}
+                    className={cn(
+                      "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase text-white transition-all",
+                      teamTypeFilter.includes(ty)
+                        ? "opacity-100 ring-2 ring-white/60 ring-offset-1 scale-105"
+                        : "opacity-40 hover:opacity-70"
+                    )}
+                    style={{ backgroundColor: TYPE_COLORS[ty] }}
+                  >
+                    {ty}
+                  </button>
+                ))}
+                {teamTypeFilter.length > 0 && (
+                  <button
+                    onClick={() => setTeamTypeFilter([])}
+                    className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors border border-dashed border-gray-300 dark:border-white/20"
+                  >
+                    <X className="w-2.5 h-2.5" /> clear
+                  </button>
+                )}
+              </div>
+            </div>
+
             {/* ── Results ── */}
-            {teamFilterIds.length === 0 && (
+            {teamFilterIds.length === 0 && teamTypeFilter.length === 0 && (
               <div className="flex flex-col items-center justify-center py-10 text-center">
                 <div className="w-14 h-14 rounded-2xl bg-cyan-50 dark:bg-cyan-500/10 flex items-center justify-center mb-3">
                   <Users className="w-7 h-7 text-cyan-400" />
@@ -1513,7 +1559,7 @@ export default function MetaPage() {
                 <p className="text-xs text-muted-foreground mt-1">All tournament teams that ran your selection will appear here</p>
               </div>
             )}
-            {teamFilterIds.length > 0 && teamFilterResults.length === 0 && (
+            {teamFilterIds.length > 0 && teamFilterMatches.length === 0 && (
               <div className="flex flex-col items-center justify-center py-10 text-center">
                 <div className="w-14 h-14 rounded-2xl bg-gray-50 dark:bg-white/[0.04] flex items-center justify-center mb-3">
                   <Trophy className="w-7 h-7 text-gray-300" />
@@ -1522,11 +1568,11 @@ export default function MetaPage() {
                 <p className="text-xs text-muted-foreground mt-1">No tournament team ran all {teamFilterIds.length} selected Pokémon together</p>
               </div>
             )}
-            {teamFilterResults.length > 0 && (
+            {teamFilterMatches.length > 0 && (
               <div className="space-y-2">
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
                   <p className="text-xs font-semibold text-cyan-600 dark:text-cyan-400">
-                    {teamFilterResults.length} team{teamFilterResults.length !== 1 ? "s" : ""} found
+                    {teamFilterResults.length}{findTeamsRosterFilter !== "all" && ` / ${teamFilterMatches.length}`} team{teamFilterResults.length !== 1 ? "s" : ""} found
                   </p>
                   <div className="flex items-center gap-1.5 ml-auto">
                     {(["all", "roster", "off"] as const).map(opt => (
@@ -1547,9 +1593,18 @@ export default function MetaPage() {
                         {opt === "all" ? "Tutti" : opt === "roster" ? "✓ Roster" : "✗ Fuori"}
                       </button>
                     ))}
+                    {findTeamsRosterFilter !== "all" && myRoster.size === 0 && (
+                      <span className="text-[10px] text-muted-foreground">(nessun Pokémon nel roster)</span>
+                    )}
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {teamFilterResults.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <Trophy className="w-6 h-6 text-gray-300 mb-2" />
+                    <p className="text-sm text-muted-foreground">Nessun team corrisponde al filtro roster</p>
+                  </div>
+                )}
+                {teamFilterResults.length > 0 && <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {teamFilterResults.map(team => {
                     const teamPokemon = team.pokemonIds.map(id => POKEMON_SEED.find(p => p.id === id)).filter((p): p is NonNullable<typeof p> => !!p);
                     return (
@@ -1585,7 +1640,7 @@ export default function MetaPage() {
                       </div>
                     );
                   })}
-                </div>
+                </div>}
               </div>
             )}
           </div>
@@ -3045,21 +3100,41 @@ export default function MetaPage() {
               const teamPokemon = team.pokemonIds.map(id => POKEMON_SEED.find(p => p.id === id)).filter((p): p is NonNullable<typeof p> => !!p);
               const allTypes = [...new Set(teamPokemon.flatMap(p => p.types))];
               const corePairs = _VALID_CORE_PAIRS.filter(cp => team.pokemonIds.includes(cp.pokemon1) && team.pokemonIds.includes(cp.pokemon2));
-              // Build team builder URL - auto-fill first usage set per Pokemon
+              // Build team builder URL using actual tournament sets (ability/item/moves/tera from Limitless)
+              const _isMegaItem = (item: string) => item.endsWith("ite") || item.endsWith("ite X") || item.endsWith("ite Y") || item.endsWith("ite Z");
               const builderSlots = team.pokemonIds.map((id, idx) => {
-                const sets = USAGE_DATA[id];
-                const isMega = team.pokemonNames[idx]?.startsWith("Mega ");
-                const set = isMega
-                  ? sets?.find(s => s.name?.toLowerCase().includes("mega") || s.item?.endsWith("ite") || s.item?.endsWith("ite X") || s.item?.endsWith("ite Y")) || sets?.[0]
-                  : sets?.[0];
+                const tourSet = team.sets?.[idx];
+                const usageSets = USAGE_DATA[id] ?? [];
+                const isMega = tourSet?.item ? _isMegaItem(tourSet.item) : (team.pokemonNames[idx]?.startsWith("Mega ") ?? false);
+
+                // Best-match from USAGE_DATA for nature + stat points only
+                const bestMatch = tourSet
+                  ? (usageSets.find(s => s.ability === tourSet.ability && s.item === tourSet.item)
+                    ?? usageSets.find(s => s.ability === tourSet.ability)
+                    ?? usageSets.find(s => s.item === tourSet.item)
+                    ?? usageSets[0])
+                  : isMega
+                    ? usageSets.find(s => s.item && _isMegaItem(s.item)) ?? usageSets[0]
+                    : usageSets[0];
+
+                let mgi = 0;
+                if (isMega && tourSet?.ability) {
+                  const pkm = POKEMON_SEED.find(p => p.id === id);
+                  const megaForms = pkm?.forms?.filter(f => f.isMega && !f.hidden) ?? [];
+                  const fi = megaForms.findIndex(f => f.abilities.some(a => a.name === tourSet.ability));
+                  mgi = fi >= 0 ? fi : 0;
+                }
+
                 return {
                   p: id,
-                  a: set?.ability || undefined,
-                  t: set?.nature || undefined,
-                  m: set?.moves || [],
-                  sp: set ? [set.sp.hp, set.sp.attack, set.sp.defense, set.sp.spAtk, set.sp.spDef, set.sp.speed] : [0,0,0,0,0,0],
-                  i: set?.item || undefined,
+                  a: tourSet?.ability ?? bestMatch?.ability ?? undefined,
+                  t: bestMatch?.nature ?? undefined,
+                  m: tourSet?.moves ?? bestMatch?.moves ?? [],
+                  sp: bestMatch ? [bestMatch.sp.hp, bestMatch.sp.attack, bestMatch.sp.defense, bestMatch.sp.spAtk, bestMatch.sp.spDef, bestMatch.sp.speed] : [0,0,0,0,0,0],
+                  te: tourSet?.teraType ? tourSet.teraType.toLowerCase() : (bestMatch?.teraType ?? undefined),
+                  i: tourSet?.item ?? bestMatch?.item ?? undefined,
                   mg: isMega || undefined,
+                  mgi: isMega ? mgi : undefined,
                 };
               });
               const builderJson = JSON.stringify({ n: team.player + " - " + team.tournament, s: builderSlots });

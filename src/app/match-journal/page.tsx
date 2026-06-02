@@ -467,6 +467,39 @@ export default function MatchJournalPage() {
     setMyTeam(slots.filter((s) => s.pokemon !== null).map((s) => s.pokemon!.id));
   }, []);
 
+  // ── Past opponents: unique teams faced, sorted by most recent ─────────────
+  const pastOpponents = useMemo(() => {
+    type PastOpp = { ids: number[]; count: number; lastSeen: number; wins: number; losses: number; picksHistory: number[][] };
+    const teamMap = new Map<string, PastOpp>();
+    for (const r of records) {
+      if (r.opponentTeam.length === 0) continue;
+      const key = [...r.opponentTeam].sort((a, b) => a - b).join(",");
+      const ex = teamMap.get(key);
+      if (ex) {
+        ex.count++;
+        ex.lastSeen = Math.max(ex.lastSeen, r.date);
+        if (r.result === "win") ex.wins++;
+        else if (r.result === "loss") ex.losses++;
+        if (r.opponentPicks.length >= 2) ex.picksHistory.push(r.opponentPicks);
+      } else {
+        teamMap.set(key, {
+          ids: r.opponentTeam, count: 1, lastSeen: r.date,
+          wins: r.result === "win" ? 1 : 0,
+          losses: r.result === "loss" ? 1 : 0,
+          picksHistory: r.opponentPicks.length >= 2 ? [r.opponentPicks] : [],
+        });
+      }
+    }
+    return [...teamMap.values()].sort((a, b) => b.lastSeen - a.lastSeen);
+  }, [records]);
+
+  // Unique past pick combos for the currently selected opponent team
+  const matchedPastOpponent = useMemo(() => {
+    if (opponentTeam.length < 4) return null;
+    const key = [...opponentTeam].sort((a, b) => a - b).join(",");
+    return pastOpponents.find(o => [...o.ids].sort((a, b) => a - b).join(",") === key) ?? null;
+  }, [opponentTeam, pastOpponents]);
+
   function canAdvance(): boolean {
     switch (step) {
       case "myTeam":        return myTeam.length >= 1;
@@ -740,17 +773,109 @@ export default function MatchJournalPage() {
                   )}
 
                   {step === "opponentTeam" && (
-                    <PokemonPicker selected={opponentTeam} onToggle={toggleOpponentTeam} maxSelect={6} label="Select up to 6 Pokemon (opponent team)" />
+                    <div className="space-y-4">
+                      {/* ── Past opponents quick-select ── */}
+                      {pastOpponents.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-1.5">
+                            <BookOpen className="w-3.5 h-3.5" /> Avversari già affrontati
+                          </p>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-1">
+                            {pastOpponents.map((opp) => {
+                              const key = [...opp.ids].sort((a, b) => a - b).join(",");
+                              const curKey = [...opponentTeam].sort((a, b) => a - b).join(",");
+                              const isActive = key === curKey;
+                              const wr = opp.wins + opp.losses > 0
+                                ? Math.round((opp.wins / (opp.wins + opp.losses)) * 100)
+                                : null;
+                              return (
+                                <button
+                                  type="button"
+                                  key={key}
+                                  onClick={() => { setOpponentTeam(opp.ids); setOpponentPicks([]); }}
+                                  className={cn(
+                                    "flex items-center gap-2 p-2.5 rounded-xl border text-left transition-all",
+                                    isActive
+                                      ? "border-red-400 dark:border-red-500/60 bg-red-50 dark:bg-red-500/10 ring-2 ring-red-200 dark:ring-red-500/20"
+                                      : "border-border hover:border-red-300 dark:hover:border-red-500/40 glass-hover"
+                                  )}
+                                >
+                                  <div className="flex flex-wrap gap-0.5 flex-1">
+                                    {opp.ids.map(id => <PSprite key={id} id={id} size={28} />)}
+                                  </div>
+                                  <div className="text-right shrink-0 min-w-[52px]">
+                                    <p className="text-[10px] font-semibold text-muted-foreground">
+                                      {opp.count}× affrontato
+                                    </p>
+                                    {wr !== null && (
+                                      <p className={cn("text-[10px] font-bold",
+                                        wr >= 55 ? "text-emerald-600 dark:text-emerald-400" :
+                                        wr < 45  ? "text-red-500 dark:text-red-400" :
+                                        "text-muted-foreground"
+                                      )}>
+                                        {wr}% WR
+                                      </p>
+                                    )}
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <p className="text-[10px] text-muted-foreground mt-2">
+                            Clicca su un team per selezionarlo, oppure componi manualmente qui sotto.
+                          </p>
+                        </div>
+                      )}
+
+                      {/* ── Manual picker ── */}
+                      <PokemonPicker selected={opponentTeam} onToggle={toggleOpponentTeam} maxSelect={6} label="Seleziona fino a 6 Pokémon (team avversario)" />
+                    </div>
                   )}
 
                   {step === "opponentPicks" && (
-                    <div className="space-y-3">
+                    <div className="space-y-4">
+                      {/* ── Past picks for this specific opponent team ── */}
+                      {matchedPastOpponent && matchedPastOpponent.picksHistory.length > 0 && (() => {
+                        const uniquePicks = [...new Map(
+                          matchedPastOpponent.picksHistory.map(p => [[...p].sort((a,b)=>a-b).join(","), p])
+                        ).values()];
+                        return (
+                          <div>
+                            <p className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-1.5">
+                              <BookOpen className="w-3.5 h-3.5" /> Picks usati in passato da questo team
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {uniquePicks.slice(0, 6).map((picks, i) => {
+                                const isActive = [...picks].sort((a,b)=>a-b).join(",") === [...opponentPicks].sort((a,b)=>a-b).join(",");
+                                return (
+                                  <button
+                                    type="button"
+                                    key={i}
+                                    onClick={() => setOpponentPicks(picks)}
+                                    className={cn(
+                                      "flex items-center gap-1 p-2 rounded-xl border transition-all",
+                                      isActive
+                                        ? "border-red-400 dark:border-red-500/60 bg-red-50 dark:bg-red-500/10 ring-2 ring-red-200 dark:ring-red-500/20"
+                                        : "border-border hover:border-red-300 dark:hover:border-red-500/40 glass-hover"
+                                    )}
+                                  >
+                                    {picks.map(id => <PSprite key={id} id={id} size={32} />)}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* ── Toggle singoli ── */}
                       <div className="flex flex-wrap gap-2">
                         {opponentTeam.map((id) => {
                           const isSelected = opponentPicks.includes(id);
                           const disabled = !isSelected && opponentPicks.length >= 4;
                           return (
                             <button
+                              type="button"
                               key={id}
                               disabled={disabled}
                               onClick={() => toggleOpponentPicks(id)}
@@ -767,7 +892,7 @@ export default function MatchJournalPage() {
                           );
                         })}
                       </div>
-                      <p className="text-xs text-muted-foreground">Select 2-4 Pokemon the opponent brought. ({opponentPicks.length}/4)</p>
+                      <p className="text-xs text-muted-foreground">Seleziona 2-4 Pokémon portati dall&apos;avversario. ({opponentPicks.length}/4)</p>
                     </div>
                   )}
 
