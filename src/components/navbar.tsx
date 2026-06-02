@@ -18,6 +18,7 @@ import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
 import { LanguageSelector } from "@/components/language-selector";
+import { DataSyncButton } from "@/components/data-sync";
 import { useI18n } from "@/lib/i18n";
 
 const NAV_ITEMS = [
@@ -115,6 +116,7 @@ export function Navbar() {
                   <span>{t("nav.supportUs")}</span>
                 </a>
               </div>
+              <DataSyncButton />
               <LanguageSelector />
             </nav>
 
@@ -190,7 +192,8 @@ export function Navbar() {
               {t("nav.supportUs")}
             </a>
           </div>
-          <div className="px-4 pt-2">
+          <div className="px-4 pt-2 flex items-center gap-3">
+            <DataSyncButton />
             <LanguageSelector mobile />
           </div>
         </nav>

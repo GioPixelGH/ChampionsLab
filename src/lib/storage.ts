@@ -294,3 +294,39 @@ export function toggleRosterPokemon(id: number): Set<number> {
   saveMyRoster(roster);
   return roster;
 }
+
+// ── Export / Import ──────────────────────────────────────────────────────
+
+export interface ExportData {
+  version: 1;
+  exportedAt: number;
+  teams: SavedTeam[];
+  matchJournal: MatchRecord[];
+  myRoster: number[];
+  simResults: SavedSimResult[];
+  settings: UserSettings;
+  lastTeam: { name: string; slots: SavedTeamSlot[]; teamId?: string } | null;
+}
+
+export function exportAllData(): ExportData {
+  return {
+    version: 1,
+    exportedAt: Date.now(),
+    teams: getSavedTeams(),
+    matchJournal: getMatchRecords(),
+    myRoster: Array.from(getMyRoster()),
+    simResults: getSavedSimResults(),
+    settings: getSettings(),
+    lastTeam: getLastTeam(),
+  };
+}
+
+export function importAllData(data: ExportData): void {
+  if (data.version !== 1) throw new Error("Versione non supportata");
+  writeJSON(KEYS.SAVED_TEAMS, data.teams ?? []);
+  writeJSON(KEYS.MATCH_JOURNAL, data.matchJournal ?? []);
+  writeJSON(KEYS.MY_ROSTER, data.myRoster ?? []);
+  writeJSON(KEYS.SIM_RESULTS, data.simResults ?? []);
+  if (data.settings) writeJSON(KEYS.SETTINGS, data.settings);
+  if (data.lastTeam) writeJSON(KEYS.LAST_TEAM, data.lastTeam);
+}
