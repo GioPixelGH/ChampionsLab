@@ -562,7 +562,8 @@
       "noIntimidateThreat": "Nessuna Intimidazione - considera di aggiungere un Intimidatore",
       "poorCoverage": "Scarsa copertura - nessun colpo superefficace contro {types}"
     },
-    "spLimitReached": "No more Stat Points available! Reduce another stat first."
+    "spLimitReached": "No more Stat Points available! Reduce another stat first.",
+    "bestTeamName": "Team Ottimale"
   },
   "survivalCalc": {
     "title": "Survival Calc",
@@ -1332,5 +1333,30 @@
     "copyPaste": "Copia Paste",
     "footer": "Costruito con Champions Lab",
     "openInBuilder": "Apri nel Team Builder"
+  },
+  "speedTiers": {
+    "title": "Speed Tiers",
+    "subtitle": "Rank #{rank} of {total}",
+    "base": "Base",
+    "ability": "Ability",
+    "afterSetup": "After Setup",
+    "itemSetup": "Item + Setup",
+    "weatherOn": "Weather active",
+    "weatherOff": "Toggle weather",
+    "searchPlaceholder": "Search Pokémon…",
+    "nearby": "Nearby",
+    "pokemon": "Pokémon",
+    "max": "Max",
+    "vsYou": "vs You",
+    "you": "YOU",
+    "needSp": "+{sp} SP to outspeed",
+    "needSp0": "Change nature to outspeed",
+    "outspeedBy": "+{diff} faster",
+    "outspeed": "Outspeed",
+    "outspedBy": "Outsped by",
+    "ties": "Ties",
+    "total": "Total",
+    "noResults": "No Pokémon found",
+    "openTooltip": "Open speed tier comparison"
   }
 }

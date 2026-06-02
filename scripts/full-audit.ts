@@ -21,7 +21,7 @@ const validItems = new Set(Object.keys(ITEMS));
 // Also build movepool map: id -> set of move names from pokemon-data.ts
 const movepoolMap = new Map<number, Set<string>>();
 for (const p of POKEMON_SEED) {
-  const moves = new Set((p as any).moves?.map((m: any) => m.name) ?? []);
+  const moves = new Set<string>((p as any).moves?.map((m: any) => m.name as string) ?? []);
   movepoolMap.set(p.id, moves);
 }
 
@@ -39,7 +39,7 @@ console.log("── WINNING TEAMS ───────────────�
 const wtIssues: string[] = [];
 const badWinningTeamIds: string[] = [];
 for (const team of WINNING_TEAMS) {
-  for (const mem of team.pokemon) {
+  for (const mem of (team as any).pokemon ?? []) {
     if (!allIds.has(mem.pokemonId)) {
       wtIssues.push(`  [${team.id}] "${team.name}" by ${team.player}: ${mem.name} (${mem.pokemonId}) NOT IN ROSTER`);
       if (!badWinningTeamIds.includes(team.id)) badWinningTeamIds.push(team.id);
@@ -95,7 +95,7 @@ totalIssues += usageIssues.length;
 console.log("\n── PREBUILT TEAMS ─────────────────────────────────────────────");
 const prebuiltIssues: string[] = [];
 for (const team of PREBUILT_TEAMS) {
-  for (const mem of team.pokemon) {
+  for (const mem of (team as any).pokemon ?? []) {
     const id = mem.pokemonId;
     const pokemon = POKEMON_SEED.find(p => p.id === id);
     const pokeName = pokemon?.name ?? `ID ${id}`;
@@ -129,7 +129,7 @@ for (const team of TOURNAMENT_TEAMS) {
     if (!rosterIds.has(id)) {
       const pokemon = POKEMON_SEED.find(p => p.id === id);
       const pokeName = pokemon?.name ?? `ID ${id}`;
-      vgcIssues.push(`  "${team.name}" (${team.event}): ${pokeName} (${id}) ${hiddenIds.has(id) ? "HIDDEN" : "NOT IN ROSTER"}`);
+      vgcIssues.push(`  "${team.tournament}" (${team.tournament}): ${pokeName} (${id}) ${hiddenIds.has(id) ? "HIDDEN" : "NOT IN ROSTER"}`);
     }
   }
 }

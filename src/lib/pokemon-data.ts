@@ -4555,6 +4555,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
   {
     "id": 5713,
     "name": "Hisuian Avalugg",
+    "showdownName": "Avalugg-Hisui",
     "dexNumber": 713,
     "types": [
       "ice",
@@ -5287,6 +5288,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
   {
     "id": 10100,
     "name": "Alolan Raichu",
+    "showdownName": "Raichu-Alola",
     "dexNumber": 26,
     "types": [
       "electric",
@@ -5691,6 +5693,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
   {
     "id": 10103,
     "name": "Alolan Ninetales",
+    "showdownName": "Ninetales-Alola",
     "dexNumber": 38,
     "types": [
       "ice",
@@ -5916,6 +5919,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
   {
     "id": 5059,
     "name": "Hisuian Arcanine",
+    "showdownName": "Arcanine-Hisui",
     "dexNumber": 59,
     "types": [
       "fire",
@@ -6461,6 +6465,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
   {
     "id": 6080,
     "name": "Galarian Slowbro",
+    "showdownName": "Slowbro-Galar",
     "dexNumber": 80,
     "types": [
       "poison",
@@ -7279,6 +7284,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
   {
     "id": 10250,
     "name": "Paldean Tauros",
+    "showdownName": "Tauros-Paldea",
     "dexNumber": 128,
     "types": [
       "fighting"
@@ -7377,6 +7383,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
   {
     "id": 10251,
     "name": "Paldean Tauros (Blaze)",
+    "showdownName": "Tauros-Paldea-Blaze",
     "dexNumber": 128,
     "types": [
       "fighting",
@@ -7482,6 +7489,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
   {
     "id": 10252,
     "name": "Paldean Tauros (Aqua)",
+    "showdownName": "Tauros-Paldea-Aqua",
     "dexNumber": 128,
     "types": [
       "fighting",
@@ -8793,6 +8801,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
   {
     "id": 5157,
     "name": "Hisuian Typhlosion",
+    "showdownName": "Typhlosion-Hisui",
     "dexNumber": 157,
     "types": [
       "fire",
@@ -9810,6 +9819,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
   {
     "id": 6199,
     "name": "Galarian Slowking",
+    "showdownName": "Slowking-Galar",
     "dexNumber": 199,
     "types": [
       "poison",
@@ -14708,7 +14718,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         {"name":"Brutal Swing","type":"dark","category":"physical","power":60,"accuracy":100,"pp":20,"description":"The user swings its body around violently to inflict damage on everything in its vicinity."},
         {"name":"Bulldoze","type":"ground","category":"physical","power":60,"accuracy":100,"pp":20,"description":"The user strikes everything around it by stomping down on the ground. This lowers the Speed stats of those hit."},
         {"name":"Counter","type":"fighting","category":"physical","power":null,"accuracy":100,"pp":20,"description":"A retaliatory attack that counters any physical move, inflicting double the damage taken."},
-        {"name":"Crabhammer","type":"water","category":"physical","power":95,"pp":10,"description":"The target is hammered with a large pincer. This move has a heightened chance of landing a critical hit."},
+        {"name":"Crabhammer","type":"water","category":"physical","power":95,"accuracy":90,"pp":10,"description":"The target is hammered with a large pincer. This move has a heightened chance of landing a critical hit."},
         {"name":"Cross Poison","type":"poison","category":"physical","power":70,"accuracy":100,"pp":20,"description":"A slashing attack with a poisonous blade that may also poison the target. This move has a heightened chance of landing a critical hit."},
         {"name":"Crunch","type":"dark","category":"physical","power":80,"accuracy":100,"pp":15,"description":"The user crunches up the target with sharp fangs. This may also lower the target's Defense stat."},
         {"name":"Dark Pulse","type":"dark","category":"special","power":80,"accuracy":100,"pp":15,"description":"The user releases a horrible aura imbued with ill intent. This may also make the target flinch."},
@@ -16012,6 +16022,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
   {
     "id": 10336,
     "name": "Hisuian Samurott",
+    "showdownName": "Samurott-Hisui",
     "dexNumber": 503,
     "types": [
       "water",
@@ -16974,6 +16985,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
   {
     "id": 10340,
     "name": "Hisuian Zoroark",
+    "showdownName": "Zoroark-Hisui",
     "dexNumber": 571,
     "types": [
       "normal",
@@ -17377,6 +17389,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
   {
     "id": 6618,
     "name": "Galarian Stunfisk",
+    "showdownName": "Stunfisk-Galar",
     "dexNumber": 618,
     "types": [
       "ground",
@@ -19059,7 +19072,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         {"name":"Body Slam","type":"normal","category":"physical","power":85,"accuracy":100,"pp":15,"description":"The user attacks by dropping onto the target with its full body weight. This may also leave the target with paralysis."},
         {"name":"Bounce","type":"flying","category":"physical","power":85,"accuracy":85,"pp":5,"description":"The user bounces up high on the first turn, then drops onto the target on the next turn. This may also leave the target with paralysis."},
         {"name":"Chilling Water","type":"water","category":"special","power":50,"accuracy":100,"pp":20,"description":"The user attacks the target by showering it with water that's so cold it saps the target's power. This also lowers the target's Attack stat."},
-        {"name":"Crabhammer","type":"water","category":"physical","power":95,"pp":10,"description":"The target is hammered with a large pincer. This move has a heightened chance of landing a critical hit."},
+        {"name":"Crabhammer","type":"water","category":"physical","power":95,"accuracy":90,"pp":10,"description":"The target is hammered with a large pincer. This move has a heightened chance of landing a critical hit."},
         {"name":"Dark Pulse","type":"dark","category":"special","power":80,"accuracy":100,"pp":15,"description":"The user releases a horrible aura imbued with ill intent. This may also make the target flinch."},
         {"name":"Dive","type":"water","category":"physical","power":80,"accuracy":100,"pp":10,"description":"The user dives on the first turn, then floats up and attacks on the next turn."},
         {"name":"Dragon Pulse","type":"dragon","category":"special","power":85,"accuracy":100,"pp":10,"description":"The target is attacked with a shock wave generated by the user's gaping mouth."},
@@ -20031,6 +20044,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
   {
     "id": 10341,
     "name": "Hisuian Decidueye",
+    "showdownName": "Decidueye-Hisui",
     "dexNumber": 724,
     "types": [
       "grass",
@@ -20529,7 +20543,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         {"name":"Chilling Water","type":"water","category":"special","power":50,"accuracy":100,"pp":20,"description":"The user attacks the target by showering it with water that's so cold it saps the target's power. This also lowers the target's Attack stat."},
         {"name":"Close Combat","type":"fighting","category":"physical","power":120,"accuracy":100,"pp":5,"description":"The user fights the target up close, inflicting damage without guarding itself. This also lowers the user's Defense and Sp. Def stats."},
         {"name":"Coaching","type":"fighting","category":"status","power":null,"accuracy":null,"pp":10,"description":"The user properly coaches its ally Pokémon, boosting their Attack and Defense stats."},
-        {"name":"Crabhammer","type":"water","category":"physical","power":95,"pp":10,"description":"This move has a 1-stage Critical-Hit Ratio Boost."},
+        {"name":"Crabhammer","type":"water","category":"physical","power":95,"accuracy":90,"pp":10,"description":"This move has a 1-stage Critical-Hit Ratio Boost."},
         {"name":"Dig","type":"ground","category":"physical","power":80,"accuracy":100,"pp":10,"description":"The user burrows into the ground on the first turn, then attacks on the next turn."},
         {"name":"Drain Punch","type":"fighting","category":"physical","power":75,"accuracy":100,"pp":10,"description":"The user attacks with an energy-draining punch. The user's HP is restored by up to half the damage taken by the target."},
         {"name":"Dynamic Punch","type":"fighting","category":"physical","power":100,"accuracy":50,"pp":5,"description":"The user attacks by punching the target with full concentrated power. This also confuses the target."},
@@ -28181,6 +28195,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
   {
     "id": 5706,
     "name": "Hisuian Goodra",
+    "showdownName": "Goodra-Hisui",
     "dexNumber": 706,
     "types": [
       "steel",

@@ -128,7 +128,7 @@ export function Navbar() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    onClick={() => trackEvent("nav_click", "navigation", item.label)}
+                    onClick={() => trackEvent("nav_click", "navigation", t(item.i18nKey))}
                     className={cn(
                       "relative px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 whitespace-nowrap",
                       isActive
@@ -137,7 +137,7 @@ export function Navbar() {
                     )}
                   >
                     <item.icon className="w-4 h-4" />
-                    <span>{item.label}</span>
+                    <span>{t(item.i18nKey)}</span>
                   </Link>
                 );
               })}

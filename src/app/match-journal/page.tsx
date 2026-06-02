@@ -1098,7 +1098,7 @@ export default function MatchJournalPage() {
                             <Trash2 size={11} /> Delete this record
                           </button>
                           <div className="flex items-center gap-2 flex-wrap">
-                            {r.teamTesterReport && (
+                            {!!r.teamTesterReport && (
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();

@@ -25,8 +25,7 @@ const GAME = "VGC";
 const MIN_PLAYERS = parseInt(process.argv.find(a => a.startsWith("--min-players="))?.split("=")[1] ?? "8");
 const DRY_RUN = process.argv.includes("--dry-run");
 const TOP_CUT = 8; // top N placements to record as teams
-const MAX_TOURNAMENTS = 25; // only fetch the N most recent tournaments
-const RATE_LIMIT_MS = 3000; // 25 tournaments × ~2 req each = ~50 req → 1 every 3s is fine
+const RATE_LIMIT_MS = 2500; // ~50 requests per 5 min = 1 every 6s
 const CACHE_PATH = path.join(__dirname, "limitless-cache.json");
 const OUTPUT_PATH = path.join(__dirname, "..", "src", "lib", "simulation-data.ts");
 
@@ -282,12 +281,9 @@ async function main() {
 
   console.log(`\n  Found ${allTournaments.length} total M-A tournaments`);
 
-  // Filter by minimum players, sort most-recent first, take top MAX_TOURNAMENTS
-  const eligible = allTournaments
-    .filter(t => t.players >= MIN_PLAYERS)
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, MAX_TOURNAMENTS);
-  console.log(`  ${eligible.length} most recent with ${MIN_PLAYERS}+ players (capped at ${MAX_TOURNAMENTS})\n`);
+  // Filter by minimum players
+  const eligible = allTournaments.filter(t => t.players >= MIN_PLAYERS);
+  console.log(`  ${eligible.length} with ${MIN_PLAYERS}+ players\n`);
 
   // 2. For each tournament, check if it has decklists, then fetch standings
   const teams: TournamentTeam[] = [];
@@ -352,10 +348,11 @@ async function main() {
       }
     }
 
-    // Record ALL teams with decklists for CHAMPIONS_TOURNAMENT_TEAMS
-    totalTeamsWithLists += withTeams.length;
+    // Record top-cut teams for CHAMPIONS_TOURNAMENT_TEAMS
+    const topCut = withTeams.filter(s => (s.placing ?? 999) <= TOP_CUT);
+    totalTeamsWithLists += topCut.length;
 
-    for (const standing of withTeams) {
+    for (const standing of topCut) {
       const pokemonIds: number[] = [];
       const pokemonNames: string[] = [];
       const sets: TournamentSet[] = [];
@@ -408,7 +405,7 @@ async function main() {
   console.log("╚══════════════════════════════════════════════════════╝");
   console.log(`  Tournaments processed: ${tournamentCount}`);
   console.log(`  Total teams with lists: ${totalTeams}`);
-  console.log(`  All teams recorded: ${teams.length}`);
+  console.log(`  Top-${TOP_CUT} teams recorded: ${teams.length}`);
   console.log(`  Unique Pokémon in usage: ${usageArray.length}`);
 
   if (unmapped.size > 0) {
@@ -432,7 +429,12 @@ async function main() {
     console.log(`  Preview written to ${previewPath}`);
   } else {
     updateSimulationData(teams, usageArray, totalTeams, tournamentCount);
+    saveCache({
+      lastFetch: new Date().toISOString(),
+      tournamentIds: eligible.map(t => t.id),
+    });
     console.log("\n  ✅ simulation-data.ts updated!");
+    console.log("  ✅ Cache saved to limitless-cache.json");
   }
 }
 

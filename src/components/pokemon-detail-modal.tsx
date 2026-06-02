@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "@/lib/motion";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ChampionsPokemon, TYPE_COLORS, CommonSet, WinningTeam, WinningTeamMember } from "@/lib/types";
+import { ChampionsPokemon, TYPE_COLORS, CommonSet, WinningTeam, WinningTeamMember, type PokemonType } from "@/lib/types";
 import type { MetaEntry } from "@/app/api/meta/route";
 import { USAGE_DATA } from "@/lib/usage-data";
 import { getTeamsForPokemon } from "@/lib/winning-teams";

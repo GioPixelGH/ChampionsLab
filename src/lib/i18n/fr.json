@@ -274,7 +274,8 @@
       "spAtk": "Atq. Spé.",
       "spDef": "Déf. Spé.",
       "speed": "Vitesse",
-      "bst": "Total"
+      "bst": "Total",
+      "usage": "Utilisation"
     },
     "noMatch": "Aucun Pokémon trouvé",
     "adjustFilters": "Essayez de modifier vos filtres ou votre recherche",
@@ -534,7 +535,35 @@
       "noIntimidateThreat": "Pas d'Intimidation – envisagez un utilisateur d'Intimidation",
       "poorCoverage": "Couverture insuffisante – pas de coups super efficaces contre {types}"
     },
-    "spLimitReached": "Plus de Points de Stat disponibles ! Réduisez d'abord un autre stat."
+    "spLimitReached": "Plus de Points de Stat disponibles ! Réduisez d'abord un autre stat.",
+    "bestTeamName": "Équipe Optimale",
+    "optimizer": {
+      "find": "Trouver la meilleure équipe",
+      "stop": "Arrêter",
+      "title": "Optimiseur d'équipe",
+      "searching": "Recherche... {{pct}}%",
+      "done": "Recherche terminée",
+      "bestScore": "Meilleur score : {{score}}/100",
+      "loadTeam": "Charger cette équipe",
+      "searchAgain": "Relancer",
+      "noResult": "Aucun résultat. Cliquez sur Relancer.",
+      "lockSlot": "Verrouiller ce Pokémon",
+      "unlockSlot": "Déverrouiller",
+      "lockedHint": "{{count}} Pokémon verrouillé(s)",
+      "noLocksHint": "Verrouillez un Pokémon pour le garder dans l'équipe optimisée",
+      "useMyRoster": "Mon Roster",
+      "useAllPokemon": "Tous les Pokémon",
+      "rosterFilterActive": "Recherche dans vos {{count}} Pokémon",
+      "rosterEmpty": "Votre roster est vide"
+    },
+    "myRoster": {
+      "title": "Mon Roster",
+      "subtitle": "Marquez les Pokémon que vous possédez.",
+      "owned": "{{count}} possédés",
+      "selectAll": "Tout sélectionner",
+      "clearAll": "Tout effacer",
+      "close": "Fermer"
+    }
   },
   "survivalCalc": {
     "title": "Calc de Survie",

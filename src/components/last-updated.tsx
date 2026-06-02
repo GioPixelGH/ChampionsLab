@@ -12,6 +12,22 @@ interface ChangelogEntry {
 
   const SHARED_ENTRIES: ChangelogEntry[] = [
     {
+      date: "27/05/2026",
+      items: [
+        "😈 Fixed Mega Absol 'never attacking' — increased smart-pick priority for Mega Evolution Pokémon (+18 up from +10) so they're less likely to be benched. Added penalty for switching out megas (−22). Battle Bot replay now shows ALL 6 selected Pokémon with benched ones dimmed and crossed out, so you can see which mons didn't make the cut",
+        "🌬️ Improved AI Tailwind decision-making — Prankster users now strongly prefer to set Tailwind themselves (+20 score). Non-Prankster setters get penalized when their ally has Prankster + Tailwind (−25), and slow setters get penalized when all opponents outspeed them (−18). No more Aerodactyl using Tailwind while Whimsicott sits there with Prankster",
+        "🛡️ Fixed Protect missing from fallback movesets — Team Tester, Damage Calculator, and Survival Calculator now include Protect (and other key status moves) when building default sets for Pokémon without usage data. Previously all status moves were stripped, causing the battle sim AI to never use Protect even when the Pokémon learns it",
+        "👊 Fixed Fake Out interactions — Armor Tail now completely blocks Fake Out (and all priority moves), Inner Focus prevents the flinch, and the AI correctly avoids targeting both. Removed incorrect flinch immunity from Shield Dust and Own Tempo. Incoming threat estimation also ignores neutralized Fake Out",
+        "🌱 Fixed terrain damage boosts in Damage Calculator — Psychic Terrain (+30% Psychic), Electric Terrain (+30% Electric), Grassy Terrain (+30% Grass), and Misty Terrain (−50% Dragon) are now correctly applied. Mega Alakazam's Expanding Force under Psychic Terrain finally hits as hard as it should",
+        "🎯 Fixed battle engine turn skipping — added 10 missing moves to the simulation database including Struggle (fallback), Life Dew, Strength Sap, Silk Trap, Burning Bulwark, and 5 others. Pokémon no longer silently skip turns when their chosen move was unknown to the engine",
+        "⚡ Fixed Tailwind speed boost application — Tailwind now instantly doubles Speed for the remainder of the turn it's used. Your Pokémon no longer get outsped by slower opponents after your Prankster Tailwind setter goes first",
+        "🛡️ Fixed Damage Calculator SP auto-fill bug — selecting a Pokémon no longer locks stats with full preset SP. Both attacker and defender now start with 0 SP so you can freely build any damage-test scenario without hitting the 66-cap wall",
+        "🔄 Fixed Showdown bidirectional copy/paste for all regional variants — Tauros-Paldea-Aqua/Blaze, Samurott-Hisui, Ninetales-Alola, Slowbro-Galar, and 10 others now import/export correctly in PokePaste format",
+        "🏆 Synced tournament teams from Limitless TCG — 287 Regulation M-A tournaments, 18,338 teams, 2,282 top-8 teams with full sets (ability, item, moves, tera). Meta → Teams tab now shows fresh real winning teams",
+        "📊 Updated Meta Analysis usage rankings — refreshed Tournament Usage data with 198 Pokémon ranked by Regulation M-A meta usage, win rates, and bring rates",
+      ],
+    },
+    {
       date: "04/05/2026",
       items: [
         "✨ Team Builder — new Best Team Optimizer: click \"Find Best Team\" to automatically search for the highest-synergy team. Lock one or more Pokémon slots with the 🔒 icon to keep them fixed while the optimizer fills the rest",
@@ -494,6 +510,7 @@ export function LastUpdated({ page }: { page: keyof typeof CHANGELOGS }) {
   return (
     <>
       <button
+        type="button"
         onClick={() => setOpen(true)}
         className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 hover:border-emerald-300 dark:hover:border-emerald-500/30 transition-all group"
       >
@@ -523,7 +540,7 @@ export function LastUpdated({ page }: { page: keyof typeof CHANGELOGS }) {
                   <Sparkles className="w-5 h-5 text-emerald-500" />
                   <h3 className="text-lg font-bold">{t('changelog.whatsNew')}</h3>
                 </div>
-                <button onClick={() => setOpen(false)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-200/10 transition-colors">
+                <button type="button" aria-label="Chiudi" onClick={() => setOpen(false)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-200/10 transition-colors">
                   <X className="w-4 h-4" />
                 </button>
               </div>

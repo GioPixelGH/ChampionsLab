@@ -711,7 +711,7 @@ export default function LearnPage() {
                                           {renderRichText(block.text)}
                                         </p>
                                         {block.tip && (
-                                          <TipCallout type={block.tip.type} text={block.tip.text} />
+                                          <TipCallout type={block.tip.type as TipType} text={block.tip.text} />
                                         )}
                                       </div>
                                     ))}
