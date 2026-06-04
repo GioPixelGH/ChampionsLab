@@ -25,6 +25,7 @@ const GAME = "VGC";
 const MIN_PLAYERS = parseInt(process.argv.find(a => a.startsWith("--min-players="))?.split("=")[1] ?? "8");
 const DRY_RUN = process.argv.includes("--dry-run");
 const TOP_CUT = 8; // top N placements to record as teams
+const MAX_TOURNAMENTS = 25; // only the N most recent eligible tournaments
 const RATE_LIMIT_MS = 2500; // ~50 requests per 5 min = 1 every 6s
 const CACHE_PATH = path.join(__dirname, "limitless-cache.json");
 const OUTPUT_PATH = path.join(__dirname, "..", "src", "lib", "simulation-data.ts");
@@ -265,25 +266,25 @@ async function main() {
   console.log(`  Format: ${FORMAT} | Min players: ${MIN_PLAYERS} | Top cut: ${TOP_CUT}`);
   console.log(`  Dry run: ${DRY_RUN}\n`);
 
-  // 1. Fetch all M-A tournaments (paginate)
+  // 1. Fetch most recent M-A tournaments (paginate until MAX_TOURNAMENTS eligible found)
   let allTournaments: LimitlessTournament[] = [];
+  let eligible: LimitlessTournament[] = [];
   let page = 1;
-  while (true) {
+  while (eligible.length < MAX_TOURNAMENTS) {
     const url = `${API_BASE}/tournaments?game=${GAME}&format=${FORMAT}&limit=50&page=${page}`;
     console.log(`  Fetching tournament list (page ${page})...`);
     const batch = await fetchJSON<LimitlessTournament[]>(url);
     if (batch.length === 0) break;
     allTournaments.push(...batch);
+    eligible = allTournaments.filter(t => t.players >= MIN_PLAYERS);
     if (batch.length < 50) break;
     page++;
     await sleep(RATE_LIMIT_MS);
   }
 
+  eligible = eligible.slice(0, MAX_TOURNAMENTS);
   console.log(`\n  Found ${allTournaments.length} total M-A tournaments`);
-
-  // Filter by minimum players
-  const eligible = allTournaments.filter(t => t.players >= MIN_PLAYERS);
-  console.log(`  ${eligible.length} with ${MIN_PLAYERS}+ players\n`);
+  console.log(`  Using ${eligible.length} most recent with ${MIN_PLAYERS}+ players\n`);
 
   // 2. For each tournament, check if it has decklists, then fetch standings
   const teams: TournamentTeam[] = [];
