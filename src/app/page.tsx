@@ -9,7 +9,7 @@ import { getPokemonByRegulation, getActiveRegulation, SEASONS } from "@/lib/poke
 import { PokemonType, ChampionsPokemon, TYPE_COLORS } from "@/lib/types";
 import { PokemonCard } from "@/components/pokemon-card";
 import { PokemonDetailModal } from "@/components/pokemon-detail-modal";
-import { SeasonTabs, SeasonInfo } from "@/components/season-tabs";
+import { SeasonTabs, SeasonInfo, SeasonRulesSection } from "@/components/season-tabs";
 import { fetchMeta, matchMetaToSeed } from "@/lib/meta-service";
 import type { MetaEntry } from "@/app/api/meta/route";
 import { cn } from "@/lib/utils";
@@ -481,12 +481,19 @@ export default function HomePage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.15, duration: 0.3 }}
-        className="mb-8 space-y-3"
+        className="mb-8 bg-white dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-gray-200/10 shadow-sm"
       >
-        <div className="bg-white dark:bg-white/5 rounded-2xl px-5 py-4 border border-gray-100 dark:border-gray-200/10 shadow-sm">
-          <SeasonTabs activeRegulation={activeRegulation} onRegulationChange={setActiveRegulation} />
+        <div className="flex items-start">
+          <div className="flex-shrink-0 px-5 py-5 border-r border-gray-100 dark:border-gray-200/10">
+            <SeasonTabs activeRegulation={activeRegulation} onRegulationChange={setActiveRegulation} />
+          </div>
+          <div className="flex-1 min-w-0 px-6 pt-5 pb-0">
+            <SeasonInfo regulationId={activeRegulation} noCard hideRules />
+          </div>
         </div>
-        <SeasonInfo regulationId={activeRegulation} />
+        <div className="px-6 pt-4 pb-5 border-t border-gray-100 dark:border-gray-200/10">
+          <SeasonRulesSection regulationId={activeRegulation} />
+        </div>
       </motion.div>
 
       {/* Search & Filters bar */}

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "@/lib/motion";
 import { SEASONS, POKEMON_SEED, getPokemonByRegulation } from "@/lib/pokemon-data";
 import { cn } from "@/lib/utils";
-import { Shield, Swords, Users, Timer, Sparkles, Ban, Gauge, ListChecks, Calendar, Dna } from "lucide-react";
+import { Shield, Swords, Users, Timer, Sparkles, Ban, Gauge, ListChecks, Calendar, Dna, ChevronDown } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import type { Regulation } from "@/lib/types";
 
@@ -23,95 +23,55 @@ export function SeasonTabs({ activeRegulation, onRegulationChange }: SeasonTabsP
       .replace(/\bSeason\b/g, t('season.seasonWord'))
       .replace(/\bRegulation\b/g, t('season.regulationWord'));
 
-  // Determine which season owns the active regulation
   const activeSeasonId =
     SEASONS.find((s) => s.regulations.some((r) => r.id === activeRegulation))?.id ?? SEASONS[0]?.id;
 
+  const activeSeason = SEASONS.find((s) => s.id === activeSeasonId);
+
   return (
-    <div className="space-y-2">
-      {/* Season row */}
-      <div className="flex flex-wrap gap-2">
-        {SEASONS.map((season) => {
-          const isCurrentSeason = season.id === activeSeasonId;
-          return (
-            <button
-              key={season.id}
-              onClick={() => {
-                // Select the active regulation of this season, or its last one
-                const target =
-                  season.regulations.find((r) => r.isActive) ??
-                  season.regulations[season.regulations.length - 1];
-                if (target) onRegulationChange(target.id);
-              }}
-              className={cn(
-                "relative px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 flex items-center gap-2",
-                isCurrentSeason
-                  ? "text-foreground"
-                  : "text-muted-foreground hover:text-foreground glass glass-hover"
-              )}
-            >
-              {isCurrentSeason && (
-                <motion.div
-                  layoutId="season-active"
-                  className="absolute inset-0 rounded-xl bg-gradient-to-r from-violet-100 to-blue-100 dark:from-violet-500/20 dark:to-blue-500/20 border border-violet-300 dark:border-violet-500/30"
-                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                />
-              )}
-              <Shield className="w-4 h-4 relative z-10" />
-              <span className="relative z-10">{translateName(season.name)}</span>
-              {season.isActive && (
-                <span className="relative z-10 px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30">
-                  LIVE
-                </span>
-              )}
-            </button>
-          );
-        })}
+    <div className="flex flex-col gap-2.5 min-w-[190px]">
+      {/* Season dropdown */}
+      <div className="relative">
+        <Shield className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-violet-500 dark:text-violet-400 pointer-events-none" />
+        <select
+          title={t('season.seasonWord')}
+          value={activeSeasonId}
+          onChange={(e) => {
+            const season = SEASONS.find((s) => s.id === e.target.value);
+            const target =
+              season?.regulations.find((r) => r.isActive) ??
+              season?.regulations[season.regulations.length - 1];
+            if (target) onRegulationChange(target.id);
+          }}
+          className="w-full appearance-none pl-8 pr-8 py-2 rounded-xl text-sm font-medium bg-violet-50 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/25 text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-400/50"
+        >
+          {SEASONS.map((season) => (
+            <option key={season.id} value={season.id}>
+              {translateName(season.name)}{season.isActive ? " — LIVE" : ""}
+            </option>
+          ))}
+        </select>
+        <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
       </div>
 
-      {/* Regulation sub-tabs for the active season */}
-      {SEASONS.map((season) => {
-        if (season.id !== activeSeasonId) return null;
-        if (season.regulations.length <= 1) return null;
-        return (
-          <motion.div
-            key={season.id}
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-1.5 ml-1 pl-3 border-l-2 border-violet-300/40 dark:border-violet-500/20"
+      {/* Regulation dropdown */}
+      {activeSeason && activeSeason.regulations.length > 1 && (
+        <div className="relative">
+          <select
+            title={t('season.regulationWord')}
+            value={activeRegulation}
+            onChange={(e) => onRegulationChange(e.target.value)}
+            className="w-full appearance-none pl-3 pr-8 py-1.5 rounded-lg text-xs font-medium bg-white dark:bg-white/5 border border-gray-200 dark:border-gray-200/15 text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-400/50"
           >
-            {season.regulations.map((reg) => {
-              const isActive = reg.id === activeRegulation;
-              return (
-                <button
-                  key={reg.id}
-                  onClick={() => onRegulationChange(reg.id)}
-                  className={cn(
-                    "relative px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 flex items-center gap-1.5",
-                    isActive
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:text-foreground glass glass-hover"
-                  )}
-                >
-                  {isActive && (
-                    <motion.div
-                      layoutId="regulation-active"
-                      className="absolute inset-0 rounded-lg bg-violet-100/80 dark:bg-violet-500/15 border border-violet-200 dark:border-violet-500/25"
-                      transition={{ type: "spring", stiffness: 400, damping: 32 }}
-                    />
-                  )}
-                  <span className="relative z-10">{translateName(reg.label)}</span>
-                  {reg.isActive && (
-                    <span className="relative z-10 px-1 py-0.5 text-[9px] font-bold rounded bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30">
-                      LIVE
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </motion.div>
-        );
-      })}
+            {activeSeason.regulations.map((reg) => (
+              <option key={reg.id} value={reg.id}>
+                {translateName(reg.label)}{reg.isActive ? " — LIVE" : ""}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+        </div>
+      )}
     </div>
   );
 }
@@ -244,7 +204,7 @@ function RuleCard({ rule }: { rule: string }) {
   );
 }
 
-export function SeasonInfo({ regulationId }: { regulationId: string }) {
+export function SeasonInfo({ regulationId, noCard, hideRules }: { regulationId: string; noCard?: boolean; hideRules?: boolean }) {
   const { t, locale } = useI18n();
 
   // Find the regulation and its parent season
@@ -271,7 +231,7 @@ export function SeasonInfo({ regulationId }: { regulationId: string }) {
       key={regulationId}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-white/5 rounded-2xl p-6 border border-gray-100 dark:border-gray-200/10 shadow-sm"
+      className={noCard ? "" : "bg-white dark:bg-white/5 rounded-2xl p-6 border border-gray-100 dark:border-gray-200/10 shadow-sm"}
     >
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
@@ -296,7 +256,7 @@ export function SeasonInfo({ regulationId }: { regulationId: string }) {
       </div>
 
       {/* Regulation details grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+      <div className={cn("grid grid-cols-2 sm:grid-cols-4 gap-3", !hideRules && "mb-5")}>
         <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 dark:bg-white/5 ring-1 ring-gray-100 dark:ring-gray-200/10">
           <Calendar className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
           <div>
@@ -327,13 +287,33 @@ export function SeasonInfo({ regulationId }: { regulationId: string }) {
         </div>
       </div>
 
-      <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-3">{t('season.rulesHover')}</p>
+      {!hideRules && (
+        <>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-3">{t('season.rulesHover')}</p>
+          <div className="flex flex-wrap gap-2">
+            {season.rules.map((rule) => (
+              <RuleCard key={rule} rule={rule} />
+            ))}
+          </div>
+        </>
+      )}
+    </motion.div>
+  );
+}
 
+export function SeasonRulesSection({ regulationId }: { regulationId: string }) {
+  const { t } = useI18n();
+  const season = SEASONS.find((s) => s.regulations.some((r) => r.id === regulationId));
+  if (!season) return null;
+
+  return (
+    <div>
+      <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium mb-3">{t('season.rulesHover')}</p>
       <div className="flex flex-wrap gap-2">
         {season.rules.map((rule) => (
           <RuleCard key={rule} rule={rule} />
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 }
