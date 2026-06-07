@@ -4,6 +4,14 @@ import { useEffect } from "react";
 
 export function MobileNavInit() {
   useEffect(() => {
+    // Hide hamburger button in native app (bottom tab bar handles navigation)
+    const isNative = !!(window as { Capacitor?: { isNative?: boolean } }).Capacitor?.isNative;
+    if (isNative) {
+      const btn = document.getElementById("mobile-nav-toggle");
+      if (btn) btn.style.display = "none";
+      return;
+    }
+
     const b = document.getElementById("mobile-nav-toggle");
     const toggle = () => document.body.classList.toggle("mobile-open");
     const closeOnNav = (e: MouseEvent) => {

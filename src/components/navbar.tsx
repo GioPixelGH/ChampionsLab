@@ -18,6 +18,7 @@ import { trackEvent } from "@/lib/analytics";
 import { LanguageSelector } from "@/components/language-selector";
 import { DataSyncButton } from "@/components/data-sync";
 import { useI18n } from "@/lib/i18n";
+import { useIsNative } from "@/hooks/useIsNative";
 
 const NAV_ITEMS = [
   { href: "/", i18nKey: "nav.pokedex", icon: Grid3X3 },
@@ -36,11 +37,15 @@ const SECONDARY_NAV = NAV_ITEMS.slice(3);
 export function Navbar() {
   const pathname = usePathname();
   const { t } = useI18n();
+  const isNative = useIsNative();
 
   // Close mobile nav on route change (body class is set by inline script in layout)
   useEffect(() => {
     document.body.classList.remove('mobile-open');
   }, [pathname]);
+
+  // On native app the bottom tab bar handles navigation — hide the top navbar
+  if (isNative) return <div className="h-16" />;
 
   return (
     <>
