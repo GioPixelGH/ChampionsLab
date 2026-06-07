@@ -3433,7 +3433,7 @@ export interface TeamTestDetailedResult {
 }
 
 /** Score each pokemon's value for bring-4 against a given opponent team */
-function scorePokemonForBring(
+export function scorePokemonForBring(
   pokemon: ChampionsPokemon[],
   sets: CommonSet[],
   oppPokemon: ChampionsPokemon[]

@@ -2,13 +2,20 @@ import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
+export const dynamic = "force-static";
 export const alt = "Champions Lab - Pokémon Champions 2026";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default async function Image() {
-  const logoBytes = await readFile(join(process.cwd(), "public/logo.png"));
-  const logoBase64 = `data:image/png;base64,${logoBytes.toString("base64")}`;
+  // readFile is not available in static export (mobile build) — fall back to no logo
+  let logoBase64 = "";
+  try {
+    const logoBytes = await readFile(join(process.cwd(), "public/logo.png"));
+    logoBase64 = `data:image/png;base64,${logoBytes.toString("base64")}`;
+  } catch {
+    // Static export / mobile build
+  }
 
   return new ImageResponse(
     (

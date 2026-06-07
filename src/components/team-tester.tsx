@@ -20,8 +20,8 @@ import { TYPE_COLORS } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
 import { useI18n } from "@/lib/i18n";
+import { runTeamTestSimulationParallel, prewarmBattleWorkers, terminateBattleWorkers } from "@/lib/engine/battle-sim-parallel";
 import {
-  runTeamTestSimulation,
   PREBUILT_TEAMS,
   NATURES,
   ITEMS,
@@ -141,6 +141,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
   const [isRunning, setIsRunning] = useState(false);
   const [result, setResult] = useState<TeamTestResult | null>(null);
   const [elapsed, setElapsed] = useState(0);
+  const [simProgress, setSimProgress] = useState(0);
   const startTimeRef = useRef<number>(0);
   const [selectedLeadIdx, setSelectedLeadIdx] = useState(0);
 
@@ -417,6 +418,11 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
 
   useEffect(() => { setSavedTeams(getSavedTeams()); }, []);
 
+  useEffect(() => {
+    prewarmBattleWorkers();
+    return terminateBattleWorkers;
+  }, []);
+
   // Re-initialise speed overrides whenever teams or sets change
   useEffect(() => {
     const overrides: Record<string, number> = {};
@@ -639,20 +645,18 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
     // Scroll loading bar into view
     await new Promise(r => setTimeout(r, 50));
     progressRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    setSimProgress(0);
 
-    // Start a fake smooth progress animation (sim is synchronous, blocks UI)
-    const progressInterval = setInterval(() => {
+    const elapsedInterval = setInterval(() => {
       setElapsed(Math.round((performance.now() - startTimeRef.current) / 100) / 10);
-    }, 80);
+    }, 200);
 
-    // Yield to let the interval and initial render happen
-    await new Promise(r => setTimeout(r, 60));
-
-    const simResult = runTeamTestSimulation(
-      team1Pokemon, team1Sets, team2Pokemon, team2Sets, iterations
+    const simResult = await runTeamTestSimulationParallel(
+      team1Pokemon, team1Sets, team2Pokemon, team2Sets, iterations,
+      (pct) => setSimProgress(pct)
     );
 
-    clearInterval(progressInterval);
+    clearInterval(elapsedInterval);
     setElapsed(Math.round((performance.now() - startTimeRef.current) / 100) / 10);
 
     setResult({
@@ -813,7 +817,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-muted-foreground">{t('teamTester.battles')}</span>
             <div className="flex gap-1.5">
-              {[500, 1000, 1500, 2000, 2500].map(n => (
+              {[500, 1000, 1500, 2000, 2500, 5000].map(n => (
                 <button
                   key={n}
                   onClick={() => setIterations(n)}
@@ -882,8 +886,8 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
               </div>
               <div className="h-2 bg-gray-100 dark:bg-white/10 rounded-full mt-2 overflow-hidden">
                 <div
-                  className="h-full w-1/3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full"
-                  style={{ animation: "progress-slide 1.2s ease-in-out infinite" }}
+                  className="h-full bg-gradient-to-r from-red-500 to-orange-500 rounded-full transition-all duration-300"
+                  style={{ width: `${Math.max(4, simProgress)}%` }}
                 />
               </div>
             </div>
@@ -932,7 +936,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                   )}>
                     {t('teamTester.vs')}
                   </div>
-                  <p className="text-[10px] text-muted-foreground mt-1">{t('teamTester.nBattles', { n: iterations })}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">{t('teamTester.nBattles', { n: result.totalGames })}</p>
                   <p className="text-[10px] text-muted-foreground">{t('teamTester.turnsAvg', { n: result.avgTurns })}</p>
                   {elapsed > 0 && (
                     <p className="text-[10px] font-mono text-muted-foreground/70 mt-0.5">⏱ {elapsed.toFixed(1)}s</p>

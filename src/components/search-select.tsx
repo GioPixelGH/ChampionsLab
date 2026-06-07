@@ -237,11 +237,11 @@ export function SearchSelect({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -4, scale: 0.98 }}
                   transition={{ duration: 0.15 }}
-                  className="bg-white rounded-xl border border-gray-200 shadow-2xl shadow-black/20 overflow-hidden flex flex-col w-full h-full"
+                  className="bg-white dark:bg-[#111a2e] rounded-xl border border-gray-200 dark:border-gray-200/15 shadow-2xl shadow-black/20 dark:shadow-black/60 overflow-hidden flex flex-col w-full h-full"
                   onKeyDown={handleKeyDown}
                 >
                   {/* Search input */}
-                  <div className="sticky top-0 bg-white border-b border-gray-100 p-2.5">
+                  <div className="sticky top-0 bg-white dark:bg-[#111a2e] border-b border-gray-100 dark:border-gray-200/10 p-2.5">
                     <div className="relative">
                       <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <input

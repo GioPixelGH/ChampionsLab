@@ -7,6 +7,7 @@
 
 import type { ChampionsPokemon } from "./types";
 import type { MetaEntry, MetaResponse } from "@/app/api/meta/route";
+import { API_BASE } from "./api-base";
 
 // ---------------------------------------------------------------------------
 // Showdown ID → project name normalisation
@@ -175,7 +176,7 @@ export function matchMetaToSeed(
 export async function fetchMeta(regulation: string): Promise<MetaResponse | null> {
   try {
     const res = await fetch(
-      `/api/meta?regulation=${encodeURIComponent(regulation)}&limit=25`,
+      `${API_BASE}/api/meta?regulation=${encodeURIComponent(regulation)}&limit=25`,
       // Revalidate client-side every 6 hours via cache
       { next: { revalidate: 21600 } } as RequestInit
     );

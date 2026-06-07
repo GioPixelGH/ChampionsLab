@@ -2,7 +2,7 @@
 
 import { motion } from "@/lib/motion";
 import Image from "next/image";
-import { ChampionsPokemon, TYPE_COLORS } from "@/lib/types";
+import { ChampionsPokemon } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Sparkles } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
@@ -14,7 +14,7 @@ interface PokemonCardProps {
 }
 
 export function PokemonCard({ pokemon, onClick, index }: PokemonCardProps) {
-  const primaryColor = TYPE_COLORS[pokemon.types[0]];
+  const primaryType = pokemon.types[0];
   const { tp, t } = useI18n();
 
   return (
@@ -24,10 +24,12 @@ export function PokemonCard({ pokemon, onClick, index }: PokemonCardProps) {
       onClick={() => onClick(pokemon)}
       className="group relative cursor-pointer"
     >
-      {/* Glow effect behind card */}
+      {/* Glow effect behind card — uses static CSS class to avoid inline style */}
       <div
-        className="absolute -inset-2 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl"
-        style={{ background: `${primaryColor}30` }}
+        className={cn(
+          "absolute -inset-2 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl",
+          `type-bg-30-${primaryType}`
+        )}
       />
 
       {/* Card */}
@@ -60,17 +62,14 @@ export function PokemonCard({ pokemon, onClick, index }: PokemonCardProps) {
           </div>
         )}
 
-        {/* Sprite area with gradient background */}
-        <div
-          className="relative h-40 flex items-center justify-center overflow-hidden"
-          style={{
-            background: `linear-gradient(180deg, ${primaryColor}08 0%, ${primaryColor}04 50%, transparent 100%)`,
-          }}
-        >
-          {/* Subtle circle behind sprite */}
+        {/* Sprite area with radial type-colour spotlight */}
+        <div className={cn("relative h-40 flex items-center justify-center overflow-hidden", `radial-type-${primaryType}`)}>
+          {/* Solid circle behind sprite — same hue, very low opacity */}
           <div
-            className="absolute w-28 h-28 rounded-full opacity-[0.07] group-hover:opacity-[0.12] transition-opacity duration-500"
-            style={{ background: primaryColor }}
+            className={cn(
+              "absolute w-28 h-28 rounded-full opacity-[0.07] group-hover:opacity-[0.12] transition-opacity duration-500",
+              `type-bg-${primaryType}`
+            )}
           />
 
           {/* Sprite */}
@@ -91,7 +90,7 @@ export function PokemonCard({ pokemon, onClick, index }: PokemonCardProps) {
         <div className="px-4 pb-4 pt-2 space-y-2">
           {/* Name & Dex number */}
           <div className="flex items-center justify-between gap-1">
-            <h3 className="font-semibold text-[13px] tracking-tight text-gray-900 truncate min-w-0">
+            <h3 className="font-semibold text-[13px] tracking-tight text-foreground truncate min-w-0">
               {tp(pokemon.name).replace(/^(.+?)\s*\((.+)\)$/, "($2) $1")}
             </h3>
             <span className="text-[10px] text-gray-400 tabular-nums flex-shrink-0">
@@ -99,13 +98,12 @@ export function PokemonCard({ pokemon, onClick, index }: PokemonCardProps) {
             </span>
           </div>
 
-          {/* Types */}
+          {/* Types — static CSS class replaces inline backgroundColor */}
           <div className="flex gap-1.5">
             {pokemon.types.map((type) => (
               <span
                 key={type}
-                className="px-2 py-0.5 text-[9px] font-bold uppercase rounded-md text-white tracking-wider"
-                style={{ backgroundColor: `${TYPE_COLORS[type]}D0` }}
+                className={cn("px-2 py-0.5 text-[9px] font-bold uppercase rounded-md text-white tracking-wider", `type-bg-cc-${type}`)}
               >
                 {t(`common.types.${type}`)}
               </span>

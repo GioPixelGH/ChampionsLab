@@ -9,9 +9,7 @@ import {
   Users,
   TrendingUp,
   GraduationCap,
-  Heart,
   CalendarDays,
-  ShoppingBag,
   BookOpen,
 } from "lucide-react";
 import { useEffect } from "react";
@@ -29,7 +27,6 @@ const NAV_ITEMS = [
   { href: "/match-journal", i18nKey: "nav.matchJournal", icon: BookOpen },
   { href: "/events", i18nKey: "nav.tournaments", icon: CalendarDays },
   { href: "/learn", i18nKey: "nav.pokeSchool", icon: GraduationCap },
-  { href: "/about", i18nKey: "nav.about", icon: Heart },
 ];
 
 // First 3 items shown in the bar at tablet widths (800–1139px)
@@ -48,7 +45,7 @@ export function Navbar() {
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-gray-200/60">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 group">
@@ -93,29 +90,6 @@ export function Navbar() {
                   </Link>
                 );
               })}
-              <div className="ml-2 inline-flex rounded-lg overflow-hidden shadow-sm shadow-orange-500/20 bg-gradient-to-r from-yellow-400 to-orange-500">
-                <a
-                  href="https://shop.championslab.xyz/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => trackEvent("shop_click", "engagement", "desktop")}
-                  className="flex-1 justify-center px-3 py-2 text-sm font-semibold text-white hover:bg-white/20 flex items-center gap-1.5 transition-colors whitespace-nowrap"
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  <span>{t("nav.shop")}</span>
-                </a>
-                <div className="w-px bg-white/30 my-1.5" />
-                <a
-                  href="https://buymeacoffee.com/championslab"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => trackEvent("support_click", "engagement", "desktop")}
-                  className="flex-1 justify-center px-3 py-2 text-sm font-semibold text-white hover:bg-white/20 flex items-center gap-1.5 transition-colors whitespace-nowrap"
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  <span>{t("nav.supportUs")}</span>
-                </a>
-              </div>
               <DataSyncButton />
               <LanguageSelector />
             </nav>
@@ -169,29 +143,6 @@ export function Navbar() {
               </Link>
             );
           })}
-          <div className="flex rounded-lg overflow-hidden bg-gradient-to-r from-yellow-400 to-orange-500">
-            <a
-              href="https://shop.championslab.xyz/"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => trackEvent("shop_click", "engagement", "mobile")}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold text-white hover:bg-white/20 transition-colors"
-            >
-              <ShoppingBag className="w-5 h-5" />
-              {t("nav.shop")}
-            </a>
-            <div className="w-px bg-white/30 my-2" />
-            <a
-              href="https://buymeacoffee.com/championslab"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => trackEvent("support_click", "engagement", "mobile")}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold text-white hover:bg-white/20 transition-colors"
-            >
-              <ShoppingBag className="w-5 h-5" />
-              {t("nav.supportUs")}
-            </a>
-          </div>
           <div className="px-4 pt-2 flex items-center gap-3">
             <DataSyncButton />
             <LanguageSelector mobile />

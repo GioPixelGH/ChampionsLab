@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { cookies } from "next/headers";
-import { Inter, JetBrains_Mono, Sora } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
@@ -9,23 +8,8 @@ import { LazyParticles } from "@/components/lazy-particles";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ThemeInit } from "@/components/theme-init";
 import { MobileNavInit } from "@/components/mobile-nav-init";
+import { UpdateModal } from "@/components/update-modal";
 import { I18nProvider } from "@/lib/i18n";
-
-const inter = Inter({
-  variable: "--font-sans",
-  subsets: ["latin"],
-});
-
-const sora = Sora({
-  variable: "--font-heading",
-  subsets: ["latin"],
-  weight: ["600", "700"],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Champions Lab - Pokémon Champions 2026",
@@ -80,15 +64,23 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
-  const initialLocale = cookieStore.get("cl-lang")?.value ?? "en";
-  const themeCookie = cookieStore.get("cl-theme")?.value;
-  const isDark = themeCookie === "dark";
+  // cookies() is unavailable in static export (mobile build) — fallback to defaults.
+  // Theme and locale are applied client-side by ThemeInit and LanguageSelector.
+  let initialLocale = "en";
+  let isDark = false;
+  try {
+    const cookieStore = await cookies();
+    initialLocale = cookieStore.get("cl-lang")?.value ?? "en";
+    const themeCookie = cookieStore.get("cl-theme")?.value;
+    isDark = themeCookie === "dark";
+  } catch {
+    // Static export / mobile build
+  }
 
   return (
     <html
       lang={initialLocale.split("-")[0]}
-      className={`${inter.variable} ${sora.variable} ${jetbrainsMono.variable} h-full antialiased ${isDark ? "dark" : ""}`}
+      className={`h-full antialiased ${isDark ? "dark" : ""}`}
       style={{ colorScheme: isDark ? "dark" : "light" }}
       suppressHydrationWarning
     >
@@ -130,6 +122,7 @@ export default async function RootLayout({
           <main className="flex-1 relative z-10">{children}</main>
         </Suspense>
         <ThemeToggle />
+        <UpdateModal />
         </I18nProvider>
       </body>
     </html>

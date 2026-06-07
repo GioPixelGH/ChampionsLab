@@ -2352,7 +2352,7 @@ export default function MetaPage() {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-start justify-center pt-[max(5vh,5rem)] px-4 pb-8" onClick={() => setModal(null)}>
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
           <motion.div initial={{ opacity: 0, y: 30, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 30, scale: 0.97 }} transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative bg-white rounded-2xl shadow-2xl border border-gray-200 max-w-4xl w-full max-h-[85vh] overflow-y-auto"
+            className="relative bg-white dark:bg-[#111a2e] rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-200/10 max-w-4xl w-full max-h-[85vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}>
             <button onClick={() => setModal(null)} aria-label="Close" className="absolute top-4 right-4 z-10 p-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"><X className="w-5 h-5" /></button>
 
@@ -2922,8 +2922,8 @@ export default function MetaPage() {
                                 {set.moves.map(mv => {
                                   const moveDataFound = pkm.moves.find(m => m.name === mv);
                                   return (
-                                    <div key={mv} className="flex items-center gap-1 p-1 bg-white rounded cursor-pointer hover:bg-gray-100" onClick={() => setModal({ kind: "move", name: mv })}>
-                                      {moveDataFound && <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: TYPE_COLORS[moveDataFound.type as PokemonType] }} />}
+                                    <div key={mv} className="flex items-center gap-1 p-1 bg-gray-50 dark:bg-white/[0.04] rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-white/[0.07]" onClick={() => setModal({ kind: "move", name: mv })}>
+                                      {moveDataFound && <span className={`w-2 h-2 rounded-full flex-shrink-0 type-bg-${moveDataFound.type as PokemonType}`} />}
                                       <span className="text-[10px] font-medium truncate">{tm(mv)}</span>
                                     </div>
                                   );
@@ -3062,8 +3062,8 @@ export default function MetaPage() {
                                 {set.moves.map(mv => {
                                   const moveDataFound = pkm.moves.find(m => m.name === mv);
                                   return (
-                                    <div key={mv} className="flex items-center gap-1 p-1 bg-white rounded cursor-pointer hover:bg-gray-100" onClick={() => setModal({ kind: "move", name: mv })}>
-                                      {moveDataFound && <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: TYPE_COLORS[moveDataFound.type as PokemonType] }} />}
+                                    <div key={mv} className="flex items-center gap-1 p-1 bg-gray-50 dark:bg-white/[0.04] rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-white/[0.07]" onClick={() => setModal({ kind: "move", name: mv })}>
+                                      {moveDataFound && <span className={`w-2 h-2 rounded-full flex-shrink-0 type-bg-${moveDataFound.type as PokemonType}`} />}
                                       <span className="text-[10px] font-medium truncate">{tm(mv)}</span>
                                     </div>
                                   );

@@ -1,11 +1,28 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/jetbrains-mono";
+@import "@fontsource/sora/600.css";
+@import "@fontsource/sora/700.css";
+
+:root {
+  --font-sans: 'Inter Variable', system-ui, sans-serif;
+  --font-heading: 'Sora', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', monospace;
+}
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --breakpoint-desktop: 1140px;
+  /* ── Z-index scale (semantic, centralised) ── */
+  --z-base:       10;
+  --z-raised:     20;
+  --z-dropdown:   30;
+  --z-overlay:    40;
+  --z-fixed:      50;
+  --z-hamburger:  60;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
@@ -361,7 +378,7 @@
 .mobile-nav-btn {
   position: fixed;
   top: 0;
-  right: 0.75rem;
+  right: max(0.75rem, env(safe-area-inset-right));
   z-index: 60;
   width: 3rem;
   height: 4rem;
@@ -430,6 +447,7 @@ body.mobile-open .mobile-nav-panel { display: block; }
 /* Stat bar animation */
 @keyframes stat-fill {
   from { width: 0%; }
+  to   { width: 100%; }
 }
 .animate-stat-fill { animation: stat-fill 0.8s ease-out forwards; }
 
@@ -466,13 +484,12 @@ body.mobile-open .mobile-nav-panel { display: block; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.2); }
 
 /* Hide scrollbar utility */
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 
 /* SP slider thumb border color driven by CSS custom property */
 .sp-slider::-webkit-slider-thumb { border-color: var(--sp-thumb-border, #8b5cf6); }
 .sp-slider::-moz-range-thumb { border-color: var(--sp-thumb-border, #8b5cf6); }
-.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-.scrollbar-hide::-webkit-scrollbar { display: none; }
 
 /* Stat filter range inputs – dark mode track */
 .dark .stat-range::-webkit-slider-runnable-track {
@@ -664,7 +681,13 @@ body.mobile-open .mobile-nav-panel { display: block; }
     inset 0 1px 0 rgba(148, 163, 184, 0.06);
 }
 
-/* ── bg-white override (keep text-white/fill-white intact) ── */
+/* ── bg-white dark-mode fallback ──────────────────────────────────────────
+   Covers elements that use bare `bg-white` without an explicit dark variant
+   (e.g. modal containers, search-select portal, meta page modals).
+   Elements that ALREADY carry a dark: modifier are unaffected — the explicit
+   dark class wins specificity.  text-white / fill-white are NOT overridden
+   because those selectors target `color`/`fill`, not `background-color`.
+   ────────────────────────────────────────────────────────────────────── */
 .dark .bg-white {
   background-color: #111a2e;
 }
@@ -690,8 +713,8 @@ body.mobile-open .mobile-nav-panel { display: block; }
 /* ── Theme toggle button ── */
 .theme-toggle-btn {
   position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
+  bottom: max(1.5rem, calc(env(safe-area-inset-bottom) + 0.75rem));
+  right: max(1.5rem, calc(env(safe-area-inset-right) + 0.75rem));
   z-index: 50;
   width: 2.5rem;
   height: 2.5rem;

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 
 // ---------------------------------------------------------------------------
@@ -273,12 +274,31 @@ export async function GET(req: Request) {
     }))
     .sort((a, b) => b.appearances - a.appearances);
 
-  return NextResponse.json<MetaResponse>({
-    regulation,
-    tournaments: tournaments.length,
-    teams: totalTeams,
-    meta,
-    byTournament,
-    updatedAt: new Date().toISOString(),
+  return NextResponse.json<MetaResponse>(
+    {
+      regulation,
+      tournaments: tournaments.length,
+      teams: totalTeams,
+      meta,
+      byTournament,
+      updatedAt: new Date().toISOString(),
+    },
+    {
+      headers: {
+        "Access-Control-Allow-Origin": "capacitor://localhost",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+      },
+    }
+  );
+}
+
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "capacitor://localhost",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
   });
 }
