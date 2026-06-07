@@ -10,7 +10,7 @@ const config: CapacitorConfig = {
     // All JavaScript (battle engine, team builder, etc.) runs inside the WebView
     // on the device — no computation happens on the server.
     // To ship an update, just deploy to Vercel — users get it on the next app open.
-    url: "https://championslab.xyz",
+    url: "https://champions-lab-puce.vercel.app",
     cleartext: false,
   },
 };

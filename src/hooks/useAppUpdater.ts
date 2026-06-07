@@ -14,7 +14,7 @@ interface UseAppUpdaterResult {
 }
 
 const VERSION_KEY = "cl-app-version";
-const VERSION_URL = "https://championslab.xyz/api/version";
+const VERSION_URL = "https://champions-lab-puce.vercel.app/api/version";
 
 function isNative(): boolean {
   return typeof window !== "undefined" && !!(window as { Capacitor?: { isNative?: boolean } }).Capacitor?.isNative;
