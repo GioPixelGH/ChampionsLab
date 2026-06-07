@@ -16,8 +16,18 @@ interface UseAppUpdaterResult {
 const VERSION_KEY = "cl-app-version";
 const VERSION_URL = "https://champions-lab-puce.vercel.app/api/version";
 
+type CapacitorBridge = {
+  isNativePlatform?: () => boolean;
+  getPlatform?: () => string;
+};
+
 function isNative(): boolean {
-  return typeof window !== "undefined" && !!(window as { Capacitor?: { isNative?: boolean } }).Capacitor?.isNative;
+  if (typeof window === "undefined") return false;
+  const cap = (window as { Capacitor?: CapacitorBridge }).Capacitor;
+  if (!cap) return false;
+  if (typeof cap.isNativePlatform === "function") return cap.isNativePlatform();
+  if (typeof cap.getPlatform === "function") return cap.getPlatform() !== "web";
+  return false;
 }
 
 export function useAppUpdater(): UseAppUpdaterResult {
