@@ -12,6 +12,7 @@ import {
   type VGCEvent,
 } from '@/lib/vgc-events';
 import { useI18n } from '@/lib/i18n';
+import { useIsNative } from '@/hooks/useIsNative';
 
 // ── Tier colours ──────────────────────────────────────────────────────────────
 
@@ -205,6 +206,7 @@ export function EventsCalendar({ events, todayISO }: { events: VGCEvent[]; today
   const [tier,   setTier]   = useState<TierFilter>('all');
   const [region, setRegion] = useState<RegionFilter>('all');
   const { t } = useI18n();
+  const isNative = useIsNative();
 
   const filtered = useMemo(() => {
     return events.filter(ev => {
@@ -230,6 +232,163 @@ export function EventsCalendar({ events, todayISO }: { events: VGCEvent[]; today
     () => events.filter(ev => !isPast(ev, todayISO)).length,
     [events, todayISO],
   );
+
+  // ── MOBILE LAYOUT ──────────────────────────────────────────────────────────
+  if (isNative) {
+    return (
+      <div className="pb-24">
+        {/* Header */}
+        <div className="px-4 pt-4 pb-3 border-b border-white/10">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-emerald-400 mb-0.5">
+            {t('events.season')}
+          </p>
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+              {t('events.title')}
+            </h1>
+            <span className="text-xs text-gray-400">{upcomingCount} upcoming</span>
+          </div>
+        </div>
+
+        {/* Time filter tabs */}
+        <div className="flex gap-1 px-4 pt-3 pb-2">
+          {(['upcoming', 'all', 'past'] as TimeFilter[]).map((tf) => (
+            <button
+              key={tf}
+              type="button"
+              onClick={() => setTime(tf)}
+              className={cn(
+                "flex-1 py-2 rounded-xl text-xs font-semibold capitalize transition-all",
+                time === tf
+                  ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white"
+                  : "bg-white/5 border border-white/10 text-gray-400"
+              )}
+            >
+              {tf === 'upcoming' ? t('events.upcoming') : tf === 'past' ? t('events.past') : t('events.all')}
+            </button>
+          ))}
+        </div>
+
+        {/* Tier filter chips */}
+        <div className="px-4 pb-2 overflow-x-auto">
+          <div className="flex gap-1.5 w-max">
+            <button
+              type="button"
+              onClick={() => setTier('all')}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all",
+                tier === 'all'
+                  ? "bg-white/20 text-white"
+                  : "bg-white/5 border border-white/10 text-gray-400"
+              )}
+            >
+              {t('events.allTiers')}
+            </button>
+            {TIER_FILTERS.map((tf) => (
+              <button
+                key={tf}
+                type="button"
+                onClick={() => setTier(tf)}
+                className={cn(
+                  "px-3 py-1.5 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all border",
+                  tier === tf ? "opacity-100" : "opacity-50"
+                )}
+                style={{
+                  background: tier === tf ? `${TIER_COLOR[tf]}22` : 'rgba(255,255,255,0.03)',
+                  borderColor: tier === tf ? `${TIER_COLOR[tf]}55` : 'rgba(255,255,255,0.1)',
+                  color: TIER_COLOR[tf],
+                }}
+              >
+                {TIER_LABEL[tf]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Events list */}
+        <div className="px-4 pt-1 space-y-4">
+          {grouped.length === 0 ? (
+            <div className="flex flex-col items-center gap-3 py-16 text-center">
+              <span className="text-4xl">🗓️</span>
+              <p className="text-sm text-gray-400">{t('events.noMatch')}</p>
+            </div>
+          ) : (
+            grouped.map(([key, groupEvents]) => (
+              <div key={key}>
+                <div className="flex items-center gap-2 mb-2">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                    {monthLabel(key)}
+                  </p>
+                  <span className="flex-1 h-px bg-white/10" />
+                </div>
+                <div className="space-y-2">
+                  {groupEvents.map((ev) => {
+                    const color = TIER_COLOR[ev.tier];
+                    const past = isPast(ev, todayISO);
+                    const ongoing = isOngoing(ev, todayISO);
+                    const d = new Date(ev.startDate + 'T12:00:00Z');
+                    const soldOut = ev.registrationNote?.toLowerCase().includes('sold out');
+                    const btnLabel = past ? t('events.results') : soldOut ? t('events.soldOut') : t('events.register');
+                    return (
+                      <div
+                        key={ev.id}
+                        className={cn(
+                          "bg-white/5 border border-white/10 rounded-2xl p-3 flex gap-3",
+                          ongoing && "ring-1 ring-emerald-500/40",
+                          past && "opacity-50"
+                        )}
+                        style={{ borderLeftWidth: 3, borderLeftColor: color }}
+                      >
+                        {/* Date block */}
+                        <div className="flex-shrink-0 text-center w-10">
+                          <p className="text-[10px] uppercase font-semibold text-gray-400">
+                            {d.toLocaleDateString('en-US', { month: 'short' })}
+                          </p>
+                          <p className="text-xl font-black text-white leading-none">{d.getDate()}</p>
+                        </div>
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap mb-1">
+                            <span
+                              className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                              style={{ background: `${color}22`, color }}
+                            >
+                              {TIER_LABEL[ev.tier]}
+                            </span>
+                            {ongoing && (
+                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
+                                {t('events.live')}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm font-semibold text-white leading-snug truncate">{ev.name}</p>
+                          <p className="text-[11px] text-gray-400 mt-0.5">
+                            {ev.city !== 'Online' ? `${ev.city}, ${ev.country} · ` : ''}
+                            {formatDateRange(ev.startDate, ev.endDate)}
+                            {ev.cpPoints > 0 ? ` · ${ev.cpPoints.toLocaleString()} CP` : ''}
+                          </p>
+                        </div>
+                        {/* Action */}
+                        <a
+                          href={safeUrl(ev.registrationUrl)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-shrink-0 self-center text-[11px] font-semibold px-2.5 py-1.5 rounded-xl whitespace-nowrap"
+                          style={{ background: `${color}22`, color, border: `1px solid ${color}44` }}
+                        >
+                          {btnLabel}
+                        </a>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

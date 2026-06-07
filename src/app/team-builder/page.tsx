@@ -7,7 +7,7 @@ import { LastUpdated } from "@/components/last-updated";
 import {
   Plus, X, Download, Upload, Copy, Trash2, Shield, Zap, Swords,
   ChevronDown, ChevronUp, Check, AlertTriangle, Sparkles, Star,
-  Users, Brain, Target, Award, Minus, Settings2,
+  Users, Brain, Target, Award, Minus, Settings2, Search,
   Save, FolderOpen, Share2, SlidersHorizontal, ExternalLink, Trophy,
   Lock, LockOpen,
 } from "lucide-react";
@@ -61,6 +61,7 @@ import {
 import { deflateRaw, inflateRaw } from "pako";
 import QRCode from "qrcode";
 import { useI18n } from "@/lib/i18n";
+import { useIsNative } from "@/hooks/useIsNative";
 
 const EMPTY_STAT_POINTS: StatPoints = { hp: 0, attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 };
 const MAX_TOTAL_POINTS = 66;
@@ -131,6 +132,7 @@ const ALL_TYPES: PokemonType[] = [
 
 export default function TeamBuilderPage() {
   const { locale, t, tp, tm, ta, ti, tn, ts, tt, tad, tid, tmd } = useI18n();
+  const isNative = useIsNative();
 
   // ── Analysis text translators ──
   const RATING_KEYS: Record<string, string> = {
@@ -1600,6 +1602,198 @@ export default function TeamBuilderPage() {
       );
     });
   }, [pickerSearch, pickerTypeFilter, pickerCounterFilter, pickerRoleFilter, pickerStatFilters, usedPokemonIds, activeRegulation, tp, tm, ta, t]);
+
+  // ── MOBILE-ONLY STATE (always declared — hooks must not be in conditionals) ──
+  const [mobilePickerSlot, setMobilePickerSlot] = useState<number | null>(null);
+  const [mobilePickerSearch, setMobilePickerSearch] = useState("");
+  const mobilePickerResults = useMemo(() => {
+    const q = mobilePickerSearch.toLowerCase();
+    const pool = getPokemonByRegulation(activeRegulation).filter((p) => !p.hidden);
+    if (!q) return pool.slice(0, 60);
+    return pool.filter((p) =>
+      p.name.toLowerCase().includes(q) || tp(p.name).toLowerCase().includes(q) || p.dexNumber.toString().includes(q)
+    ).slice(0, 60);
+  }, [mobilePickerSearch, activeRegulation, tp]);
+
+  const assignPokemon = (pokemon: ChampionsPokemon) => {
+    if (mobilePickerSlot === null) return;
+    const newSlots = [...slots];
+    newSlots[mobilePickerSlot] = { ...newSlots[mobilePickerSlot], pokemon, moves: [], statPoints: { ...EMPTY_STAT_POINTS } };
+    setSlots(newSlots);
+    setMobilePickerSlot(null);
+    setMobilePickerSearch("");
+  };
+
+  // ── MOBILE LAYOUT ──────────────────────────────────────────────────────────
+  if (isNative) {
+    return (
+      <div className="pb-24">
+        {/* Header */}
+        <div className="px-4 pt-4 pb-3 border-b border-white/10">
+          <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+            Team Builder
+          </h1>
+          <p className="text-xs text-gray-400 mt-0.5">
+            {filledSlots.length}/6 Pokémon · {teamAnalysis.synergy.overallScore}% synergy
+          </p>
+        </div>
+
+        {/* Team slots 2x3 grid */}
+        <div className="px-4 pt-4 pb-3">
+          <div className="grid grid-cols-3 gap-2">
+            {slots.map((slot, i) => {
+              const pokemon = slot.pokemon;
+              const primaryType = pokemon?.types[0];
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => {
+                    if (pokemon) {
+                      // Tap filled slot → remove
+                      const newSlots = [...slots];
+                      newSlots[i] = createEmptySlot();
+                      setSlots(newSlots);
+                    } else {
+                      setMobilePickerSlot(i);
+                      setMobilePickerSearch("");
+                    }
+                  }}
+                  className={cn(
+                    "aspect-square rounded-2xl border flex flex-col items-center justify-center p-2 transition-all active:scale-95",
+                    pokemon
+                      ? `bg-white/5 border-white/15 ${primaryType ? `radial-type-${primaryType}` : ""}`
+                      : "bg-white/[0.03] border-dashed border-white/20"
+                  )}
+                >
+                  {pokemon ? (
+                    <>
+                      <Image src={pokemon.officialArt} alt={tp(pokemon.name)} width={70} height={70} className="object-contain drop-shadow-lg" unoptimized />
+                      <p className="text-[10px] font-semibold text-white truncate w-full text-center mt-1">{tp(pokemon.name)}</p>
+                      <div className="flex gap-0.5 mt-0.5 flex-wrap justify-center">
+                        {pokemon.types.map((ty) => (
+                          <span key={ty} className={cn("px-1 py-0 text-[8px] font-bold uppercase rounded text-white", `type-bg-cc-${ty}`)}>
+                            {t(`common.types.${ty}`).slice(0, 4)}
+                          </span>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1">
+                      <Plus className="w-5 h-5 text-gray-600" />
+                      <span className="text-[10px] text-gray-600">Slot {i + 1}</span>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Team analysis summary */}
+        {filledSlots.length > 0 && (
+          <div className="px-4 pb-4 space-y-2">
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Team Analysis</p>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+              {/* Score bar */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-gray-400">Synergy Score</span>
+                  <span className={cn("text-sm font-bold",
+                    teamAnalysis.synergy.overallScore >= 70 ? "text-emerald-400" :
+                    teamAnalysis.synergy.overallScore >= 50 ? "text-amber-400" : "text-red-400"
+                  )}>{teamAnalysis.synergy.overallScore}%</span>
+                </div>
+                <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                  <div
+                    className={cn("h-full rounded-full transition-all",
+                      teamAnalysis.synergy.overallScore >= 70 ? "bg-gradient-to-r from-emerald-500 to-teal-500" :
+                      teamAnalysis.synergy.overallScore >= 50 ? "bg-gradient-to-r from-amber-500 to-orange-500" :
+                      "bg-gradient-to-r from-red-500 to-rose-500"
+                    )}
+                    style={{ width: `${teamAnalysis.synergy.overallScore}%` }}
+                  />
+                </div>
+              </div>
+              {/* Insights */}
+              {[
+                ...teamAnalysis.synergy.strengths.slice(0, 2).map((s) => ({ text: s, kind: "strength" as const })),
+                ...teamAnalysis.synergy.weaknesses.slice(0, 2).map((s) => ({ text: s, kind: "warning" as const })),
+              ].map((insight, i) => (
+                <div key={i} className={cn(
+                  "flex items-start gap-2 px-3 py-2 rounded-xl text-xs",
+                  insight.kind === "strength" ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-300" :
+                  "bg-amber-500/10 border border-amber-500/20 text-amber-300"
+                )}>
+                  {insight.kind === "strength"
+                    ? <Check className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                    : <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />}
+                  <span className="leading-relaxed">{translateInsight(insight.text)}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Clear team */}
+            {filledSlots.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setSlots(Array.from({ length: 6 }, createEmptySlot))}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium"
+              >
+                <Trash2 className="w-4 h-4" />
+                Clear Team
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Pokemon Picker Bottom Sheet */}
+        {mobilePickerSlot !== null && (
+          <div className="fixed inset-0 z-[70]" onClick={() => { setMobilePickerSlot(null); setMobilePickerSearch(""); }}>
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <div
+              className="absolute bottom-16 left-0 right-0 bg-[#111a2e] border-t border-white/10 rounded-t-3xl max-h-[75vh] overflow-hidden flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="px-4 pt-4 pb-2 flex-shrink-0">
+                <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-3" />
+                <p className="text-sm font-semibold text-white mb-3">Pick Pokémon for Slot {(mobilePickerSlot ?? 0) + 1}</p>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                  <input
+                    type="text"
+                    placeholder="Search..."
+                    value={mobilePickerSearch}
+                    onChange={(e) => setMobilePickerSearch(e.target.value)}
+                    autoFocus
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500/50 focus:outline-none text-sm text-white placeholder:text-gray-500"
+                  />
+                </div>
+              </div>
+              <div className="overflow-y-auto flex-1 pb-4">
+                <div className="grid grid-cols-4 gap-2 px-3 pt-2">
+                  {mobilePickerResults.map((pokemon) => (
+                    <button
+                      key={pokemon.id}
+                      type="button"
+                      onClick={() => assignPokemon(pokemon)}
+                      className="flex flex-col items-center rounded-xl bg-white/5 border border-white/10 p-1.5 active:scale-95 transition-transform"
+                    >
+                      <Image src={pokemon.sprite} alt={tp(pokemon.name)} width={48} height={48} className="object-contain" unoptimized />
+                      <p className="text-[9px] text-white truncate w-full text-center mt-0.5">{tp(pokemon.name)}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Detail modal (reuse existing) */}
+        <PokemonDetailModal pokemon={selectedPokemonDetail} onClose={() => setSelectedPokemonDetail(null)} />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-x-hidden">

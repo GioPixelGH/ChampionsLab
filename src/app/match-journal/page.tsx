@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { POKEMON_SEED } from "@/lib/pokemon-data";
 import { cn } from "@/lib/utils";
+import { useIsNative } from "@/hooks/useIsNative";
 import { spriteUrl } from "@/lib/sprite-url";
 import { useI18n } from "@/lib/i18n";
 import {
@@ -411,6 +412,7 @@ const STEPS: { key: FormStep; label: string; description: string }[] = [
 
 export default function MatchJournalPage() {
   const { tp, locale } = useI18n();
+  const isNative = useIsNative();
 
   const [records, setRecords] = useState<MatchRecord[]>([]);
   useEffect(() => setRecords(getMatchRecords()), []);
@@ -614,6 +616,235 @@ export default function MatchJournalPage() {
     });
     return arr;
   }, [stats.formatStats, fmtSort]);
+
+  // ── MOBILE LAYOUT ──────────────────────────────────────────────────────────
+  if (isNative) {
+    return (
+      <div className="pb-24">
+        {/* Header */}
+        <div className="px-4 pt-4 pb-3 border-b border-white/10">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                Match Journal
+              </h1>
+              <p className="text-xs text-gray-400 mt-0.5">{records.length} matches recorded</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => { setShowForm(true); setStep("myTeam"); setMyTeam([]); setMyPicks([]); setOpponentTeam([]); setOpponentPicks([]); setResult("win"); setNotes(""); }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-semibold shadow-lg shadow-emerald-500/30"
+            >
+              <Plus className="w-4 h-4" />
+              New
+            </button>
+          </div>
+        </div>
+
+        {/* Stats summary */}
+        {records.length > 0 && (
+          <div className="px-4 pt-3 pb-2">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3 text-center">
+                <p className="text-2xl font-black text-emerald-400">{stats.wins}</p>
+                <p className="text-[10px] text-gray-400 uppercase tracking-wide">Wins</p>
+              </div>
+              <div className="bg-white/5 border border-white/10 rounded-xl p-3 text-center">
+                <p className="text-2xl font-black text-white">{stats.winRate.toFixed(0)}%</p>
+                <p className="text-[10px] text-gray-400 uppercase tracking-wide">Win Rate</p>
+              </div>
+              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-center">
+                <p className="text-2xl font-black text-red-400">{stats.losses}</p>
+                <p className="text-[10px] text-gray-400 uppercase tracking-wide">Losses</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tabs */}
+        <div className="flex gap-1 px-4 pt-2 pb-1">
+          {(["history", "stats"] as const).map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setActiveTab(tab)}
+              className={cn(
+                "flex-1 py-2 rounded-xl text-xs font-semibold capitalize transition-all",
+                activeTab === tab
+                  ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white"
+                  : "bg-white/5 border border-white/10 text-gray-400"
+              )}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {/* History tab */}
+        {activeTab === "history" && (
+          <div className="px-4 pt-2 space-y-2">
+            {records.length === 0 ? (
+              <div className="flex flex-col items-center gap-3 py-20 text-center">
+                <BookOpen className="w-12 h-12 text-gray-600" />
+                <div>
+                  <p className="font-semibold text-white">No matches yet</p>
+                  <p className="text-sm text-gray-500 mt-1">Tap "New" to log your first match</p>
+                </div>
+              </div>
+            ) : (
+              records.slice().reverse().map((record) => {
+                const isExp = expandedRecord === record.id;
+                const myPicksPokemon = record.myPicks.map(id => getById(id)).filter(Boolean);
+                const oppPicksPokemon = record.opponentPicks.map(id => getById(id)).filter(Boolean);
+                return (
+                  <button
+                    key={record.id}
+                    type="button"
+                    onClick={() => setExpandedRecord(isExp ? null : record.id)}
+                    className="w-full text-left bg-white/5 border border-white/10 rounded-2xl p-3 active:scale-[0.99] transition-transform"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className={cn(
+                        "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase flex-shrink-0",
+                        record.result === "win" ? "bg-emerald-500/20 text-emerald-400" :
+                        record.result === "loss" ? "bg-red-500/20 text-red-400" :
+                        "bg-white/10 text-gray-400"
+                      )}>
+                        {record.result}
+                      </span>
+                      <span className="text-xs text-gray-400 flex-1">{fmtDate(record.date)}</span>
+                      {record.format && (
+                        <span className="text-[10px] text-gray-500 truncate max-w-[80px]">{record.format}</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex gap-0.5 flex-1">
+                        {myPicksPokemon.slice(0, 4).map((p) => p && (
+                          <Image key={p.id} src={spriteUrl(p.sprite)} alt={p.name} width={28} height={28} className="object-contain" unoptimized />
+                        ))}
+                      </div>
+                      <span className="text-gray-600 text-xs">vs</span>
+                      <div className="flex gap-0.5 flex-1 justify-end">
+                        {oppPicksPokemon.slice(0, 4).map((p) => p && (
+                          <Image key={p.id} src={spriteUrl(p.sprite)} alt={p.name} width={28} height={28} className="object-contain" unoptimized />
+                        ))}
+                      </div>
+                    </div>
+                    {isExp && record.notes && (
+                      <p className="text-xs text-gray-400 mt-2 pt-2 border-t border-white/10 text-left">{record.notes}</p>
+                    )}
+                  </button>
+                );
+              })
+            )}
+          </div>
+        )}
+
+        {/* Stats tab */}
+        {activeTab === "stats" && records.length > 0 && (
+          <div className="px-4 pt-2 space-y-4">
+            {/* Top picks */}
+            {stats.myPickStats.length > 0 && (
+              <div>
+                <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">My Best Picks</p>
+                <div className="space-y-1.5">
+                  {[...stats.myPickStats].sort((a, b) => b.winRate - a.winRate).slice(0, 6).map((pk) => {
+                    const mon = getById(pk.id);
+                    if (!mon) return null;
+                    return (
+                      <div key={pk.id} className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2">
+                        <Image src={spriteUrl(mon.sprite)} alt={mon.name} width={28} height={28} className="object-contain flex-shrink-0" unoptimized />
+                        <span className="text-xs text-white flex-1 truncate">{tp(mon.name)}</span>
+                        <span className="text-xs text-gray-400">{pk.total} games</span>
+                        <span className={cn("text-xs font-bold", pk.winRate >= 60 ? "text-emerald-400" : pk.winRate >= 50 ? "text-gray-300" : "text-red-400")}>
+                          {pk.winRate.toFixed(0)}%
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* New match form (bottom sheet) */}
+        {showForm && (
+          <div className="fixed inset-0 z-[70]">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowForm(false)} />
+            <div className="absolute bottom-16 left-0 right-0 bg-[#111a2e] border-t border-white/10 rounded-t-3xl max-h-[80vh] overflow-hidden flex flex-col">
+              <div className="px-4 pt-4 pb-3 flex-shrink-0 border-b border-white/10">
+                <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-3" />
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-bold text-white">New Match</p>
+                  <button type="button" onClick={() => setShowForm(false)} className="text-gray-400" aria-label="Close">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+              <div className="overflow-y-auto flex-1 px-4 py-4 space-y-4">
+                {/* Result selector */}
+                <div>
+                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Result</p>
+                  <div className="flex gap-2">
+                    {(["win", "loss", "tie"] as const).map((r) => (
+                      <button
+                        key={r}
+                        type="button"
+                        onClick={() => setResult(r)}
+                        className={cn(
+                          "flex-1 py-3 rounded-xl text-sm font-bold capitalize transition-all",
+                          result === r
+                            ? r === "win" ? "bg-emerald-500/30 border border-emerald-500/50 text-emerald-400"
+                            : r === "loss" ? "bg-red-500/30 border border-red-500/50 text-red-400"
+                            : "bg-white/10 border border-white/20 text-gray-300"
+                            : "bg-white/5 border border-white/10 text-gray-500"
+                        )}
+                      >
+                        {r}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Notes */}
+                <div>
+                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Notes (optional)</p>
+                  <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="What happened? Key moments..."
+                    rows={3}
+                    className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500/50 focus:outline-none text-sm text-white placeholder:text-gray-500 resize-none"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newRecord: MatchRecord = {
+                      id: Date.now().toString(),
+                      date: Date.now(),
+                      myTeam, myPicks: myPicks.length > 0 ? myPicks : myTeam.slice(0, 4),
+                      opponentTeam, opponentPicks: opponentPicks.length > 0 ? opponentPicks : opponentTeam.slice(0, 4),
+                      result, notes, format,
+                    };
+                    saveMatchRecord(newRecord);
+                    setRecords(getMatchRecords());
+                    setShowForm(false);
+                    setMyTeam([]); setMyPicks([]); setOpponentTeam([]); setOpponentPicks([]); setNotes("");
+                  }}
+                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold text-base"
+                >
+                  Save Match
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useIsNative } from "@/hooks/useIsNative";
 import { motion, AnimatePresence } from "@/lib/motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -223,6 +224,8 @@ type ModalType =
 export default function MetaPage() {
   const { t, tp, tm, ta, ti, tn, ts, tt, tty, tad } = useI18n();
   const [activeTab, setActiveTabRaw] = useState<ActiveTab>("overview");
+  const isNative = useIsNative();
+  const [mobileTab, setMobileTab] = useState<"usage" | "teams" | "pokemon" | "speed" | "cores">("usage");
   const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
   const [modal, setModalRaw] = useState<ModalType | null>(null);
 
@@ -501,6 +504,281 @@ export default function MetaPage() {
     { id: "matchups", label: t('meta.tabs.archetypeMatchups'), icon: Target },
     { id: "moves", label: t('meta.tabs.moveAnalysis'), icon: Zap },
   ];
+
+  // ── MOBILE LAYOUT ──────────────────────────────────────────────────────────
+  if (isNative) {
+    const mobileTabs: { id: typeof mobileTab; label: string; icon: React.ElementType }[] = [
+      { id: "usage" as const, label: "Usage", icon: Crown },
+      { id: "teams" as const, label: "Teams", icon: Trophy },
+      { id: "pokemon" as const, label: "Pokémon", icon: Shield },
+      { id: "speed" as const, label: "Speed", icon: Timer },
+      { id: "cores" as const, label: "Cores", icon: Users },
+    ];
+
+    return (
+      <div className="pb-24">
+        {/* Sticky header */}
+        <div className="sticky top-0 z-30 bg-[#0d1526]/96 backdrop-blur-md border-b border-white/10">
+          <div className="px-4 pt-3 pb-2">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+              Meta Analysis
+            </h1>
+            <p className="text-[11px] text-gray-500 mt-0.5">
+              {CHAMPIONS_TOURNAMENT_COUNT} tornei · {fmtNum(CHAMPIONS_TOURNAMENT_TOTAL_TEAMS)} team
+            </p>
+          </div>
+          {/* Tab bar */}
+          <div className="flex gap-1 overflow-x-auto px-4 pb-2 scrollbar-hide">
+            {mobileTabs.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setMobileTab(tab.id)}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all",
+                  mobileTab === tab.id
+                    ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-sm"
+                    : "bg-white/5 text-gray-400 border border-white/10"
+                )}
+              >
+                <tab.icon className="w-3.5 h-3.5" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Usage Tab ── */}
+        {mobileTab === "usage" && (
+          <div className="px-4 pt-4 space-y-2">
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+              Usage Rankings · Real Tournament Data
+            </p>
+            {_VALID_TOURNAMENT_USAGE
+              .sort((a, b) => b.usageRate - a.usageRate)
+              .map((p, i) => {
+                const pokemon = POKEMON_SEED.find((pk) => pk.id === p.pokemonId);
+                const maxU = _VALID_TOURNAMENT_USAGE[0]?.usageRate || 53;
+                return (
+                  <div key={p.pokemonId} className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-3 py-2.5">
+                    <span className={cn(
+                      "text-xs font-bold w-6 text-center flex-shrink-0",
+                      i === 0 ? "text-amber-400" : i < 3 ? "text-gray-300" : "text-gray-500"
+                    )}>
+                      {i + 1}
+                    </span>
+                    {pokemon && (
+                      <Image src={pokemon.sprite} alt={p.name} width={32} height={32} className="rounded flex-shrink-0" unoptimized />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-white truncate">{tp(p.name)}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                          <div
+                            className={cn(
+                              "h-full rounded-full",
+                              i < 3 ? "bg-gradient-to-r from-amber-400 to-orange-400" : "bg-gradient-to-r from-emerald-500 to-teal-500"
+                            )}
+                            style={{ width: `${(p.usageRate / maxU) * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-[11px] font-bold text-white flex-shrink-0">{p.usageRate}%</span>
+                      </div>
+                    </div>
+                    <span className={cn(
+                      "text-xs font-bold flex-shrink-0",
+                      p.winRate >= 53 ? "text-emerald-400" : p.winRate >= 50 ? "text-gray-300" : "text-red-400"
+                    )}>
+                      {p.winRate}% WR
+                    </span>
+                  </div>
+                );
+              })}
+          </div>
+        )}
+
+        {/* ── Teams Tab ── */}
+        {mobileTab === "teams" && (
+          <div className="px-4 pt-4 space-y-2">
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+              {_VALID_CHAMPIONS_TEAMS.length} Tournament Teams
+            </p>
+            {[..._VALID_CHAMPIONS_TEAMS]
+              .sort((a, b) => a.placement - b.placement || b.players - a.players)
+              .map((team) => {
+                const teamPokemon = team.pokemonIds
+                  .map((id: number) => POKEMON_SEED.find((p) => p.id === id))
+                  .filter((p): p is NonNullable<typeof p> => !!p);
+                return (
+                  <div key={team.id} className="bg-white/5 border border-white/10 rounded-2xl p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className={cn(
+                        "px-2 py-0.5 text-[10px] font-bold rounded flex-shrink-0",
+                        team.placement === 1 ? "bg-amber-500/20 text-amber-400" :
+                        team.placement === 2 ? "bg-gray-500/20 text-gray-300" : "bg-white/10 text-gray-400"
+                      )}>
+                        {team.placement === 1 ? "🥇" : team.placement === 2 ? "🥈" : `#${team.placement}`}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-white truncate">{team.player}</p>
+                        <p className="text-[10px] text-gray-500 truncate">{team.tournament}</p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-xs font-bold text-emerald-400">{team.wins}W-{team.losses}L</p>
+                        <p className="text-[10px] text-gray-500">{team.players} players</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-1.5">
+                      {teamPokemon.map((p) => (
+                        <div key={p.id} className="flex flex-col items-center">
+                          <Image src={p.sprite} alt={p.name} width={36} height={36} className="rounded" unoptimized />
+                          <span className="text-[8px] text-gray-500 truncate w-10 text-center mt-0.5">{tp(p.name)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        )}
+
+        {/* ── Pokémon Rankings Tab ── */}
+        {mobileTab === "pokemon" && (
+          <div className="px-4 pt-4 space-y-2">
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+              ML + Tournament Rankings
+            </p>
+            {ML_POKEMON_RANKINGS.map((p, i) => {
+              const sprite = getSpriteForName(p.name);
+              const tournamentData = _VALID_TOURNAMENT_USAGE.find(
+                (u) => getPokemonByName(p.name) && u.pokemonId === getPokemonByName(p.name)!.id
+              );
+              const tierColors: Record<string, string> = {
+                S: "text-amber-400 bg-amber-500/15 border-amber-500/30",
+                A: "text-violet-400 bg-violet-500/15 border-violet-500/30",
+                B: "text-blue-400 bg-blue-500/15 border-blue-500/30",
+                C: "text-emerald-400 bg-emerald-500/15 border-emerald-500/30",
+                D: "text-gray-400 bg-white/5 border-white/10",
+              };
+              return (
+                <div key={p.name} className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-3 py-2.5">
+                  <span className={cn("text-xs font-bold w-5 text-center flex-shrink-0", i < 3 ? "text-amber-400" : "text-gray-500")}>{i + 1}</span>
+                  {sprite && <Image src={sprite} alt={p.name} width={36} height={36} className="rounded flex-shrink-0" unoptimized />}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-white truncate">{tp(p.name)}</p>
+                    <p className="text-[10px] text-gray-500">{fmtNum(p.elo)} ELO · {p.wr}% WR</p>
+                  </div>
+                  {tournamentData && (
+                    <span className="text-[10px] text-gray-400 flex-shrink-0">{tournamentData.usageRate}%</span>
+                  )}
+                  <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded border flex-shrink-0", tierColors[p.tier] ?? tierColors.D)}>
+                    {p.tier}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ── Speed Tab ── */}
+        {mobileTab === "speed" && (
+          <div className="px-4 pt-4">
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+              Speed Tiers
+            </p>
+            {/* TR toggle */}
+            <div className="flex gap-2 mb-3">
+              <button
+                type="button"
+                onClick={() => setTrickRoomMode(false)}
+                className={cn("px-3 py-1.5 text-xs font-semibold rounded-lg border flex-1 transition-all",
+                  !trickRoomMode ? "bg-cyan-500/20 border-cyan-500/30 text-cyan-400" : "bg-white/5 border-white/10 text-gray-400"
+                )}
+              >
+                Normal
+              </button>
+              <button
+                type="button"
+                onClick={() => setTrickRoomMode(true)}
+                className={cn("px-3 py-1.5 text-xs font-semibold rounded-lg border flex-1 transition-all",
+                  trickRoomMode ? "bg-indigo-500/20 border-indigo-500/30 text-indigo-400" : "bg-white/5 border-white/10 text-gray-400"
+                )}
+              >
+                Trick Room
+              </button>
+            </div>
+            {/* Search */}
+            <div className="relative mb-3">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Search Pokémon..."
+                value={speedSearch}
+                onChange={(e) => setSpeedSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500/50 focus:outline-none text-sm text-white placeholder:text-gray-500"
+              />
+            </div>
+            <div className="space-y-1.5">
+              {filteredSpeedEntries.slice(0, 80).map((entry, i) => {
+                const rank = speedOriginalRank.get(entry.key);
+                return (
+                  <div key={entry.key} className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2">
+                    <span className="text-[10px] text-gray-500 w-5 text-center flex-shrink-0">#{rank}</span>
+                    <Image src={entry.sprite} alt={entry.name} width={28} height={28} className="rounded flex-shrink-0" unoptimized />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-white truncate">{tp(entry.name)}{entry.isMega ? " (Mega)" : ""}</p>
+                      <div className="flex gap-1 mt-0.5">
+                        {entry.types.map((ty) => (
+                          <span key={ty} className={cn("text-[7px] font-bold uppercase px-1 rounded text-white", `type-bg-cc-${ty}`)}>{tt(ty)}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-xs font-bold text-white">{entry.baseSpeed}</p>
+                      <p className="text-[10px] text-gray-500">{entry.maxPositive} max</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── Cores Tab ── */}
+        {mobileTab === "cores" && (
+          <div className="px-4 pt-4 space-y-2">
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+              Core Pairs · Tournament Data
+            </p>
+            {_VALID_CORE_PAIRS
+              .sort((a, b) => b.winRate - a.winRate)
+              .map((cp) => {
+                const p1 = POKEMON_SEED.find((p) => p.id === cp.pokemon1);
+                const p2 = POKEMON_SEED.find((p) => p.id === cp.pokemon2);
+                return (
+                  <div key={cp.name} className="bg-white/5 border border-white/10 rounded-xl p-3">
+                    <div className="flex items-center gap-2">
+                      {p1 && <Image src={p1.sprite} alt={p1.name} width={36} height={36} className="rounded" unoptimized />}
+                      <span className="text-gray-500 text-sm">+</span>
+                      {p2 && <Image src={p2.sprite} alt={p2.name} width={36} height={36} className="rounded" unoptimized />}
+                      <div className="flex-1 min-w-0 ml-1">
+                        <p className="text-xs font-semibold text-white truncate">
+                          {cp.name.split(" + ").map((n) => tp(n)).join(" + ")}
+                        </p>
+                        <p className="text-[10px] text-gray-500 mt-0.5">{cp.usage}% usage · {cp.synergy}</p>
+                      </div>
+                      <span className={cn("text-sm font-bold flex-shrink-0", cp.winRate >= 55 ? "text-emerald-400" : "text-gray-300")}>
+                        {cp.winRate}%
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <>

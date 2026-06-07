@@ -9,7 +9,7 @@ import {
   Zap, Loader2, Trophy, Shield, ChevronRight, Save, FolderOpen, Trash2,
   Eye, Crosshair, TrendingUp, Clock, Users, Flame, ChevronDown,
   SkipForward, Pause, RotateCcw, Award, Skull, Heart, Wind,
-  Calculator, FlaskConical, Settings2, Minus, Plus, Sparkles, X, Check, Download,
+  Calculator, FlaskConical, Settings2, Minus, Plus, Sparkles, X, Check, Download, Search,
 } from "lucide-react";
 import { exportBattleBotPDF, PDF_LABELS_FR, PDF_LABELS_DE } from "@/lib/export-pdf";
 import DamageCalculator from "@/components/damage-calculator";
@@ -20,6 +20,7 @@ import { TYPE_COLORS } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
 import { useI18n } from "@/lib/i18n";
+import { useIsNative } from "@/hooks/useIsNative";
 import {
   runSimulation as engineRunSimulation,
   PREBUILT_TEAMS,
@@ -572,6 +573,7 @@ export default function BattleBotPage() {
     return s;
   };
 
+  const isNative = useIsNative();
   const [mainTab, setMainTab] = useState<MainTab>("battle-engine");
   const [selectedPokemon, setSelectedPokemon] = useState<ChampionsPokemon[]>([]);
   const [selectedSets, setSelectedSets] = useState<CommonSet[]>([]);
@@ -788,6 +790,262 @@ export default function BattleBotPage() {
   );
 
   const totalBattleEstimate = iterations;
+
+  // ── MOBILE LAYOUT ──────────────────────────────────────────────────────────
+  if (isNative) {
+    const handleRun = () => {
+      if (selectedPokemon.length === 0 || isSimulating) return;
+      setResult(null);
+      setProgress(0);
+      setIsSimulating(true);
+      setTimeout(() => {
+        try {
+          const r = runFullSimulation(
+            selectedPokemon, selectedSets, Math.min(iterations, 100), opponentPool,
+            (pct, label) => { setProgress(pct); setProgressLabel(translateProgress(label)); }
+          );
+          setResult(r);
+        } finally {
+          setIsSimulating(false);
+        }
+      }, 30);
+    };
+
+    return (
+      <div className="pb-24">
+        {/* Header */}
+        <div className="px-4 pt-4 pb-3 border-b border-white/10">
+          <h1 className="text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+            Battle Bot
+          </h1>
+          <p className="text-xs text-gray-400 mt-0.5">
+            VGC doubles battle simulator
+          </p>
+        </div>
+
+        {/* Team slots */}
+        <div className="px-4 pt-4 pb-2">
+          <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Your Team</p>
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            {Array.from({ length: 6 }, (_, i) => {
+              const mon = selectedPokemon[i];
+              const primaryType = mon?.types[0];
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => {
+                    if (mon) {
+                      const newPokemon = selectedPokemon.filter((_, idx) => idx !== i);
+                      const newSets = selectedSets.filter((_, idx) => idx !== i);
+                      setSelectedPokemon(newPokemon);
+                      setSelectedSets(newSets);
+                    } else {
+                      setPickerOpen(true);
+                    }
+                  }}
+                  className={cn(
+                    "aspect-square rounded-2xl border flex flex-col items-center justify-center p-2 transition-all active:scale-95",
+                    mon
+                      ? `bg-white/5 border-white/15 ${primaryType ? `radial-type-${primaryType}` : ""}`
+                      : "bg-white/[0.03] border-dashed border-white/20"
+                  )}
+                >
+                  {mon ? (
+                    <>
+                      <Image src={mon.officialArt} alt={tp(mon.name)} width={70} height={70} className="object-contain drop-shadow-lg" unoptimized />
+                      <p className="text-[10px] font-semibold text-white truncate w-full text-center mt-1">{tp(mon.name)}</p>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1">
+                      <Plus className="w-5 h-5 text-gray-600" />
+                      <span className="text-[10px] text-gray-600">Slot {i + 1}</span>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Opponent pool + iterations */}
+          <div className="flex gap-2 mb-3">
+            <select
+              aria-label="Opponent pool"
+              value={opponentPool}
+              onChange={(e) => setOpponentPool(e.target.value)}
+              className="flex-1 px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-gray-300 focus:outline-none"
+            >
+              <option value="prebuilt">All Archetypes</option>
+              <option value="s-tier">S-Tier Only</option>
+              <option value="a-tier">S + A Tier</option>
+            </select>
+            <select
+              aria-label="Battle count"
+              value={iterations}
+              onChange={(e) => setIterations(Number(e.target.value))}
+              className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-gray-300 focus:outline-none"
+            >
+              <option value={50}>50 games</option>
+              <option value={100}>100 games</option>
+            </select>
+          </div>
+
+          {/* Run button */}
+          <button
+            type="button"
+            onClick={handleRun}
+            disabled={selectedPokemon.length === 0 || isSimulating}
+            className={cn(
+              "w-full py-3.5 rounded-2xl font-bold text-base flex items-center justify-center gap-2 transition-all",
+              selectedPokemon.length > 0 && !isSimulating
+                ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30 active:scale-[0.98]"
+                : "bg-white/5 border border-white/10 text-gray-500 cursor-not-allowed"
+            )}
+          >
+            {isSimulating ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                {Math.round(progress)}%
+              </>
+            ) : (
+              <>
+                <Play className="w-5 h-5" />
+                Run Simulation
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Results */}
+        {result && !isSimulating && (
+          <div className="px-4 space-y-3 pt-2">
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Results</p>
+
+            {/* Win rate card */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-3xl font-black text-white">{result.winRate.toFixed(1)}%</p>
+                  <p className="text-xs text-gray-400">{result.wins}W / {result.losses}L over {result.totalGames} battles</p>
+                </div>
+                <div className={cn(
+                  "w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black border",
+                  result.winRate >= 60 ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400" :
+                  result.winRate >= 50 ? "bg-amber-500/20 border-amber-500/30 text-amber-400" :
+                  "bg-red-500/20 border-red-500/30 text-red-400"
+                )}>
+                  {result.winRate >= 60 ? "S" : result.winRate >= 53 ? "A" : result.winRate >= 47 ? "B" : "C"}
+                </div>
+              </div>
+              <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className={cn("h-full rounded-full transition-all",
+                    result.winRate >= 60 ? "bg-gradient-to-r from-emerald-500 to-teal-500" :
+                    result.winRate >= 50 ? "bg-gradient-to-r from-amber-500 to-orange-500" :
+                    "bg-gradient-to-r from-red-500 to-rose-500"
+                  )}
+                  style={{ width: `${Math.min(result.winRate, 100)}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Archetype breakdown */}
+            {result.archetypeBreakdown.length > 0 && (
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">vs Archetypes</p>
+                <div className="space-y-2">
+                  {result.archetypeBreakdown
+                    .sort((a, b) => b.winRate - a.winRate)
+                    .slice(0, 6)
+                    .map((arch) => (
+                      <div key={arch.archetype} className="flex items-center gap-2">
+                        <span className="text-xs text-gray-300 w-24 truncate">{arch.archetype}</span>
+                        <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                          <div
+                            className={cn("h-full rounded-full",
+                              arch.winRate >= 60 ? "bg-emerald-400" : arch.winRate >= 50 ? "bg-amber-400" : "bg-red-400"
+                            )}
+                            style={{ width: `${arch.winRate}%` }}
+                          />
+                        </div>
+                        <span className={cn("text-xs font-bold w-10 text-right",
+                          arch.winRate >= 60 ? "text-emerald-400" : arch.winRate >= 50 ? "text-amber-400" : "text-red-400"
+                        )}>{arch.winRate.toFixed(0)}%</span>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+
+            {/* Strategy tips */}
+            {result.strategyTips.length > 0 && (
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Tips</p>
+                <div className="space-y-2">
+                  {result.strategyTips.slice(0, 4).map((tip, i) => (
+                    <div key={i} className="flex items-start gap-2 text-xs text-gray-300">
+                      <Zap className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
+                      <span>{translateBotInsight(tip)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Pokemon picker bottom sheet */}
+        {pickerOpen && (
+          <div className="fixed inset-0 z-[70]" onClick={() => setPickerOpen(false)}>
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <div
+              className="absolute bottom-16 left-0 right-0 bg-[#111a2e] border-t border-white/10 rounded-t-3xl max-h-[75vh] overflow-hidden flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="px-4 pt-4 pb-2 flex-shrink-0">
+                <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-3" />
+                <p className="text-sm font-semibold text-white mb-3">Add Pokémon</p>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                  <input
+                    type="text"
+                    placeholder="Search..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    autoFocus
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-amber-500/50 focus:outline-none text-sm text-white placeholder:text-gray-500"
+                  />
+                </div>
+              </div>
+              <div className="overflow-y-auto flex-1 pb-4">
+                <div className="grid grid-cols-4 gap-2 px-3 pt-2">
+                  {filtered
+                    .slice(0, 60)
+                    .map((pokemon) => (
+                      <button
+                        key={pokemon.id}
+                        type="button"
+                        onClick={() => {
+                          if (selectedPokemon.length >= 6) return;
+                          setSelectedPokemon([...selectedPokemon, pokemon]);
+                          setSelectedSets([...selectedSets, bestAvailableSet(pokemon)]);
+                          setPickerOpen(false);
+                          setSearchQuery("");
+                        }}
+                        className="flex flex-col items-center rounded-xl bg-white/5 border border-white/10 p-1.5 active:scale-95 transition-transform"
+                      >
+                        <Image src={pokemon.sprite} alt={tp(pokemon.name)} width={48} height={48} className="object-contain" unoptimized />
+                        <p className="text-[9px] text-white truncate w-full text-center mt-0.5">{tp(pokemon.name)}</p>
+                      </button>
+                    ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   // ── RENDER ──────────────────────────────────────────────────────────────
 

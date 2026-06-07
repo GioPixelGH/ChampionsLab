@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import { motion } from "@/lib/motion";
 import Image from "next/image";
 import { LastUpdated } from "@/components/last-updated";
-import { Search, SlidersHorizontal, Sparkles, ChevronDown, PackageOpen } from "lucide-react";
+import { Search, SlidersHorizontal, Sparkles, ChevronDown, PackageOpen, RotateCcw, ChevronRight } from "lucide-react";
 import { getPokemonByRegulation, getActiveRegulation, SEASONS } from "@/lib/pokemon-data";
 import { PokemonType, ChampionsPokemon, TYPE_COLORS } from "@/lib/types";
 import { PokemonCard } from "@/components/pokemon-card";
@@ -15,6 +15,56 @@ import type { MetaEntry } from "@/app/api/meta/route";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
 import { useI18n } from "@/lib/i18n";
+import { useIsNative } from "@/hooks/useIsNative";
+
+// ── Mobile-only compact Pokemon card ────────────────────────────────────────
+function MobilePokemonCard({ pokemon, onClick }: { pokemon: ChampionsPokemon; onClick: (p: ChampionsPokemon) => void }) {
+  const primaryType = pokemon.types[0];
+  const { tp, t } = useI18n();
+  return (
+    <button
+      type="button"
+      onClick={() => onClick(pokemon)}
+      className="flex flex-col items-center rounded-2xl bg-white/5 border border-white/10 p-2 active:scale-95 transition-transform w-full"
+    >
+      <div className={cn("relative w-full aspect-square flex items-center justify-center rounded-xl overflow-hidden mb-1", `radial-type-${primaryType}`)}>
+        <Image
+          src={pokemon.officialArt}
+          alt={tp(pokemon.name)}
+          width={80}
+          height={80}
+          className="object-contain drop-shadow-lg"
+          loading="lazy"
+          unoptimized
+        />
+        {pokemon.tier && (
+          <span className={cn(
+            "absolute top-1 right-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md backdrop-blur-sm",
+            pokemon.tier === "S" && "bg-amber-500/20 text-amber-400 ring-1 ring-amber-500/30",
+            pokemon.tier === "A" && "bg-violet-500/20 text-violet-400 ring-1 ring-violet-500/30",
+            pokemon.tier === "B" && "bg-blue-500/20 text-blue-400 ring-1 ring-blue-500/30",
+            (pokemon.tier === "C" || pokemon.tier === "D") && "bg-white/10 text-gray-400 ring-1 ring-white/15",
+          )}>
+            {pokemon.tier}
+          </span>
+        )}
+        {pokemon.hasMega && (
+          <span className="absolute top-1 left-1 text-[8px] font-bold px-1 py-0.5 rounded bg-gradient-to-r from-pink-500/30 to-violet-500/30 text-pink-300 ring-1 ring-pink-500/30 backdrop-blur-sm">M</span>
+        )}
+      </div>
+      <p className="text-[11px] font-semibold text-white text-center leading-tight w-full truncate px-0.5">
+        {tp(pokemon.name)}
+      </p>
+      <div className="flex gap-0.5 mt-1 flex-wrap justify-center">
+        {pokemon.types.map((type) => (
+          <span key={type} className={cn("px-1.5 py-0 text-[8px] font-bold uppercase rounded text-white", `type-bg-cc-${type}`)}>
+            {t(`common.types.${type}`).slice(0, 4)}
+          </span>
+        ))}
+      </div>
+    </button>
+  );
+}
 
 const ALL_TYPES: PokemonType[] = [
   "normal", "fire", "water", "electric", "grass", "ice",
@@ -53,6 +103,7 @@ export default function HomePage() {
   const [liveMeta, setLiveMeta] = useState<Map<number, MetaEntry>>(new Map());
   const [metaLoading, setMetaLoading] = useState(false);
   const { t, ts, tp, tm, ta } = useI18n();
+  const isNative = useIsNative();
 
   // Live meta from Limitless
   useEffect(() => {
@@ -151,6 +202,143 @@ export default function HomePage() {
       prev.includes(gen) ? prev.filter((g) => g !== gen) : [...prev, gen]
     );
   };
+
+  // ── MOBILE LAYOUT ──────────────────────────────────────────────────────────
+  if (isNative) {
+    const hasActiveFilters = selectedTypes.length > 0 || searchQuery || showMegaOnly || selectedGens.length > 0 || Object.values(statFilters).some(v => v > 0);
+
+    return (
+      <div className="pb-24">
+        {/* Sticky header */}
+        <div className="sticky top-0 z-30 bg-[#0d1526]/96 backdrop-blur-md border-b border-white/10">
+          <div className="px-4 pt-3 pb-2">
+            {/* Title + sort row */}
+            <div className="flex items-center gap-2 mb-2">
+              <Image src="/logo.png" alt="Champions Lab" width={32} height={32} className="-my-1 flex-shrink-0" unoptimized />
+              <h1 className="text-lg font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent flex-1 min-w-0">
+                Pokédex
+              </h1>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                aria-label={t("pokedex.filters.sortBy")}
+                className="text-xs px-2 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 cursor-pointer focus:outline-none focus:border-emerald-500/50 flex-shrink-0"
+              >
+                <option value="dex">Dex #</option>
+                <option value="tier">Tier</option>
+                <option value="name">A-Z</option>
+                <option value="usage">Usage</option>
+                <option value="speed">Speed</option>
+                <option value="bst">BST</option>
+              </select>
+            </div>
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <input
+                type="text"
+                placeholder={t("pokedex.searchPlaceholder")}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500/50 focus:outline-none text-sm text-white placeholder:text-gray-500"
+              />
+            </div>
+          </div>
+          {/* Season tabs */}
+          <div className="px-4 pb-2 overflow-x-auto scrollbar-hide">
+            <SeasonTabs activeRegulation={activeRegulation} onRegulationChange={setActiveRegulation} />
+          </div>
+        </div>
+
+        {/* Type filter chips */}
+        <div className="flex gap-1.5 overflow-x-auto px-4 py-2.5 scrollbar-hide">
+          {ALL_TYPES.map((type) => (
+            <button
+              key={type}
+              type="button"
+              onClick={() => toggleType(type)}
+              className={cn(
+                "flex-shrink-0 px-3 py-1.5 text-[10px] font-bold uppercase rounded-lg border-[1.5px] transition-all",
+                selectedTypes.includes(type)
+                  ? `type-bg-cc-${type} text-white border-transparent`
+                  : `type-bg-30-${type} type-color-${type} type-border-55-${type}`
+              )}
+            >
+              {t(`common.types.${type}`)}
+            </button>
+          ))}
+        </div>
+
+        {/* Count + clear row */}
+        <div className="flex items-center justify-between px-4 pb-2">
+          <span className="text-xs text-gray-500">
+            {filteredPokemon.length} {filteredPokemon.length === 1 ? "Pokémon" : "Pokémon"}
+            {metaLoading && <span className="ml-1 text-gray-600">…</span>}
+          </span>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setSelectedTypes([]);
+                setSelectedGens([]);
+                setShowMegaOnly(false);
+                setStatFilters({ ...EMPTY_STAT_FILTERS });
+              }}
+              className="flex items-center gap-1 text-xs text-emerald-400 font-medium"
+            >
+              <RotateCcw className="w-3 h-3" />
+              Reset
+            </button>
+          )}
+        </div>
+
+        {/* Pokemon 3-col grid */}
+        {filteredPokemon.length > 0 ? (
+          <div className="grid grid-cols-3 gap-2 px-3">
+            {filteredPokemon.map((pokemon) => (
+              <MobilePokemonCard
+                key={pokemon.id}
+                pokemon={pokemon}
+                onClick={(p) => {
+                  trackEvent("pokemon_click", "pokedex", p.name);
+                  setSelectedPokemon(p);
+                }}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-3 py-20 px-8 text-center">
+            <PackageOpen className="w-12 h-12 text-gray-600" />
+            <div>
+              <p className="font-semibold text-white">{t("pokedex.noMatch")}</p>
+              <p className="text-sm text-gray-500 mt-1">{t("pokedex.adjustFilters")}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setSelectedTypes([]);
+                setSelectedGens([]);
+                setShowMegaOnly(false);
+                setStatFilters({ ...EMPTY_STAT_FILTERS });
+              }}
+              className="text-sm font-semibold text-emerald-400"
+            >
+              {t("common.clearAll")}
+            </button>
+          </div>
+        )}
+
+        {/* Reuse existing detail modal */}
+        <PokemonDetailModal
+          pokemon={selectedPokemon}
+          onClose={() => setSelectedPokemon(null)}
+          liveMetaEntry={selectedPokemon ? liveMeta.get(selectedPokemon.id) : undefined}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

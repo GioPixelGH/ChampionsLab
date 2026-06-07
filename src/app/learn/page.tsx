@@ -10,6 +10,7 @@ import {
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
 import { useI18n } from "@/lib/i18n";
+import { useIsNative } from "@/hooks/useIsNative";
 import { SECTIONS_FR } from "@/lib/learn-sections-fr";
 import { SECTIONS_ES } from "@/lib/learn-sections-es";
 import { SECTIONS_IT } from "@/lib/learn-sections-it";
@@ -477,6 +478,7 @@ const COLOR_MAP: Record<string, { bg: string; border: string; text: string; icon
 
 export default function LearnPage() {
   const { t, locale } = useI18n();
+  const isNative = useIsNative();
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(["intro"]));
   const [expandedSubs, setExpandedSubs] = useState<Set<string>>(new Set());
 
@@ -532,6 +534,113 @@ export default function LearnPage() {
     setExpandedSections(new Set());
     setExpandedSubs(new Set());
   };
+
+  // ── MOBILE LAYOUT ──────────────────────────────────────────────────────────
+  if (isNative) {
+    const DARK_COLORS: Record<string, { accent: string; bg: string; border: string }> = {
+      violet:  { accent: "text-violet-400",  bg: "bg-violet-500/10",  border: "border-violet-500/30" },
+      cyan:    { accent: "text-cyan-400",    bg: "bg-cyan-500/10",    border: "border-cyan-500/30" },
+      emerald: { accent: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/30" },
+      amber:   { accent: "text-amber-400",   bg: "bg-amber-500/10",   border: "border-amber-500/30" },
+      rose:    { accent: "text-rose-400",    bg: "bg-rose-500/10",    border: "border-rose-500/30" },
+      blue:    { accent: "text-blue-400",    bg: "bg-blue-500/10",    border: "border-blue-500/30" },
+      orange:  { accent: "text-orange-400",  bg: "bg-orange-500/10",  border: "border-orange-500/30" },
+      purple:  { accent: "text-purple-400",  bg: "bg-purple-500/10",  border: "border-purple-500/30" },
+      teal:    { accent: "text-teal-400",    bg: "bg-teal-500/10",    border: "border-teal-500/30" },
+    };
+
+    const totalLessons = activeSections.reduce((a, s) => a + s.subsections.length, 0);
+
+    return (
+      <div className="pb-24">
+        {/* Header */}
+        <div className="px-4 pt-4 pb-4 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500">
+              <GraduationCap className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                {t('learn.title')}
+              </h1>
+              <p className="text-[11px] text-gray-400">
+                {activeSections.length} chapters · {totalLessons} lessons
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Sections accordion */}
+        <div className="px-4 pt-3 space-y-2">
+          {activeSections.map((section) => {
+            const isOpen = expandedSections.has(section.id);
+            const dc = DARK_COLORS[section.color] ?? DARK_COLORS.emerald;
+            const Icon = section.icon;
+            return (
+              <div
+                key={section.id}
+                className={cn(
+                  "rounded-2xl border overflow-hidden transition-all",
+                  isOpen ? dc.border : "border-white/10"
+                )}
+              >
+                {/* Section header */}
+                <button
+                  type="button"
+                  onClick={() => toggleSection(section.id)}
+                  className={cn(
+                    "w-full flex items-center gap-3 px-4 py-3.5 text-left transition-all",
+                    isOpen ? dc.bg : "bg-white/5"
+                  )}
+                >
+                  <div className={cn("p-2 rounded-xl", dc.bg, dc.border, "border")}>
+                    <Icon className={cn("w-4 h-4", dc.accent)} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={cn("text-sm font-semibold", isOpen ? dc.accent : "text-white")}>{section.title}</p>
+                    <p className="text-[10px] text-gray-500">{section.subsections.length} lessons</p>
+                  </div>
+                  <ChevronDown className={cn("w-4 h-4 text-gray-400 transition-transform flex-shrink-0", isOpen && "rotate-180")} />
+                </button>
+
+                {/* Subsections */}
+                {isOpen && (
+                  <div className="border-t border-white/10">
+                    {section.subsections.map((sub, si) => {
+                      const subKey = `${section.id}-${si}`;
+                      const subOpen = expandedSubs.has(subKey);
+                      return (
+                        <div key={subKey} className="border-b border-white/5 last:border-b-0">
+                          <button
+                            type="button"
+                            onClick={() => toggleSub(subKey)}
+                            className="w-full flex items-center gap-2 px-4 py-3 text-left"
+                          >
+                            <ChevronRight className={cn("w-3.5 h-3.5 text-gray-500 flex-shrink-0 transition-transform", subOpen && "rotate-90")} />
+                            <span className="text-sm text-gray-200 flex-1">{sub.title}</span>
+                          </button>
+                          {subOpen && (
+                            <div className="px-4 pb-4 space-y-2.5">
+                              {sub.content.map((block, bi) => (
+                                <div key={bi}>
+                                  <p className="text-sm text-gray-300 leading-relaxed">{renderRichText(block.text)}</p>
+                                  {block.tip && <TipCallout type={block.tip.type as TipType} text={block.tip.text} />}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
