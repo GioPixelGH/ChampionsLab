@@ -225,7 +225,7 @@ export default function MetaPage() {
   const { t, tp, tm, ta, ti, tn, ts, tt, tty, tad } = useI18n();
   const [activeTab, setActiveTabRaw] = useState<ActiveTab>("overview");
   const isNative = useIsNative();
-  const [mobileTab, setMobileTab] = useState<"usage" | "teams" | "pokemon" | "speed" | "cores">("usage");
+  const [mobileTab, setMobileTab] = useState<"usage" | "teams" | "pokemon" | "speed" | "cores" | "matchups" | "moves">("usage");
   const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
   const [modal, setModalRaw] = useState<ModalType | null>(null);
 
@@ -513,6 +513,8 @@ export default function MetaPage() {
       { id: "pokemon" as const, label: "Pokémon", icon: Shield },
       { id: "speed" as const, label: "Speed", icon: Timer },
       { id: "cores" as const, label: "Cores", icon: Users },
+      { id: "matchups" as const, label: "Matchups", icon: Target },
+      { id: "moves" as const, label: "Moves", icon: Zap },
     ];
 
     return (
@@ -594,13 +596,135 @@ export default function MetaPage() {
                   </div>
                 );
               })}
+
+            {/* Meta trends */}
+            {(trends.risers.length > 0 || trends.fallers.length > 0) && (
+              <div className="mt-4 pt-3 border-t border-white/10">
+                <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                  <TrendingUp className="w-3.5 h-3.5 text-emerald-400" /> Meta Trends
+                </p>
+                {trends.risers.slice(0, 3).map((r) => {
+                  const pk = POKEMON_SEED.find((p) => p.id === r.pokemonId);
+                  return (
+                    <div key={r.pokemonId} className="flex items-center gap-2 py-1">
+                      {pk && <Image src={pk.sprite} alt={r.name} width={24} height={24} className="rounded flex-shrink-0" unoptimized />}
+                      <span className="text-xs text-white flex-1 truncate">{tp(r.name)}</span>
+                      <TrendingUp className="w-3 h-3 text-emerald-400 flex-shrink-0" />
+                      <span className="text-[11px] font-bold text-emerald-400 flex-shrink-0">{r.winRate}% WR</span>
+                    </div>
+                  );
+                })}
+                {trends.fallers.slice(0, 3).map((r) => {
+                  const pk = POKEMON_SEED.find((p) => p.id === r.pokemonId);
+                  return (
+                    <div key={r.pokemonId} className="flex items-center gap-2 py-1">
+                      {pk && <Image src={pk.sprite} alt={r.name} width={24} height={24} className="rounded flex-shrink-0" unoptimized />}
+                      <span className="text-xs text-white flex-1 truncate">{tp(r.name)}</span>
+                      <TrendingDown className="w-3 h-3 text-red-400 flex-shrink-0" />
+                      <span className="text-[11px] font-bold text-red-400 flex-shrink-0">{r.winRate}% WR</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* ML Insights */}
+            {ML_INSIGHTS.length > 0 && (
+              <div className="mt-4 pt-3 border-t border-white/10">
+                <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                  <Brain className="w-3.5 h-3.5 text-violet-400" /> ML Insights
+                </p>
+                {ML_INSIGHTS.map((ins, i) => (
+                  <div key={i} className="flex gap-2 py-1.5 border-b border-white/5 last:border-0">
+                    <Info className="w-3.5 h-3.5 text-violet-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-gray-300 leading-relaxed">{translateMLInsight(ins.text)}</p>
+                    <span className="text-[10px] text-violet-400 font-bold flex-shrink-0">{ins.confidence}%</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
         {/* ── Teams Tab ── */}
         {mobileTab === "teams" && (
-          <div className="px-4 pt-4 space-y-2">
-            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+          <div className="px-4 pt-4 space-y-3">
+            {/* Find teams by Pokémon */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-3">
+              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                <Search className="w-3.5 h-3.5 text-cyan-400" /> Find Teams by Pokémon
+              </p>
+              <div className="relative mb-2">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
+                <input
+                  type="text"
+                  value={teamFilterSearch}
+                  onChange={(e) => { setTeamFilterSearch(e.target.value); setShowTeamFilterDropdown(true); }}
+                  onFocus={() => setShowTeamFilterDropdown(true)}
+                  placeholder="Search Pokémon..."
+                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#0d1526] border border-white/10 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500/50"
+                />
+              </div>
+              {showTeamFilterDropdown && teamFilterSearchResults.length > 0 && (
+                <div className="rounded-xl border border-white/10 bg-[#0d1526] mb-2 max-h-32 overflow-y-auto">
+                  {teamFilterSearchResults.map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => {
+                        if (!teamFilterIds.includes(p.id) && teamFilterIds.length < 6) {
+                          setTeamFilterIds([...teamFilterIds, p.id]);
+                        }
+                        setTeamFilterSearch("");
+                        setShowTeamFilterDropdown(false);
+                      }}
+                      className="flex items-center gap-2 w-full px-3 py-1.5 hover:bg-white/5 text-left"
+                    >
+                      <Image src={p.sprite} alt={p.name} width={24} height={24} className="rounded" unoptimized />
+                      <span className="text-xs text-white">{tp(p.name)}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {teamFilterIds.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {teamFilterIds.map((id) => {
+                    const pk = POKEMON_SEED.find((p) => p.id === id);
+                    return pk ? (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => setTeamFilterIds(teamFilterIds.filter((x) => x !== id))}
+                        className="flex items-center gap-1 px-2 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-[10px] text-emerald-400"
+                      >
+                        <Image src={pk.sprite} alt={pk.name} width={16} height={16} className="rounded" unoptimized />
+                        {tp(pk.name)} ×
+                      </button>
+                    ) : null;
+                  })}
+                </div>
+              )}
+              {teamFilterIds.length > 0 && (
+                <p className="text-[10px] text-gray-500 mb-2">{teamFilterResults.length} matching teams</p>
+              )}
+              {teamFilterResults.slice(0, 5).map((team) => {
+                const teamPokemon = team.pokemonIds.map((id: number) => POKEMON_SEED.find((p) => p.id === id)).filter(Boolean) as typeof POKEMON_SEED;
+                return (
+                  <div key={team.id} className="flex items-center gap-2 py-1.5 border-b border-white/5 last:border-0">
+                    <span className="text-[10px] font-bold text-amber-400 flex-shrink-0">#{team.placement}</span>
+                    <div className="flex gap-1 flex-1">
+                      {teamPokemon.map((p) => (
+                        <Image key={p.id} src={p.sprite} alt={p.name} width={24} height={24} className="rounded" unoptimized />
+                      ))}
+                    </div>
+                    <span className="text-[10px] text-gray-500 flex-shrink-0 truncate max-w-[80px]">{team.player}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Tournament Teams */}
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">
               {_VALID_CHAMPIONS_TEAMS.length} Tournament Teams
             </p>
             {[..._VALID_CHAMPIONS_TEAMS]
@@ -639,6 +763,41 @@ export default function MetaPage() {
                   </div>
                 );
               })}
+
+            {/* Anti-meta teams */}
+            {ANTI_META_TEAMS.length > 0 && (
+              <div>
+                <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                  <Shield className="w-3.5 h-3.5 text-red-400" /> Anti-Meta Teams
+                </p>
+                {ANTI_META_TEAMS.slice(0, 5).map((team, i) => {
+                  const corePokemon = team.coreIds
+                    ? team.coreIds.map((id: number) => POKEMON_SEED.find((p) => p.id === id)).filter(Boolean) as typeof POKEMON_SEED
+                    : [];
+                  return (
+                    <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-3 mb-2">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <Shield className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
+                        <p className="text-xs font-bold text-white flex-1 truncate">{team.name ?? `Anti-Meta #${i + 1}`}</p>
+                        {team.winVsMeta != null && (
+                          <span className="text-[10px] font-bold text-red-400 flex-shrink-0">{team.winVsMeta}% vs meta</span>
+                        )}
+                      </div>
+                      {corePokemon.length > 0 && (
+                        <div className="flex gap-1 mb-1.5">
+                          {corePokemon.map((p) => (
+                            <Image key={p.id} src={p.sprite} alt={p.name} width={28} height={28} className="rounded" unoptimized />
+                          ))}
+                        </div>
+                      )}
+                      {team.strategy && (
+                        <p className="text-[10px] text-gray-400 leading-relaxed">{translateAntiMetaStrategy(team.strategy)}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
@@ -677,50 +836,110 @@ export default function MetaPage() {
                 </div>
               );
             })}
+
+            {/* Anti-meta rankings */}
+            {ANTI_META_RANKINGS.length > 0 && (
+              <div className="mt-4 pt-3 border-t border-white/10">
+                <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                  <Target className="w-3.5 h-3.5 text-red-400" /> Anti-Meta Rankings
+                </p>
+                {ANTI_META_RANKINGS.slice(0, 15).map((p, i) => {
+                  const sprite = getSpriteForName(p.name);
+                  return (
+                    <div key={p.name} className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-3 py-2.5">
+                      <span className={cn("text-xs font-bold w-5 text-center flex-shrink-0", i < 3 ? "text-red-400" : "text-gray-500")}>{i + 1}</span>
+                      {sprite && <Image src={sprite} alt={p.name} width={32} height={32} className="rounded flex-shrink-0" unoptimized />}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-white truncate">{tp(p.name)}</p>
+                        <p className="text-[10px] text-gray-500">
+                          {p.score} score · {p.winVsMeta}% vs meta
+                        </p>
+                        {p.bestInto && p.bestInto.length > 0 && (
+                          <p className="text-[10px] text-emerald-400 mt-0.5">Beats: {p.bestInto.slice(0, 2).map((n: string) => tp(n)).join(", ")}</p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
         {/* ── Speed Tab ── */}
         {mobileTab === "speed" && (
           <div className="px-4 pt-4">
-            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-              Speed Tiers
-            </p>
-            {/* TR toggle */}
+            {/* Quick stats hero */}
+            {(() => {
+              const fastest = speedEntries.filter(e => e.isMega).sort((a, b) => b.baseSpeed - a.baseSpeed)[0];
+              const fastestNonMega = speedEntries.filter(e => !e.isMega).sort((a, b) => b.baseSpeed - a.baseSpeed)[0];
+              const slowest = speedEntries.filter(e => !e.isMega).sort((a, b) => a.baseSpeed - b.baseSpeed)[0];
+              const avgSpeed = Math.round(speedEntries.filter(e => !e.isMega).reduce((s, e) => s + e.baseSpeed, 0) / speedEntries.filter(e => !e.isMega).length);
+              return (
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                  {[
+                    { label: "Fastest Mega", name: fastest?.name, stat: fastest?.baseSpeed, color: "text-red-400", bg: "bg-red-500/10 border-red-500/20" },
+                    { label: "Fastest Non-Mega", name: fastestNonMega?.name, stat: fastestNonMega?.baseSpeed, color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20" },
+                    { label: "Avg Speed", name: `${avgSpeed} Base`, stat: avgSpeed, color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" },
+                    { label: "Slowest", name: slowest?.name, stat: slowest?.baseSpeed, color: "text-indigo-400", bg: "bg-indigo-500/10 border-indigo-500/20" },
+                  ].map((s) => (
+                    <div key={s.label} className={cn("rounded-xl border p-2", s.bg)}>
+                      <p className="text-[9px] text-gray-500 uppercase tracking-wider">{s.label}</p>
+                      <p className="text-xs font-bold text-white truncate mt-0.5">{s.name ? tp(s.name) : "–"}</p>
+                      <p className={cn("text-sm font-black", s.color)}>{s.stat}</p>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
+
+            {/* Controls row */}
             <div className="flex gap-2 mb-3">
-              <button
-                type="button"
-                onClick={() => setTrickRoomMode(false)}
-                className={cn("px-3 py-1.5 text-xs font-semibold rounded-lg border flex-1 transition-all",
+              <button type="button" onClick={() => setTrickRoomMode(false)}
+                className={cn("px-2.5 py-1.5 text-xs font-semibold rounded-lg border flex-1 transition-all",
                   !trickRoomMode ? "bg-cyan-500/20 border-cyan-500/30 text-cyan-400" : "bg-white/5 border-white/10 text-gray-400"
-                )}
-              >
-                Normal
-              </button>
-              <button
-                type="button"
-                onClick={() => setTrickRoomMode(true)}
-                className={cn("px-3 py-1.5 text-xs font-semibold rounded-lg border flex-1 transition-all",
+                )}>Normal</button>
+              <button type="button" onClick={() => setTrickRoomMode(true)}
+                className={cn("px-2.5 py-1.5 text-xs font-semibold rounded-lg border flex-1 transition-all",
                   trickRoomMode ? "bg-indigo-500/20 border-indigo-500/30 text-indigo-400" : "bg-white/5 border-white/10 text-gray-400"
-                )}
-              >
-                Trick Room
-              </button>
+                )}>Trick Room</button>
+              <button type="button" onClick={() => setShowMegas(!showMegas)}
+                className={cn("px-2.5 py-1.5 text-xs font-semibold rounded-lg border transition-all",
+                  showMegas ? "bg-pink-500/20 border-pink-500/30 text-pink-400" : "bg-white/5 border-white/10 text-gray-400"
+                )}>Megas</button>
+              <button type="button" onClick={() => setSpeedTailwind(!speedTailwind)}
+                className={cn("px-2.5 py-1.5 text-xs font-semibold rounded-lg border transition-all",
+                  speedTailwind ? "bg-teal-500/20 border-teal-500/30 text-teal-400" : "bg-white/5 border-white/10 text-gray-400"
+                )}>+TW</button>
             </div>
+
+            {/* Type filter */}
+            <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide">
+              <button type="button" onClick={() => setSpeedTypeFilter("all")}
+                className={cn("flex-shrink-0 px-2.5 py-1 text-[10px] font-bold rounded-lg border transition-all",
+                  speedTypeFilter === "all" ? "bg-white/20 border-white/30 text-white" : "bg-white/5 border-white/10 text-gray-500"
+                )}>All</button>
+              {(["fire","water","grass","electric","ice","fighting","poison","ground","flying","psychic","bug","rock","ghost","dragon","dark","steel","fairy","normal"] as PokemonType[]).map((ty) => (
+                <button key={ty} type="button" onClick={() => setSpeedTypeFilter(speedTypeFilter === ty ? "all" : ty)}
+                  className={cn("flex-shrink-0 px-2 py-1 text-[9px] font-bold uppercase rounded-lg border transition-all",
+                    speedTypeFilter === ty ? `type-bg-cc-${ty} text-white border-transparent` : `type-bg-30-${ty} type-color-${ty} type-border-55-${ty}`
+                  )}>{tt(ty)}</button>
+              ))}
+            </div>
+
             {/* Search */}
             <div className="relative mb-3">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-              <input
-                type="text"
-                placeholder="Search Pokémon..."
-                value={speedSearch}
+              <input type="text" placeholder="Search Pokémon..." value={speedSearch}
                 onChange={(e) => setSpeedSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-emerald-500/50 focus:outline-none text-sm text-white placeholder:text-gray-500"
               />
             </div>
+
             <div className="space-y-1.5">
-              {filteredSpeedEntries.slice(0, 80).map((entry, i) => {
+              {filteredSpeedEntries.slice(0, 120).map((entry) => {
                 const rank = speedOriginalRank.get(entry.key);
+                const displaySpeed = speedTailwind ? Math.floor(entry.maxPositive * 2) : entry.maxPositive;
                 return (
                   <div key={entry.key} className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2">
                     <span className="text-[10px] text-gray-500 w-5 text-center flex-shrink-0">#{rank}</span>
@@ -735,7 +954,7 @@ export default function MetaPage() {
                     </div>
                     <div className="text-right flex-shrink-0">
                       <p className="text-xs font-bold text-white">{entry.baseSpeed}</p>
-                      <p className="text-[10px] text-gray-500">{entry.maxPositive} max</p>
+                      <p className="text-[10px] text-cyan-400">{displaySpeed}{speedTailwind ? " +TW" : " max"}</p>
                     </div>
                   </div>
                 );
@@ -755,6 +974,7 @@ export default function MetaPage() {
               .map((cp) => {
                 const p1 = POKEMON_SEED.find((p) => p.id === cp.pokemon1);
                 const p2 = POKEMON_SEED.find((p) => p.id === cp.pokemon2);
+                const cpTier = cp.usage >= 20 ? "S" : cp.usage >= 12 ? "A" : cp.usage >= 7 ? "B" : "C";
                 return (
                   <div key={cp.name} className="bg-white/5 border border-white/10 rounded-xl p-3">
                     <div className="flex items-center gap-2">
@@ -767,13 +987,145 @@ export default function MetaPage() {
                         </p>
                         <p className="text-[10px] text-gray-500 mt-0.5">{cp.usage}% usage · {cp.synergy}</p>
                       </div>
-                      <span className={cn("text-sm font-bold flex-shrink-0", cp.winRate >= 55 ? "text-emerald-400" : "text-gray-300")}>
-                        {cp.winRate}%
-                      </span>
+                      <div className="text-right flex-shrink-0">
+                        <span className={cn(
+                          "text-sm font-bold block",
+                          cp.winRate >= 55 ? "text-emerald-400" : "text-gray-300"
+                        )}>{cp.winRate}%</span>
+                        <span className={cn(
+                          "text-[9px] font-bold",
+                          cpTier === "S" ? "text-amber-400" : cpTier === "A" ? "text-violet-400" : cpTier === "B" ? "text-blue-400" : "text-gray-400"
+                        )}>{cpTier}</span>
+                      </div>
                     </div>
                   </div>
                 );
               })}
+
+            {/* ML Discovered Cores */}
+            {ML_BEST_CORES.length > 0 && (
+              <div className="mt-4 pt-3 border-t border-white/10">
+                <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                  <Brain className="w-3.5 h-3.5 text-emerald-400" /> ML-Discovered Cores
+                </p>
+                {ML_BEST_CORES.map((c, i) => {
+                  const names = c.pair.split(" + ");
+                  const sprites = names.map((n) => getSpriteForName(n)).filter(Boolean);
+                  return (
+                    <div key={c.pair} className="flex items-center gap-2 py-2 border-b border-white/5 last:border-0">
+                      <span className={cn("text-[10px] font-bold w-5 text-center flex-shrink-0", i < 3 ? "text-amber-400" : "text-gray-500")}>#{i + 1}</span>
+                      <div className="flex gap-1 flex-shrink-0">
+                        {sprites.map((sp, si) => sp && (
+                          <Image key={si} src={sp} alt={names[si]} width={24} height={24} className="rounded" unoptimized />
+                        ))}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-white truncate">
+                          {names.map((n) => tp(n)).join(" + ")}
+                        </p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className={cn("text-xs font-bold", c.wr >= 65 ? "text-emerald-400" : "text-gray-300")}>{c.wr}%</p>
+                        <p className="text-[10px] text-gray-500">{fmtNum(c.games)} g</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Matchups Tab ── */}
+        {mobileTab === "matchups" && (
+          <div className="px-4 pt-4 space-y-4">
+            {/* Tournament Matchup Data */}
+            <div>
+              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                <Swords className="w-3.5 h-3.5 text-cyan-400" /> Tournament Matchups
+              </p>
+              <div className="space-y-2">
+                {ARCHETYPE_MATCHUPS.sort((a, b) => Math.abs(b.winRate1 - 50) - Math.abs(a.winRate1 - 50)).map((m, i) => {
+                  const dominant = m.winRate1 >= 50;
+                  const winner = dominant ? m.archetype1 : m.archetype2;
+                  const loser = dominant ? m.archetype2 : m.archetype1;
+                  const wr = dominant ? m.winRate1 : 100 - m.winRate1;
+                  return (
+                    <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-3">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="text-[11px] font-bold text-emerald-400 truncate flex-1">{winner}</span>
+                        <ArrowRight className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                        <span className="text-[11px] font-bold text-red-400 truncate flex-1 text-right">{loser}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                          <div className={cn("h-full rounded-full", wr >= 55 ? "bg-emerald-400" : "bg-cyan-400")} style={{ width: `${wr}%` }} />
+                        </div>
+                        <span className={cn("text-xs font-bold flex-shrink-0", wr >= 55 ? "text-emerald-400" : "text-gray-300")}>{wr.toFixed(1)}%</span>
+                      </div>
+                      <p className="text-[10px] text-gray-600 mt-1">{m.sampleSize} games</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            {/* ML Archetype Rankings */}
+            <div>
+              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                <Brain className="w-3.5 h-3.5 text-emerald-400" /> ML Archetype Rankings
+              </p>
+              <div className="space-y-1.5">
+                {ML_ARCHETYPES.map((a, i) => (
+                  <div key={a.name} className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-3 py-2.5">
+                    <span className={cn(
+                      "text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0",
+                      i < 2 ? "bg-amber-500/20 text-amber-400" : i < 5 ? "bg-blue-500/20 text-blue-400" : "bg-white/10 text-gray-500"
+                    )}>#{i + 1}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-white truncate">{a.name}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
+                          <div className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400" style={{ width: `${a.wr}%` }} />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className={cn("text-xs font-bold", a.wr >= 60 ? "text-emerald-400" : "text-gray-300")}>{a.wr}%</p>
+                      <p className="text-[10px] text-gray-500">{fmtNum(a.elo)} ELO</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Moves Tab ── */}
+        {mobileTab === "moves" && (
+          <div className="px-4 pt-4 space-y-2">
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-amber-400" /> Move Win Rates
+            </p>
+            {ML_BEST_MOVES.map((m, i) => (
+              <div key={m.name} className="bg-white/5 border border-white/10 rounded-xl p-3">
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className={cn(
+                      "text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0",
+                      i < 3 ? "bg-amber-500/20 text-amber-400" : "bg-white/10 text-gray-500"
+                    )}>#{i + 1}</span>
+                    <span className="text-sm font-semibold text-white">{tm(m.name)}</span>
+                  </div>
+                  <span className={cn("text-sm font-bold", m.wr >= 65 ? "text-emerald-400" : m.wr >= 60 ? "text-cyan-400" : "text-gray-300")}>{m.wr}%</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400" style={{ width: `${m.wr}%` }} />
+                  </div>
+                  <span className="text-[10px] text-gray-500 flex-shrink-0">{fmtNum(m.uses)} uses</span>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

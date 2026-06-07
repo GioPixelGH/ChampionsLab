@@ -554,12 +554,12 @@ export default function LearnPage() {
     return (
       <div className="pb-24">
         {/* Header */}
-        <div className="px-4 pt-4 pb-4 border-b border-white/10">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500">
+        <div className="px-4 pt-4 pb-3 border-b border-white/10">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex-shrink-0">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
                 {t('learn.title')}
               </h1>
@@ -567,7 +567,52 @@ export default function LearnPage() {
                 {activeSections.length} chapters · {totalLessons} lessons
               </p>
             </div>
+            <LastUpdated page="learn" />
           </div>
+          {/* Expand/Collapse all */}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={expandAll}
+              className="flex-1 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-semibold text-emerald-400"
+            >
+              Expand All
+            </button>
+            <button
+              type="button"
+              onClick={collapseAll}
+              className="flex-1 py-1.5 rounded-xl bg-white/5 border border-white/10 text-[11px] font-semibold text-gray-400"
+            >
+              Collapse All
+            </button>
+          </div>
+        </div>
+
+        {/* Quick navigation chips */}
+        <div className="flex gap-1.5 overflow-x-auto px-4 pt-3 pb-1 scrollbar-hide">
+          {activeSections.map((section) => {
+            const isOpen = expandedSections.has(section.id);
+            const dc = DARK_COLORS[section.color] ?? DARK_COLORS.emerald;
+            const Icon = section.icon;
+            return (
+              <button
+                key={section.id}
+                type="button"
+                onClick={() => {
+                  if (!isOpen) toggleSection(section.id);
+                  const el = document.getElementById(`learn-section-${section.id}`);
+                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className={cn(
+                  "flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-semibold transition-all border",
+                  isOpen ? `${dc.bg} ${dc.border} ${dc.accent}` : "bg-white/5 border-white/10 text-gray-400"
+                )}
+              >
+                <Icon className="w-3 h-3" />
+                {section.title.split(":")[0]}
+              </button>
+            );
+          })}
         </div>
 
         {/* Sections accordion */}
@@ -579,6 +624,7 @@ export default function LearnPage() {
             return (
               <div
                 key={section.id}
+                id={`learn-section-${section.id}`}
                 className={cn(
                   "rounded-2xl border overflow-hidden transition-all",
                   isOpen ? dc.border : "border-white/10"

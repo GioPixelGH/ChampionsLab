@@ -824,6 +824,51 @@ export default function BattleBotPage() {
           <p className="text-xs text-gray-400 mt-0.5">VGC doubles battle simulator · {PREBUILT_TEAMS.length} archetypes</p>
         </div>
 
+        {/* Main tab navigation */}
+        <div className="flex gap-1 px-4 pb-3 pt-1">
+          <button
+            type="button"
+            onClick={() => setMainTab("battle-engine")}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all",
+              mainTab === "battle-engine"
+                ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-sm"
+                : "bg-white/5 border border-white/10 text-gray-400"
+            )}
+          >
+            <Swords className="w-3.5 h-3.5" />
+            Battle
+          </button>
+          <button
+            type="button"
+            onClick={() => setMainTab("damage-calc")}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all",
+              mainTab === "damage-calc"
+                ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-sm"
+                : "bg-white/5 border border-white/10 text-gray-400"
+            )}
+          >
+            <Calculator className="w-3.5 h-3.5" />
+            Calc
+          </button>
+          <button
+            type="button"
+            onClick={() => setMainTab("team-tester")}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all",
+              mainTab === "team-tester"
+                ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm"
+                : "bg-white/5 border border-white/10 text-gray-400"
+            )}
+          >
+            <FlaskConical className="w-3.5 h-3.5" />
+            Tester
+          </button>
+        </div>
+
+        {mainTab === "battle-engine" && (
+        <>
         {/* Team slots */}
         <div className="px-4 pt-4 pb-2">
           <div className="flex items-center justify-between mb-2">
@@ -1282,6 +1327,22 @@ export default function BattleBotPage() {
                 </p>
               </div>
             )}
+          </div>
+        )}
+        </>
+        )}
+
+        {/* Damage Calculator tab */}
+        {mainTab === "damage-calc" && (
+          <div className="px-4 pt-4">
+            <DamageCalculator />
+          </div>
+        )}
+
+        {/* Team Tester tab */}
+        {mainTab === "team-tester" && (
+          <div className="px-4 pt-4">
+            <TeamTester initialTeam2Ids={journalTeam2Ids.length > 0 ? journalTeam2Ids : undefined} />
           </div>
         )}
 

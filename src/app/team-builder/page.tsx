@@ -1638,6 +1638,69 @@ export default function TeamBuilderPage() {
           </p>
         </div>
 
+        {/* Action buttons */}
+        <div className="flex gap-1.5 px-4 pt-3 pb-1 overflow-x-auto scrollbar-hide">
+          <button type="button" onClick={handleSaveTeam} disabled={filledSlots.length === 0}
+            className={cn("flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all",
+              saveConfirm ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-400" : "bg-white/5 border border-white/10 text-gray-400"
+            )}>
+            {saveConfirm ? <Check className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
+            Save
+          </button>
+          <button type="button" onClick={() => setShowSavedTeams(!showSavedTeams)}
+            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/5 border border-white/10 text-gray-400 transition-all">
+            <FolderOpen className="w-3.5 h-3.5" />
+            Load
+          </button>
+          <button type="button" onClick={() => { setShowImport(true); setImportText(""); setImportError(""); }}
+            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/5 border border-white/10 text-gray-400">
+            <Upload className="w-3.5 h-3.5" />
+            Import
+          </button>
+          <button type="button" onClick={() => navigator.clipboard.writeText(exportPokepaste())}
+            disabled={filledSlots.length === 0}
+            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/5 border border-white/10 text-gray-400 disabled:opacity-40">
+            <Copy className="w-3.5 h-3.5" />
+            Export
+          </button>
+          <button type="button" onClick={() => setEditMode(editMode === "speed" ? "normal" : "speed")}
+            className={cn("flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all",
+              editMode === "speed" ? "bg-cyan-500/20 border-cyan-500/30 text-cyan-400" : "bg-white/5 border-white/10 text-gray-400"
+            )}>
+            <Zap className="w-3.5 h-3.5" />
+            Speed
+          </button>
+        </div>
+
+        {/* Saved teams panel */}
+        {showSavedTeams && (
+          <div className="mx-4 mb-3 bg-white/5 border border-white/10 rounded-2xl p-3">
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Saved Teams</p>
+            {savedTeams.length === 0 ? (
+              <p className="text-xs text-gray-500 text-center py-2">No saved teams yet</p>
+            ) : (
+              <div className="space-y-1.5">
+                {savedTeams.map((st) => (
+                  <div key={st.id} className="flex items-center gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-white truncate">{st.name}</p>
+                      <p className="text-[10px] text-gray-500">{st.slots.length}/6 Pokémon</p>
+                    </div>
+                    <button type="button" onClick={() => { handleLoadSavedTeam(st); setShowSavedTeams(false); }}
+                      className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                      Load
+                    </button>
+                    <button type="button" onClick={() => handleDeleteSavedTeam(st.id)}
+                      className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Team slots 2x3 grid */}
         <div className="px-4 pt-4 pb-3">
           <div className="grid grid-cols-3 gap-2">
@@ -1650,17 +1713,14 @@ export default function TeamBuilderPage() {
                   type="button"
                   onClick={() => {
                     if (pokemon) {
-                      // Tap filled slot → remove
-                      const newSlots = [...slots];
-                      newSlots[i] = createEmptySlot();
-                      setSlots(newSlots);
+                      setSelectedSlotIndex(i);
                     } else {
                       setMobilePickerSlot(i);
                       setMobilePickerSearch("");
                     }
                   }}
                   className={cn(
-                    "aspect-square rounded-2xl border flex flex-col items-center justify-center p-2 transition-all active:scale-95",
+                    "relative aspect-square rounded-2xl border flex flex-col items-center justify-center p-2 transition-all active:scale-95",
                     pokemon
                       ? `bg-white/5 border-white/15 ${primaryType ? `radial-type-${primaryType}` : ""}`
                       : "bg-white/[0.03] border-dashed border-white/20"
@@ -1668,6 +1728,14 @@ export default function TeamBuilderPage() {
                 >
                   {pokemon ? (
                     <>
+                      <button
+                        type="button"
+                        aria-label="Remove Pokémon"
+                        onClick={(e) => { e.stopPropagation(); const ns = [...slots]; ns[i] = createEmptySlot(); setSlots(ns); if (selectedSlotIndex === i) setSelectedSlotIndex(null); }}
+                        className="absolute top-1 left-1 w-5 h-5 rounded-full bg-black/40 flex items-center justify-center"
+                      >
+                        <X className="w-3 h-3 text-gray-300" />
+                      </button>
                       <Image src={pokemon.officialArt} alt={tp(pokemon.name)} width={70} height={70} className="object-contain drop-shadow-lg" unoptimized />
                       <p className="text-[10px] font-semibold text-white truncate w-full text-center mt-1">{tp(pokemon.name)}</p>
                       <div className="flex gap-0.5 mt-0.5 flex-wrap justify-center">
@@ -1746,6 +1814,276 @@ export default function TeamBuilderPage() {
             )}
           </div>
         )}
+
+        {/* Type coverage */}
+        {filledSlots.length >= 2 && (
+          <div className="px-4 pb-4">
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Type Coverage</p>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-3">
+              <div className="grid grid-cols-3 gap-1.5">
+                {(["fire","water","grass","electric","ice","fighting","poison","ground","flying","psychic","bug","rock","ghost","dragon","dark","steel","fairy","normal"] as string[]).map((type) => {
+                  const se = offensiveCoverage[type] ?? 0;
+                  return (
+                    <div key={type} className={cn(
+                      "flex items-center gap-1.5 rounded-lg px-2 py-1 text-[10px] font-semibold",
+                      se >= 4 ? `type-bg-cc-${type} text-white` :
+                      se >= 2 ? `type-bg-30-${type} type-color-${type}` :
+                      "bg-white/5 text-gray-600"
+                    )}>
+                      <span className="flex-1 truncate capitalize">{type}</span>
+                      <span className="font-bold">{se > 0 ? `×${se}` : "–"}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Speed Tier Panel */}
+        {editMode === "speed" && selectedSlotIndex !== null && slots[selectedSlotIndex]?.pokemon && (
+          <div className="px-4 pb-4">
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Speed Tiers</p>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-3 overflow-x-auto">
+              <SpeedTierPanel
+                userPokemon={slots[selectedSlotIndex].pokemon!}
+                userBaseStats={slots[selectedSlotIndex].pokemon!.baseStats}
+                userSP={slots[selectedSlotIndex].statPoints}
+                userNature={(slots[selectedSlotIndex].nature ?? "Hardy") as import("@/lib/engine/natures").NatureName}
+                userItem={slots[selectedSlotIndex].item}
+                userAbility={slots[selectedSlotIndex].ability}
+                userMoves={slots[selectedSlotIndex].moves}
+                onSpeedChange={(sp) => setSPDirect(selectedSlotIndex, "speed", sp)}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Import modal bottom sheet */}
+        {showImport && (
+          <div className="fixed inset-0 z-[70]" onClick={() => setShowImport(false)}>
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <div className="absolute bottom-16 left-0 right-0 bg-[#111a2e] border-t border-white/10 rounded-t-3xl max-h-[80vh] overflow-hidden flex flex-col"
+              onClick={(e) => e.stopPropagation()}>
+              <div className="px-4 pt-4 pb-3 flex-shrink-0">
+                <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-3" />
+                <p className="text-sm font-semibold text-white mb-3">Import Pokepaste</p>
+                <textarea
+                  value={importText}
+                  onChange={(e) => setImportText(e.target.value)}
+                  placeholder="Paste your Pokepaste here..."
+                  rows={8}
+                  className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500/50 resize-none font-mono"
+                />
+                {importError && <p className="text-xs text-red-400 mt-1">{importError}</p>}
+                <button type="button"
+                  onClick={() => { importPokepaste(importText); setShowImport(false); }}
+                  disabled={!importText.trim()}
+                  className="w-full mt-2 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-semibold disabled:opacity-40"
+                >
+                  Import Team
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Slot Edit Bottom Sheet */}
+        {selectedSlotIndex !== null && slots[selectedSlotIndex]?.pokemon && (() => {
+          const slot = slots[selectedSlotIndex];
+          const pkm = slot.pokemon!;
+          const usageSets = USAGE_DATA[pkm.id] ?? [];
+          const totalSP = STAT_KEYS.reduce((a, k) => a + (slot.statPoints[k] ?? 0), 0);
+          const megaForms = pkm.forms?.filter(f => f.isMega) ?? [];
+          const activeMega = slot.isMega && megaForms.length > 0 ? megaForms[slot.megaFormIndex ?? 0] : null;
+          const currentAbilities = activeMega ? activeMega.abilities : pkm.abilities;
+          const currentMoves = pkm.moves;
+          const isMegaItem = (item: string) => item.endsWith("ite") || item.endsWith("ite X") || item.endsWith("ite Y") || item.endsWith("ite Z");
+          const getMegaStone = (formIndex: number) => {
+            const form = megaForms[formIndex];
+            if (!form) return undefined;
+            const sets = USAGE_DATA[pkm.id] ?? [];
+            const megaSet = sets.find(s => isMegaItem(s.item ?? "") && s.ability === form.abilities[0]?.name);
+            if (megaSet) return megaSet.item;
+            return sets.find(s => isMegaItem(s.item ?? ""))?.item;
+          };
+
+          return (
+            <div className="fixed inset-0 z-[70]" onClick={() => setSelectedSlotIndex(null)}>
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+              <div className="absolute bottom-16 left-0 right-0 bg-[#111a2e] border-t border-white/10 rounded-t-3xl max-h-[85vh] overflow-hidden flex flex-col"
+                onClick={(e) => e.stopPropagation()}>
+                {/* Handle + header */}
+                <div className="px-4 pt-4 pb-2 flex-shrink-0 border-b border-white/10">
+                  <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-3" />
+                  <div className="flex items-center gap-2">
+                    <Image src={pkm.sprite} alt={tp(pkm.name)} width={36} height={36} className="rounded" unoptimized />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-white truncate">{tp(pkm.name)}</p>
+                      <div className="flex gap-1 mt-0.5">
+                        {pkm.types.map((ty) => (
+                          <span key={ty} className={cn("text-[8px] font-bold uppercase px-1.5 py-0.5 rounded text-white", `type-bg-cc-${ty}`)}>{tt(ty)}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <button type="button" aria-label="Close" onClick={() => setSelectedSlotIndex(null)} className="p-1 text-gray-400">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="overflow-y-auto flex-1 px-4 py-3 space-y-4">
+                  {/* Mega toggle */}
+                  {megaForms.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-bold uppercase text-gray-400 mb-1.5">Mega Evolution</p>
+                      <div className="flex gap-2">
+                        <button type="button"
+                          onClick={() => updateSlot(selectedSlotIndex, { isMega: false, megaFormIndex: 0, ability: slot.preMegaAbility || pkm.abilities[0]?.name, item: undefined, preMegaAbility: undefined })}
+                          className={cn("flex-1 py-1.5 rounded-xl text-xs font-semibold border transition-all",
+                            !slot.isMega ? "bg-white/15 border-white/30 text-white" : "bg-white/5 border-white/10 text-gray-400"
+                          )}>Base</button>
+                        {megaForms.map((mf, mi) => (
+                          <button key={mi} type="button"
+                            onClick={() => {
+                              const ab = mf.abilities[0];
+                              updateSlot(selectedSlotIndex, { isMega: true, megaFormIndex: mi, ability: ab?.name, preMegaAbility: slot.ability || pkm.abilities[0]?.name, item: getMegaStone(mi) });
+                            }}
+                            className={cn("flex-1 py-1.5 rounded-xl text-xs font-semibold border transition-all",
+                              slot.isMega && (slot.megaFormIndex ?? 0) === mi
+                                ? "bg-gradient-to-r from-pink-500/30 to-violet-500/30 border-pink-500/40 text-pink-300"
+                                : "bg-white/5 border-white/10 text-gray-400"
+                            )}>Mega{megaForms.length > 1 ? ` ${mi + 1}` : ""}</button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Quick sets */}
+                  {usageSets.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-bold uppercase text-gray-400 mb-1.5">Quick Apply Set</p>
+                      <div className="flex gap-1.5 overflow-x-auto pb-1">
+                        {usageSets.slice(0, 6).map((s, si) => (
+                          <button key={si} type="button"
+                            onClick={() => applySet(selectedSlotIndex, s)}
+                            className="flex-shrink-0 px-2.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-400 whitespace-nowrap">
+                            {s.ability ?? `Set ${si + 1}`}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Ability */}
+                  <div>
+                    <p className="text-[10px] font-bold uppercase text-gray-400 mb-1.5">Ability</p>
+                    <select
+                      aria-label="Ability"
+                      value={slot.ability ?? ""}
+                      onChange={(e) => updateSlot(selectedSlotIndex, { ability: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-emerald-500/50"
+                    >
+                      {currentAbilities.map((ab) => (
+                        <option key={ab.name} value={ab.name}>{ta(ab.name)}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Nature */}
+                  <div>
+                    <p className="text-[10px] font-bold uppercase text-gray-400 mb-1.5">Nature</p>
+                    <select
+                      aria-label="Nature"
+                      value={slot.nature ?? ""}
+                      onChange={(e) => updateSlot(selectedSlotIndex, { nature: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-emerald-500/50"
+                    >
+                      <option value="">— No Nature —</option>
+                      {Object.values(NATURES).map((n) => (
+                        <option key={n.name} value={n.name}>{tn(n.name)}{n.plus ? ` (+${ts(n.plus)} -${ts(n.minus!)})` : " (Neutral)"}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Item */}
+                  <div>
+                    <p className="text-[10px] font-bold uppercase text-gray-400 mb-1.5">Item</p>
+                    <select
+                      aria-label="Item"
+                      value={slot.item ?? ""}
+                      onChange={(e) => updateSlot(selectedSlotIndex, { item: e.target.value || undefined })}
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-emerald-500/50"
+                    >
+                      <option value="">— No Item —</option>
+                      {getAllItems().filter(name => isItemAvailable(name)).map((name) => (
+                        <option key={name} value={name}>{ti(name)}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Moves */}
+                  <div>
+                    <p className="text-[10px] font-bold uppercase text-gray-400 mb-1.5">Moves</p>
+                    <div className="space-y-1.5">
+                      {[0, 1, 2, 3].map((mi) => (
+                        <select
+                          key={mi}
+                          aria-label={`Move ${mi + 1}`}
+                          value={slot.moves[mi] ?? ""}
+                          onChange={(e) => updateMove(selectedSlotIndex, mi, e.target.value)}
+                          className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-emerald-500/50"
+                        >
+                          <option value="">— Move {mi + 1} —</option>
+                          {currentMoves.map((m: { name: string }) => (
+                            <option key={m.name} value={m.name}>{tm(m.name)}</option>
+                          ))}
+                        </select>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* EVs / Stat Points */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <p className="text-[10px] font-bold uppercase text-gray-400">Stat Points (EVs)</p>
+                      <span className={cn("text-[10px] font-bold", totalSP >= MAX_TOTAL_POINTS ? "text-red-400" : "text-gray-400")}>{totalSP}/{MAX_TOTAL_POINTS}</span>
+                    </div>
+                    <div className="space-y-2">
+                      {STAT_KEYS.map((stat) => {
+                        const val = slot.statPoints[stat] ?? 0;
+                        return (
+                          <div key={stat} className="flex items-center gap-2">
+                            <span className="text-[10px] font-bold text-gray-400 w-8 flex-shrink-0 uppercase">{ts(stat)}</span>
+                            <button type="button" aria-label={`${ts(stat)} -4`} onClick={() => updateSP(selectedSlotIndex, stat, -4)}
+                              className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-300 flex-shrink-0">
+                              <Minus className="w-3 h-3" />
+                            </button>
+                            <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                              <div className={cn("h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500", {
+                                "w-0": val === 0, "w-[6.25%]": val === 1, "w-[12.5%]": val === 2,
+                                "w-[18.75%]": val === 3, "w-1/4": val === 4, "w-[31.25%]": val === 5,
+                                "w-[37.5%]": val === 6, "w-[43.75%]": val === 7, "w-1/2": val === 8,
+                                "w-[56.25%]": val === 9, "w-[62.5%]": val === 10, "w-[68.75%]": val === 11,
+                                "w-3/4": val === 12, "w-[81.25%]": val === 13, "w-[87.5%]": val === 14,
+                                "w-[93.75%]": val === 15, "w-full": val >= 16,
+                              })} />
+                            </div>
+                            <button type="button" aria-label={`${ts(stat)} +4`} onClick={() => updateSP(selectedSlotIndex, stat, 4)}
+                              className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-300 flex-shrink-0">
+                              <Plus className="w-3 h-3" />
+                            </button>
+                            <span className={cn("text-[11px] font-bold w-4 text-right flex-shrink-0", val > 0 ? "text-emerald-400" : "text-gray-600")}>{val}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Pokemon Picker Bottom Sheet */}
         {mobilePickerSlot !== null && (

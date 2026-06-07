@@ -230,6 +230,11 @@ export default function HomePage() {
                 <option value="usage">Usage</option>
                 <option value="speed">Speed</option>
                 <option value="bst">BST</option>
+                <option value="hp">HP</option>
+                <option value="attack">Attack</option>
+                <option value="defense">Defense</option>
+                <option value="spAtk">Sp.Atk</option>
+                <option value="spDef">Sp.Def</option>
               </select>
             </div>
             {/* Search */}
@@ -247,6 +252,10 @@ export default function HomePage() {
           {/* Season tabs */}
           <div className="px-4 pb-2 overflow-x-auto scrollbar-hide">
             <SeasonTabs activeRegulation={activeRegulation} onRegulationChange={setActiveRegulation} />
+          </div>
+          {/* Season info */}
+          <div className="px-4 pb-1">
+            <SeasonInfo regulationId={activeRegulation} />
           </div>
         </div>
 
@@ -267,6 +276,84 @@ export default function HomePage() {
               {t(`common.types.${type}`)}
             </button>
           ))}
+        </div>
+
+        {/* Generation filter chips + Mega toggle */}
+        <div className="flex gap-1.5 overflow-x-auto px-4 pb-2 scrollbar-hide">
+          {[1,2,3,4,5,6,7,8,9].map((gen) => (
+            <button
+              key={gen}
+              type="button"
+              onClick={() => toggleGen(gen)}
+              className={cn(
+                "flex-shrink-0 px-2.5 py-1 text-[10px] font-bold rounded-lg border transition-all",
+                selectedGens.includes(gen)
+                  ? "bg-violet-500/20 border-violet-500/40 text-violet-300"
+                  : "bg-white/5 border-white/10 text-gray-500"
+              )}
+            >
+              Gen {gen}
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => setShowMegaOnly(!showMegaOnly)}
+            className={cn(
+              "flex-shrink-0 flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-lg border transition-all",
+              showMegaOnly
+                ? "bg-pink-500/20 border-pink-500/40 text-pink-300"
+                : "bg-white/5 border-white/10 text-gray-500"
+            )}
+          >
+            <Sparkles className="w-3 h-3" />
+            Mega
+          </button>
+        </div>
+
+        {/* Stat filters */}
+        <div className="px-4 pb-2 space-y-1.5">
+          {[
+            { key: 'hp' as const, label: 'HP', max: 255, step: 5 },
+            { key: 'attack' as const, label: 'Atk', max: 255, step: 5 },
+            { key: 'defense' as const, label: 'Def', max: 255, step: 5 },
+            { key: 'spAtk' as const, label: 'SpA', max: 255, step: 5 },
+            { key: 'spDef' as const, label: 'SpD', max: 255, step: 5 },
+            { key: 'speed' as const, label: 'Spe', max: 255, step: 5 },
+          ].map(({ key, label, max, step }) => (
+            <div key={key} className="flex items-center gap-2">
+              <span className="text-[10px] font-semibold text-gray-400 w-8 flex-shrink-0">{label}</span>
+              <input
+                type="range"
+                min={0}
+                max={max}
+                step={step}
+                value={statFilters[key]}
+                onChange={(e) => setStatFilters(prev => ({ ...prev, [key]: Number(e.target.value) }))}
+                aria-label={label}
+                className="flex-1 h-1 accent-emerald-400"
+              />
+              <span className={cn("text-[10px] w-8 text-right flex-shrink-0", statFilters[key] > 0 ? "text-emerald-400 font-bold" : "text-gray-600")}>
+                {statFilters[key] > 0 ? `≥${statFilters[key]}` : "–"}
+              </span>
+            </div>
+          ))}
+          {/* BST */}
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-semibold text-gray-400 w-8 flex-shrink-0">BST</span>
+            <input
+              type="range"
+              min={0}
+              max={800}
+              step={10}
+              value={statFilters.bst}
+              onChange={(e) => setStatFilters(prev => ({ ...prev, bst: Number(e.target.value) }))}
+              aria-label="BST"
+              className="flex-1 h-1 accent-emerald-400"
+            />
+            <span className={cn("text-[10px] w-8 text-right flex-shrink-0", statFilters.bst > 0 ? "text-emerald-400 font-bold" : "text-gray-600")}>
+              {statFilters.bst > 0 ? `≥${statFilters.bst}` : "–"}
+            </span>
+          </div>
         </div>
 
         {/* Count + clear row */}

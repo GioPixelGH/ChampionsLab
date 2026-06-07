@@ -246,7 +246,10 @@ export function EventsCalendar({ events, todayISO }: { events: VGCEvent[]; today
             <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
               {t('events.title')}
             </h1>
-            <span className="text-xs text-gray-400">{upcomingCount} upcoming</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-400">{upcomingCount} upcoming</span>
+              <LastUpdated page="events" />
+            </div>
           </div>
         </div>
 
@@ -303,6 +306,47 @@ export function EventsCalendar({ events, todayISO }: { events: VGCEvent[]; today
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Region filter chips */}
+        <div className="px-4 pb-2 overflow-x-auto">
+          <div className="flex gap-1.5 w-max">
+            <button
+              type="button"
+              onClick={() => setRegion('all')}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all",
+                region === 'all'
+                  ? "bg-white/20 text-white"
+                  : "bg-white/5 border border-white/10 text-gray-400"
+              )}
+            >
+              All Regions
+            </button>
+            {REGION_FILTERS.map((rf) => (
+              <button
+                key={rf}
+                type="button"
+                onClick={() => setRegion(rf)}
+                className={cn(
+                  "px-3 py-1.5 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all border",
+                  region === rf ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400" : "bg-white/5 border-white/10 text-gray-400"
+                )}
+              >
+                {rf}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Tier legend */}
+        <div className="px-4 pb-2 flex flex-wrap gap-x-3 gap-y-1">
+          {TIER_FILTERS.map((tf) => (
+            <div key={tf} className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: TIER_COLOR[tf] }} />
+              <span className="text-[10px] text-gray-500">{TIER_LABEL[tf]}</span>
+            </div>
+          ))}
         </div>
 
         {/* Events list */}
@@ -363,8 +407,8 @@ export function EventsCalendar({ events, todayISO }: { events: VGCEvent[]; today
                           </div>
                           <p className="text-sm font-semibold text-white leading-snug truncate">{ev.name}</p>
                           <p className="text-[11px] text-gray-400 mt-0.5">
-                            {ev.city !== 'Online' ? `${ev.city}, ${ev.country} · ` : ''}
-                            {formatDateRange(ev.startDate, ev.endDate)}
+                            <span className="font-semibold" style={{ color: TIER_COLOR[ev.tier] }}>{REGION_LABEL[ev.region]}</span>
+                            {ev.city !== 'Online' ? ` · ${ev.city}, ${ev.country}` : ''} · {formatDateRange(ev.startDate, ev.endDate)}
                             {ev.cpPoints > 0 ? ` · ${ev.cpPoints.toLocaleString()} CP` : ''}
                           </p>
                         </div>
