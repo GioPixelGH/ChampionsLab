@@ -45,7 +45,7 @@ export function Navbar() {
   }, [pathname]);
 
   // On native app the bottom tab bar handles navigation — hide the top navbar
-  if (isNative) return <div className="h-16" />;
+  if (isNative) return null;
 
   return (
     <>

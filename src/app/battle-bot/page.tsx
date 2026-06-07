@@ -811,6 +811,9 @@ export default function BattleBotPage() {
       }, 30);
     };
 
+    const editPkm = editingSlotIndex !== null ? selectedPokemon[editingSlotIndex] : null;
+    const editSet = editingSlotIndex !== null ? selectedSets[editingSlotIndex] : null;
+
     return (
       <div className="pb-24">
         {/* Header */}
@@ -818,34 +821,83 @@ export default function BattleBotPage() {
           <h1 className="text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
             Battle Bot
           </h1>
-          <p className="text-xs text-gray-400 mt-0.5">
-            VGC doubles battle simulator
-          </p>
+          <p className="text-xs text-gray-400 mt-0.5">VGC doubles battle simulator · {PREBUILT_TEAMS.length} archetypes</p>
         </div>
 
         {/* Team slots */}
         <div className="px-4 pt-4 pb-2">
-          <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Your Team</p>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Your Team</p>
+            {selectedPokemon.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowSavedTeams(!showSavedTeams)}
+                className="flex items-center gap-1 text-[11px] text-amber-400"
+              >
+                <FolderOpen className="w-3.5 h-3.5" />
+                {showSavedTeams ? "Hide" : "Load Team"}
+              </button>
+            )}
+          </div>
+
+          {/* Saved teams picker */}
+          {(showSavedTeams || selectedPokemon.length === 0) && (savedTeams.length > 0 || PREBUILT_TEAMS.length > 0) && (
+            <div className="mb-3 space-y-2">
+              {savedTeams.length > 0 && (
+                <div>
+                  <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1.5">My Teams</p>
+                  <div className="flex gap-1.5 overflow-x-auto pb-1">
+                    {savedTeams.slice(0, 6).map(st => (
+                      <button
+                        key={st.id}
+                        type="button"
+                        onClick={() => { loadSavedTeam(st); setShowSavedTeams(false); }}
+                        className="flex-shrink-0 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-400 whitespace-nowrap"
+                      >
+                        {st.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div>
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1.5">Prebuilt Archetypes</p>
+                <div className="flex gap-1.5 overflow-x-auto pb-1">
+                  {PREBUILT_TEAMS.filter(pt => pt.tier === "S").slice(0, 8).map(pt => (
+                    <button
+                      key={pt.name}
+                      type="button"
+                      onClick={() => { loadPrebuiltTeam(pt); setShowSavedTeams(false); }}
+                      className="flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/5 border border-white/10 text-[11px] text-gray-300 whitespace-nowrap"
+                    >
+                      <span className="text-amber-400 font-bold text-[10px]">{pt.tier}</span>
+                      {pt.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-3 gap-2 mb-3">
             {Array.from({ length: 6 }, (_, i) => {
               const mon = selectedPokemon[i];
               const primaryType = mon?.types[0];
+              const isEditing = editingSlotIndex === i;
               return (
                 <button
                   key={i}
                   type="button"
                   onClick={() => {
                     if (mon) {
-                      const newPokemon = selectedPokemon.filter((_, idx) => idx !== i);
-                      const newSets = selectedSets.filter((_, idx) => idx !== i);
-                      setSelectedPokemon(newPokemon);
-                      setSelectedSets(newSets);
+                      setEditingSlotIndex(isEditing ? null : i);
                     } else {
                       setPickerOpen(true);
                     }
                   }}
                   className={cn(
                     "aspect-square rounded-2xl border flex flex-col items-center justify-center p-2 transition-all active:scale-95",
+                    isEditing ? "border-amber-500/60 ring-1 ring-amber-500/40" :
                     mon
                       ? `bg-white/5 border-white/15 ${primaryType ? `radial-type-${primaryType}` : ""}`
                       : "bg-white/[0.03] border-dashed border-white/20"
@@ -853,8 +905,9 @@ export default function BattleBotPage() {
                 >
                   {mon ? (
                     <>
-                      <Image src={mon.officialArt} alt={tp(mon.name)} width={70} height={70} className="object-contain drop-shadow-lg" unoptimized />
-                      <p className="text-[10px] font-semibold text-white truncate w-full text-center mt-1">{tp(mon.name)}</p>
+                      <Image src={mon.officialArt} alt={tp(mon.name)} width={62} height={62} className="object-contain drop-shadow-lg" unoptimized />
+                      <p className="text-[10px] font-semibold text-white truncate w-full text-center mt-0.5">{tp(mon.name)}</p>
+                      <p className="text-[9px] text-gray-500 truncate w-full text-center">{editSet?.nature ?? ""}</p>
                     </>
                   ) : (
                     <div className="flex flex-col items-center gap-1">
@@ -887,6 +940,7 @@ export default function BattleBotPage() {
             >
               <option value={50}>50 games</option>
               <option value={100}>100 games</option>
+              <option value={200}>200 games</option>
             </select>
           </div>
 
@@ -905,7 +959,7 @@ export default function BattleBotPage() {
             {isSimulating ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                {Math.round(progress)}%
+                {progressLabel} {Math.round(progress)}%
               </>
             ) : (
               <>
@@ -914,24 +968,42 @@ export default function BattleBotPage() {
               </>
             )}
           </button>
+
+          {/* Sim history */}
+          {simHistory.length > 0 && !result && (
+            <div className="mt-3">
+              <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1.5">Recent results</p>
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {[...simHistory].reverse().slice(0, 5).map((s, i) => (
+                  <div key={i} className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-[11px]">
+                    <span className="text-gray-400 truncate max-w-[80px]">{s.teamName}</span>
+                    <span className={cn("font-bold", s.winRate >= 50 ? "text-emerald-400" : "text-red-400")}>
+                      {s.winRate.toFixed(0)}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Results */}
         {result && !isSimulating && (
-          <div className="px-4 space-y-3 pt-2">
-            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Results</p>
-
-            {/* Win rate card */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+          <div className="px-4 pt-2">
+            {/* Hero stats */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-3">
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <p className="text-3xl font-black text-white">{result.winRate.toFixed(1)}%</p>
-                  <p className="text-xs text-gray-400">{result.wins}W / {result.losses}L over {result.totalGames} battles</p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {result.wins}W / {result.losses}L · {result.totalGames} battles · {result.avgTurns.toFixed(1)} avg turns
+                  </p>
                 </div>
                 <div className={cn(
-                  "w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black border",
+                  "w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-black border",
                   result.winRate >= 60 ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400" :
-                  result.winRate >= 50 ? "bg-amber-500/20 border-amber-500/30 text-amber-400" :
+                  result.winRate >= 53 ? "bg-amber-500/20 border-amber-500/30 text-amber-400" :
+                  result.winRate >= 47 ? "bg-orange-500/20 border-orange-500/30 text-orange-400" :
                   "bg-red-500/20 border-red-500/30 text-red-400"
                 )}>
                   {result.winRate >= 60 ? "S" : result.winRate >= 53 ? "A" : result.winRate >= 47 ? "B" : "C"}
@@ -939,7 +1011,7 @@ export default function BattleBotPage() {
               </div>
               <div className="h-2 bg-white/10 rounded-full overflow-hidden">
                 <div
-                  className={cn("h-full rounded-full transition-all",
+                  className={cn("h-full rounded-full",
                     result.winRate >= 60 ? "bg-gradient-to-r from-emerald-500 to-teal-500" :
                     result.winRate >= 50 ? "bg-gradient-to-r from-amber-500 to-orange-500" :
                     "bg-gradient-to-r from-red-500 to-rose-500"
@@ -949,46 +1021,265 @@ export default function BattleBotPage() {
               </div>
             </div>
 
-            {/* Archetype breakdown */}
-            {result.archetypeBreakdown.length > 0 && (
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">vs Archetypes</p>
-                <div className="space-y-2">
-                  {result.archetypeBreakdown
-                    .sort((a, b) => b.winRate - a.winRate)
-                    .slice(0, 6)
-                    .map((arch) => (
-                      <div key={arch.archetype} className="flex items-center gap-2">
-                        <span className="text-xs text-gray-300 w-24 truncate">{arch.archetype}</span>
-                        <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                          <div
-                            className={cn("h-full rounded-full",
-                              arch.winRate >= 60 ? "bg-emerald-400" : arch.winRate >= 50 ? "bg-amber-400" : "bg-red-400"
-                            )}
-                            style={{ width: `${arch.winRate}%` }}
-                          />
+            {/* Result tabs */}
+            <div className="flex gap-1 mb-3 overflow-x-auto pb-1">
+              {(["overview", "matchups", "threats", "leads", "replay"] as ResultTab[]).map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => setResultTab(tab)}
+                  className={cn(
+                    "flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold capitalize transition-all",
+                    resultTab === tab
+                      ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white"
+                      : "bg-white/5 border border-white/10 text-gray-400"
+                  )}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            {/* Overview tab */}
+            {resultTab === "overview" && (
+              <div className="space-y-3">
+                {/* Archetypes */}
+                {result.archetypeBreakdown.length > 0 && (
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">vs Archetypes</p>
+                    <div className="space-y-2">
+                      {[...result.archetypeBreakdown].sort((a, b) => b.winRate - a.winRate).map((arch) => (
+                        <div key={arch.archetype} className="flex items-center gap-2">
+                          <span className="text-xs text-gray-300 w-28 truncate flex-shrink-0">{arch.archetype}</span>
+                          <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                            <div
+                              className={cn("h-full rounded-full", arch.winRate >= 60 ? "bg-emerald-400" : arch.winRate >= 50 ? "bg-amber-400" : "bg-red-400")}
+                              style={{ width: `${arch.winRate}%` }}
+                            />
+                          </div>
+                          <span className={cn("text-xs font-bold w-9 text-right flex-shrink-0",
+                            arch.winRate >= 60 ? "text-emerald-400" : arch.winRate >= 50 ? "text-amber-400" : "text-red-400"
+                          )}>{arch.winRate.toFixed(0)}%</span>
+                          <span className="text-[10px] text-gray-600 w-10 text-right flex-shrink-0">{arch.count}g</span>
                         </div>
-                        <span className={cn("text-xs font-bold w-10 text-right",
-                          arch.winRate >= 60 ? "text-emerald-400" : arch.winRate >= 50 ? "text-amber-400" : "text-red-400"
-                        )}>{arch.winRate.toFixed(0)}%</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {/* Weaknesses */}
+                {result.commonWeaknesses.length > 0 && (
+                  <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-4">
+                    <p className="text-xs font-semibold text-red-400 uppercase tracking-wider mb-2">Weaknesses</p>
+                    <div className="space-y-1.5">
+                      {result.commonWeaknesses.map((w, i) => (
+                        <div key={i} className="flex items-start gap-2 text-xs text-red-200/80">
+                          <AlertTriangle className="w-3.5 h-3.5 text-red-400 flex-shrink-0 mt-0.5" />
+                          <span>{translateBotInsight(w)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {/* Strategy tips */}
+                {result.strategyTips.length > 0 && (
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Strategy Tips</p>
+                    <div className="space-y-2">
+                      {result.strategyTips.map((tip, i) => (
+                        <div key={i} className="flex items-start gap-2 text-xs text-gray-300">
+                          <Zap className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
+                          <span>{translateBotInsight(tip)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Matchups tab */}
+            {resultTab === "matchups" && (
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                  All Matchups ({result.matchupBreakdown.length})
+                </p>
+                <div className="space-y-2">
+                  {[...result.matchupBreakdown].sort((a, b) => b.winRate - a.winRate).map((m, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <span className="text-xs text-gray-300 flex-1 truncate">{m.opponent}</span>
+                      <div className="w-20 h-1.5 bg-white/10 rounded-full overflow-hidden flex-shrink-0">
+                        <div
+                          className={cn("h-full rounded-full",
+                            m.winRate >= 60 ? "bg-emerald-400" : m.winRate >= 50 ? "bg-amber-400" : m.winRate >= 40 ? "bg-orange-400" : "bg-red-400"
+                          )}
+                          style={{ width: `${m.winRate}%` }}
+                        />
                       </div>
-                    ))}
+                      <span className={cn("text-xs font-bold w-9 text-right flex-shrink-0",
+                        m.winRate >= 60 ? "text-emerald-400" : m.winRate >= 50 ? "text-amber-400" : m.winRate >= 40 ? "text-orange-400" : "text-red-400"
+                      )}>{m.winRate.toFixed(0)}%</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* Strategy tips */}
-            {result.strategyTips.length > 0 && (
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Tips</p>
-                <div className="space-y-2">
-                  {result.strategyTips.slice(0, 4).map((tip, i) => (
-                    <div key={i} className="flex items-start gap-2 text-xs text-gray-300">
-                      <Zap className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
-                      <span>{translateBotInsight(tip)}</span>
+            {/* Threats tab */}
+            {resultTab === "threats" && (
+              <div className="space-y-2">
+                <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Top Threats</p>
+                {result.threats.map((threat, i) => {
+                  const mon = POKEMON_SEED.find(p => p.name === threat.name);
+                  const lossRate = threat.appearances > 0 ? ((threat.appearances - threat.winsAgainst) / threat.appearances * 100) : 0;
+                  return (
+                    <div key={i} className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-3 py-2.5">
+                      <span className={cn(
+                        "w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-black flex-shrink-0",
+                        i === 0 ? "bg-red-500/20 text-red-400" : i === 1 ? "bg-orange-500/20 text-orange-400" : "bg-white/10 text-gray-400"
+                      )}>{i + 1}</span>
+                      {mon && <Image src={mon.sprite} alt={mon.name} width={32} height={32} className="object-contain flex-shrink-0" unoptimized />}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-white truncate">{tp(threat.name)}</p>
+                        <p className="text-[10px] text-gray-500">appeared {threat.appearances}× · score {threat.threatScore.toFixed(0)}</p>
+                      </div>
+                      <span className={cn("text-sm font-bold flex-shrink-0", lossRate >= 60 ? "text-red-400" : lossRate >= 40 ? "text-orange-400" : "text-gray-400")}>
+                        {lossRate.toFixed(0)}% loss
+                      </span>
                     </div>
-                  ))}
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Leads tab */}
+            {resultTab === "leads" && (
+              <div className="space-y-2">
+                <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Best Lead Combos</p>
+                {result.bestLeads.map((lead, i) => {
+                  const p1 = POKEMON_SEED.find(p => p.name === lead.lead1);
+                  const p2 = POKEMON_SEED.find(p => p.name === lead.lead2);
+                  return (
+                    <div
+                      key={i}
+                      className={cn(
+                        "flex items-center gap-3 rounded-2xl border p-3",
+                        i === 0 ? "bg-amber-500/10 border-amber-500/30" : "bg-white/5 border-white/10"
+                      )}
+                    >
+                      {i === 0 && <Trophy className="w-4 h-4 text-amber-400 flex-shrink-0" />}
+                      <div className="flex items-center gap-1.5">
+                        {p1 && <Image src={p1.sprite} alt={p1.name} width={36} height={36} className="object-contain" unoptimized />}
+                        {p2 && <Image src={p2.sprite} alt={p2.name} width={36} height={36} className="object-contain" unoptimized />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-white truncate">{tp(lead.lead1)} + {tp(lead.lead2)}</p>
+                        <p className="text-[10px] text-gray-500">{lead.games} games tested</p>
+                      </div>
+                      <span className={cn("text-sm font-black flex-shrink-0",
+                        lead.winRate >= 60 ? "text-emerald-400" : lead.winRate >= 50 ? "text-amber-400" : "text-red-400"
+                      )}>{lead.winRate.toFixed(0)}%</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Replay tab */}
+            {resultTab === "replay" && result.sampleBattle && (
+              <div className="space-y-3">
+                {/* Teams */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-2">
+                    <p className="text-[10px] text-emerald-400 uppercase font-semibold mb-1">Your Team</p>
+                    <div className="flex flex-wrap gap-1">
+                      {result.sampleBattle.team1Names.map((name, idx) => {
+                        const hp = result.sampleBattle!.log[replayTurn]?.team1HP[idx] ?? 0;
+                        const mon = POKEMON_SEED.find(p => p.name === name);
+                        return (
+                          <div key={idx} className="flex flex-col items-center gap-0.5">
+                            {mon && <Image src={mon.sprite} alt={name} width={28} height={28} className={cn("object-contain", hp <= 0 && "opacity-30 grayscale")} unoptimized />}
+                            <div className="w-7 h-1 bg-white/10 rounded-full overflow-hidden">
+                              <div className={cn("h-full rounded-full", hp > 50 ? "bg-emerald-400" : hp > 25 ? "bg-amber-400" : "bg-red-400")} style={{ width: `${hp}%` }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-2">
+                    <p className="text-[10px] text-red-400 uppercase font-semibold mb-1">Opponent</p>
+                    <div className="flex flex-wrap gap-1">
+                      {result.sampleBattle.team2Names.map((name, idx) => {
+                        const hp = result.sampleBattle!.log[replayTurn]?.team2HP[idx] ?? 0;
+                        const mon = POKEMON_SEED.find(p => p.name === name);
+                        return (
+                          <div key={idx} className="flex flex-col items-center gap-0.5">
+                            {mon && <Image src={mon.sprite} alt={name} width={28} height={28} className={cn("object-contain", hp <= 0 && "opacity-30 grayscale")} unoptimized />}
+                            <div className="w-7 h-1 bg-white/10 rounded-full overflow-hidden">
+                              <div className={cn("h-full rounded-full", hp > 50 ? "bg-emerald-400" : hp > 25 ? "bg-amber-400" : "bg-red-400")} style={{ width: `${hp}%` }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
+
+                {/* Field state */}
+                {result.sampleBattle.log[replayTurn] && (
+                  <div className="flex gap-1.5 flex-wrap">
+                    {result.sampleBattle.log[replayTurn].field.weather && (
+                      <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-semibold">{result.sampleBattle.log[replayTurn].field.weather}</span>
+                    )}
+                    {result.sampleBattle.log[replayTurn].field.trickRoom && (
+                      <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 text-[10px] font-semibold">Trick Room</span>
+                    )}
+                    {result.sampleBattle.log[replayTurn].field.tailwind1 && (
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-semibold">Tailwind (You)</span>
+                    )}
+                    {result.sampleBattle.log[replayTurn].field.tailwind2 && (
+                      <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 text-[10px] font-semibold">Tailwind (Opp)</span>
+                    )}
+                  </div>
+                )}
+
+                {/* Turn events */}
+                {result.sampleBattle.log[replayTurn] && (
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-3 max-h-32 overflow-y-auto">
+                    <p className="text-[10px] text-gray-500 uppercase mb-1.5">Turn {result.sampleBattle.log[replayTurn].turn}</p>
+                    <div className="space-y-0.5">
+                      {result.sampleBattle.log[replayTurn].events.map((ev, i) => (
+                        <p key={i} className="text-[11px] text-gray-300">{ev}</p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Controls */}
+                <div className="flex items-center gap-2">
+                  <button type="button" onClick={() => { setReplayTurn(0); setReplayPlaying(false); }} className="p-2 rounded-xl bg-white/5 border border-white/10 text-gray-400">
+                    <RotateCcw className="w-4 h-4" />
+                  </button>
+                  <button type="button" onClick={() => setReplayPlaying(!replayPlaying)} className="flex-1 py-2.5 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-400 text-sm font-semibold flex items-center justify-center gap-2">
+                    {replayPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                    {replayPlaying ? "Pause" : "Play"}
+                  </button>
+                  <button type="button" onClick={() => setReplayTurn(prev => Math.min(prev + 1, result.sampleBattle!.log.length - 1))} className="p-2 rounded-xl bg-white/5 border border-white/10 text-gray-400">
+                    <SkipForward className="w-4 h-4" />
+                  </button>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={result.sampleBattle.log.length - 1}
+                  value={replayTurn}
+                  onChange={e => { setReplayTurn(Number(e.target.value)); setReplayPlaying(false); }}
+                  className="w-full accent-amber-500"
+                  aria-label="Replay turn"
+                />
+                <p className="text-[10px] text-center text-gray-500">
+                  Turn {result.sampleBattle.log[replayTurn]?.turn ?? 0} / {result.sampleBattle.turnsPlayed} · {result.sampleBattle.winner === 1 ? "You won" : "Opponent won"}
+                </p>
               </div>
             )}
           </div>
@@ -1004,7 +1295,7 @@ export default function BattleBotPage() {
             >
               <div className="px-4 pt-4 pb-2 flex-shrink-0">
                 <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-3" />
-                <p className="text-sm font-semibold text-white mb-3">Add Pokémon</p>
+                <p className="text-sm font-semibold text-white mb-3">Add Pokémon ({selectedPokemon.length}/6)</p>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                   <input
@@ -1019,26 +1310,158 @@ export default function BattleBotPage() {
               </div>
               <div className="overflow-y-auto flex-1 pb-4">
                 <div className="grid grid-cols-4 gap-2 px-3 pt-2">
-                  {filtered
-                    .slice(0, 60)
-                    .map((pokemon) => (
-                      <button
-                        key={pokemon.id}
-                        type="button"
-                        onClick={() => {
-                          if (selectedPokemon.length >= 6) return;
-                          setSelectedPokemon([...selectedPokemon, pokemon]);
-                          setSelectedSets([...selectedSets, bestAvailableSet(pokemon)]);
-                          setPickerOpen(false);
-                          setSearchQuery("");
-                        }}
-                        className="flex flex-col items-center rounded-xl bg-white/5 border border-white/10 p-1.5 active:scale-95 transition-transform"
-                      >
-                        <Image src={pokemon.sprite} alt={tp(pokemon.name)} width={48} height={48} className="object-contain" unoptimized />
-                        <p className="text-[9px] text-white truncate w-full text-center mt-0.5">{tp(pokemon.name)}</p>
-                      </button>
-                    ))}
+                  {filtered.slice(0, 80).map((pokemon) => (
+                    <button
+                      key={pokemon.id}
+                      type="button"
+                      onClick={() => {
+                        if (selectedPokemon.length >= 6) return;
+                        setSelectedPokemon([...selectedPokemon, pokemon]);
+                        setSelectedSets([...selectedSets, bestAvailableSet(pokemon)]);
+                        setPickerOpen(false);
+                        setSearchQuery("");
+                      }}
+                      className="flex flex-col items-center rounded-xl bg-white/5 border border-white/10 p-1.5 active:scale-95 transition-transform"
+                    >
+                      <Image src={pokemon.sprite} alt={tp(pokemon.name)} width={48} height={48} className="object-contain" unoptimized />
+                      <p className="text-[9px] text-white truncate w-full text-center mt-0.5">{tp(pokemon.name)}</p>
+                    </button>
+                  ))}
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Per-pokemon edit bottom sheet */}
+        {editingSlotIndex !== null && editPkm && editSet && (
+          <div className="fixed inset-0 z-[70] flex flex-col justify-end">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setEditingSlotIndex(null)} />
+            <div className="relative bg-[#0d1526] border-t border-white/10 rounded-t-3xl max-h-[80vh] flex flex-col">
+              <div className="px-4 pt-3 pb-3 flex-shrink-0 border-b border-white/10">
+                <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-3" />
+                <div className="flex items-center gap-3">
+                  <Image src={editPkm.sprite} alt={tp(editPkm.name)} width={40} height={40} className="object-contain" unoptimized />
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-white">{tp(editPkm.name)}</p>
+                    <p className="text-[11px] text-gray-400">{editSet.ability} · {editSet.nature} · {editSet.item}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newPokemon = selectedPokemon.filter((_, idx) => idx !== editingSlotIndex);
+                      const newSets = selectedSets.filter((_, idx) => idx !== editingSlotIndex);
+                      setSelectedPokemon(newPokemon);
+                      setSelectedSets(newSets);
+                      setEditingSlotIndex(null);
+                    }}
+                    className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  <button type="button" onClick={() => setEditingSlotIndex(null)} className="text-gray-400" aria-label="Close">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+              <div className="overflow-y-auto flex-1 px-4 py-4 space-y-4">
+                {/* Quick-apply sets */}
+                {(USAGE_DATA[editPkm.id] ?? []).length > 0 && (
+                  <div>
+                    <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Quick Apply Sets</p>
+                    <div className="flex gap-2 overflow-x-auto pb-1">
+                      {(USAGE_DATA[editPkm.id] ?? []).slice(0, 5).map((s, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => updateSetField(editingSlotIndex, { moves: s.moves, ability: s.ability, nature: s.nature, item: s.item, sp: s.sp })}
+                          className="flex-shrink-0 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-left"
+                        >
+                          <p className="text-[11px] font-semibold text-amber-400">Set {i + 1}</p>
+                          <p className="text-[10px] text-gray-400">{s.nature} · {s.item}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Moves */}
+                <div>
+                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Moves</p>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {editSet.moves.map((move, mi) => {
+                      const moveData = editPkm.moves.find(m => m.name === move);
+                      return (
+                        <div key={mi} className="px-2.5 py-2 rounded-xl bg-white/5 border border-white/10">
+                          <p className="text-xs text-white font-medium truncate">{move || <span className="text-gray-600">—</span>}</p>
+                          {moveData && <p className="text-[10px] text-gray-500">{moveData.type} · {(moveData.power ?? 0) > 0 ? `${moveData.power}BP` : "Status"}</p>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Nature / Item / Ability */}
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <p className="text-[10px] text-gray-500 uppercase mb-1">Nature</p>
+                    <select
+                      aria-label="Nature"
+                      value={editSet.nature}
+                      onChange={e => updateSetField(editingSlotIndex, { nature: e.target.value })}
+                      className="w-full px-2 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs text-white focus:outline-none"
+                    >
+                      {Object.keys(NATURES).map(n => <option key={n} value={n}>{n}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-gray-500 uppercase mb-1">Item</p>
+                    <select
+                      aria-label="Item"
+                      value={editSet.item}
+                      onChange={e => updateSetField(editingSlotIndex, { item: e.target.value })}
+                      className="w-full px-2 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs text-white focus:outline-none"
+                    >
+                      {Object.keys(ITEMS).map(name => <option key={name} value={name}>{name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-gray-500 uppercase mb-1">Ability</p>
+                    <select
+                      aria-label="Ability"
+                      value={editSet.ability}
+                      onChange={e => updateSetField(editingSlotIndex, { ability: e.target.value })}
+                      className="w-full px-2 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs text-white focus:outline-none"
+                    >
+                      {editPkm.abilities.map(a => <option key={a.name} value={a.name}>{a.name}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                {/* EVs */}
+                <div>
+                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">EVs</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {STAT_KEYS.map(stat => (
+                      <div key={stat} className="bg-white/5 border border-white/10 rounded-xl p-2 flex flex-col items-center gap-1">
+                        <p className="text-[10px] text-gray-400 uppercase">{stat.replace("spAtk", "SpA").replace("spDef", "SpD").replace("attack", "Atk").replace("defense", "Def").replace("speed", "Spe")}</p>
+                        <p className="text-sm font-bold text-white">{editSet.sp[stat] ?? 0}</p>
+                        <div className="flex gap-1">
+                          <button type="button" onClick={() => updateSetSP(editingSlotIndex, stat, -4)} className="w-5 h-5 rounded bg-white/10 text-gray-300 text-xs flex items-center justify-center">−</button>
+                          <button type="button" onClick={() => updateSetSP(editingSlotIndex, stat, 4)} className="w-5 h-5 rounded bg-white/10 text-gray-300 text-xs flex items-center justify-center">+</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setEditingSlotIndex(null)}
+                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-sm"
+                >
+                  Done
+                </button>
               </div>
             </div>
           </div>
