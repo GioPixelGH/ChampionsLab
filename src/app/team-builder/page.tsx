@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { POKEMON_SEED, STAT_PRESETS, getPokemonByRegulation, getActiveRegulation, SEASONS } from "@/lib/pokemon-data";
 import { SeasonTabs } from "@/components/season-tabs";
+import { getSettings } from "@/lib/storage";
 import {
   ChampionsPokemon, TeamSlot, PokemonType, TYPE_COLORS, StatPoints,
 } from "@/lib/types";
@@ -243,8 +244,12 @@ export default function TeamBuilderPage() {
   const [editMode, setEditMode] = useState<"normal" | "speed" | "survival" | "damage">("normal");
   const [spToast, setSpToast] = useState<string | null>(null);
 
-  const defaultRegulation = getActiveRegulation()?.id ?? SEASONS[0]?.regulations[0]?.id ?? "M-A";
+  const defaultRegulation = getSettings().defaultRegulationId || (getActiveRegulation()?.id ?? SEASONS[0]?.regulations[0]?.id ?? "M-A");
   const [activeRegulation, setActiveRegulation] = useState(defaultRegulation);
+  const activeSeasonId = useMemo(
+    () => SEASONS.find(s => s.regulations.some(r => r.id === activeRegulation))?.id ?? 1,
+    [activeRegulation]
+  );
 
   const [shareLinkError, setShareLinkError] = useState<string | null>(null);
   const [showMoreTournament, setShowMoreTournament] = useState(false);
@@ -337,7 +342,7 @@ export default function TeamBuilderPage() {
     }
 
     setSavedTeams(getSavedTeams());
-    setMyRosterIds(getMyRoster());
+    setMyRosterIds(getMyRoster(activeSeasonId));
 
     const params = new URLSearchParams(initialSearchRef.current);
     const shortId = params.get("s");
@@ -401,6 +406,11 @@ export default function TeamBuilderPage() {
       if (last.teamId) setCurrentTeamId(last.teamId);
     }
   }, []);
+
+  // Reload roster when the active season changes
+  useEffect(() => {
+    setMyRosterIds(getMyRoster(activeSeasonId));
+  }, [activeSeasonId]);
 
   // Validation
   const validationErrors = useMemo(() => {
@@ -1690,7 +1700,7 @@ export default function TeamBuilderPage() {
                       className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
                       Load
                     </button>
-                    <button type="button" onClick={() => handleDeleteSavedTeam(st.id)}
+                    <button type="button" aria-label="Elimina team" onClick={() => handleDeleteSavedTeam(st.id)}
                       className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
                       <Trash2 className="w-3 h-3" />
                     </button>
@@ -1711,6 +1721,7 @@ export default function TeamBuilderPage() {
                 <button
                   key={i}
                   type="button"
+                  aria-label={pokemon ? pokemon.name : `Slot ${i + 1}`}
                   onClick={() => {
                     if (pokemon) {
                       setSelectedSlotIndex(i);
@@ -2316,7 +2327,7 @@ export default function TeamBuilderPage() {
                       onClick={() => {
                         const all = new Set(regulationPokemon.map(p => p.id));
                         setMyRosterIds(all);
-                        saveMyRoster(all);
+                        saveMyRoster(all, activeSeasonId);
                       }}
                       className="px-3 py-1.5 text-xs rounded-lg glass glass-hover text-emerald-600 font-medium"
                     >
@@ -2326,7 +2337,7 @@ export default function TeamBuilderPage() {
                       onClick={() => {
                         const empty = new Set<number>();
                         setMyRosterIds(empty);
-                        saveMyRoster(empty);
+                        saveMyRoster(empty, activeSeasonId);
                         if (optimizerUseMyRoster) setOptimizerUseMyRoster(false);
                       }}
                       className="px-3 py-1.5 text-xs rounded-lg glass glass-hover text-red-400 font-medium"
@@ -2356,7 +2367,7 @@ export default function TeamBuilderPage() {
                       <button
                         key={p.id}
                         onClick={() => {
-                          const updated = toggleRosterPokemon(p.id);
+                          const updated = toggleRosterPokemon(p.id, activeSeasonId);
                           setMyRosterIds(new Set(updated));
                         }}
                         title={p.name}

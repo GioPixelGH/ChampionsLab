@@ -1,18 +1,17 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Award, ChevronDown, ChevronUp, Trophy, Users, RefreshCw, Calendar, List, BarChart3, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { POKEMON_SEED } from "@/lib/pokemon-data";
+import { POKEMON_SEED, SEASONS } from "@/lib/pokemon-data";
+import { getSettings } from "@/lib/storage";
 import { USAGE_DATA } from "@/lib/usage-data";
 import { deflateRaw } from "pako";
 import type { MetaResponse, TournamentBreakdown, TournamentPokemonUsage } from "@/app/api/meta/route";
 
-const REGULATIONS = [
-  { value: "M-A", label: "Regulation M-A" },
-];
+const REGULATIONS = SEASONS.flatMap(s => s.regulations).map(r => ({ value: r.id, label: r.label }));
 
 // Generate last N months as { value: "YYYY-MM", label: "Month YYYY" }
 function getMonthOptions(count = 18) {
@@ -356,7 +355,10 @@ function TournamentDetail({
 
 // ── Main component ────────────────────────────────────────────────────────────
 export function LiveUsage() {
-  const [regulation, setRegulation] = useState("M-A");
+  const [regulation, setRegulation] = useState(() => {
+    const stored = getSettings().defaultRegulationId;
+    return stored || SEASONS.flatMap(s => s.regulations).find(r => r.isActive)?.id || SEASONS[0]?.regulations[0]?.id || "M-A";
+  });
   const [time, setTime] = useState<string>("7days");
   const [show, setShow] = useState<number>(25);
   const [data, setData] = useState<MetaResponse | null>(null);
@@ -387,10 +389,6 @@ export function LiveUsage() {
     }
   }, [regulation, time, show]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
   const aggregatedList: TournamentPokemonUsage[] = data?.meta.map((m) => ({
     showdownId: m.showdownId,
     name: m.name,
@@ -418,17 +416,25 @@ export function LiveUsage() {
         <div className="flex flex-wrap items-center gap-2">
           {/* Regulation dropdown */}
           <select
+            aria-label="Regulation"
             value={regulation}
             onChange={(e) => setRegulation(e.target.value)}
             className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-700 dark:text-white text-xs font-semibold transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-indigo-400/50 cursor-pointer"
           >
             {REGULATIONS.map((r) => (
-              <option key={r.value} value={r.value}>{r.label}</option>
+              <option
+                key={r.value}
+                value={r.value}
+                style={{ color: r.value === getSettings().defaultRegulationId ? "#22c55e" : "CanvasText" }}
+              >
+                {r.label}
+              </option>
             ))}
           </select>
 
           {/* Time dropdown */}
           <select
+            aria-label="Time range"
             value={time}
             onChange={(e) => setTime(e.target.value)}
             className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-700 dark:text-white text-xs font-semibold transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-violet-400/50 cursor-pointer"
@@ -445,6 +451,7 @@ export function LiveUsage() {
 
           {/* Tournament count dropdown */}
           <select
+            aria-label="Tournament count"
             value={show}
             onChange={(e) => setShow(Number(e.target.value))}
             className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-700 dark:text-white text-xs font-semibold transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-indigo-400/50 cursor-pointer"
@@ -456,6 +463,7 @@ export function LiveUsage() {
 
           {/* Sort dropdown */}
           <select
+            aria-label="Sort by"
             value={sort}
             onChange={(e) => setSort(e.target.value)}
             className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-700 dark:text-white text-xs font-semibold transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-indigo-400/50 cursor-pointer"
@@ -465,14 +473,20 @@ export function LiveUsage() {
             ))}
           </select>
 
-          {/* Refresh */}
+          {/* Load / Refresh */}
           <button
             onClick={fetchData}
             disabled={loading}
-            className="p-1.5 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-500 hover:bg-gray-50 dark:hover:bg-white/10 transition-colors disabled:opacity-50"
-            title="Refresh"
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold transition-colors disabled:opacity-50",
+              data
+                ? "border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-500 hover:bg-gray-50 dark:hover:bg-white/10"
+                : "border-indigo-300 dark:border-indigo-500/40 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20"
+            )}
+            title={data ? "Refresh" : "Carica dati"}
           >
-            <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
+            <RefreshCw className={cn("w-3.5 h-3.5", loading && "animate-spin")} />
+            {data ? "Refresh" : "Carica dati"}
           </button>
         </div>
       </div>
@@ -520,6 +534,19 @@ export function LiveUsage() {
           >
             <List className="w-3.5 h-3.5" /> Per Tournament
           </button>
+        </div>
+      )}
+
+      {/* Idle state — before first fetch */}
+      {!loading && !error && !data && (
+        <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center">
+            <RefreshCw className="w-6 h-6 text-indigo-400" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-muted-foreground">Dati non ancora caricati</p>
+            <p className="text-[11px] text-muted-foreground mt-1">Premi <strong>Carica dati</strong> per recuperare i dati live da Limitless</p>
+          </div>
         </div>
       )}
 

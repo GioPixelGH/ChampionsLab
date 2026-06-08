@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { HardDrive, Download, Upload, Check, AlertTriangle, X } from "lucide-react";
-import { exportAllData, importAllData, type ExportData } from "@/lib/storage";
+import { exportAllData, importAllData, countExportRoster, type ExportData } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 
 export function DataSyncButton() {
@@ -27,7 +27,7 @@ export function DataSyncButton() {
     a.click();
     URL.revokeObjectURL(url);
     setStatus("success");
-    setStatusMsg(`Esportati: ${data.teams.length} team · ${data.matchJournal.length} partite · ${data.myRoster.length} Pokémon`);
+    setStatusMsg(`Esportati: ${data.teams.length} team · ${data.matchJournal.length} partite · ${countExportRoster(data.myRoster)} Pokémon`);
     setTimeout(() => setStatus("idle"), 3500);
   }
 
@@ -55,7 +55,7 @@ export function DataSyncButton() {
     if (!confirmImport) return;
     try {
       importAllData(confirmImport);
-      const msg = `Importati: ${confirmImport.teams.length} team · ${confirmImport.matchJournal.length} partite · ${confirmImport.myRoster.length} Pokémon`;
+      const msg = `Importati: ${confirmImport.teams.length} team · ${confirmImport.matchJournal.length} partite · ${countExportRoster(confirmImport.myRoster)} Pokémon`;
       setConfirmImport(null);
       setStatus("success");
       setStatusMsg(msg);
@@ -98,7 +98,7 @@ export function DataSyncButton() {
             <div>
               <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">Sovrascrivere i dati attuali?</p>
               <p className="text-xs text-amber-600 dark:text-amber-300 mt-1">
-                {confirmImport.teams.length} team · {confirmImport.matchJournal.length} partite · {confirmImport.myRoster.length} Pokémon nel roster
+                {confirmImport.teams.length} team · {confirmImport.matchJournal.length} partite · {countExportRoster(confirmImport.myRoster)} Pokémon nel roster
               </p>
               <p className="text-[10px] text-amber-400 dark:text-amber-500 mt-1">
                 Esportato il {new Date(confirmImport.exportedAt).toLocaleDateString("it-IT")}

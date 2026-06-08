@@ -4,8 +4,9 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "@/lib/motion";
 import { SEASONS, POKEMON_SEED, getPokemonByRegulation } from "@/lib/pokemon-data";
 import { cn } from "@/lib/utils";
-import { Shield, Swords, Users, Timer, Sparkles, Ban, Gauge, ListChecks, Calendar, Dna, ChevronDown } from "lucide-react";
+import { Shield, Scroll, Swords, Users, Timer, Sparkles, Ban, Gauge, ListChecks, Calendar, Dna, ChevronDown, Check } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { getSettings } from "@/lib/storage";
 import type { Regulation } from "@/lib/types";
 
 // ── Season + Regulation selector ──────────────────────────────────────────────
@@ -13,9 +14,10 @@ import type { Regulation } from "@/lib/types";
 interface SeasonTabsProps {
   activeRegulation: string;
   onRegulationChange: (regulationId: string) => void;
+  variant?: "dropdowns" | "cards";
 }
 
-export function SeasonTabs({ activeRegulation, onRegulationChange }: SeasonTabsProps) {
+export function SeasonTabs({ activeRegulation, onRegulationChange, variant = "dropdowns" }: SeasonTabsProps) {
   const { t } = useI18n();
 
   const translateName = (name: string) =>
@@ -23,31 +25,100 @@ export function SeasonTabs({ activeRegulation, onRegulationChange }: SeasonTabsP
       .replace(/\bSeason\b/g, t('season.seasonWord'))
       .replace(/\bRegulation\b/g, t('season.regulationWord'));
 
+  // The "LIVE" marker follows the user's saved default regulation (falls back to data isActive)
+  const storedDefault = getSettings().defaultRegulationId;
+  const liveRegId = storedDefault || SEASONS.flatMap(s => s.regulations).find(r => r.isActive)?.id || "";
+
   const activeSeasonId =
     SEASONS.find((s) => s.regulations.some((r) => r.id === activeRegulation))?.id ?? SEASONS[0]?.id;
 
   const activeSeason = SEASONS.find((s) => s.id === activeSeasonId);
+  const activeSeasonIsLive = activeSeason?.regulations.some(r => r.id === liveRegId) ?? false;
+  const activeRegIsLive = activeRegulation === liveRegId;
+
+  if (variant === "cards") {
+    return (
+      <div className="space-y-4 w-full">
+        {SEASONS.map((season) => (
+          <div key={season.id}>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2 px-1">
+              {translateName(season.name)}
+              {season.regulations.some(r => r.id === liveRegId) ? " — LIVE" : ""}
+            </p>
+            <div className="space-y-1.5">
+              {season.regulations.map((reg) => {
+                const isSelected = activeRegulation === reg.id;
+                const isLive = liveRegId === reg.id;
+                return (
+                  <button
+                    key={reg.id}
+                    type="button"
+                    onClick={() => onRegulationChange(reg.id)}
+                    className={cn(
+                      "w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all text-left",
+                      isSelected
+                        ? "border-violet-400 bg-violet-50 dark:bg-violet-500/10"
+                        : "border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 bg-white/50 dark:bg-white/[0.02]"
+                    )}
+                  >
+                    <div className="flex-1 flex items-center gap-2 min-w-0">
+                      <span className={cn(
+                        "text-sm font-bold",
+                        isSelected ? "text-violet-600 dark:text-violet-400" : ""
+                      )}>
+                        {translateName(reg.label)}
+                      </span>
+                      {isLive && (
+                        <span className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-200 dark:ring-emerald-500/30 uppercase tracking-wider">
+                          LIVE
+                        </span>
+                      )}
+                      {reg.isActive && !isLive && (
+                        <span className="shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-white/10 text-muted-foreground">
+                          Attiva
+                        </span>
+                      )}
+                    </div>
+                    {isSelected && <Check className="w-4 h-4 text-violet-500 shrink-0" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-2.5 min-w-[190px]">
       {/* Season dropdown */}
       <div className="relative">
-        <Shield className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-violet-500 dark:text-violet-400 pointer-events-none" />
+        <Shield className={cn("absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none", activeSeasonIsLive ? "text-green-500" : "text-gray-400 dark:text-gray-500")} />
         <select
           title={t('season.seasonWord')}
           value={activeSeasonId}
           onChange={(e) => {
-            const season = SEASONS.find((s) => s.id === e.target.value);
+            const season = SEASONS.find((s) => s.id === Number(e.target.value));
             const target =
               season?.regulations.find((r) => r.isActive) ??
               season?.regulations[season.regulations.length - 1];
             if (target) onRegulationChange(target.id);
           }}
-          className="w-full appearance-none pl-8 pr-8 py-2 rounded-xl text-sm font-medium bg-violet-50 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/25 text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-400/50"
+          className={cn(
+            "w-full appearance-none pl-8 pr-8 py-2 rounded-xl text-sm font-medium bg-white dark:bg-white/5 border cursor-pointer focus:outline-none focus:ring-2 focus:border-transparent transition-colors",
+            activeSeasonIsLive
+              ? "border-green-400 dark:border-green-500/40 text-green-600 dark:text-green-400 focus:ring-green-400"
+              : "border-gray-200 dark:border-white/10 text-foreground focus:ring-violet-400"
+          )}
         >
           {SEASONS.map((season) => (
-            <option key={season.id} value={season.id}>
-              {translateName(season.name)}{season.isActive ? " — LIVE" : ""}
+            <option
+              key={season.id}
+              value={season.id}
+              style={{ color: season.regulations.some(r => r.id === liveRegId) ? "#22c55e" : "CanvasText" }}
+            >
+              {translateName(season.name)}
             </option>
           ))}
         </select>
@@ -57,15 +128,25 @@ export function SeasonTabs({ activeRegulation, onRegulationChange }: SeasonTabsP
       {/* Regulation dropdown */}
       {activeSeason && activeSeason.regulations.length > 1 && (
         <div className="relative">
+          <Scroll className={cn("absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none", activeRegIsLive ? "text-green-500" : "text-gray-400 dark:text-gray-500")} />
           <select
             title={t('season.regulationWord')}
             value={activeRegulation}
             onChange={(e) => onRegulationChange(e.target.value)}
-            className="w-full appearance-none pl-3 pr-8 py-1.5 rounded-lg text-xs font-medium bg-white dark:bg-white/5 border border-gray-200 dark:border-gray-200/15 text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-400/50"
+            className={cn(
+              "w-full appearance-none pl-8 pr-8 py-2 rounded-xl text-sm font-medium bg-white dark:bg-white/5 border cursor-pointer focus:outline-none focus:ring-2 focus:border-transparent transition-colors",
+              activeRegIsLive
+                ? "border-green-400 dark:border-green-500/40 text-green-600 dark:text-green-400 focus:ring-green-400"
+                : "border-gray-200 dark:border-white/10 text-foreground focus:ring-violet-400"
+            )}
           >
             {activeSeason.regulations.map((reg) => (
-              <option key={reg.id} value={reg.id}>
-                {translateName(reg.label)}{reg.isActive ? " — LIVE" : ""}
+              <option
+                key={reg.id}
+                value={reg.id}
+                style={{ color: reg.id === liveRegId ? "#22c55e" : "CanvasText" }}
+              >
+                {translateName(reg.label)}
               </option>
             ))}
           </select>

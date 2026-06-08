@@ -9,13 +9,17 @@ import {
   TrendingUp, TrendingDown, Award, Shield, Zap, Target, Brain,
   ChevronDown, ChevronUp, X, Swords, Users, Star, Crown,
   BarChart3, ArrowRight, Sparkles, Timer, Search, Info, Trophy,
-  LayoutGrid, Table as TableIcon,
+  LayoutGrid, Table as TableIcon, Scroll,
 } from "lucide-react";
-import { POKEMON_SEED } from "@/lib/pokemon-data";
+import { POKEMON_SEED, getActiveRegulation, SEASONS } from "@/lib/pokemon-data";
 import { TYPE_COLORS, type PokemonType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
-import { getMyRoster } from "@/lib/storage";
+import { getMyRoster, getSettings } from "@/lib/storage";
+import {
+  loadUsageCache, saveUsageCache, mergeIncomingTournaments, computeUsageRankings,
+  type UsageRankingEntry, type CachedTournament, type UsageRankingsCache,
+} from "@/lib/usage-rankings-cache";
 import { useI18n } from "@/lib/i18n";
 import { getMegaIdFromArchetype, getMegaSprite, getMegaName } from "@/lib/mega-utils";
 import { LastUpdated } from "@/components/last-updated";
@@ -303,13 +307,34 @@ export default function MetaPage() {
   const [showAllCurated, setShowAllCurated] = useState(false);
 
   // ── Roster filter for tournament teams ───────────────────────────
-  const [myRoster] = useState<Set<number>>(() => getMyRoster());
+  const [myRoster] = useState<Set<number>>(() => {
+    const activeReg = getActiveRegulation();
+    const seasonId = activeReg
+      ? SEASONS.find(s => s.regulations.some(r => r.id === activeReg.id))?.id ?? 1
+      : 1;
+    return getMyRoster(seasonId);
+  });
   const [rosterFilter, setRosterFilter] = useState<"all" | "roster" | "off">("all");
   const [findTeamsRosterFilter, setFindTeamsRosterFilter] = useState<"all" | "roster" | "off">("all");
 
-  // ── Manual sync state ─────────────────────────────────────────
+  // ── Manual sync state (Teams tab — writes to simulation-data.ts) ────────
   const [syncState, setSyncState] = useState<"idle" | "running" | "done" | "error">("idle");
   const [syncLog, setSyncLog] = useState<string>("");
+
+  // ── Usage Rankings live sync (Overview tab — localStorage cache) ──────────
+  const [usageSyncState, setUsageSyncState] = useState<"idle" | "running" | "done" | "error">("idle");
+  const [usageSyncLog, setUsageSyncLog] = useState<string>("");
+  const [liveUsageRankings, setLiveUsageRankings] = useState<UsageRankingEntry[]>(() => {
+    if (typeof window === "undefined") return [];
+    const regId = getActiveRegulation()?.id ?? "M-B";
+    return loadUsageCache(regId)?.rankings ?? [];
+  });
+  const [usageCacheMeta, setUsageCacheMeta] = useState<{ syncedAt: string; tournamentCount: number; totalTeams: number } | null>(() => {
+    if (typeof window === "undefined") return null;
+    const regId = getActiveRegulation()?.id ?? "M-B";
+    const c = loadUsageCache(regId);
+    return c ? { syncedAt: c.syncedAt, tournamentCount: c.tournamentCount, totalTeams: c.totalTeams } : null;
+  });
 
   const handleSync = async () => {
     setSyncState("running");
@@ -337,6 +362,130 @@ export default function MetaPage() {
     } catch (e) {
       setSyncState("error");
       setSyncLog(String(e));
+    }
+  };
+
+  const [selectedRegulationId, setSelectedRegulationId] = useState<string>(
+    () => getSettings().defaultRegulationId || (getActiveRegulation()?.id ?? SEASONS[0]?.regulations[0]?.id ?? "M-A")
+  );
+
+  function switchRegulation(regId: string) {
+    setSelectedRegulationId(regId);
+    setUsageSyncState("idle");
+    setUsageSyncLog("");
+    const c = loadUsageCache(regId);
+    setLiveUsageRankings(c?.rankings ?? []);
+    setUsageCacheMeta(c ? { syncedAt: c.syncedAt, tournamentCount: c.tournamentCount, totalTeams: c.totalTeams } : null);
+  }
+
+  const handleUsageSync = async () => {
+    setUsageSyncState("running");
+    setUsageSyncLog("Controllo dati in cache…");
+    try {
+      // Step 1: validate existing cache — remove any tournaments with 0 teams
+      let cache = loadUsageCache(selectedRegulationId);
+      if (cache && cache.tournaments.length > 0) {
+        const validTournaments = cache.tournaments.filter(t => t.teams.length > 0);
+        const invalidIds = cache.tournaments.filter(t => t.teams.length === 0).map(t => t.id);
+        if (invalidIds.length > 0) {
+          const mergedEmptyIds = [...new Set([...(cache.emptyIds ?? []), ...invalidIds])];
+          const rankings = computeUsageRankings(validTournaments);
+          const totalTeams = validTournaments.reduce((s, t) => s + t.teams.length, 0);
+          const cleaned: UsageRankingsCache = {
+            ...cache,
+            tournaments: validTournaments,
+            rankings,
+            totalTeams,
+            tournamentCount: validTournaments.length,
+            mostRecentTournamentId: validTournaments[0]?.id ?? "",
+            emptyIds: mergedEmptyIds,
+          };
+          saveUsageCache(cleaned);
+          cache = cleaned;
+          setUsageSyncLog(`Rimossi ${invalidIds.length} torneo/i senza team dalla cache. Avvio sync…`);
+          await new Promise(r => setTimeout(r, 600));
+        }
+      }
+
+      setUsageSyncLog("Avvio sync…");
+      const validKnownIds = cache?.tournaments.map(t => t.id) ?? [];
+      const knownEmptyIds = cache?.emptyIds ?? [];
+
+      const res = await fetch("/api/sync-usage-rankings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          regulationId: selectedRegulationId,
+          knownIds: validKnownIds,
+          emptyIds: knownEmptyIds,
+        }),
+      });
+
+      if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = "";
+      const incoming: CachedTournament[] = [];
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const lines = buf.split("\n");
+        buf = lines.pop()!;
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          const event: { type: string; msg?: string; data?: CachedTournament; totalNew?: number; emptyIds?: string[] } = JSON.parse(line);
+          if (event.type === "progress" && event.msg) {
+            setUsageSyncLog(event.msg);
+          } else if (event.type === "tournament" && event.data) {
+            incoming.push(event.data);
+            setUsageSyncLog(`Scaricati ${incoming.length} torneo/i…`);
+          } else if (event.type === "done") {
+            const newEmptyIds: string[] = event.emptyIds ?? [];
+            const mergedEmptyIds = [...new Set([...(cache?.emptyIds ?? []), ...newEmptyIds])];
+            const hasNewData = incoming.length > 0;
+            const hasNewEmpty = newEmptyIds.length > 0;
+
+            if (!hasNewData && !hasNewEmpty) {
+              const hasCached = (cache?.tournaments.length ?? 0) > 0;
+              setUsageSyncLog(hasCached
+                ? `Nessun nuovo torneo — dati già aggiornati (${cache!.tournamentCount} tornei in cache).`
+                : `Nessun torneo trovato su Limitless per la Regulation ${selectedRegulationId}. Potrebbe non avere dati ancora.`);
+              setUsageSyncState("done");
+            } else {
+              const merged = mergeIncomingTournaments(cache?.tournaments ?? [], incoming);
+              const rankings = computeUsageRankings(merged);
+              const now = new Date().toISOString();
+              const totalTeams = merged.reduce((s, t) => s + t.teams.length, 0);
+              saveUsageCache({
+                regulationId: selectedRegulationId,
+                syncedAt: now,
+                mostRecentTournamentId: merged[0]?.id ?? "",
+                tournamentCount: merged.length,
+                totalTeams,
+                tournaments: merged,
+                rankings,
+                emptyIds: mergedEmptyIds,
+              });
+              setLiveUsageRankings(rankings);
+              setUsageCacheMeta({ syncedAt: now, tournamentCount: merged.length, totalTeams });
+              const parts: string[] = [];
+              if (incoming.length > 0) parts.push(`${incoming.length} nuovo/i torneo/i`);
+              if (newEmptyIds.length > 0) parts.push(`${newEmptyIds.length} senza decklist (ignorati)`);
+              setUsageSyncLog(`✓ ${parts.join(" · ")} • ${rankings.length} Pokémon nel ranking`);
+              setUsageSyncState("done");
+            }
+          } else if (event.type === "error") {
+            setUsageSyncLog(event.msg ?? "Errore");
+            setUsageSyncState("error");
+          }
+        }
+      }
+    } catch (err) {
+      setUsageSyncLog(String(err));
+      setUsageSyncState("error");
     }
   };
 
@@ -1190,43 +1339,149 @@ export default function MetaPage() {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
 
           {/* ═══ 1. REAL USAGE DATA (Hero Section) ═══ */}
-          <div className="glass rounded-2xl p-6 border-2 border-amber-300/80 bg-gradient-to-br from-amber-50/60 via-white to-yellow-50/60 shadow-lg shadow-amber-100/50">
-            <div className="flex items-center justify-between mb-1">
-              <h2 className="text-xl font-extrabold flex items-center gap-2">
-                <Crown className="w-6 h-6 text-amber-500" /> {t('meta.usageRankings')}
-              </h2>
-              <span className="px-3 py-1 text-[10px] font-bold uppercase rounded-full bg-amber-100 text-amber-700 border border-amber-200">{t('meta.realGameData')}</span>
-            </div>
-            <p className="text-sm text-muted-foreground mb-5">
-              {t('meta.liveUsageDesc')}
-            </p>
-            <div className="space-y-1.5">
-              {_VALID_TOURNAMENT_USAGE
-                .sort((a, b) => b.usageRate - a.usageRate)
-                .slice(0, 20).map((p, i) => {
-                const pokemon = POKEMON_SEED.find(pk => pk.id === p.pokemonId);
-                const maxUsage = _VALID_TOURNAMENT_USAGE.sort((a, b) => b.usageRate - a.usageRate)[0]?.usageRate || 53;
-                return (
-                  <div key={p.pokemonId} className="flex items-center gap-2 group cursor-pointer" onClick={() => setModal({ kind: "pokemon", name: p.name })}>
-                    <span className={cn("text-xs font-bold w-6 text-center rounded py-0.5", i < 3 ? "bg-amber-100 text-amber-700" : i < 10 ? "bg-gray-100 text-gray-700" : "text-muted-foreground")}>{i + 1}</span>
-                    {pokemon && <Image src={pokemon.sprite} alt={p.name} width={28} height={28} className="rounded" unoptimized />}
-                    <span className="text-xs font-semibold w-28 truncate">{tp(p.name)}</span>
-                    {pokemon && <div className="flex gap-0.5">{pokemon.types.map(ty => <span key={ty} className="px-1 py-0.5 text-[7px] font-bold uppercase rounded text-white/90" style={{ backgroundColor: `${TYPE_COLORS[ty]}AA` }}>{tt(ty)}</span>)}</div>}
-                    <div className="flex-1 relative h-5 bg-gray-100 rounded overflow-hidden">
-                      <div className={cn("absolute inset-y-0 left-0 rounded opacity-80 group-hover:opacity-100 transition-opacity", i < 3 ? "bg-gradient-to-r from-amber-400 to-orange-400" : i < 10 ? "bg-gradient-to-r from-orange-300 to-red-300" : "bg-gradient-to-r from-gray-300 to-gray-400")} style={{ width: `${(p.usageRate / maxUsage) * 100}%` }} />
-                      <div className="absolute inset-0 flex items-center px-2">
-                        <span className="text-[10px] font-bold text-white drop-shadow-sm">{p.usageRate}%</span>
-                      </div>
+          {(() => {
+            const usingLive = liveUsageRankings.length > 0;
+            const displayEntries = usingLive
+              ? liveUsageRankings.filter(e => _VALID_IDS.has(e.pokemonId)).slice(0, 20)
+              : _VALID_TOURNAMENT_USAGE.sort((a, b) => b.usageRate - a.usageRate).slice(0, 20);
+            const maxVal = usingLive
+              ? (liveUsageRankings[0]?.usagePct || 53)
+              : (_VALID_TOURNAMENT_USAGE[0]?.usageRate || 53);
+
+            return (
+              <div className="glass rounded-2xl p-6 border-2 border-amber-300/80 bg-gradient-to-br from-amber-50/60 via-white to-yellow-50/60 shadow-lg shadow-amber-100/50">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-1">
+                  <h2 className="text-xl font-extrabold flex items-center gap-2">
+                    <Crown className="w-6 h-6 text-amber-500" /> {t('meta.usageRankings')}
+                  </h2>
+                  <div className="flex items-center gap-2 flex-wrap justify-end">
+                    {usingLive && usageCacheMeta && (
+                      <span className="hidden sm:block text-[9px] text-muted-foreground">
+                        {usageCacheMeta.tournamentCount} tornei · {usageCacheMeta.totalTeams} team
+                      </span>
+                    )}
+
+                    {/* Regulation selector */}
+                    <div className="relative">
+                      <Scroll className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
+                      <select
+                        value={selectedRegulationId}
+                        onChange={e => switchRegulation(e.target.value)}
+                        title="Seleziona Regulation"
+                        className="appearance-none pl-6 pr-6 py-1 rounded-lg text-xs font-medium bg-white dark:bg-white/5 border border-gray-200 dark:border-gray-200/15 text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-400/50"
+                      >
+                        {SEASONS.flatMap(s => s.regulations).map(reg => (
+                          <option key={reg.id} value={reg.id}>
+                            {reg.label}{reg.isActive ? " — LIVE" : ""}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground pointer-events-none" />
                     </div>
-                    <span className={cn("text-[10px] font-bold w-12 text-right", p.winRate >= 53 ? "text-green-600" : p.winRate >= 50 ? "text-gray-700" : "text-red-600")}>{p.winRate}% {t('meta.wrAbbr')}</span>
+
+                    <span className="px-3 py-1 text-[10px] font-bold uppercase rounded-full bg-amber-100 text-amber-700 border border-amber-200">
+                      {usingLive ? "Limitless" : t('meta.realGameData')}
+                    </span>
+                    {/* Sync button */}
+                    <button
+                      onClick={handleUsageSync}
+                      disabled={usageSyncState === "running"}
+                      title="Sincronizza Usage Rankings da Limitless"
+                      className={cn(
+                        "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all",
+                        usageSyncState === "running"
+                          ? "bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30 text-amber-600 cursor-wait"
+                          : usageSyncState === "done"
+                          ? "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30 text-emerald-600"
+                          : usageSyncState === "error"
+                          ? "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30 text-red-600"
+                          : "bg-white dark:bg-white/[0.05] border-gray-200 dark:border-white/10 text-muted-foreground hover:text-amber-700 hover:border-amber-300 dark:hover:border-amber-500/40"
+                      )}
+                    >
+                      {usageSyncState === "running" ? (
+                        <><span className="animate-spin inline-block w-3 h-3 border-2 border-amber-400 border-t-transparent rounded-full" />Sync…</>
+                      ) : usageSyncState === "done" ? (
+                        <><Sparkles className="w-3 h-3" />Aggiornato</>
+                      ) : usageSyncState === "error" ? (
+                        <><X className="w-3 h-3" />Errore</>
+                      ) : (
+                        <><TrendingUp className="w-3 h-3" />Sync Limitless</>
+                      )}
+                    </button>
                   </div>
-                );
-              })}
-            </div>
-            <button onClick={() => setActiveTab("pokemon")} className="mt-4 text-xs text-amber-600 hover:text-amber-700 font-medium flex items-center gap-1">
-              View full {_VALID_TOURNAMENT_USAGE.length} Pokémon rankings <ArrowRight className="w-3 h-3" />
-            </button>
-          </div>
+                </div>
+
+                {/* Progress / result log */}
+                {usageSyncState !== "idle" && usageSyncLog && (
+                  <div className={cn(
+                    "mb-3 p-2.5 rounded-xl text-[10px] font-mono border flex items-start justify-between gap-2",
+                    usageSyncState === "error"
+                      ? "bg-red-50 dark:bg-red-500/[0.08] border-red-200 dark:border-red-500/20 text-red-700"
+                      : usageSyncState === "done"
+                      ? "bg-emerald-50 dark:bg-emerald-500/[0.08] border-emerald-200 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-300"
+                      : "bg-amber-50 dark:bg-amber-500/[0.08] border-amber-200 dark:border-amber-500/20 text-amber-800 dark:text-amber-300"
+                  )}>
+                    <span>{usageSyncLog}</span>
+                    {(usageSyncState === "done" || usageSyncState === "error") && (
+                      <button aria-label="Chiudi" onClick={() => { setUsageSyncState("idle"); setUsageSyncLog(""); }} className="shrink-0 opacity-50 hover:opacity-100">
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                <p className="text-sm text-muted-foreground mb-5">
+                  {usingLive && usageCacheMeta
+                    ? `Dati reali da ${usageCacheMeta.tournamentCount} tornei Limitless (${usageCacheMeta.totalTeams} team) — Regulation ${selectedRegulationId}`
+                    : t('meta.liveUsageDesc')}
+                </p>
+
+                {/* Rankings list */}
+                <div className="space-y-1.5">
+                  {displayEntries.map((p, i) => {
+                    const pokemon = POKEMON_SEED.find(pk => pk.id === p.pokemonId);
+                    const usageVal = usingLive ? (p as UsageRankingEntry).usagePct : (p as typeof _VALID_TOURNAMENT_USAGE[0]).usageRate;
+                    const recentVal = usingLive ? (p as UsageRankingEntry).recentUsagePct : null;
+                    const trend = recentVal !== null
+                      ? recentVal > usageVal * 1.1 ? "up" : recentVal < usageVal * 0.85 ? "down" : "stable"
+                      : null;
+
+                    return (
+                      <div key={p.pokemonId} className="flex items-center gap-2 group cursor-pointer" onClick={() => setModal({ kind: "pokemon", name: p.name })}>
+                        <span className={cn("text-xs font-bold w-6 text-center rounded py-0.5", i < 3 ? "bg-amber-100 text-amber-700" : i < 10 ? "bg-gray-100 text-gray-700" : "text-muted-foreground")}>{i + 1}</span>
+                        {pokemon && <Image src={pokemon.sprite} alt={p.name} width={28} height={28} className="rounded" unoptimized />}
+                        <span className="text-xs font-semibold w-28 truncate">{tp(p.name)}</span>
+                        {pokemon && <div className="flex gap-0.5">{pokemon.types.map(ty => <span key={ty} className="px-1 py-0.5 text-[7px] font-bold uppercase rounded text-white/90" style={{ backgroundColor: `${TYPE_COLORS[ty]}AA` }}>{tt(ty)}</span>)}</div>}
+                        <div className="flex-1 relative h-5 bg-gray-100 rounded overflow-hidden">
+                          <div className={cn("absolute inset-y-0 left-0 rounded opacity-80 group-hover:opacity-100 transition-opacity", i < 3 ? "bg-gradient-to-r from-amber-400 to-orange-400" : i < 10 ? "bg-gradient-to-r from-orange-300 to-red-300" : "bg-gradient-to-r from-gray-300 to-gray-400")} style={{ width: `${(usageVal / maxVal) * 100}%` }} />
+                          <div className="absolute inset-0 flex items-center px-2">
+                            <span className="text-[10px] font-bold text-white drop-shadow-sm">{usageVal}%</span>
+                          </div>
+                        </div>
+                        {usingLive ? (
+                          <span className={cn("text-[10px] font-bold w-12 text-right flex items-center justify-end gap-0.5",
+                            trend === "up" ? "text-emerald-600" : trend === "down" ? "text-red-500" : "text-muted-foreground"
+                          )}>
+                            {trend === "up" ? <TrendingUp className="w-2.5 h-2.5" /> : trend === "down" ? <TrendingDown className="w-2.5 h-2.5" /> : null}
+                            {recentVal}%
+                          </span>
+                        ) : (
+                          <span className={cn("text-[10px] font-bold w-12 text-right", (p as typeof _VALID_TOURNAMENT_USAGE[0]).winRate >= 53 ? "text-green-600" : (p as typeof _VALID_TOURNAMENT_USAGE[0]).winRate >= 50 ? "text-gray-700" : "text-red-600")}>
+                            {(p as typeof _VALID_TOURNAMENT_USAGE[0]).winRate}% {t('meta.wrAbbr')}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <button onClick={() => setActiveTab("pokemon")} className="mt-4 text-xs text-amber-600 hover:text-amber-700 font-medium flex items-center gap-1">
+                  View full {usingLive ? liveUsageRankings.filter(e => _VALID_IDS.has(e.pokemonId)).length : _VALID_TOURNAMENT_USAGE.length} Pokémon rankings <ArrowRight className="w-3 h-3" />
+                </button>
+              </div>
+            );
+          })()}
 
           {/* ═══ 2. TOURNAMENT TEAMS (Real Results) ═══ */}
           <div className="glass rounded-2xl p-6 border-2 border-amber-200/80 dark:border-amber-500/20 bg-gradient-to-br from-amber-50/30 via-white to-yellow-50/30 dark:from-amber-950/20 dark:via-transparent dark:to-yellow-950/20">
@@ -1307,19 +1562,24 @@ export default function MetaPage() {
               </button>
             </div>
 
-            {/* Type Distribution (real data) */}
+            {/* Type Distribution — driven by top-20 from Usage Rankings (live or static) */}
             <div className="glass rounded-2xl p-5 border border-gray-200/60 dark:border-white/10">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
                 <Star className="w-4 h-4 text-emerald-500" /> {t('meta.typeDistribution')}
               </h3>
               {(() => {
+                const usingLive = liveUsageRankings.length > 0;
+                const top20Ids: number[] = usingLive
+                  ? liveUsageRankings.filter(e => _VALID_IDS.has(e.pokemonId)).slice(0, 20).map(e => e.pokemonId)
+                  : [..._VALID_TOURNAMENT_USAGE].sort((a, b) => b.usageRate - a.usageRate).slice(0, 20).map(u => u.pokemonId);
                 const typeCounts: Record<string, { count: number; totalWr: number }> = {};
-                topUsage.slice(0, 30).forEach(u => {
-                  const pkm = POKEMON_SEED.find(p => p.id === u.pokemonId);
+                top20Ids.forEach(id => {
+                  const pkm = POKEMON_SEED.find(p => p.id === id);
+                  const wr = _VALID_TOURNAMENT_USAGE.find(u => u.pokemonId === id)?.winRate ?? 50;
                   if (pkm) pkm.types.forEach(ty => {
                     if (!typeCounts[ty]) typeCounts[ty] = { count: 0, totalWr: 0 };
                     typeCounts[ty].count++;
-                    typeCounts[ty].totalWr += u.winRate;
+                    typeCounts[ty].totalWr += wr;
                   });
                 });
                 const sorted = Object.entries(typeCounts).sort((a, b) => b[1].count - a[1].count);
@@ -1456,58 +1716,91 @@ export default function MetaPage() {
           </div>
 
           {/* ═══ 5. META TRENDS (2-col) ═══ */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="glass rounded-2xl p-5 border border-emerald-200/60">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-emerald-500" /> {t('meta.rising')}
-              </h3>
-              <div className="space-y-2">
-                {trends.risers.map(p => {
-                  const pokemon = POKEMON_SEED.find(pk => pk.id === p.pokemonId);
-                  return (
-                    <div key={p.pokemonId} className="flex items-center gap-2 p-2 rounded-lg bg-emerald-50/50 dark:bg-emerald-500/[0.06] border border-emerald-100 dark:border-emerald-500/15 cursor-pointer hover:bg-emerald-100/50 dark:hover:bg-emerald-500/10 transition-colors" onClick={() => setModal({ kind: "pokemon", name: p.name })}>
-                      {pokemon && <Image src={pokemon.sprite} alt={p.name} width={28} height={28} className="rounded" unoptimized />}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold">{tp(p.name)}</p>
-                        <p className="text-[10px] text-muted-foreground">{p.usageRate}% usage</p>
+          {(() => {
+            const usingLive = liveUsageRankings.length > 0;
+            const liveRisers = usingLive
+              ? liveUsageRankings
+                  .filter(e => _VALID_IDS.has(e.pokemonId) && e.recentUsagePct > e.usagePct * 1.1)
+                  .sort((a, b) => (b.recentUsagePct - b.usagePct) - (a.recentUsagePct - a.usagePct))
+                  .slice(0, 5)
+              : null;
+            const liveFallers = usingLive
+              ? liveUsageRankings
+                  .filter(e => _VALID_IDS.has(e.pokemonId) && e.recentUsagePct < e.usagePct * 0.85)
+                  .sort((a, b) => (a.recentUsagePct - a.usagePct) - (b.recentUsagePct - b.usagePct))
+                  .slice(0, 5)
+              : null;
+            const risers = usingLive ? liveRisers! : trends.risers;
+            const fallers = usingLive ? liveFallers! : trends.fallers;
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="glass rounded-2xl p-5 border border-emerald-200/60">
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-emerald-500" /> {t('meta.rising')}
+                  </h3>
+                  <div className="space-y-2">
+                    {risers.length > 0 ? risers.map(p => {
+                      const pokemon = POKEMON_SEED.find(pk => pk.id === p.pokemonId);
+                      const usageVal = usingLive ? (p as UsageRankingEntry).usagePct : (p as typeof trends.risers[0]).usageRate;
+                      const recentVal = usingLive ? (p as UsageRankingEntry).recentUsagePct : null;
+                      const rightVal = usingLive ? recentVal : (p as typeof trends.risers[0]).winRate;
+                      return (
+                        <div key={p.pokemonId} className="flex items-center gap-2 p-2 rounded-lg bg-emerald-50/50 dark:bg-emerald-500/[0.06] border border-emerald-100 dark:border-emerald-500/15 cursor-pointer hover:bg-emerald-100/50 dark:hover:bg-emerald-500/10 transition-colors" onClick={() => setModal({ kind: "pokemon", name: p.name })}>
+                          {pokemon && <Image src={pokemon.sprite} alt={p.name} width={28} height={28} className="rounded" unoptimized />}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-semibold">{tp(p.name)}</p>
+                            <p className="text-[10px] text-muted-foreground">{usageVal}% {usingLive ? "avg" : "usage"}</p>
+                          </div>
+                          <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{rightVal}%{usingLive ? " rec." : ""}</span>
+                          <TrendingUp className="w-3 h-3 text-emerald-500" />
+                        </div>
+                      );
+                    }) : (
+                      <div className="flex flex-col items-center justify-center py-8 text-center">
+                        <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center mb-3">
+                          <TrendingUp className="w-6 h-6 text-emerald-300" />
+                        </div>
+                        <p className="text-sm font-semibold text-muted-foreground">Nessun trend in salita</p>
+                        <p className="text-[10px] text-muted-foreground mt-1">Il meta è stabile nell'ultimo torneo</p>
                       </div>
-                      <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{p.winRate}%</span>
-                      <TrendingUp className="w-3 h-3 text-emerald-500" />
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            <div className="glass rounded-2xl p-5 border border-red-200/60 dark:border-red-500/20">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                <TrendingDown className="w-4 h-4 text-red-500" /> {t('meta.falling')}
-              </h3>
-              <div className="space-y-2">
-                {trends.fallers.length > 0 ? trends.fallers.map(p => {
-                  const pokemon = POKEMON_SEED.find(pk => pk.id === p.pokemonId);
-                  return (
-                    <div key={p.pokemonId} className="flex items-center gap-2 p-2 rounded-lg bg-red-50/50 dark:bg-red-500/[0.06] border border-red-100 dark:border-red-500/15 cursor-pointer hover:bg-red-100/50 dark:hover:bg-red-500/10 transition-colors" onClick={() => setModal({ kind: "pokemon", name: p.name })}>
-                      {pokemon && <Image src={pokemon.sprite} alt={p.name} width={28} height={28} className="rounded" unoptimized />}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold">{tp(p.name)}</p>
-                        <p className="text-[10px] text-muted-foreground">{p.usageRate}% usage</p>
-                      </div>
-                      <span className="text-xs font-bold text-red-600 dark:text-red-400">{p.winRate}%</span>
-                      <TrendingDown className="w-3 h-3 text-red-500" />
-                    </div>
-                  );
-                }) : (
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-3">
-                      <TrendingDown className="w-6 h-6 text-red-300" />
-                    </div>
-                    <p className="text-sm font-semibold text-muted-foreground">{t('meta.noFalling')}</p>
-                    <p className="text-[10px] text-muted-foreground mt-1">{t('meta.noFallingDesc')}</p>
+                    )}
                   </div>
-                )}
+                </div>
+                <div className="glass rounded-2xl p-5 border border-red-200/60 dark:border-red-500/20">
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <TrendingDown className="w-4 h-4 text-red-500" /> {t('meta.falling')}
+                  </h3>
+                  <div className="space-y-2">
+                    {fallers.length > 0 ? fallers.map(p => {
+                      const pokemon = POKEMON_SEED.find(pk => pk.id === p.pokemonId);
+                      const usageVal = usingLive ? (p as UsageRankingEntry).usagePct : (p as typeof trends.fallers[0]).usageRate;
+                      const recentVal = usingLive ? (p as UsageRankingEntry).recentUsagePct : null;
+                      const rightVal = usingLive ? recentVal : (p as typeof trends.fallers[0]).winRate;
+                      return (
+                        <div key={p.pokemonId} className="flex items-center gap-2 p-2 rounded-lg bg-red-50/50 dark:bg-red-500/[0.06] border border-red-100 dark:border-red-500/15 cursor-pointer hover:bg-red-100/50 dark:hover:bg-red-500/10 transition-colors" onClick={() => setModal({ kind: "pokemon", name: p.name })}>
+                          {pokemon && <Image src={pokemon.sprite} alt={p.name} width={28} height={28} className="rounded" unoptimized />}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-semibold">{tp(p.name)}</p>
+                            <p className="text-[10px] text-muted-foreground">{usageVal}% {usingLive ? "avg" : "usage"}</p>
+                          </div>
+                          <span className="text-xs font-bold text-red-600 dark:text-red-400">{rightVal}%{usingLive ? " rec." : ""}</span>
+                          <TrendingDown className="w-3 h-3 text-red-500" />
+                        </div>
+                      );
+                    }) : (
+                      <div className="flex flex-col items-center justify-center py-8 text-center">
+                        <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-3">
+                          <TrendingDown className="w-6 h-6 text-red-300" />
+                        </div>
+                        <p className="text-sm font-semibold text-muted-foreground">{t('meta.noFalling')}</p>
+                        <p className="text-[10px] text-muted-foreground mt-1">{t('meta.noFallingDesc')}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            );
+          })()}
 
           {/* ═══ 6. ML ENGINE ANALYSIS (2-col: Predictions + Insights) ═══ */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1657,189 +1950,265 @@ export default function MetaPage() {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
 
           {/* ═══ 1. CHAMPIONS OFFICIAL USAGE STATS ═══ */}
-          <div className="glass rounded-2xl p-6 border-2 border-amber-200/80 bg-gradient-to-br from-amber-50/40 via-white to-yellow-50/40 shadow-lg shadow-amber-100/30">
-            <div className="flex items-center justify-between mb-1">
-              <h2 className="text-lg font-extrabold flex items-center gap-2">
-                <Crown className="w-5 h-5 text-amber-500" /> {t('meta.officialUsage')}
-              </h2>
-              <span className="px-3 py-1 text-[10px] font-bold uppercase rounded-full bg-amber-100 text-amber-700 border border-amber-200">{t('meta.inGameRankedData')}</span>
-            </div>
-            <div className="flex items-center justify-between mb-5 gap-4">
-              <p className="text-sm text-muted-foreground">
-                {t('meta.officialUsageDesc')}
-              </p>
-              {/* View Toggle */}
-              <div className="hidden md:flex items-center gap-1 bg-gray-100 dark:bg-white/[0.06] rounded-lg p-0.5 shrink-0">
-                <button
-                  onClick={() => setOfficialViewMode("grid")}
-                  className={cn("flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", officialViewMode === "grid" ? "bg-white dark:bg-white/10 shadow-sm text-amber-700 dark:text-amber-400" : "text-muted-foreground hover:text-foreground")}
-                >
-                  <LayoutGrid className="w-3.5 h-3.5" /> Cards
-                </button>
-                <button
-                  onClick={() => setOfficialViewMode("table")}
-                  className={cn("flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", officialViewMode === "table" ? "bg-white dark:bg-white/10 shadow-sm text-amber-700 dark:text-amber-400" : "text-muted-foreground hover:text-foreground")}
-                >
-                  <TableIcon className="w-3.5 h-3.5" /> Table
-                </button>
-              </div>
-            </div>
-            {/* Card View — always visible on mobile, or when selected on desktop */}
-            <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3", officialViewMode === "table" && "md:hidden")}>
-              {_VALID_TOURNAMENT_USAGE
-                .sort((a, b) => b.usageRate - a.usageRate)
-                .slice(0, showAllOfficial ? 207 : 15)
-                .map((p, i) => {
-                  const pokemon = POKEMON_SEED.find(pk => pk.id === p.pokemonId);
-                  const maxUsage = _VALID_TOURNAMENT_USAGE[0]?.usageRate ?? 53;
-                  return (
-                    <div
-                      key={p.pokemonId}
+          {(() => {
+            const usingLiveOfficial = liveUsageRankings.length > 0;
+            const liveFiltered = liveUsageRankings.filter(e => _VALID_IDS.has(e.pokemonId)).sort((a, b) => b.usagePct - a.usagePct);
+            const officialData = usingLiveOfficial
+              ? liveFiltered
+              : [..._VALID_TOURNAMENT_USAGE].sort((a, b) => b.usageRate - a.usageRate);
+            const officialMax = usingLiveOfficial
+              ? (liveFiltered[0]?.usagePct ?? 53)
+              : (_VALID_TOURNAMENT_USAGE[0]?.usageRate ?? 53);
+            const totalCount = officialData.length;
+            return (
+              <div className="glass rounded-2xl p-6 border-2 border-amber-200/80 bg-gradient-to-br from-amber-50/40 via-white to-yellow-50/40 shadow-lg shadow-amber-100/30">
+                <div className="flex items-center justify-between mb-1">
+                  <h2 className="text-lg font-extrabold flex items-center gap-2">
+                    <Crown className="w-5 h-5 text-amber-500" /> {t('meta.officialUsage')}
+                  </h2>
+                  <div className="flex items-center gap-2 flex-wrap justify-end">
+                    {usingLiveOfficial && usageCacheMeta && (
+                      <span className="hidden sm:block text-[9px] text-muted-foreground">
+                        {usageCacheMeta.tournamentCount} tornei · {usageCacheMeta.totalTeams} team
+                      </span>
+                    )}
+                    {/* Regulation selector */}
+                    <div className="relative">
+                      <Scroll className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
+                      <select
+                        value={selectedRegulationId}
+                        onChange={e => switchRegulation(e.target.value)}
+                        title="Seleziona Regulation"
+                        className="appearance-none pl-6 pr-6 py-1 rounded-lg text-xs font-medium bg-white dark:bg-white/5 border border-gray-200 dark:border-gray-200/15 text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-400/50"
+                      >
+                        {SEASONS.flatMap(s => s.regulations).map(reg => (
+                          <option key={reg.id} value={reg.id}>
+                            {reg.label}{reg.isActive ? " — LIVE" : ""}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground pointer-events-none" />
+                    </div>
+                    <span className="px-3 py-1 text-[10px] font-bold uppercase rounded-full bg-amber-100 text-amber-700 border border-amber-200">
+                      {usingLiveOfficial ? "Limitless" : t('meta.inGameRankedData')}
+                    </span>
+                    {/* Sync button */}
+                    <button
+                      onClick={handleUsageSync}
+                      disabled={usageSyncState === "running"}
+                      title="Sincronizza Usage Rankings da Limitless"
                       className={cn(
-                        "flex items-center gap-3 p-3 rounded-xl transition-colors cursor-pointer",
-                        i < 5 ? "bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 hover:border-amber-300" :
-                        i < 15 ? "bg-gray-50/80 dark:bg-white/[0.04] border border-gray-100 dark:border-white/[0.06] hover:border-gray-200 dark:hover:border-white/10" :
-                        "bg-gray-50/50 dark:bg-white/[0.03] hover:bg-gray-100/80 dark:hover:bg-white/[0.06]"
+                        "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all",
+                        usageSyncState === "running"
+                          ? "bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30 text-amber-600 cursor-wait"
+                          : usageSyncState === "done"
+                          ? "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30 text-emerald-600"
+                          : usageSyncState === "error"
+                          ? "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30 text-red-600"
+                          : "bg-white dark:bg-white/[0.05] border-gray-200 dark:border-white/10 text-muted-foreground hover:text-amber-700 hover:border-amber-300 dark:hover:border-amber-500/40"
                       )}
-                      onClick={() => setModal({ kind: "pokemon", name: p.name })}
                     >
-                      <span className={cn(
-                        "text-sm font-extrabold w-7 text-center tabular-nums",
-                        i < 3 ? "text-amber-600" : i < 10 ? "text-gray-600" : "text-gray-400"
-                      )}>{i + 1}</span>
-                      {pokemon && <Image src={pokemon.sprite} alt={p.name} width={36} height={36} className="drop-shadow-sm" unoptimized />}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold truncate">{tp(p.name)}</p>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <div className="flex-1 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
-                            <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400" style={{ width: `${Math.min(100, (p.usageRate / maxUsage) * 100)}%` }} />
-                          </div>
-                          <span className="text-xs font-bold text-amber-700 dark:text-amber-300 tabular-nums shrink-0">{p.usageRate}%</span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-
-            {/* Table View — desktop only */}
-            {officialViewMode === "table" && (
-              <div className="hidden md:block">
-                <div className="overflow-x-auto -mx-2 px-2">
-                  <div className="border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden w-full">
-                    {/* Table Header */}
-                    <div className="grid grid-cols-[2rem_2.5rem_2fr_1.5fr_repeat(6,1fr)] gap-x-3 gap-y-0 px-4 py-2.5 bg-gray-50/80 dark:bg-white/[0.04] border-b border-gray-200 dark:border-white/10 text-[10px] font-bold uppercase text-muted-foreground">
-                      <span className="text-center">#</span>
-                      <span></span>
-                      <span>Pokémon</span>
-                      <span className="text-right">Usage</span>
-                      <span className="text-center">HP</span>
-                      <span className="text-center">Atk</span>
-                      <span className="text-center">Def</span>
-                      <span className="text-center">SpA</span>
-                      <span className="text-center">SpD</span>
-                      <span className="text-center">Spe</span>
-                    </div>
-                    {/* Table Rows */}
-                    {_VALID_TOURNAMENT_USAGE
-                      .sort((a, b) => b.usageRate - a.usageRate)
-                      .slice(0, showAllOfficial ? 207 : 15)
-                      .map((p, i) => {
-                        const pokemon = POKEMON_SEED.find(pk => pk.id === p.pokemonId);
-                        const maxUsage = _VALID_TOURNAMENT_USAGE[0]?.usageRate ?? 53;
-                        const types = getTypesForName(p.name) ?? pokemon?.types ?? [];
-                        const stats = pokemon?.baseStats;
-                        return (
-                          <div
-                            key={p.pokemonId}
-                            className={cn(
-                              "grid grid-cols-[2rem_2.5rem_2fr_1.5fr_repeat(6,1fr)] gap-x-3 gap-y-0 px-4 py-2.5 items-center border-b border-gray-100 dark:border-white/[0.06] hover:bg-gray-50 dark:hover:bg-white/[0.04] transition-colors cursor-pointer",
-                              i < 3 ? "bg-amber-50/40 dark:bg-amber-500/[0.05]" : i < 15 ? "bg-white/50 dark:bg-transparent" : "bg-gray-50/30 dark:bg-white/[0.02]"
-                            )}
-                            onClick={() => setModal({ kind: "pokemon", name: p.name })}
-                          >
-                            {/* Rank */}
-                            <span className={cn("text-center text-xs font-extrabold tabular-nums", i < 3 ? "text-amber-600 dark:text-amber-400" : i < 10 ? "text-gray-600 dark:text-gray-300" : "text-gray-400 dark:text-gray-400")}>{i + 1}</span>
-                            {/* Sprite */}
-                            <div className="flex justify-center">
-                              {pokemon && <Image src={pokemon.sprite} alt={p.name} width={28} height={28} className="drop-shadow-sm" unoptimized />}
-                            </div>
-                            {/* Name + Types + Abilities */}
-                            <div className="min-w-0">
-                              <span className="text-sm font-bold truncate block">{tp(p.name)}</span>
-                              <div className="flex gap-1 mt-0.5">
-                                {types.map(ty => (
-                                  <span key={ty} className="px-1 py-0 text-[8px] font-bold uppercase rounded text-white leading-3" style={{ backgroundColor: TYPE_COLORS[ty as PokemonType] }}>{tty(ty as PokemonType)}</span>
-                                ))}
-                              </div>
-                              {pokemon && (
-                                <p className="text-[10px] text-muted-foreground dark:text-gray-400 truncate mt-0.5">
-                                  {pokemon.abilities.filter(a => !a.isHidden).map(a => a.name).join(", ")}
-                                  {pokemon.abilities.some(a => a.isHidden) && (
-                                    <span className="text-gray-400 dark:text-gray-400 ml-1">({pokemon.abilities.filter(a => a.isHidden).map(a => a.name).join(", ")})</span>
-                                  )}
-                                </p>
-                              )}
-                            </div>
-                            {/* Usage */}
-                            <div className="text-right">
-                              <span className="text-xs font-bold text-amber-700 dark:text-amber-400 tabular-nums">{p.usageRate}%</span>
-                              <div className="h-1 bg-gray-200 dark:bg-white/10 rounded-full mt-0.5 overflow-hidden">
-                                <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400" style={{ width: `${Math.min(100, (p.usageRate / maxUsage) * 100)}%` }} />
-                              </div>
-                            </div>
-                            {/* Stats */}
-                            {stats ? (
-                              <>
-                                {[
-                                  { val: stats.hp, label: "HP" },
-                                  { val: stats.attack, label: "Atk" },
-                                  { val: stats.defense, label: "Def" },
-                                  { val: stats.spAtk, label: "SpA" },
-                                  { val: stats.spDef, label: "SpD" },
-                                  { val: stats.speed, label: "Spe" },
-                                ].map(stat => (
-                                  <div key={stat.label} className="text-center">
-                                    <span className={cn("text-[10px] font-bold tabular-nums px-1.5 py-0.5 rounded",
-                                      stat.val >= 120 ? "bg-amber-100 text-amber-700 dark:bg-amber-500/30 dark:text-white" :
-                                      stat.val >= 100 ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/25 dark:text-white" :
-                                      stat.val >= 80 ? "bg-gray-100 text-gray-600 dark:bg-white/10 dark:text-white" :
-                                      "text-gray-400 dark:bg-white/[0.06] dark:text-white"
-                                    )}>{stat.val}</span>
-                                  </div>
-                                ))}
-                              </>
-                            ) : (
-                              <>
-                                {["HP", "Atk", "Def", "SpA", "SpD", "Spe"].map(l => (
-                                  <div key={l} className="text-center"><span className="text-xs text-gray-300">-</span></div>
-                                ))}
-                              </>
-                            )}
-                          </div>
-                        );
-                      })}
+                      {usageSyncState === "running" ? (
+                        <><span className="animate-spin inline-block w-3 h-3 border-2 border-amber-400 border-t-transparent rounded-full" />Sync…</>
+                      ) : usageSyncState === "done" ? (
+                        <><Sparkles className="w-3 h-3" />Aggiornato</>
+                      ) : usageSyncState === "error" ? (
+                        <><X className="w-3 h-3" />Errore</>
+                      ) : (
+                        <><TrendingUp className="w-3 h-3" />Sync Limitless</>
+                      )}
+                    </button>
                   </div>
                 </div>
+                {/* Progress / result log */}
+                {usageSyncState !== "idle" && usageSyncLog && (
+                  <div className={cn(
+                    "mb-3 p-2.5 rounded-xl text-[10px] font-mono border flex items-start justify-between gap-2",
+                    usageSyncState === "error"
+                      ? "bg-red-50 dark:bg-red-500/[0.08] border-red-200 dark:border-red-500/20 text-red-700"
+                      : usageSyncState === "done"
+                      ? "bg-emerald-50 dark:bg-emerald-500/[0.08] border-emerald-200 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-300"
+                      : "bg-amber-50 dark:bg-amber-500/[0.08] border-amber-200 dark:border-amber-500/20 text-amber-800 dark:text-amber-300"
+                  )}>
+                    <span>{usageSyncLog}</span>
+                    {(usageSyncState === "done" || usageSyncState === "error") && (
+                      <button aria-label="Chiudi" onClick={() => { setUsageSyncState("idle"); setUsageSyncLog(""); }} className="shrink-0 opacity-50 hover:opacity-100">
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                )}
+                <div className="flex items-center justify-between mb-5 gap-4">
+                  <p className="text-sm text-muted-foreground">
+                    {usingLiveOfficial
+                      ? `${totalCount} Pokémon · dati da ${usageCacheMeta?.tournamentCount ?? "?"} tornei Limitless`
+                      : t('meta.officialUsageDesc')}
+                  </p>
+                  {/* View Toggle */}
+                  <div className="hidden md:flex items-center gap-1 bg-gray-100 dark:bg-white/[0.06] rounded-lg p-0.5 shrink-0">
+                    <button
+                      onClick={() => setOfficialViewMode("grid")}
+                      className={cn("flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", officialViewMode === "grid" ? "bg-white dark:bg-white/10 shadow-sm text-amber-700 dark:text-amber-400" : "text-muted-foreground hover:text-foreground")}
+                    >
+                      <LayoutGrid className="w-3.5 h-3.5" /> Cards
+                    </button>
+                    <button
+                      onClick={() => setOfficialViewMode("table")}
+                      className={cn("flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", officialViewMode === "table" ? "bg-white dark:bg-white/10 shadow-sm text-amber-700 dark:text-amber-400" : "text-muted-foreground hover:text-foreground")}
+                    >
+                      <TableIcon className="w-3.5 h-3.5" /> Table
+                    </button>
+                  </div>
+                </div>
+                {/* Card View — always visible on mobile, or when selected on desktop */}
+                <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3", officialViewMode === "table" && "md:hidden")}>
+                  {officialData
+                    .slice(0, showAllOfficial ? totalCount : 15)
+                    .map((p, i) => {
+                      const usageVal = usingLiveOfficial ? (p as UsageRankingEntry).usagePct : (p as typeof _VALID_TOURNAMENT_USAGE[0]).usageRate;
+                      const pokemon = POKEMON_SEED.find(pk => pk.id === p.pokemonId);
+                      return (
+                        <div
+                          key={p.pokemonId}
+                          className={cn(
+                            "flex items-center gap-3 p-3 rounded-xl transition-colors cursor-pointer",
+                            i < 5 ? "bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 hover:border-amber-300" :
+                            i < 15 ? "bg-gray-50/80 dark:bg-white/[0.04] border border-gray-100 dark:border-white/[0.06] hover:border-gray-200 dark:hover:border-white/10" :
+                            "bg-gray-50/50 dark:bg-white/[0.03] hover:bg-gray-100/80 dark:hover:bg-white/[0.06]"
+                          )}
+                          onClick={() => setModal({ kind: "pokemon", name: p.name })}
+                        >
+                          <span className={cn(
+                            "text-sm font-extrabold w-7 text-center tabular-nums",
+                            i < 3 ? "text-amber-600" : i < 10 ? "text-gray-600" : "text-gray-400"
+                          )}>{i + 1}</span>
+                          {pokemon && <Image src={pokemon.sprite} alt={p.name} width={36} height={36} className="drop-shadow-sm" unoptimized />}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold truncate">{tp(p.name)}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <div className="flex-1 h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
+                                <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400" style={{ width: `${Math.min(100, (usageVal / officialMax) * 100)}%` }} />
+                              </div>
+                              <span className="text-xs font-bold text-amber-700 dark:text-amber-300 tabular-nums shrink-0">{usageVal}%</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+
+                {/* Table View — desktop only */}
+                {officialViewMode === "table" && (
+                  <div className="hidden md:block">
+                    <div className="overflow-x-auto -mx-2 px-2">
+                      <div className="border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden w-full">
+                        <div className="grid grid-cols-[2rem_2.5rem_2fr_1.5fr_repeat(6,1fr)] gap-x-3 gap-y-0 px-4 py-2.5 bg-gray-50/80 dark:bg-white/[0.04] border-b border-gray-200 dark:border-white/10 text-[10px] font-bold uppercase text-muted-foreground">
+                          <span className="text-center">#</span>
+                          <span></span>
+                          <span>Pokémon</span>
+                          <span className="text-right">Usage</span>
+                          <span className="text-center">HP</span>
+                          <span className="text-center">Atk</span>
+                          <span className="text-center">Def</span>
+                          <span className="text-center">SpA</span>
+                          <span className="text-center">SpD</span>
+                          <span className="text-center">Spe</span>
+                        </div>
+                        {officialData
+                          .slice(0, showAllOfficial ? totalCount : 15)
+                          .map((p, i) => {
+                            const usageVal = usingLiveOfficial ? (p as UsageRankingEntry).usagePct : (p as typeof _VALID_TOURNAMENT_USAGE[0]).usageRate;
+                            const pokemon = POKEMON_SEED.find(pk => pk.id === p.pokemonId);
+                            const types = getTypesForName(p.name) ?? pokemon?.types ?? [];
+                            const stats = pokemon?.baseStats;
+                            return (
+                              <div
+                                key={p.pokemonId}
+                                className={cn(
+                                  "grid grid-cols-[2rem_2.5rem_2fr_1.5fr_repeat(6,1fr)] gap-x-3 gap-y-0 px-4 py-2.5 items-center border-b border-gray-100 dark:border-white/[0.06] hover:bg-gray-50 dark:hover:bg-white/[0.04] transition-colors cursor-pointer",
+                                  i < 3 ? "bg-amber-50/40 dark:bg-amber-500/[0.05]" : i < 15 ? "bg-white/50 dark:bg-transparent" : "bg-gray-50/30 dark:bg-white/[0.02]"
+                                )}
+                                onClick={() => setModal({ kind: "pokemon", name: p.name })}
+                              >
+                                <span className={cn("text-center text-xs font-extrabold tabular-nums", i < 3 ? "text-amber-600 dark:text-amber-400" : i < 10 ? "text-gray-600 dark:text-gray-300" : "text-gray-400 dark:text-gray-400")}>{i + 1}</span>
+                                <div className="flex justify-center">
+                                  {pokemon && <Image src={pokemon.sprite} alt={p.name} width={28} height={28} className="drop-shadow-sm" unoptimized />}
+                                </div>
+                                <div className="min-w-0">
+                                  <span className="text-sm font-bold truncate block">{tp(p.name)}</span>
+                                  <div className="flex gap-1 mt-0.5">
+                                    {types.map(ty => (
+                                      <span key={ty} className="px-1 py-0 text-[8px] font-bold uppercase rounded text-white leading-3" style={{ backgroundColor: TYPE_COLORS[ty as PokemonType] }}>{tty(ty as PokemonType)}</span>
+                                    ))}
+                                  </div>
+                                  {pokemon && (
+                                    <p className="text-[10px] text-muted-foreground dark:text-gray-400 truncate mt-0.5">
+                                      {pokemon.abilities.filter(a => !a.isHidden).map(a => a.name).join(", ")}
+                                      {pokemon.abilities.some(a => a.isHidden) && (
+                                        <span className="text-gray-400 dark:text-gray-400 ml-1">({pokemon.abilities.filter(a => a.isHidden).map(a => a.name).join(", ")})</span>
+                                      )}
+                                    </p>
+                                  )}
+                                </div>
+                                <div className="text-right">
+                                  <span className="text-xs font-bold text-amber-700 dark:text-amber-400 tabular-nums">{usageVal}%</span>
+                                  <div className="h-1 bg-gray-200 dark:bg-white/10 rounded-full mt-0.5 overflow-hidden">
+                                    <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400" style={{ width: `${Math.min(100, (usageVal / officialMax) * 100)}%` }} />
+                                  </div>
+                                </div>
+                                {stats ? (
+                                  <>
+                                    {[
+                                      { val: stats.hp, label: "HP" },
+                                      { val: stats.attack, label: "Atk" },
+                                      { val: stats.defense, label: "Def" },
+                                      { val: stats.spAtk, label: "SpA" },
+                                      { val: stats.spDef, label: "SpD" },
+                                      { val: stats.speed, label: "Spe" },
+                                    ].map(stat => (
+                                      <div key={stat.label} className="text-center">
+                                        <span className={cn("text-[10px] font-bold tabular-nums px-1.5 py-0.5 rounded",
+                                          stat.val >= 120 ? "bg-amber-100 text-amber-700 dark:bg-amber-500/30 dark:text-white" :
+                                          stat.val >= 100 ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/25 dark:text-white" :
+                                          stat.val >= 80 ? "bg-gray-100 text-gray-600 dark:bg-white/10 dark:text-white" :
+                                          "text-gray-400 dark:bg-white/[0.06] dark:text-white"
+                                        )}>{stat.val}</span>
+                                      </div>
+                                    ))}
+                                  </>
+                                ) : (
+                                  <>
+                                    {["HP", "Atk", "Def", "SpA", "SpD", "Spe"].map(l => (
+                                      <div key={l} className="text-center"><span className="text-xs text-gray-300">-</span></div>
+                                    ))}
+                                  </>
+                                )}
+                              </div>
+                            );
+                          })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {!showAllOfficial && (
+                  <button
+                    onClick={() => setShowAllOfficial(true)}
+                    className="mt-4 w-full py-2.5 rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-700 text-sm font-bold hover:border-amber-300 hover:shadow-md transition-all flex items-center justify-center gap-2"
+                  >
+                    Show All {totalCount} Pokémon <ChevronDown className="w-4 h-4" />
+                  </button>
+                )}
+                {showAllOfficial && (
+                  <button
+                    onClick={() => setShowAllOfficial(false)}
+                    className="mt-4 w-full py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.04] text-gray-600 dark:text-gray-400 text-sm font-medium hover:bg-gray-100 dark:hover:bg-white/[0.07] transition-all flex items-center justify-center gap-2"
+                  >
+                    {t('common.showLess')} <ChevronUp className="w-4 h-4" />
+                  </button>
+                )}
               </div>
-            )}
-            {!showAllOfficial && (
-              <button
-                onClick={() => setShowAllOfficial(true)}
-                className="mt-4 w-full py-2.5 rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-700 text-sm font-bold hover:border-amber-300 hover:shadow-md transition-all flex items-center justify-center gap-2"
-              >
-                Show All {_VALID_TOURNAMENT_USAGE.length} Pokémon <ChevronDown className="w-4 h-4" />
-              </button>
-            )}
-            {showAllOfficial && (
-              <button
-                onClick={() => setShowAllOfficial(false)}
-                className="mt-4 w-full py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.04] text-gray-600 dark:text-gray-400 text-sm font-medium hover:bg-gray-100 dark:hover:bg-white/[0.07] transition-all flex items-center justify-center gap-2"
-              >
-                {t('common.showLess')} <ChevronUp className="w-4 h-4" />
-              </button>
-            )}
-          </div>
+            );
+          })()}
 
           {/* ═══ 2. LIVE REGULATION USAGE (from Limitless) ═══ */}
           <LiveUsage />

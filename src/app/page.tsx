@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
 import { useI18n } from "@/lib/i18n";
 import { useIsNative } from "@/hooks/useIsNative";
+import { getSettings } from "@/lib/storage";
 
 // ── Mobile-only compact Pokemon card ────────────────────────────────────────
 function MobilePokemonCard({ pokemon, onClick }: { pokemon: ChampionsPokemon; onClick: (p: ChampionsPokemon) => void }) {
@@ -90,7 +91,7 @@ type StatFilters = typeof EMPTY_STAT_FILTERS;
 function getBST(p: ChampionsPokemon) { return p.baseStats.hp + p.baseStats.attack + p.baseStats.defense + p.baseStats.spAtk + p.baseStats.spDef + p.baseStats.speed; }
 
 export default function HomePage() {
-  const defaultRegulation = getActiveRegulation()?.id ?? SEASONS[0]?.regulations[0]?.id ?? "M-A";
+  const defaultRegulation = getSettings().defaultRegulationId || (getActiveRegulation()?.id ?? SEASONS[0]?.regulations[0]?.id ?? "M-A");
   const [activeRegulation, setActiveRegulation] = useState(defaultRegulation);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<PokemonType[]>([]);
@@ -250,7 +251,7 @@ export default function HomePage() {
             </div>
           </div>
           {/* Season tabs */}
-          <div className="px-4 pb-2 overflow-x-auto scrollbar-hide">
+          <div className="px-4 pb-2">
             <SeasonTabs activeRegulation={activeRegulation} onRegulationChange={setActiveRegulation} />
           </div>
           {/* Season info */}
@@ -484,7 +485,7 @@ export default function HomePage() {
         className="mb-8 bg-white dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-gray-200/10 shadow-sm"
       >
         <div className="flex items-start">
-          <div className="flex-shrink-0 px-5 py-5 border-r border-gray-100 dark:border-gray-200/10">
+          <div className="flex-shrink-0 px-5 py-5 border-r border-gray-100 dark:border-gray-200/10 w-56">
             <SeasonTabs activeRegulation={activeRegulation} onRegulationChange={setActiveRegulation} />
           </div>
           <div className="flex-1 min-w-0 px-6 pt-5 pb-0">

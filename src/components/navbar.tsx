@@ -11,6 +11,7 @@ import {
   GraduationCap,
   CalendarDays,
   BookOpen,
+  Settings,
 } from "lucide-react";
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,7 @@ const NAV_ITEMS = [
   { href: "/match-journal", i18nKey: "nav.matchJournal", icon: BookOpen },
   { href: "/events", i18nKey: "nav.tournaments", icon: CalendarDays },
   { href: "/learn", i18nKey: "nav.pokeSchool", icon: GraduationCap },
+  { href: "/settings", i18nKey: "nav.settings", icon: Settings },
 ];
 
 // First 3 items shown in the bar at tablet widths (800–1139px)
