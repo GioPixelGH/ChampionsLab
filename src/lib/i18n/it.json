@@ -874,6 +874,8 @@
     "noFalling": "Nessun Pokémon in calo",
     "usage": "Uso",
     "winRate": "Win Rate",
+    "type": "Tipo",
+    "recent": "Recente",
     "winRate2m": "Win Rate (2M Battaglie)",
     "openInBuilder": "Carica nel Team Builder",
     "searchPokemon": "Cerca Pokémon…",

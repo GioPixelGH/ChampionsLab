@@ -845,6 +845,8 @@
     "noFalling": "Ningún Pokémon en declive",
     "usage": "Uso",
     "winRate": "Ratio de Victorias",
+    "type": "Tipo",
+    "recent": "Reciente",
     "winRate2m": "Ratio de Victorias (2M Combates)",
     "openInBuilder": "Cargar en el Creador de Equipos",
     "searchPokemon": "Buscar Pokémon…",

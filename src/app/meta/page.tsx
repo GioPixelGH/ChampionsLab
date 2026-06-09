@@ -1437,6 +1437,18 @@ export default function MetaPage() {
                     : t('meta.liveUsageDesc')}
                 </p>
 
+                {/* Column headers */}
+                <div className="flex items-center gap-2 px-0 mb-1">
+                  <span className="w-6" />
+                  <span className="w-7" />
+                  <span className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground w-28">{t('meta.pokemon')}</span>
+                  <span className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground w-14">{t('meta.type')}</span>
+                  <span className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground flex-1">{t('meta.usage')}</span>
+                  <span className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground w-12 text-right">
+                    {usingLive ? t('meta.recent') : t('meta.winRate')}
+                  </span>
+                </div>
+
                 {/* Rankings list */}
                 <div className="space-y-1.5">
                   {displayEntries.map((p, i) => {
@@ -1452,7 +1464,7 @@ export default function MetaPage() {
                         <span className={cn("text-xs font-bold w-6 text-center rounded py-0.5", i < 3 ? "bg-amber-100 text-amber-700" : i < 10 ? "bg-gray-100 text-gray-700" : "text-muted-foreground")}>{i + 1}</span>
                         {pokemon && <Image src={pokemon.sprite} alt={p.name} width={28} height={28} className="rounded" unoptimized />}
                         <span className="text-xs font-semibold w-28 truncate">{tp(p.name)}</span>
-                        {pokemon && <div className="flex gap-0.5">{pokemon.types.map(ty => <span key={ty} className="px-1 py-0.5 text-[7px] font-bold uppercase rounded text-white/90" style={{ backgroundColor: `${TYPE_COLORS[ty]}AA` }}>{tt(ty)}</span>)}</div>}
+                        {pokemon && <div className="flex gap-0.5 w-14">{pokemon.types.map(ty => <span key={ty} className="px-1 py-0.5 text-[7px] font-bold uppercase rounded text-white/90" style={{ backgroundColor: `${TYPE_COLORS[ty]}AA` }}>{tt(ty)}</span>)}</div>}
                         <div className="flex-1 relative h-5 bg-gray-100 rounded overflow-hidden">
                           <div className={cn("absolute inset-y-0 left-0 rounded opacity-80 group-hover:opacity-100 transition-opacity", i < 3 ? "bg-gradient-to-r from-amber-400 to-orange-400" : i < 10 ? "bg-gradient-to-r from-orange-300 to-red-300" : "bg-gradient-to-r from-gray-300 to-gray-400")} style={{ width: `${(usageVal / maxVal) * 100}%` }} />
                           <div className="absolute inset-0 flex items-center px-2">
@@ -1464,7 +1476,7 @@ export default function MetaPage() {
                             trend === "up" ? "text-emerald-600" : trend === "down" ? "text-red-500" : "text-muted-foreground"
                           )}>
                             {trend === "up" ? <TrendingUp className="w-2.5 h-2.5" /> : trend === "down" ? <TrendingDown className="w-2.5 h-2.5" /> : null}
-                            {recentVal}%
+                            {recentVal != null ? `${recentVal}%` : '—'}
                           </span>
                         ) : (
                           <span className={cn("text-[10px] font-bold w-12 text-right", (p as typeof _VALID_TOURNAMENT_USAGE[0]).winRate >= 53 ? "text-green-600" : (p as typeof _VALID_TOURNAMENT_USAGE[0]).winRate >= 50 ? "text-gray-700" : "text-red-600")}>
@@ -1720,13 +1732,13 @@ export default function MetaPage() {
             const usingLive = liveUsageRankings.length > 0;
             const liveRisers = usingLive
               ? liveUsageRankings
-                  .filter(e => _VALID_IDS.has(e.pokemonId) && e.recentUsagePct > e.usagePct * 1.1)
+                  .filter(e => _VALID_IDS.has(e.pokemonId) && e.usagePct >= 5 && e.recentUsagePct > e.usagePct * 1.1)
                   .sort((a, b) => (b.recentUsagePct - b.usagePct) - (a.recentUsagePct - a.usagePct))
                   .slice(0, 5)
               : null;
             const liveFallers = usingLive
               ? liveUsageRankings
-                  .filter(e => _VALID_IDS.has(e.pokemonId) && e.recentUsagePct < e.usagePct * 0.85)
+                  .filter(e => _VALID_IDS.has(e.pokemonId) && e.usagePct >= 5 && e.recentUsagePct > 0 && e.recentUsagePct < e.usagePct * 0.85)
                   .sort((a, b) => (a.recentUsagePct - a.usagePct) - (b.recentUsagePct - b.usagePct))
                   .slice(0, 5)
               : null;
@@ -1738,6 +1750,16 @@ export default function MetaPage() {
                   <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
                     <TrendingUp className="w-4 h-4 text-emerald-500" /> {t('meta.rising')}
                   </h3>
+                  {risers.length > 0 && (
+                    <div className="flex items-center gap-2 px-2 mb-1">
+                      <span className="w-7" />
+                      <span className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground flex-1">{t('meta.pokemon')}</span>
+                      <span className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        {usingLive ? t('meta.recent') : t('meta.winRate')}
+                      </span>
+                      <span className="w-3" />
+                    </div>
+                  )}
                   <div className="space-y-2">
                     {risers.length > 0 ? risers.map(p => {
                       const pokemon = POKEMON_SEED.find(pk => pk.id === p.pokemonId);
@@ -1770,6 +1792,16 @@ export default function MetaPage() {
                   <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
                     <TrendingDown className="w-4 h-4 text-red-500" /> {t('meta.falling')}
                   </h3>
+                  {fallers.length > 0 && (
+                    <div className="flex items-center gap-2 px-2 mb-1">
+                      <span className="w-7" />
+                      <span className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground flex-1">{t('meta.pokemon')}</span>
+                      <span className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        {usingLive ? t('meta.recent') : t('meta.winRate')}
+                      </span>
+                      <span className="w-3" />
+                    </div>
+                  )}
                   <div className="space-y-2">
                     {fallers.length > 0 ? fallers.map(p => {
                       const pokemon = POKEMON_SEED.find(pk => pk.id === p.pokemonId);

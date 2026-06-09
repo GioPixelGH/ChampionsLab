@@ -102,7 +102,7 @@ export function computeUsageRankings(tournaments: CachedTournament[]): UsageRank
 
   const allTeams = tournaments.flatMap(t => t.teams);
   const totalTeams = allTeams.length;
-  const recentTeams = tournaments[0]?.teams ?? [];
+  const recentTeams = tournaments.slice(0, 3).flatMap(t => t.teams);
 
   const map = new Map<string, Acc>();
 

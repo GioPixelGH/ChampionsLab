@@ -874,6 +874,8 @@
     "noFalling": "No Pokémon falling",
     "usage": "Usage",
     "winRate": "Win Rate",
+    "type": "Type",
+    "recent": "Recent",
     "winRate2m": "Win Rate (2M Battles)",
     "openInBuilder": "Load in Team Builder",
     "searchPokemon": "Search Pokémon…",

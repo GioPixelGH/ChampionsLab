@@ -845,6 +845,8 @@
     "noFalling": "Nenhum Pokémon a cair",
     "usage": "Uso",
     "winRate": "Taxa de Vitória",
+    "type": "Tipo",
+    "recent": "Recente",
     "winRate2m": "Taxa de Vitória (2M Batalhas)",
     "openInBuilder": "Carregar no Team Builder",
     "searchPokemon": "Pesquisar Pokémon…",

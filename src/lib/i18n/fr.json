@@ -874,6 +874,8 @@
     "noFalling": "Aucun Pokémon en déclin",
     "usage": "Utilisation",
     "winRate": "Taux de Victoire",
+    "type": "Type",
+    "recent": "Récent",
     "winRate2m": "Taux de Victoire (2M Combats)",
     "openInBuilder": "Charger dans le Créateur",
     "searchPokemon": "Rechercher un Pokémon…",
