@@ -2582,11 +2582,16 @@ function TargetSubCell({
   isOpp,
   isStatus,
   isBest,
+  onApply,
+  showApplyBtn,
 }: {
   tgt: NonNullable<BattleMoveEntry["perTarget"]>["a"];
   isOpp: boolean;
   isStatus: boolean;
   isBest: boolean;
+  onApply?: () => void;
+  /** Show Apply even for status moves (e.g. Will-O-Wisp) */
+  showApplyBtn?: boolean;
 }) {
   const isImmune = tgt.effectiveness === 0;
   const barColor = tgt.isOHKO
@@ -2613,7 +2618,19 @@ function TargetSubCell({
         )}
         <span className="text-[7px] text-muted-foreground/80 font-medium truncate">{tgt.name.split("-")[0]}</span>
       </div>
-      {isStatus ? null : isImmune ? (
+      {isStatus ? (
+        tgt.pranksterBlocked ? (
+          <span className="text-[7px] text-orange-400/80 font-semibold leading-tight">✗ Prankster</span>
+        ) : onApply && showApplyBtn ? (
+          <button
+            onClick={(e) => { e.stopPropagation(); onApply(); }}
+            title="Apply effect"
+            className="mt-0.5 w-full text-[6px] font-bold px-1 py-px rounded bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white leading-tight transition-all"
+          >
+            ▶ Apply
+          </button>
+        ) : null
+      ) : isImmune ? (
         <span className="text-[7px] text-muted-foreground/40">✗ Immune</span>
       ) : (
         <>
@@ -2628,7 +2645,16 @@ function TargetSubCell({
               {tgt.koText}
             </span>
           </div>
-          <span className="text-[7px] tabular-nums text-muted-foreground/70 truncate">{tgt.label}</span>
+          <span className="text-[8px] tabular-nums font-semibold text-foreground/75 truncate">{tgt.label}</span>
+          {onApply && tgt.effectiveness > 0 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onApply(); }}
+              title={`Apply ${Math.round(tgt.percent)}% damage`}
+              className="mt-0.5 w-full text-[6px] font-bold px-1 py-px rounded bg-orange-500 hover:bg-orange-600 active:scale-95 text-white leading-tight transition-all"
+            >
+              ▶ Apply
+            </button>
+          )}
         </>
       )}
     </div>
@@ -2636,7 +2662,22 @@ function TargetSubCell({
 }
 
 // ── Move cell (grid card) ───────────────────────────────────────────────────
-function MoveCell({ move, side }: { move: BattleMoveEntry; side: "mine" | "opp" }) {
+function MoveCell({
+  move,
+  side,
+  onApplyA,
+  onApplyB,
+  onMoveNameClick,
+}: {
+  move: BattleMoveEntry;
+  side: "mine" | "opp";
+  /** Apply damage to perTarget.a (or single target). Provided only on "mine" moves. */
+  onApplyA?: () => void;
+  /** Apply damage to perTarget.b. Provided only for multi-target moves. */
+  onApplyB?: () => void;
+  /** Open the move picker pre-focused on this move's slot. */
+  onMoveNameClick?: () => void;
+}) {
   const typeColor = TYPE_COLORS[move.moveType] ?? "#888"; // kept for potential non-type moves
   // use type-bg-* CSS class where possible (all 18 known types)
   const isStatus = move.category === "status";
@@ -2670,13 +2711,26 @@ function MoveCell({ move, side }: { move: BattleMoveEntry; side: "mine" | "opp" 
           {move.isRecommended && (
             <span className={cn("text-[8px] flex-shrink-0 font-bold", isOpp ? "text-red-500" : "text-emerald-500")}>★</span>
           )}
-          <span className="font-semibold text-[10px] leading-tight truncate">{move.moveName}</span>
+          <span
+            className={cn("font-semibold text-[10px] leading-tight truncate", onMoveNameClick && "cursor-pointer hover:underline underline-offset-2")}
+            onClick={onMoveNameClick ? (e) => { e.stopPropagation(); onMoveNameClick(); } : undefined}
+          >{move.moveName}</span>
         </div>
         {/* Sub-cells side by side, one per opponent */}
         <div className="grid grid-cols-2 gap-0.5">
-          <TargetSubCell tgt={move.perTarget!.a} isOpp={isOpp} isStatus={isStatus} isBest={move.perTarget!.best === "a" || move.perTarget!.best === "both"} />
-          <TargetSubCell tgt={move.perTarget!.b} isOpp={isOpp} isStatus={isStatus} isBest={move.perTarget!.best === "b" || move.perTarget!.best === "both"} />
+          <TargetSubCell tgt={move.perTarget!.a} isOpp={isOpp} isStatus={isStatus} isBest={move.perTarget!.best === "a" || move.perTarget!.best === "both"} onApply={onApplyA} showApplyBtn={move.moveName === "Will-O-Wisp"} />
+          <TargetSubCell tgt={move.perTarget!.b} isOpp={isOpp} isStatus={isStatus} isBest={move.perTarget!.best === "b" || move.perTarget!.best === "both"} onApply={onApplyB} showApplyBtn={move.moveName === "Will-O-Wisp"} />
         </div>
+        {/* Apply Both — shown for spread moves when both targets are valid */}
+        {onApplyA && onApplyB && !isStatus && move.isSpread && move.perTarget!.a.effectiveness > 0 && move.perTarget!.b.effectiveness > 0 && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onApplyA(); onApplyB(); }}
+            title="Apply damage to both opponents"
+            className="mt-0.5 w-full text-[6px] font-bold px-1 py-px rounded bg-orange-600 hover:bg-orange-700 active:scale-95 text-white leading-tight transition-all"
+          >
+            ▶ Apply Both
+          </button>
+        )}
         {/* Ally damage warning for allAdjacent moves (Earthquake, Bulldoze…) */}
         {move.perTarget!.ally && move.perTarget!.ally.effectiveness > 0 && (
           <div className="flex items-center gap-1 px-1 py-0.5 rounded bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40">
@@ -2735,30 +2789,67 @@ function MoveCell({ move, side }: { move: BattleMoveEntry; side: "mine" | "opp" 
             ★
           </span>
         )}
-        <span className="font-semibold text-[10px] leading-tight truncate">{move.moveName}</span>
+        <span
+          className={cn("font-semibold text-[10px] leading-tight truncate", onMoveNameClick && "cursor-pointer hover:underline underline-offset-2")}
+          onClick={onMoveNameClick ? (e) => { e.stopPropagation(); onMoveNameClick(); } : undefined}
+        >{move.moveName}</span>
       </div>
 
       {/* Damage / effect */}
       {isStatus ? (
-        move.effectLabel ? (
-          <div className="text-[8px] text-muted-foreground/80 leading-tight truncate italic">
-            {move.effectLabel}
-          </div>
-        ) : null
+        <>
+          {move.effectLabel ? (
+            <div className="text-[8px] text-muted-foreground/80 leading-tight truncate italic">
+              {move.effectLabel}
+            </div>
+          ) : null}
+          {onApplyA && (
+            move.moveName === "Reflect" ||
+            move.moveName === "Light Screen" ||
+            move.moveName === "Will-O-Wisp" ||
+            move.moveName === "Rain Dance" ||
+            move.moveName === "Sunny Day" ||
+            move.moveName === "Sandstorm" ||
+            move.moveName === "Hail" ||
+            move.moveName === "Snowscape"
+          ) && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onApplyA(); }}
+              title={`Apply: ${move.moveName}`}
+              className="mt-0.5 w-full text-[6px] font-bold px-1 py-px rounded bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white leading-tight transition-all"
+            >
+              ▶ Apply
+            </button>
+          )}
+        </>
       ) : isImmune ? (
         <div className="text-[8px] text-muted-foreground/40">✗ Immune</div>
       ) : (
-        <div className="flex items-center gap-1 mt-px">
-          <div className="flex-1 h-1 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden">
-            <div
-              className="h-full rounded-full"
-              style={{ width: `${Math.min(move.percentHPMax, 100)}%`, backgroundColor: barColor }}
-            />
+        <>
+          <div className="flex items-center gap-1 mt-px">
+            <div className="flex-1 h-1 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden">
+              <div
+                className="h-full rounded-full"
+                style={{ width: `${Math.min(move.percentHPMax, 100)}%`, backgroundColor: barColor }}
+              />
+            </div>
+            <span className={cn("text-[7px] font-semibold flex-shrink-0 tabular-nums", move.koColor)}>
+              {move.koText}
+            </span>
           </div>
-          <span className={cn("text-[7px] font-semibold flex-shrink-0 tabular-nums", move.koColor)}>
-            {move.koText}
-          </span>
-        </div>
+          {move.effectLabel && move.effectLabel !== "–" && (
+            <span className="text-[8px] tabular-nums font-semibold text-foreground/75 leading-tight">{move.effectLabel}</span>
+          )}
+          {onApplyA && move.percentHPMax > 0 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onApplyA(); }}
+              title={`Apply ~${Math.round(move.percentHPMax)}% damage`}
+              className="mt-0.5 w-full text-[6px] font-bold px-1 py-px rounded bg-orange-500 hover:bg-orange-600 active:scale-95 text-white leading-tight transition-all"
+            >
+              ▶ Apply
+            </button>
+          )}
+        </>
       )}
     </div>
   );
@@ -2790,32 +2881,35 @@ function MovePickerPanel({
   slot,
   monOv,
   onMonOvChange,
+  editSlotIdx,
+  onEditSlotIdxChange,
 }: {
   slot: BattleSlotInfo;
   monOv: MonOverrides;
   onMonOvChange: (patch: Partial<MonOverrides>) => void;
+  editSlotIdx: number | null;
+  onEditSlotIdxChange: (v: number | null) => void;
 }) {
   // Current 4 moves (from override or from the set)
   const currentMoves: string[] = monOv.moveOverrides
     ? [...monOv.moveOverrides]
     : slot.set.moves.slice(0, 4).concat(["", "", "", ""]).slice(0, 4);
 
-  // Which slot (0-3) is being targeted for replacement
-  const [editSlotIdx, setEditSlotIdx] = useState<number | null>(null);
-
   // All moves from the Pokémon's learnset, sorted alphabetically
   const allMoves = slot.pokemon.moves.map((m) => m.name).sort((a, b) => a.localeCompare(b));
+
+  const metaMoveNames = new Set(slot.metaMoves.map((m) => m.moveName));
 
   const setMove = (slotIdx: number, moveName: string) => {
     const next = [...currentMoves] as [string, string, string, string];
     next[slotIdx] = moveName;
     onMonOvChange({ moveOverrides: next });
-    setEditSlotIdx(null);
+    onEditSlotIdxChange(null);
   };
 
   const resetMoves = () => {
     onMonOvChange({ moveOverrides: undefined });
-    setEditSlotIdx(null);
+    onEditSlotIdxChange(null);
   };
 
   return (
@@ -2828,7 +2922,7 @@ function MovePickerPanel({
         {currentMoves.map((moveName, i) => (
           <button
             key={i}
-            onClick={() => setEditSlotIdx(editSlotIdx === i ? null : i)}
+            onClick={() => onEditSlotIdxChange(editSlotIdx === i ? null : i)}
             className={cn(
               "px-1.5 py-1 rounded-lg border text-[8px] font-medium text-left truncate transition-all",
               editSlotIdx === i
@@ -2856,6 +2950,8 @@ function MovePickerPanel({
                   "px-1.5 py-0.5 rounded text-[7px] font-medium border transition-all",
                   currentMoves[editSlotIdx] === moveName
                     ? "bg-orange-400 text-white border-orange-500"
+                    : metaMoveNames.has(moveName)
+                    ? "bg-white dark:bg-white/5 border-yellow-400 dark:border-yellow-500 text-foreground hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:border-orange-300"
                     : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-foreground hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:border-orange-300",
                 )}
               >
@@ -2885,16 +2981,23 @@ function MonPanel({
   monOv,
   onMonOvChange,
   onSpriteClick,
+  onMoveApply,
 }: {
   slot: BattleSlotInfo;
   side: "mine" | "opp";
   monOv: MonOverrides;
   onMonOvChange: (patch: Partial<MonOverrides>) => void;
   onSpriteClick: (name: string) => void;
+  onMoveApply?: (move: BattleMoveEntry, targetIdx: 0 | 1) => void;
 }) {
   const [showCalcdex, setShowCalcdex] = useState(false);
   const [showMovePicker, setShowMovePicker] = useState(false);
   const [showMetaMoves, setShowMetaMoves] = useState(false);
+  const [pickerSlot, setPickerSlot] = useState<number | null>(null);
+
+  const currentMoves: string[] = monOv.moveOverrides
+    ? [...monOv.moveOverrides]
+    : slot.set.moves.slice(0, 4).concat(["", "", "", ""]).slice(0, 4);
   const isOpp = side === "opp";
   const border = isOpp
     ? "border-red-200 dark:border-red-800/60"
@@ -3107,9 +3210,22 @@ function MonPanel({
           <div className="text-[10px] text-muted-foreground italic py-2 text-center">—</div>
         ) : (
           <div className="grid grid-cols-2 gap-1.5">
-            {slot.topMoves.map((move, i) => (
-              <MoveCell key={i} move={move} side={side} />
-            ))}
+            {slot.topMoves.map((move, i) => {
+              const slotIdx = currentMoves.findIndex((m) => m === move.moveName);
+              return (
+                <MoveCell
+                  key={i}
+                  move={move}
+                  side={side}
+                  onApplyA={onMoveApply ? () => onMoveApply(move, 0) : undefined}
+                  onApplyB={onMoveApply ? () => onMoveApply(move, 1) : undefined}
+                  onMoveNameClick={() => {
+                    setShowMovePicker(true);
+                    setPickerSlot(slotIdx >= 0 ? slotIdx : null);
+                  }}
+                />
+              );
+            })}
           </div>
         )}
       </div>
@@ -3162,7 +3278,7 @@ function MonPanel({
 
       {/* Move picker toggle */}
       <button
-        onClick={() => setShowMovePicker((v) => !v)}
+        onClick={() => { setShowMovePicker((v) => !v); setPickerSlot(null); }}
         className="w-full px-3 py-1.5 flex items-center justify-between text-[9px] font-semibold text-muted-foreground hover:text-foreground bg-gray-50/60 dark:bg-white/[0.03] border-t border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors"
       >
         <span className="flex items-center gap-1.5">
@@ -3179,6 +3295,8 @@ function MonPanel({
           slot={slot}
           monOv={monOv}
           onMonOvChange={onMonOvChange}
+          editSlotIdx={pickerSlot}
+          onEditSlotIdxChange={setPickerSlot}
         />
       )}
 
@@ -3581,6 +3699,18 @@ function computeSlotAdvice(
   const allyOHKOvsOpp2 = allySlot.topMoves.some(m => m.isOHKO && m.targetName === oppSlot2.pokemon.name);
 
   const hasProtect = mySlot.set.moves.some(m => PROTECT_MOVES.has(m));
+  const hasReflect = mySlot.set.moves.includes("Reflect");
+  const hasLightScreen = mySlot.set.moves.includes("Light Screen");
+  const hasWillOWisp = mySlot.set.moves.includes("Will-O-Wisp");
+
+  // Returns the best defensive alternative detail when Protect isn't available
+  const defensiveAlt = (): string | null => {
+    if (hasReflect && hasLightScreen) return "Usa Reflect o Light Screen per dimezzare i danni in arrivo";
+    if (hasReflect) return "Usa Reflect per dimezzare i danni fisici in arrivo";
+    if (hasLightScreen) return "Usa Light Screen per dimezzare i danni speciali in arrivo";
+    if (hasWillOWisp) return "Brucia l'avversario con Will-O-Wisp per dimezzarne l'Attacco fisico";
+    return null;
+  };
 
   // ── Decision tree ────────────────────────────────────────────────────────
 
@@ -3593,26 +3723,43 @@ function computeSlotAdvice(
         detail: "Usa Protect per sopravvivere al turno mentre il tuo alleato gestisce la minaccia",
       };
     }
+    const alt = defensiveAlt();
     return {
-      action: "switch", urgency: "high",
+      action: alt ? "support" : "switch", urgency: "high",
       reason: "Entrambi gli avversari possono OHKOarti",
-      detail: "Cambia con un Pokémon con matchup migliore — non puoi sopravvivere in campo",
+      detail: alt ?? "Cambia con un Pokémon con matchup migliore — non puoi sopravvivere in campo",
     };
   }
 
   // One OHKOs me, and my ally can remove that threat this turn
   if (opp1OHKOs && allyOHKOvsOpp1) {
+    if (hasProtect) {
+      return {
+        action: "protect", urgency: "high",
+        reason: `${oppSlot1.pokemon.name} può OHKOarti`,
+        detail: `Il tuo alleato ${allySlot.pokemon.name} può eliminarlo — usa Protect per sopravvivere`,
+      };
+    }
+    const alt = defensiveAlt();
     return {
-      action: "protect", urgency: "high",
+      action: alt ? "support" : "switch", urgency: "high",
       reason: `${oppSlot1.pokemon.name} può OHKOarti`,
-      detail: `Il tuo alleato ${allySlot.pokemon.name} può eliminarlo — usa Protect per sopravvivere`,
+      detail: alt ?? `Cambia — il tuo alleato ${allySlot.pokemon.name} può eliminare la minaccia`,
     };
   }
   if (opp2OHKOs && allyOHKOvsOpp2) {
+    if (hasProtect) {
+      return {
+        action: "protect", urgency: "high",
+        reason: `${oppSlot2.pokemon.name} può OHKOarti`,
+        detail: `Il tuo alleato ${allySlot.pokemon.name} può eliminarlo — usa Protect per sopravvivere`,
+      };
+    }
+    const alt = defensiveAlt();
     return {
-      action: "protect", urgency: "high",
+      action: alt ? "support" : "switch", urgency: "high",
       reason: `${oppSlot2.pokemon.name} può OHKOarti`,
-      detail: `Il tuo alleato ${allySlot.pokemon.name} può eliminarlo — usa Protect per sopravvivere`,
+      detail: alt ?? `Cambia — il tuo alleato ${allySlot.pokemon.name} può eliminare la minaccia`,
     };
   }
 
@@ -3644,10 +3791,11 @@ function computeSlotAdvice(
         detail: "Considera Protect per guadagnare un turno — aspetta il momento migliore per attaccare",
       };
     }
+    const alt = defensiveAlt();
     return {
-      action: "switch", urgency: "medium",
+      action: alt ? "support" : "switch", urgency: "medium",
       reason: `${killer.pokemon.name} può OHKOarti`,
-      detail: "Considera il cambio se hai un Pokémon con resistenza al tipo della mossa in arrivo",
+      detail: alt ?? "Considera il cambio se hai un Pokémon con resistenza al tipo della mossa in arrivo",
     };
   }
 
@@ -3658,6 +3806,14 @@ function computeSlotAdvice(
         action: "protect", urgency: "medium",
         reason: "Pressione combinata elevata",
         detail: `${oppSlot1.pokemon.name} + ${oppSlot2.pokemon.name} coprono ${Math.round(maxThreatOpp1 + maxThreatOpp2)}% HP totale — considera Protect`,
+      };
+    }
+    const alt = defensiveAlt();
+    if (alt) {
+      return {
+        action: "support", urgency: "medium",
+        reason: "Pressione combinata elevata",
+        detail: alt,
       };
     }
   }
@@ -3710,6 +3866,10 @@ function StrategyFlowchart({
   const [manualTR, setManualTR] = useState<boolean | undefined>(undefined);
   const [myTailwind, setMyTailwind] = useState(false);
   const [oppTailwind, setOppTailwind] = useState(false);
+  const [myReflect, setMyReflect] = useState(false);
+  const [myLightScreen, setMyLightScreen] = useState(false);
+  const [oppReflect, setOppReflect] = useState(false);
+  const [oppLightScreen, setOppLightScreen] = useState(false);
 
   // Per-mon calcdex overrides
   const [ovMyMon1, setOvMyMon1] = useState<MonOverrides>({});
@@ -3720,6 +3880,22 @@ function StrategyFlowchart({
   // Reset per-mon overrides when field slots change
   useEffect(() => { setTimeout(() => { setOvMyMon1({}); setOvMyMon2({}); }, 0); }, [myFieldIdx]);
   useEffect(() => { setTimeout(() => { setOvOppMon1({}); setOvOppMon2({}); }, 0); }, [oppFieldIdx]);
+
+  const applyDamageToOpp = (key: "oppMon1" | "oppMon2", dmgPct: number) => {
+    if (key === "oppMon1") {
+      setOvOppMon1((prev) => ({ ...prev, hpPct: Math.max(0, (prev.hpPct ?? 100) - dmgPct) }));
+    } else {
+      setOvOppMon2((prev) => ({ ...prev, hpPct: Math.max(0, (prev.hpPct ?? 100) - dmgPct) }));
+    }
+  };
+
+  const applyDamageToMy = (key: "myMon1" | "myMon2", dmgPct: number) => {
+    if (key === "myMon1") {
+      setOvMyMon1((prev) => ({ ...prev, hpPct: Math.max(0, (prev.hpPct ?? 100) - dmgPct) }));
+    } else {
+      setOvMyMon2((prev) => ({ ...prev, hpPct: Math.max(0, (prev.hpPct ?? 100) - dmgPct) }));
+    }
+  };
 
   // Default my leads from bestLead recommendation
   useEffect(() => {
@@ -3734,11 +3910,13 @@ function StrategyFlowchart({
     ...(manualTR !== undefined ? { trickRoom: manualTR } : {}),
     myTailwind,
     oppTailwind,
+    mySide: { reflect: myReflect, lightScreen: myLightScreen },
+    oppSide: { reflect: oppReflect, lightScreen: oppLightScreen },
     myMon1: ovMyMon1,
     myMon2: ovMyMon2,
     oppMon1: ovOppMon1,
     oppMon2: ovOppMon2,
-  }), [manualWeather, manualTR, myTailwind, oppTailwind, ovMyMon1, ovMyMon2, ovOppMon1, ovOppMon2]);
+  }), [manualWeather, manualTR, myTailwind, oppTailwind, myReflect, myLightScreen, oppReflect, oppLightScreen, ovMyMon1, ovMyMon2, ovOppMon1, ovOppMon2]);
 
   const board = useMemo(() => {
     if (team1Pokemon.length < 2 || team2Pokemon.length < 2) return null;
@@ -3906,9 +4084,64 @@ function StrategyFlowchart({
             >
               💨 Opp TW
             </button>
+          </div>
+        </div>
+
+        {/* Screens row */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-[9px] text-muted-foreground w-10 flex-shrink-0">Screens</span>
+          <div className="flex gap-1 flex-wrap">
+            <button
+              title="Your Reflect active"
+              onClick={() => setMyReflect((v) => !v)}
+              className={cn(
+                "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
+                myReflect
+                  ? "bg-blue-500 text-white border-blue-600"
+                  : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-blue-400 hover:text-blue-600",
+              )}
+            >
+              🛡 My Reflect
+            </button>
+            <button
+              title="Your Light Screen active"
+              onClick={() => setMyLightScreen((v) => !v)}
+              className={cn(
+                "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
+                myLightScreen
+                  ? "bg-blue-400 text-white border-blue-500"
+                  : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-blue-400 hover:text-blue-500",
+              )}
+            >
+              🌟 My L.Screen
+            </button>
+            <button
+              title="Opponent Reflect active"
+              onClick={() => setOppReflect((v) => !v)}
+              className={cn(
+                "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
+                oppReflect
+                  ? "bg-red-500 text-white border-red-600"
+                  : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-red-400 hover:text-red-600",
+              )}
+            >
+              🛡 Opp Reflect
+            </button>
+            <button
+              title="Opponent Light Screen active"
+              onClick={() => setOppLightScreen((v) => !v)}
+              className={cn(
+                "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
+                oppLightScreen
+                  ? "bg-red-400 text-white border-red-500"
+                  : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-red-400 hover:text-red-500",
+              )}
+            >
+              🌟 Opp L.Screen
+            </button>
 
             {/* Reset all overrides */}
-            {(manualWeather !== undefined || manualTR !== undefined || myTailwind || oppTailwind) && (
+            {(manualWeather !== undefined || manualTR !== undefined || myTailwind || oppTailwind || myReflect || myLightScreen || oppReflect || oppLightScreen) && (
               <button
                 title="Reset all field overrides"
                 onClick={() => {
@@ -3916,6 +4149,10 @@ function StrategyFlowchart({
                   setManualTR(undefined);
                   setMyTailwind(false);
                   setOppTailwind(false);
+                  setMyReflect(false);
+                  setMyLightScreen(false);
+                  setOppReflect(false);
+                  setOppLightScreen(false);
                 }}
                 className="px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 text-[10px] text-muted-foreground hover:text-red-500 hover:border-red-300 transition-all bg-white dark:bg-white/5"
               >
@@ -3956,8 +4193,60 @@ function StrategyFlowchart({
         })()}
 
         <div className="grid grid-cols-2 gap-2">
-          <MonPanel slot={board.oppSlot1} side="opp" monOv={ovOppMon1} onMonOvChange={(p) => setOvOppMon1((prev) => ({ ...prev, ...p }))} onSpriteClick={handleSpriteClick} />
-          <MonPanel slot={board.oppSlot2} side="opp" monOv={ovOppMon2} onMonOvChange={(p) => setOvOppMon2((prev) => ({ ...prev, ...p }))} onSpriteClick={handleSpriteClick} />
+          <MonPanel
+            slot={board.oppSlot1}
+            side="opp"
+            monOv={ovOppMon1}
+            onMonOvChange={(p) => setOvOppMon1((prev) => ({ ...prev, ...p }))}
+            onSpriteClick={handleSpriteClick}
+            onMoveApply={(move, ti) => {
+              if (move.moveName === "Reflect") { setOppReflect(true); return; }
+              if (move.moveName === "Light Screen") { setOppLightScreen(true); return; }
+              if (move.moveName === "Will-O-Wisp") {
+                if (ti === 0) setOvMyMon1((prev) => ({ ...prev, status: "burn" as const, isBurned: true }));
+                else setOvMyMon2((prev) => ({ ...prev, status: "burn" as const, isBurned: true }));
+                return;
+              }
+              if (move.moveName === "Rain Dance") { setManualWeather("rain"); return; }
+              if (move.moveName === "Sunny Day") { setManualWeather("sun"); return; }
+              if (move.moveName === "Sandstorm") { setManualWeather("sand"); return; }
+              if (move.moveName === "Hail" || move.moveName === "Snowscape") { setManualWeather("hail"); return; }
+              if (move.category === "status") return;
+              if (move.perTarget) {
+                const tgt = ti === 0 ? move.perTarget.a : move.perTarget.b;
+                if (tgt.effectiveness > 0) applyDamageToMy(ti === 0 ? "myMon1" : "myMon2", Math.round(tgt.percent));
+              } else if (move.percentHPMax > 0 && board) {
+                applyDamageToMy(move.targetName === board.mySlot2.pokemon.name ? "myMon2" : "myMon1", Math.round(move.percentHPMax));
+              }
+            }}
+          />
+          <MonPanel
+            slot={board.oppSlot2}
+            side="opp"
+            monOv={ovOppMon2}
+            onMonOvChange={(p) => setOvOppMon2((prev) => ({ ...prev, ...p }))}
+            onSpriteClick={handleSpriteClick}
+            onMoveApply={(move, ti) => {
+              if (move.moveName === "Reflect") { setOppReflect(true); return; }
+              if (move.moveName === "Light Screen") { setOppLightScreen(true); return; }
+              if (move.moveName === "Will-O-Wisp") {
+                if (ti === 0) setOvMyMon1((prev) => ({ ...prev, status: "burn" as const, isBurned: true }));
+                else setOvMyMon2((prev) => ({ ...prev, status: "burn" as const, isBurned: true }));
+                return;
+              }
+              if (move.moveName === "Rain Dance") { setManualWeather("rain"); return; }
+              if (move.moveName === "Sunny Day") { setManualWeather("sun"); return; }
+              if (move.moveName === "Sandstorm") { setManualWeather("sand"); return; }
+              if (move.moveName === "Hail" || move.moveName === "Snowscape") { setManualWeather("hail"); return; }
+              if (move.category === "status") return;
+              if (move.perTarget) {
+                const tgt = ti === 0 ? move.perTarget.a : move.perTarget.b;
+                if (tgt.effectiveness > 0) applyDamageToMy(ti === 0 ? "myMon1" : "myMon2", Math.round(tgt.percent));
+              } else if (move.percentHPMax > 0 && board) {
+                applyDamageToMy(move.targetName === board.mySlot2.pokemon.name ? "myMon2" : "myMon1", Math.round(move.percentHPMax));
+              }
+            }}
+          />
         </div>
       </div>
 
@@ -3997,7 +4286,33 @@ function StrategyFlowchart({
                 </div>
               );
             })()}
-            <MonPanel slot={board.mySlot1} side="mine" monOv={ovMyMon1} onMonOvChange={(p) => setOvMyMon1((prev) => ({ ...prev, ...p }))} onSpriteClick={handleSpriteClick} />
+            <MonPanel
+              slot={board.mySlot1}
+              side="mine"
+              monOv={ovMyMon1}
+              onMonOvChange={(p) => setOvMyMon1((prev) => ({ ...prev, ...p }))}
+              onSpriteClick={handleSpriteClick}
+              onMoveApply={(move, ti) => {
+                if (move.moveName === "Reflect") { setMyReflect(true); return; }
+                if (move.moveName === "Light Screen") { setMyLightScreen(true); return; }
+                if (move.moveName === "Will-O-Wisp") {
+                  if (ti === 0) setOvOppMon1((prev) => ({ ...prev, status: "burn" as const, isBurned: true }));
+                  else setOvOppMon2((prev) => ({ ...prev, status: "burn" as const, isBurned: true }));
+                  return;
+                }
+                if (move.moveName === "Rain Dance") { setManualWeather("rain"); return; }
+                if (move.moveName === "Sunny Day") { setManualWeather("sun"); return; }
+                if (move.moveName === "Sandstorm") { setManualWeather("sand"); return; }
+                if (move.moveName === "Hail" || move.moveName === "Snowscape") { setManualWeather("hail"); return; }
+                if (move.category === "status") return;
+                if (move.perTarget) {
+                  const tgt = ti === 0 ? move.perTarget.a : move.perTarget.b;
+                  if (tgt.effectiveness > 0) applyDamageToOpp(ti === 0 ? "oppMon1" : "oppMon2", Math.round(tgt.percent));
+                } else if (move.percentHPMax > 0 && board) {
+                  applyDamageToOpp(move.targetName === board.oppSlot2.pokemon.name ? "oppMon2" : "oppMon1", Math.round(move.percentHPMax));
+                }
+              }}
+            />
           </div>
           {/* Slot 2 + advice */}
           <div className="space-y-1">
@@ -4025,7 +4340,33 @@ function StrategyFlowchart({
                 </div>
               );
             })()}
-            <MonPanel slot={board.mySlot2} side="mine" monOv={ovMyMon2} onMonOvChange={(p) => setOvMyMon2((prev) => ({ ...prev, ...p }))} onSpriteClick={handleSpriteClick} />
+            <MonPanel
+              slot={board.mySlot2}
+              side="mine"
+              monOv={ovMyMon2}
+              onMonOvChange={(p) => setOvMyMon2((prev) => ({ ...prev, ...p }))}
+              onSpriteClick={handleSpriteClick}
+              onMoveApply={(move, ti) => {
+                if (move.moveName === "Reflect") { setMyReflect(true); return; }
+                if (move.moveName === "Light Screen") { setMyLightScreen(true); return; }
+                if (move.moveName === "Will-O-Wisp") {
+                  if (ti === 0) setOvOppMon1((prev) => ({ ...prev, status: "burn" as const, isBurned: true }));
+                  else setOvOppMon2((prev) => ({ ...prev, status: "burn" as const, isBurned: true }));
+                  return;
+                }
+                if (move.moveName === "Rain Dance") { setManualWeather("rain"); return; }
+                if (move.moveName === "Sunny Day") { setManualWeather("sun"); return; }
+                if (move.moveName === "Sandstorm") { setManualWeather("sand"); return; }
+                if (move.moveName === "Hail" || move.moveName === "Snowscape") { setManualWeather("hail"); return; }
+                if (move.category === "status") return;
+                if (move.perTarget) {
+                  const tgt = ti === 0 ? move.perTarget.a : move.perTarget.b;
+                  if (tgt.effectiveness > 0) applyDamageToOpp(ti === 0 ? "oppMon1" : "oppMon2", Math.round(tgt.percent));
+                } else if (move.percentHPMax > 0 && board) {
+                  applyDamageToOpp(move.targetName === board.oppSlot2.pokemon.name ? "oppMon2" : "oppMon1", Math.round(move.percentHPMax));
+                }
+              }}
+            />
           </div>
         </div>
       </div>

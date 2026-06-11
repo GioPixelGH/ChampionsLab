@@ -13,7 +13,7 @@ import { identifyRoles, detectArchetypes } from "./synergy";
 import { calculateDamage, type DamageResult } from "./damage-calc";
 import type { NatureName } from "./natures";
 import type { LeadComboResult } from "./battle-sim";
-import { getTopMovesForPokemon, type MetaMoveEntry } from "@/lib/usage-data";
+import { getTournamentMovesForPokemon, type MetaMoveEntry } from "@/lib/usage-data";
 
 // ── TREE NODE TYPES ─────────────────────────────────────────────────────────
 
@@ -2300,6 +2300,8 @@ export interface BattleMovePerTarget {
   effectiveness: number;
   isOHKO: boolean;
   is2HKO: boolean;
+  /** True when attacker has Prankster and this target is Dark-type → move fails (Gen VII+) */
+  pranksterBlocked?: boolean;
 }
 
 export interface BattleMoveEntry {
@@ -2631,15 +2633,26 @@ export function computeBattleBoard(
           : moveTgt === "normal" ? defA.pokemon.name          // single opponent (Hypnosis, Parting Shot, …)
           : moveTgt === "allAdjacentFoes" ? "both"            // spread on both foes (Icy Wind, Snarl, …)
           : "–";                                              // field effects, ally-side, etc.
+        // Prankster + Dark-type immunity (Gen VII+): move fails completely against Dark targets
+        const prankBlockA = attacker.hasPrankster && defA.pokemon.types.includes("dark");
+        const prankBlockB = attacker.hasPrankster && defB.pokemon.types.includes("dark");
         // Per-opponent sub-cells for opponent-targeting status moves
         const statusPerTarget: BattleMoveEntry["perTarget"] =
           (moveTgt === "normal" || moveTgt === "allAdjacentFoes")
             ? {
-                a: { name: defA.pokemon.name, label: "–", percent: 0, koText: "—", koColor: "text-muted-foreground/40", effectiveness: 1, isOHKO: false, is2HKO: false },
-                b: { name: defB.pokemon.name, label: "–", percent: 0, koText: "—", koColor: "text-muted-foreground/40", effectiveness: 1, isOHKO: false, is2HKO: false },
-                best: moveTgt === "allAdjacentFoes" ? "both" : "a",
+                a: { name: defA.pokemon.name, label: prankBlockA ? "✗" : "–", percent: 0, koText: "—", koColor: "text-muted-foreground/40", effectiveness: prankBlockA ? 0 : 1, isOHKO: false, is2HKO: false, pranksterBlocked: prankBlockA || undefined },
+                b: { name: defB.pokemon.name, label: prankBlockB ? "✗" : "–", percent: 0, koText: "—", koColor: "text-muted-foreground/40", effectiveness: prankBlockB ? 0 : 1, isOHKO: false, is2HKO: false, pranksterBlocked: prankBlockB || undefined },
+                best: moveTgt === "allAdjacentFoes" ? "both"
+                  : prankBlockA && !prankBlockB ? "b"  // A blocked by Prankster immunity → target B
+                  : "a",
               }
             : undefined;
+        // Score 0 when all reachable targets are Prankster-blocked (move is useless)
+        const allPrankBlocked = attacker.hasPrankster && (
+          moveTgt === "normal" ? prankBlockA
+          : moveTgt === "allAdjacentFoes" ? (prankBlockA && prankBlockB)
+          : false
+        );
         scored.push({
           entry: {
             moveName: m.name,
@@ -2659,7 +2672,7 @@ export function computeBattleBoard(
             isProtection,
             perTarget: statusPerTarget,
           },
-          score,
+          score: allPrankBlocked ? 0 : score,
         });
         continue;
       }
@@ -2885,7 +2898,7 @@ export function computeBattleBoard(
       hasFakeOut: effectiveMon.hasFakeOut,
       speedNote,
       actualStats: effectiveMon.stats,
-      metaMoves: getTopMovesForPokemon(mon.pokemon.id, 10),
+      metaMoves: getTournamentMovesForPokemon(mon.pokemon.id, 10),
     };
   }
 

@@ -1,4 +1,5 @@
 import { CommonSet } from "./types";
+import { CHAMPIONS_TOURNAMENT_TEAMS } from "./simulation-data";
 
 // Stat Points (SP) System: 66 total, 32 max per stat, 1 SP = 1 stat point
 // Converted from traditional VGC EV spreads to the Champions SP format
@@ -1618,6 +1619,45 @@ export function getTopMovesForPokemon(pokemonId: number, limit = 10): MetaMoveEn
 
   return Array.from(counts.entries())
     .map(([moveName, count]) => ({ moveName, frequency: count / total, count, total }))
+    .sort((a, b) => b.frequency - a.frequency || a.moveName.localeCompare(b.moveName))
+    .slice(0, limit);
+}
+
+/**
+ * Returns real move frequencies for a Pokémon derived from CHAMPIONS_TOURNAMENT_TEAMS
+ * (actual Limitless tournament data). Falls back to getTopMovesForPokemon if the
+ * Pokémon has no tournament appearances with set data.
+ */
+export function getTournamentMovesForPokemon(pokemonId: number, limit = 10): MetaMoveEntry[] {
+  // key = lowercase-trimmed name to merge case variants; value = [count, displayName]
+  const counts = new Map<string, [number, string]>();
+  let total = 0;
+
+  for (const team of CHAMPIONS_TOURNAMENT_TEAMS) {
+    const idx = team.pokemonIds.indexOf(pokemonId);
+    if (idx === -1) continue;
+    const set = team.sets?.[idx];
+    if (!set || !set.moves?.length) continue;
+    total++;
+    for (const move of set.moves) {
+      if (!move) continue;
+      const key = move.trim().toLowerCase();
+      const existing = counts.get(key);
+      if (existing) {
+        existing[0]++;
+      } else {
+        // Use the first-seen capitalisation as the display name
+        counts.set(key, [1, move.trim()]);
+      }
+    }
+  }
+
+  if (total === 0) return getTopMovesForPokemon(pokemonId, limit);
+
+  return Array.from(counts.values())
+    .map(([count, moveName]) => ({ moveName, frequency: count / total, count, total }))
+    // Drop moves that round to 0% — not useful signal
+    .filter((e) => Math.round(e.frequency * 100) > 0)
     .sort((a, b) => b.frequency - a.frequency || a.moveName.localeCompare(b.moveName))
     .slice(0, limit);
 }
