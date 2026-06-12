@@ -1,0 +1,121 @@
+{
+  "recommendations": [
+    // --- Qualità del codice ---
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "usernamehw.errorlens",
+    // --- TypeScript / JavaScript ---
+    "ms-vscode.vscode-typescript-next",
+    "christian-kohler.npm-intellisense",
+    // --- Tailwind CSS (NON INSTALLATA — installare!) ---
+    "bradlc.vscode-tailwindcss",
+    // --- Git & GitHub ---
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+    "donjayamanne.githistory",
+    "github.vscode-pull-request-github",
+    "github.vscode-github-actions",
+    // --- Sviluppo web / UI ---
+    "ms-edgedevtools.vscode-edge-devtools",
+    "kisstkondoros.vscode-gutter-preview",
+    "humao.rest-client",
+    // --- Strumenti generali ---
+    "pkief.material-icon-theme",
+    "maciejdems.add-to-gitignore",
+    "meezilla.json",
+    "ms-vscode.powershell",
+    "anthropic.claude-code"
+  ],
+  "unwantedRecommendations": [
+    // --- Flutter / Dart (non usati) ---
+    "alexisvt.flutter-snippets",
+    "dart-code.dart-code",
+    "dart-code.flutter",
+    "google.arb-editor",
+    "jeroen-meijer.pubspec-assist",
+    // --- Power BI / Fabric / Analytics (non usati) ---
+    "analysis-services.powerbi-modeling-mcp",
+    "analysis-services.tmdl",
+    "jianfajun.dax-language",
+    "gerhardbrueckl.fabricstudio",
+    "gerhardbrueckl.onelake-vscode",
+    "gerhardbrueckl.powerbi-vscode",
+    "gerhardbrueckl.powerbi-vscode-extensionpack",
+    "kapsharma.power-automate-flow-visualizer",
+    "microsoft-isvexptools.powerplatform-vscode",
+    "ms-copilotstudio.vscode-copilotstudio",
+    // --- Azure infrastructure (non usata) ---
+    "ms-azuretools.azure-dev",
+    "ms-azuretools.vscode-azure-github-copilot",
+    "ms-azuretools.vscode-azure-mcp-server",
+    "ms-azuretools.vscode-azureappservice",
+    "ms-azuretools.vscode-azurefunctions",
+    "ms-azuretools.vscode-azureresourcegroups",
+    "ms-azuretools.vscode-azurevirtualmachines",
+    "ms-azuretools.vscode-bicep",
+    "ms-azuretools.vscode-containers",
+    "ms-azuretools.vscode-docker",
+    "ms-vscode.vscode-node-azure-pack",
+    "neilbarkhina.gitdownloadazurerepos",
+    // --- C# / .NET (non usati) ---
+    "ms-dotnettools.csdevkit",
+    "ms-dotnettools.csharp",
+    "ms-dotnettools.vscode-dotnet-runtime",
+    // --- SQL Server (non usato, progetto su Supabase/PostgreSQL) ---
+    "ms-mssql.data-workspace-vscode",
+    "ms-mssql.mssql",
+    "ms-mssql.sql-bindings-vscode",
+    "ms-mssql.sql-database-projects-vscode",
+    // --- Python (non usato) ---
+    "ms-python.debugpy",
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.vscode-python-envs",
+    // --- C++ / CMake (non usati) ---
+    "ms-vscode.cmake-tools",
+    "ms-vscode.cpp-devtools",
+    "ms-vscode.cpptools",
+    "ms-vscode.cpptools-extension-pack",
+    "ms-vscode.cpptools-themes",
+    // --- Java (non usato) ---
+    "redhat.java",
+    "vscjava.migrate-java-to-azure",
+    "vscjava.vscode-gradle",
+    "vscjava.vscode-java-debug",
+    "vscjava.vscode-java-dependency",
+    "vscjava.vscode-java-pack",
+    "vscjava.vscode-java-test",
+    "vscjava.vscode-maven",
+    // --- Angular / Vue (progetto usa React) ---
+    "angular.ng-template",
+    "vue.volar",
+    // --- Godot / Game engine (non usati) ---
+    "geequlim.godot-tools",
+    "jjkim.gdscript",
+    "opengoal.opengoal",
+    // --- Visualizzatori 3D (non usati) ---
+    "cesium.gltf-vscode",
+    "cloudedcat.vscode-model-viewer",
+    "ohziinteractivestudio.ohzi-vscode-glb-viewer",
+    // --- Altro non rilevante ---
+    "chrischinchilla.vscode-pandoc",
+    "cweijan.vscode-office",
+    "etienne-lescot.n8n-as-code",
+    "kameshkotwani.google-search",
+    "ms-windows-ai-studio.windows-ai-studio",
+    "mgmcdermott.vscode-language-babel",
+    "mohsen1.prettify-json",
+    "ms-sarifvscode.sarif-viewer",
+    "ms-vscode-remote.remote-containers",
+    "randomfractalsinc.vscode-data-table",
+    "tyriar.luna-paint",
+    "vitest.explorer",
+    "github.vscode-codeql",
+    "mechatroner.rainbow-csv",
+    "qwtel.sqlite-viewer",
+    "davidwang.ini-for-vscode",
+    "zainchen.json",
+    "tomoki1207.pdf",
+    "slevesque.vscode-zipexplorer"
+  ]
+}

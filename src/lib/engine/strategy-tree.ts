@@ -2389,6 +2389,8 @@ export interface MonOverrides {
    * with these 4 move names (must be valid entries in the Pokémon’s learnset).
    */
   moveOverrides?: [string, string, string, string];
+  /** Manual ability override — ignored when a mega form is active */
+  abilityOverride?: string;
 }
 
 /** Defensive screens active on one side. */
@@ -2859,7 +2861,20 @@ export function computeBattleBoard(
     const megaOptions = getMegaOptions(mon.pokemon);
     const activeMegaIndex = monOv?.megaFormIndex ?? -1;
     // Apply mega transformation to the mon before computing moves
-    const effectiveMon = applyMegaToMon(mon, monOv);
+    let effectiveMon = applyMegaToMon(mon, monOv);
+    // Apply manual ability override (only when no mega form is active)
+    if (monOv?.abilityOverride && activeMegaIndex < 0) {
+      const abilityEffect = getAbilityEffect(monOv.abilityOverride);
+      effectiveMon = {
+        ...effectiveMon,
+        set: { ...effectiveMon.set, ability: monOv.abilityOverride },
+        hasPrankster: PRANKSTER_ABILITIES.has(monOv.abilityOverride),
+        weatherOnEntry: abilityEffect?.setsWeather ?? effectiveMon.weatherOnEntry,
+        terrainOnEntry: abilityEffect?.setsTerrain ?? effectiveMon.terrainOnEntry,
+        weatherSpeedAbility: abilityEffect?.weatherSpeed ?? effectiveMon.weatherSpeedAbility,
+        terrainSpeedAbility: abilityEffect?.terrainSpeed ?? effectiveMon.terrainSpeedAbility,
+      };
+    }
     const { speed: effectiveSpeed, speedNote } = resolveEffectiveSpeed(effectiveMon, monOv);
 
     const defA     = isOurs ? opp1 : my1;

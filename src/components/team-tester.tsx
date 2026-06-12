@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "@/lib/motion";
@@ -2711,6 +2712,9 @@ function MoveCell({
           {move.isRecommended && (
             <span className={cn("text-[8px] flex-shrink-0 font-bold", isOpp ? "text-red-500" : "text-emerald-500")}>★</span>
           )}
+          {move.priority > 0 && (
+            <span className="flex-shrink-0 text-[7px] font-bold text-amber-500 dark:text-amber-400">▲+{move.priority}</span>
+          )}
           <span
             className={cn("font-semibold text-[10px] leading-tight truncate", onMoveNameClick && "cursor-pointer hover:underline underline-offset-2")}
             onClick={onMoveNameClick ? (e) => { e.stopPropagation(); onMoveNameClick(); } : undefined}
@@ -2771,9 +2775,6 @@ function MoveCell({
         >
           {move.moveType}
         </span>
-        {move.priority > 0 && (
-          <span className="flex-shrink-0 text-[7px] font-bold text-amber-500">+{move.priority}</span>
-        )}
         {move.priority < 0 && (
           <span className="flex-shrink-0 text-[7px] text-muted-foreground/50">{move.priority}</span>
         )}
@@ -2788,6 +2789,9 @@ function MoveCell({
           <span className={cn("text-[8px] flex-shrink-0 font-bold", isOpp ? "text-red-500" : "text-emerald-500")}>
             ★
           </span>
+        )}
+        {move.priority > 0 && (
+          <span className="flex-shrink-0 text-[7px] font-bold text-amber-500 dark:text-amber-400">▲+{move.priority}</span>
         )}
         <span
           className={cn("font-semibold text-[10px] leading-tight truncate", onMoveNameClick && "cursor-pointer hover:underline underline-offset-2")}
@@ -2994,6 +2998,21 @@ function MonPanel({
   const [showMovePicker, setShowMovePicker] = useState(false);
   const [showMetaMoves, setShowMetaMoves] = useState(false);
   const [pickerSlot, setPickerSlot] = useState<number | null>(null);
+  const [movesOpen, setMovesOpen] = useState(false);
+  const [abilityOpen, setAbilityOpen] = useState(false);
+  const abilityBtnRef = useRef<HTMLButtonElement>(null);
+  const [abilityPos, setAbilityPos] = useState<{ top: number; left: number } | null>(null);
+
+  useEffect(() => {
+    if (!abilityOpen) return;
+    const close = (e: MouseEvent) => {
+      if (abilityBtnRef.current && !abilityBtnRef.current.contains(e.target as Node)) {
+        setAbilityOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [abilityOpen]);
 
   const currentMoves: string[] = monOv.moveOverrides
     ? [...monOv.moveOverrides]
@@ -3034,7 +3053,7 @@ function MonPanel({
     <div className={`rounded-2xl border ${border} overflow-hidden flex flex-col`}>
       {/* Header: sprite + info */}
       <div className={`bg-gradient-to-br ${headerGrad} px-3 pt-3 pb-2`}>
-        <div className="flex items-start gap-2">
+        <div className="flex items-stretch gap-2">
           <button
             title={`View ${slot.pokemon.name}`}
             onClick={() => onSpriteClick(slot.pokemon.name)}
@@ -3049,7 +3068,7 @@ function MonPanel({
               className="drop-shadow"
             />
           </button>
-          <div className="flex-1 min-w-0 pt-0.5">
+          <div className="flex-shrink-0 w-[108px] min-w-0 pt-0.5">
             <div className="font-bold text-[12px] truncate leading-tight">{slot.pokemon.name}</div>
             <div className="flex flex-wrap gap-0.5 mt-1 items-center">
               {slot.types.map((t) => (
@@ -3128,14 +3147,59 @@ function MonPanel({
                     ({slot.speedNote})
                   </span>
                 )}
-                {slot.priorityTag && (
-                  <span className="ml-2 text-amber-600 dark:text-amber-400 font-semibold">
-                    ▲ {slot.priorityTag}
-                  </span>
-                )}
               </div>
               <div className="flex flex-wrap items-center gap-1 mt-0.5">
-                <span className="text-[8px] text-muted-foreground/70 truncate">{slot.ability}</span>
+                <div>
+                  <button
+                    ref={abilityBtnRef}
+                    onClick={() => {
+                      if (!abilityOpen && abilityBtnRef.current) {
+                        const r = abilityBtnRef.current.getBoundingClientRect();
+                        setAbilityPos({ top: r.bottom + 4, left: r.left });
+                      }
+                      setAbilityOpen(v => !v);
+                    }}
+                    className={cn(
+                      "text-[8px] truncate leading-none hover:underline underline-offset-2 transition-colors",
+                      monOv.abilityOverride
+                        ? "text-amber-600 dark:text-amber-400 font-semibold"
+                        : "text-muted-foreground/70 hover:text-foreground"
+                    )}
+                    title="Clicca per cambiare abilità"
+                  >
+                    {slot.ability}
+                  </button>
+                  {abilityOpen && abilityPos && slot.pokemon.abilities.length > 1 && createPortal(
+                    <div
+                      style={{ position: "fixed", top: abilityPos.top, left: abilityPos.left }}
+                      className="z-[9999] bg-popover border border-border rounded-lg shadow-lg py-1 min-w-[160px]"
+                    >
+                      {slot.pokemon.abilities.map((a) => (
+                        <button
+                          key={a.name}
+                          onClick={() => {
+                            onMonOvChange({ abilityOverride: a.name === slot.set.ability ? undefined : a.name });
+                            setAbilityOpen(false);
+                          }}
+                          className={cn(
+                            "w-full text-left px-3 py-1.5 text-[9px] flex items-center gap-1.5 hover:bg-black/5 dark:hover:bg-white/10 transition-colors",
+                            slot.ability === a.name ? "font-semibold text-foreground" : "text-muted-foreground"
+                          )}
+                        >
+                          {slot.ability === a.name && <span className="text-amber-500 flex-shrink-0">●</span>}
+                          <span className="flex-1">{a.name}</span>
+                          {a.name === slot.set.ability && (
+                            <span className="text-[7px] text-muted-foreground/40 flex-shrink-0">default</span>
+                          )}
+                          {a.isHidden && (
+                            <span className="text-[6px] px-0.5 rounded bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 flex-shrink-0">H</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>,
+                    document.body
+                  )}
+                </div>
                 {slot.fakeOutImmune && (
                   <span
                     className="text-[6px] font-bold uppercase px-1 py-px rounded leading-none bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-700/40"
@@ -3147,23 +3211,28 @@ function MonPanel({
               </div>
             </div>
           </div>
-        </div>
-
-        {/* HP bar (always visible) */}
-        <div className="mt-2 flex items-center gap-1.5">
-          <span className="text-[8px] text-muted-foreground w-5">HP</span>
-          <div className="flex-1 h-1.5 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
-            <div
-              className={cn("h-full rounded-full transition-all", hp > 50 ? "bg-green-400" : hp > 25 ? "bg-yellow-400" : "bg-red-400")}
-              style={{ width: `${hp}%` }}
+          {/* HP — right column */}
+          <div className="flex-1 flex flex-col justify-between min-w-0 py-0.5">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9px] font-semibold text-muted-foreground flex-shrink-0">HP</span>
+              <div className="flex-1 h-2.5 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                <div
+                  className={cn("h-full rounded-full transition-all", hp > 50 ? "bg-green-400" : hp > 25 ? "bg-yellow-400" : "bg-red-400")}
+                  style={{ width: `${hp}%` }}
+                />
+              </div>
+            </div>
+            <input
+              type="range" min={1} max={100} value={hp}
+              title="HP percentage"
+              onChange={(e) => onMonOvChange({ hpPct: Number(e.target.value) })}
+              className={cn("w-full h-1.5", isOpp ? "accent-red-500" : "accent-blue-500")}
             />
-          </div>
-          {!isOpp ? (
-            <div className="flex items-center gap-0.5 w-24 justify-end">
+            <div className="flex items-center gap-0.5">
               <button
                 title="−1 HP"
                 onClick={() => stepHp(-1)}
-                className="w-4 h-4 rounded text-[10px] font-bold leading-none flex items-center justify-center bg-black/5 dark:bg-white/10 hover:bg-red-100 dark:hover:bg-red-900/30 text-muted-foreground hover:text-red-500 transition-colors flex-shrink-0"
+                className={cn("w-5 h-5 rounded text-[11px] font-bold leading-none flex items-center justify-center bg-black/5 dark:bg-white/10 transition-colors flex-shrink-0 text-muted-foreground", isOpp ? "hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-500" : "hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-500")}
               >−</button>
               <input
                 type="text"
@@ -3176,28 +3245,28 @@ function MonPanel({
                   if (e.key === "Enter") commitHp((e.target as HTMLInputElement).value);
                   if (e.key === "Escape") setHpDraft(null);
                 }}
-                className="w-9 text-center text-[8px] font-medium rounded bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/10 focus:outline-none focus:ring-1 focus:ring-green-400 tabular-nums py-px"
+                className={cn("flex-1 min-w-0 text-center text-[9px] font-medium rounded bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/10 focus:outline-none focus:ring-1 tabular-nums py-0.5", isOpp ? "focus:ring-red-400" : "focus:ring-green-400")}
               />
-              <span className="text-[8px] text-muted-foreground/50 tabular-nums flex-shrink-0">/{maxHp}</span>
+              <span className="text-[9px] text-muted-foreground/50 tabular-nums flex-shrink-0">/{maxHp}</span>
               <button
                 title="+1 HP"
                 onClick={() => stepHp(1)}
-                className="w-4 h-4 rounded text-[10px] font-bold leading-none flex items-center justify-center bg-black/5 dark:bg-white/10 hover:bg-green-100 dark:hover:bg-green-900/30 text-muted-foreground hover:text-green-500 transition-colors flex-shrink-0"
+                className={cn("w-5 h-5 rounded text-[11px] font-bold leading-none flex items-center justify-center bg-black/5 dark:bg-white/10 transition-colors flex-shrink-0 text-muted-foreground", isOpp ? "hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-500" : "hover:bg-green-100 dark:hover:bg-green-900/30 hover:text-green-500")}
               >+</button>
             </div>
-          ) : (
-            <span className="text-[8px] text-muted-foreground w-7 text-right tabular-nums">{hp}%</span>
-          )}
+          </div>
         </div>
-        <input
-          type="range" min={1} max={100} value={hp}
-          title="HP percentage"
-          onChange={(e) => onMonOvChange({ hpPct: Number(e.target.value) })}
-          className={cn("w-full mt-1 h-1", isOpp ? "accent-red-500" : "accent-blue-500")}
-        />
+        <button
+          onClick={() => setMovesOpen(v => !v)}
+          className="mt-1.5 w-full flex items-center justify-center gap-1 text-[8px] font-semibold text-muted-foreground hover:text-foreground py-0.5 rounded hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+        >
+          <ChevronRight className={cn("w-3 h-3 transition-transform", movesOpen && "rotate-90")} />
+          {movesOpen ? "Hide" : isOpp ? "⚠ Attacks" : "★ Actions"}
+        </button>
       </div>
 
-      {/* Move grid — always shows all 4 moves in original slot order */}
+      {movesOpen && <>
+      {/* Move grid — shows all top moves */}
       <div className="p-2 bg-white/30 dark:bg-black/10">
         <div className={`text-[8px] font-bold uppercase tracking-wider mb-1.5 ${labelColor}`}>
           {isOpp
@@ -3423,6 +3492,7 @@ function MonPanel({
           </div>
         </div>
       )}
+      </>}
     </div>
   );
 }
@@ -3481,44 +3551,110 @@ function FieldPicker({
   allPokemon,
   fieldIdx,
   onSwap,
+  backIdx,
+  onBackChange,
+  predictions,
 }: {
   label: string;
   color: "blue" | "red";
   allPokemon: ChampionsPokemon[];
   fieldIdx: [number, number];
   onSwap: (idx: [number, number]) => void;
+  backIdx?: [number | null, number | null];
+  onBackChange?: (idx: [number | null, number | null]) => void;
+  predictions?: Array<{ pokemon: ChampionsPokemon; score: number; label: string }>;
 }) {
-  // Which slot is currently being targeted for replacement (0 = slot1, 1 = slot2, null = none)
-  const [targetSlot, setTargetSlot] = useState<0 | 1 | null>(null);
+  // 0-1 = lead slots, 2-3 = back slots
+  const [targetSlot, setTargetSlot] = useState<0 | 1 | 2 | 3 | null>(null);
+  const hasBack = backIdx !== undefined && onBackChange !== undefined;
 
-  const activeClass = color === "blue"
+  const leadActiveClass = color === "blue"
     ? "bg-blue-500 text-white border-blue-600"
     : "bg-red-500 text-white border-red-600";
+  const backActiveClass = color === "blue"
+    ? "bg-blue-200 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700"
+    : "bg-red-200 dark:bg-red-900/50 text-red-800 dark:text-red-200 border-red-300 dark:border-red-700";
   const targetClass = "bg-violet-500 text-white border-violet-600 ring-2 ring-violet-300 ring-offset-1";
+
+  // Map pokemon index → which slot (0=L1, 1=L2, 2=B1, 3=B2)
+  const slotOf = new Map<number, 0 | 1 | 2 | 3>();
+  if (fieldIdx[0] >= 0) slotOf.set(fieldIdx[0], 0);
+  if (fieldIdx[1] >= 0) slotOf.set(fieldIdx[1], 1);
+  if (hasBack && backIdx![0] !== null) slotOf.set(backIdx![0], 2);
+  if (hasBack && backIdx![1] !== null) slotOf.set(backIdx![1], 3);
+
+  const predLabel = predictions ? new Map(predictions.map(pr => [pr.pokemon.id, pr.label])) : null;
+  const predRank  = predictions ? new Map(predictions.map((pr, i) => [pr.pokemon.id, i + 1])) : null;
+
+  const handleClick = (i: number) => {
+    const cur = slotOf.get(i) ?? null;
+    if (targetSlot === null) {
+      if (cur !== null) setTargetSlot(cur);
+      else if (!hasBack) onSwap([i, fieldIdx[0]]);
+      return;
+    }
+    if (i === (targetSlot <= 1 ? fieldIdx[targetSlot] : backIdx![targetSlot - 2])) {
+      setTargetSlot(null);
+      return;
+    }
+    if (targetSlot <= 1) {
+      const newF: [number, number] = [...fieldIdx] as [number, number];
+      const other = targetSlot === 0 ? 1 : 0;
+      if (newF[other] === i) { newF[targetSlot] = i; newF[other] = fieldIdx[targetSlot]; }
+      else { newF[targetSlot] = i; }
+      onSwap(newF);
+      // Clear from back if it was there
+      if (hasBack) {
+        const nb: [number | null, number | null] = [...backIdx!] as [number | null, number | null];
+        if (nb[0] === i) nb[0] = null;
+        if (nb[1] === i) nb[1] = null;
+        onBackChange!(nb);
+      }
+    } else {
+      if (fieldIdx.includes(i)) { setTargetSlot(null); return; }
+      const bs = targetSlot - 2 as 0 | 1;
+      const nb: [number | null, number | null] = [...backIdx!] as [number | null, number | null];
+      const otherBs = bs === 0 ? 1 : 0;
+      if (nb[otherBs] === i) { nb[bs] = i; nb[otherBs] = backIdx![bs]; }
+      else { nb[bs] = i; }
+      onBackChange!(nb);
+    }
+    setTargetSlot(null);
+  };
 
   return (
     <div>
       <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-2">{label}</div>
 
-      {/* Slot buttons — click to target a slot for replacement */}
-      <div className="flex gap-2 mb-3">
-        {([0, 1] as const).map((slotIdx) => {
-          const monIdx = fieldIdx[slotIdx];
-          const mon = allPokemon[monIdx];
-          const isTargeted = targetSlot === slotIdx;
+      {/* Slots row: L1 L2 | B1 B2 */}
+      <div className="flex gap-1.5 mb-3 flex-wrap">
+        {([0, 1] as const).map(si => {
+          const mon = allPokemon[fieldIdx[si]];
+          const isT = targetSlot === si;
           return (
-            <button
-              key={slotIdx}
-              onClick={() => setTargetSlot(isTargeted ? null : slotIdx)}
-              className={cn(
-                "flex items-center gap-1.5 px-2 py-1.5 rounded-xl border text-[9px] font-semibold transition-all flex-1",
-                isTargeted ? targetClass : activeClass,
-              )}
-            >
-              <span className="text-[8px] opacity-70">Slot {slotIdx + 1}</span>
-              {mon && <Image src={mon.sprite} alt={mon.name} width={20} height={20} unoptimized />}
-              <span className="truncate">{mon?.name.split("-")[0] ?? "—"}</span>
-              {isTargeted && <span className="ml-auto text-[8px] opacity-80">✎</span>}
+            <button key={si} onClick={() => setTargetSlot(isT ? null : si)}
+              className={cn("flex items-center gap-1.5 px-2 py-1.5 rounded-xl border text-[9px] font-semibold transition-all flex-1", isT ? targetClass : leadActiveClass)}>
+              <span className="text-[7px] opacity-70 text-white">L{si + 1}</span>
+              {mon && <Image src={mon.sprite} alt={mon.name} width={18} height={18} unoptimized />}
+              <span className="truncate text-white">{mon?.name.split("-")[0] ?? "—"}</span>
+              {isT && <span className="ml-auto text-[8px] opacity-80">✎</span>}
+            </button>
+          );
+        })}
+        {hasBack && ([0, 1] as const).map(bs => {
+          const si = (bs + 2) as 2 | 3;
+          const monIdx = backIdx![bs];
+          const mon = monIdx !== null ? allPokemon[monIdx] : null;
+          const isT = targetSlot === si;
+          return (
+            <button key={`b${bs}`} onClick={() => setTargetSlot(isT ? null : si)}
+              className={cn("flex items-center gap-1.5 px-2 py-1.5 rounded-xl border text-[9px] font-semibold transition-all flex-1",
+                isT ? targetClass : mon ? backActiveClass : "border-dashed border-muted-foreground/30 text-muted-foreground/50 hover:border-muted-foreground/50")}>
+              <span className="text-[7px] opacity-70 text-white">B{bs + 1}</span>
+              {mon
+                ? <><Image src={mon.sprite} alt={mon.name} width={18} height={18} unoptimized /><span className="truncate text-white">{mon.name.split("-")[0]}</span></>
+                : <span className="truncate text-white">?</span>}
+              {isT && <span className="ml-auto text-[8px] opacity-80">✎</span>}
             </button>
           );
         })}
@@ -3527,60 +3663,38 @@ function FieldPicker({
       {/* Pokémon grid */}
       <div className="flex flex-wrap gap-1.5">
         {allPokemon.map((p, i) => {
-          const inSlot0 = fieldIdx[0] === i;
-          const inSlot1 = fieldIdx[1] === i;
-          const inAnySlot = inSlot0 || inSlot1;
-          const mySlot: 0 | 1 | null = inSlot0 ? 0 : inSlot1 ? 1 : null;
+          const slot = slotOf.get(i) ?? null;
+          const isLead = slot !== null && slot <= 1;
+          const isBack = slot !== null && slot >= 2;
+          const isDisabled = hasBack && fieldIdx.includes(i) && targetSlot !== null && targetSlot >= 2;
+          const rank = predRank?.get(p.id) ?? null;
+          const pLbl = predLabel?.get(p.id) ?? null;
+          const showRankBadge = rank !== null && slot === null && targetSlot !== null && targetSlot >= 2;
           return (
-            <button
-              key={p.name}
-              title={p.name}
-              onClick={() => {
-                if (targetSlot === null) {
-                  // No slot targeted: clicking the active slot selects it as target
-                  if (inAnySlot) {
-                    setTargetSlot(mySlot!);
-                  } else {
-                    // Clicking bench mon: put it in slot 1 (legacy behaviour)
-                    onSwap([i, fieldIdx[0]]);
-                  }
-                } else {
-                  // Slot targeted: put this mon into the targeted slot
-                  if (i === fieldIdx[targetSlot]) {
-                    // Clicked the mon already in the target slot → deselect
-                    setTargetSlot(null);
-                    return;
-                  }
-                  const newIdx: [number, number] = [...fieldIdx] as [number, number];
-                  // If the mon is already in the other slot, swap the two slots
-                  const otherSlot = targetSlot === 0 ? 1 : 0;
-                  if (newIdx[otherSlot] === i) {
-                    // Swap
-                    newIdx[targetSlot] = i;
-                    newIdx[otherSlot] = fieldIdx[targetSlot];
-                  } else {
-                    newIdx[targetSlot] = i;
-                  }
-                  onSwap(newIdx);
-                  setTargetSlot(null);
-                }
-              }}
+            <button key={p.name} title={p.name} disabled={isDisabled} onClick={() => handleClick(i)}
               className={cn(
                 "relative flex flex-col items-center gap-0.5 p-1.5 rounded-xl border text-[8px] font-medium transition-all",
-                targetSlot !== null && !inAnySlot
-                  ? "ring-1 ring-violet-300 hover:bg-violet-50 dark:hover:bg-violet-900/20 border-violet-200 dark:border-violet-700/40 bg-white/80 dark:bg-white/5 text-foreground"
-                  : inAnySlot
-                    ? color === "blue"
-                      ? "bg-blue-500 text-white border-blue-600 shadow-sm scale-105"
-                      : "bg-red-500 text-white border-red-600 shadow-sm scale-105"
-                    : "bg-white/80 dark:bg-white/5 border-gray-200 dark:border-white/10 hover:border-violet-300 text-muted-foreground",
-              )}
-            >
+                isDisabled
+                  ? "opacity-20 cursor-not-allowed border-gray-200 dark:border-white/10"
+                  : targetSlot !== null && slot === null
+                    ? "ring-1 ring-violet-300 hover:bg-violet-50 dark:hover:bg-violet-900/20 border-violet-200 dark:border-violet-700/40 bg-white/80 dark:bg-white/5"
+                    : isLead
+                      ? color === "blue" ? "bg-blue-500 text-white border-blue-600 shadow-sm scale-105" : "bg-red-500 text-white border-red-600 shadow-sm scale-105"
+                      : isBack
+                        ? color === "blue" ? "bg-blue-200 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700 scale-105" : "bg-red-200 dark:bg-red-900/50 text-red-800 dark:text-red-200 border-red-300 dark:border-red-700 scale-105"
+                        : "bg-white/80 dark:bg-white/5 border-gray-200 dark:border-white/10 hover:border-violet-300 text-muted-foreground",
+              )}>
               <Image src={p.sprite} alt={p.name} width={28} height={28} unoptimized />
-              <span className="max-w-[50px] truncate text-center leading-tight">{p.name.split("-")[0]}</span>
-              {inAnySlot && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[7px] font-bold flex items-center justify-center bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 shadow border border-gray-200 dark:border-white/20">
-                  {(mySlot! + 1)}
+              <span className="max-w-[50px] truncate text-center leading-tight text-white">{p.name.split("-")[0]}</span>
+              {pLbl && slot === null && <span className="text-[5px] text-muted-foreground/50 max-w-[50px] truncate text-center">{pLbl}</span>}
+              {slot !== null && (
+                <span className={cn("absolute -top-1 -right-1 w-4 h-4 rounded-full text-[7px] font-bold flex items-center justify-center text-white shadow", color === "blue" ? "bg-blue-900 border border-blue-700" : "bg-red-900 border border-red-700")}>
+                  {slot <= 1 ? slot + 1 : `B${slot - 1}`}
+                </span>
+              )}
+              {showRankBadge && (
+                <span className="absolute -top-1 -left-1 w-4 h-4 rounded-full text-[7px] font-bold flex items-center justify-center bg-amber-400 text-white shadow">
+                  {rank}
                 </span>
               )}
             </button>
@@ -3589,7 +3703,9 @@ function FieldPicker({
       </div>
       {targetSlot !== null && (
         <p className="text-[8px] text-violet-500 mt-1.5 animate-pulse">
-          Click a Pokémon to place it in Slot {targetSlot + 1}
+          {targetSlot <= 1
+            ? `Click a Pokémon for Lead ${targetSlot + 1}`
+            : `Click a Pokémon for Back ${targetSlot - 1}`}
         </p>
       )}
     </div>
@@ -3859,7 +3975,31 @@ function StrategyFlowchart({
 }) {
   const [myFieldIdx, setMyFieldIdx] = useState<[number, number]>([0, 1]);
   const [oppFieldIdx, setOppFieldIdx] = useState<[number, number]>([0, 1]);
+  const [myBackIdx, setMyBackIdx] = useState<[number | null, number | null]>([null, null]);
+  const [oppBackIdx, setOppBackIdx] = useState<[number | null, number | null]>([null, null]);
   const [showPicker, setShowPicker] = useState(false);
+  const [fieldOpen, setFieldOpen] = useState(false);
+
+  // Auto-init/repair myBackIdx when leads or team change
+  useEffect(() => {
+    if (team1Pokemon.length < 2) return;
+    const notInLeads = team1Pokemon.map((_, i) => i).filter(i => !myFieldIdx.includes(i));
+    setMyBackIdx(prev => {
+      const b0 = (prev[0] !== null && notInLeads.includes(prev[0])) ? prev[0] : (notInLeads[0] ?? null);
+      const b1 = (prev[1] !== null && notInLeads.includes(prev[1]) && prev[1] !== b0)
+        ? prev[1]
+        : (notInLeads.find(i => i !== b0) ?? null);
+      return [b0, b1];
+    });
+  }, [myFieldIdx[0], myFieldIdx[1], team1Pokemon.length]);
+
+  // Clear oppBackIdx slots that conflict with changed leads
+  useEffect(() => {
+    setOppBackIdx(prev => [
+      prev[0] !== null && !oppFieldIdx.includes(prev[0]) ? prev[0] : null,
+      prev[1] !== null && !oppFieldIdx.includes(prev[1]) ? prev[1] : null,
+    ]);
+  }, [oppFieldIdx[0], oppFieldIdx[1]]);
 
   // Field state overrides
   const [manualWeather, setManualWeather] = useState<string | null | undefined>(undefined);
@@ -3988,7 +4128,7 @@ function StrategyFlowchart({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {/* ── Win rate ── */}
       <div className="flex items-center gap-2">
         <div className="flex-1 h-2 rounded-full bg-gray-200 dark:bg-white/10 overflow-hidden">
@@ -3997,170 +4137,189 @@ function StrategyFlowchart({
         <span className={`text-sm font-bold flex-shrink-0 tabular-nums ${winTextColor}`}>{winPct}%</span>
       </div>
 
-      {/* ── Field State Controls ── */}
-      <div className="rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50/60 dark:bg-white/[0.03] p-3 space-y-2.5">
-        <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Field State</div>
-
-        {/* Weather row */}
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[9px] text-muted-foreground w-10 flex-shrink-0">Weather</span>
-          <div className="flex gap-1 flex-wrap">
-            {WEATHER_OPTIONS.map(({ key, emoji, label, activeClass }) => {
-              const isActive = manualWeather === key || (manualWeather === undefined && board.weather === key);
-              return (
+      {/* ── Field State Controls (collapsible) ── */}
+      <div className="rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden">
+        <button
+          onClick={() => setFieldOpen(v => !v)}
+          className="w-full px-3 py-2 flex items-center gap-1.5 text-[9px] text-muted-foreground hover:text-foreground hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+        >
+          <Settings2 className="w-3 h-3 flex-shrink-0" />
+          <span className="font-bold uppercase tracking-wider flex-shrink-0">Field</span>
+          <div className="flex flex-wrap gap-1 flex-1 min-w-0 ml-1">
+            {(() => {
+              const activeWeather = manualWeather !== undefined ? manualWeather : board.weather;
+              const WEATHER_EMOJI: Record<string, string> = { sun: "☀", rain: "🌧", sand: "🏜", hail: "❄" };
+              const hasAny = activeWeather || effectiveTR || myTailwind || oppTailwind || myReflect || myLightScreen || oppReflect || oppLightScreen;
+              if (!hasAny) return <span className="text-muted-foreground/50">No overrides</span>;
+              return <>
+                {activeWeather && <span className="px-1 py-px rounded text-[7px] font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">{WEATHER_EMOJI[activeWeather] ?? activeWeather}</span>}
+                {effectiveTR && <span className="px-1 py-px rounded text-[7px] font-bold bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">🔮TR</span>}
+                {myTailwind && <span className="px-1 py-px rounded text-[7px] font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">💨My</span>}
+                {oppTailwind && <span className="px-1 py-px rounded text-[7px] font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300">💨Opp</span>}
+                {myReflect && <span className="px-1 py-px rounded text-[7px] font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">🛡MyRef</span>}
+                {myLightScreen && <span className="px-1 py-px rounded text-[7px] font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">🌟MyLS</span>}
+                {oppReflect && <span className="px-1 py-px rounded text-[7px] font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300">🛡ORef</span>}
+                {oppLightScreen && <span className="px-1 py-px rounded text-[7px] font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300">🌟OLS</span>}
+              </>;
+            })()}
+          </div>
+          <ChevronRight className={cn("w-3 h-3 flex-shrink-0 transition-transform", fieldOpen && "rotate-90")} />
+        </button>
+        {fieldOpen && (
+          <div className="p-3 border-t border-gray-200 dark:border-white/10 space-y-2.5 bg-gray-50/60 dark:bg-white/[0.03]">
+            {/* Weather row */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[9px] text-muted-foreground w-10 flex-shrink-0">Weather</span>
+              <div className="flex gap-1 flex-wrap">
+                {WEATHER_OPTIONS.map(({ key, emoji, label, activeClass }) => {
+                  const isActive = manualWeather === key || (manualWeather === undefined && board.weather === key);
+                  return (
+                    <button
+                      key={key}
+                      title={label}
+                      onClick={() => toggleWeather(key)}
+                      className={cn(
+                        "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all",
+                        isActive
+                          ? activeClass
+                          : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-gray-400 dark:hover:border-white/30",
+                      )}
+                    >
+                      {emoji} {label}
+                    </button>
+                  );
+                })}
+                {(manualWeather !== undefined || board.weather) && (
+                  <button
+                    title="Clear weather"
+                    onClick={() => setManualWeather(null)}
+                    className="px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 text-[10px] text-muted-foreground hover:text-red-500 hover:border-red-300 transition-all bg-white dark:bg-white/5"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+            {/* TR + Tailwind row */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[9px] text-muted-foreground w-10 flex-shrink-0">Misc</span>
+              <div className="flex gap-1 flex-wrap">
                 <button
-                  key={key}
-                  title={label}
-                  onClick={() => toggleWeather(key)}
+                  title="Trick Room"
+                  onClick={toggleTR}
                   className={cn(
-                    "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all",
-                    isActive
-                      ? activeClass
-                      : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-gray-400 dark:hover:border-white/30",
+                    "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
+                    effectiveTR
+                      ? "bg-purple-500 text-white border-purple-600"
+                      : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-purple-400 hover:text-purple-600",
+                    manualTR !== undefined && manualTR !== autoTR && "ring-1 ring-orange-400 ring-offset-1",
                   )}
                 >
-                  {emoji} {label}
+                  🔮 Trick Room
+                  {manualTR !== undefined && manualTR !== autoTR && (
+                    <span className="text-[7px] opacity-80">(manual)</span>
+                  )}
                 </button>
-              );
-            })}
-            {(manualWeather !== undefined || board.weather) && (
-              <button
-                title="Clear weather"
-                onClick={() => setManualWeather(null)}
-                className="px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 text-[10px] text-muted-foreground hover:text-red-500 hover:border-red-300 transition-all bg-white dark:bg-white/5"
-              >
-                ✕
-              </button>
-            )}
+                <button
+                  title="Your Tailwind active"
+                  onClick={() => setMyTailwind((v) => !v)}
+                  className={cn(
+                    "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
+                    myTailwind
+                      ? "bg-blue-500 text-white border-blue-600"
+                      : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-blue-400 hover:text-blue-600",
+                  )}
+                >
+                  💨 My TW
+                </button>
+                <button
+                  title="Opponent Tailwind active"
+                  onClick={() => setOppTailwind((v) => !v)}
+                  className={cn(
+                    "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
+                    oppTailwind
+                      ? "bg-red-500 text-white border-red-600"
+                      : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-red-400 hover:text-red-600",
+                  )}
+                >
+                  💨 Opp TW
+                </button>
+              </div>
+            </div>
+            {/* Screens row */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[9px] text-muted-foreground w-10 flex-shrink-0">Screens</span>
+              <div className="flex gap-1 flex-wrap">
+                <button
+                  title="Your Reflect active"
+                  onClick={() => setMyReflect((v) => !v)}
+                  className={cn(
+                    "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
+                    myReflect
+                      ? "bg-blue-500 text-white border-blue-600"
+                      : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-blue-400 hover:text-blue-600",
+                  )}
+                >
+                  🛡 My Reflect
+                </button>
+                <button
+                  title="Your Light Screen active"
+                  onClick={() => setMyLightScreen((v) => !v)}
+                  className={cn(
+                    "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
+                    myLightScreen
+                      ? "bg-blue-400 text-white border-blue-500"
+                      : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-blue-400 hover:text-blue-500",
+                  )}
+                >
+                  🌟 My L.Screen
+                </button>
+                <button
+                  title="Opponent Reflect active"
+                  onClick={() => setOppReflect((v) => !v)}
+                  className={cn(
+                    "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
+                    oppReflect
+                      ? "bg-red-500 text-white border-red-600"
+                      : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-red-400 hover:text-red-600",
+                  )}
+                >
+                  🛡 Opp Reflect
+                </button>
+                <button
+                  title="Opponent Light Screen active"
+                  onClick={() => setOppLightScreen((v) => !v)}
+                  className={cn(
+                    "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
+                    oppLightScreen
+                      ? "bg-red-400 text-white border-red-500"
+                      : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-red-400 hover:text-red-500",
+                  )}
+                >
+                  🌟 Opp L.Screen
+                </button>
+                {(manualWeather !== undefined || manualTR !== undefined || myTailwind || oppTailwind || myReflect || myLightScreen || oppReflect || oppLightScreen) && (
+                  <button
+                    title="Reset all field overrides"
+                    onClick={() => {
+                      setManualWeather(undefined);
+                      setManualTR(undefined);
+                      setMyTailwind(false);
+                      setOppTailwind(false);
+                      setMyReflect(false);
+                      setMyLightScreen(false);
+                      setOppReflect(false);
+                      setOppLightScreen(false);
+                    }}
+                    className="px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 text-[10px] text-muted-foreground hover:text-red-500 hover:border-red-300 transition-all bg-white dark:bg-white/5"
+                  >
+                    ↺ Reset
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-
-        {/* TR + Tailwind row */}
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[9px] text-muted-foreground w-10 flex-shrink-0">Misc</span>
-          <div className="flex gap-1 flex-wrap">
-            {/* Trick Room */}
-            <button
-              title="Trick Room"
-              onClick={toggleTR}
-              className={cn(
-                "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
-                effectiveTR
-                  ? "bg-purple-500 text-white border-purple-600"
-                  : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-purple-400 hover:text-purple-600",
-                manualTR !== undefined && manualTR !== autoTR && "ring-1 ring-orange-400 ring-offset-1",
-              )}
-            >
-              🔮 Trick Room
-              {manualTR !== undefined && manualTR !== autoTR && (
-                <span className="text-[7px] opacity-80">(manual)</span>
-              )}
-            </button>
-
-            {/* My Tailwind */}
-            <button
-              title="Your Tailwind active"
-              onClick={() => setMyTailwind((v) => !v)}
-              className={cn(
-                "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
-                myTailwind
-                  ? "bg-blue-500 text-white border-blue-600"
-                  : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-blue-400 hover:text-blue-600",
-              )}
-            >
-              💨 My TW
-            </button>
-
-            {/* Opp Tailwind */}
-            <button
-              title="Opponent Tailwind active"
-              onClick={() => setOppTailwind((v) => !v)}
-              className={cn(
-                "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
-                oppTailwind
-                  ? "bg-red-500 text-white border-red-600"
-                  : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-red-400 hover:text-red-600",
-              )}
-            >
-              💨 Opp TW
-            </button>
-          </div>
-        </div>
-
-        {/* Screens row */}
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[9px] text-muted-foreground w-10 flex-shrink-0">Screens</span>
-          <div className="flex gap-1 flex-wrap">
-            <button
-              title="Your Reflect active"
-              onClick={() => setMyReflect((v) => !v)}
-              className={cn(
-                "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
-                myReflect
-                  ? "bg-blue-500 text-white border-blue-600"
-                  : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-blue-400 hover:text-blue-600",
-              )}
-            >
-              🛡 My Reflect
-            </button>
-            <button
-              title="Your Light Screen active"
-              onClick={() => setMyLightScreen((v) => !v)}
-              className={cn(
-                "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
-                myLightScreen
-                  ? "bg-blue-400 text-white border-blue-500"
-                  : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-blue-400 hover:text-blue-500",
-              )}
-            >
-              🌟 My L.Screen
-            </button>
-            <button
-              title="Opponent Reflect active"
-              onClick={() => setOppReflect((v) => !v)}
-              className={cn(
-                "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
-                oppReflect
-                  ? "bg-red-500 text-white border-red-600"
-                  : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-red-400 hover:text-red-600",
-              )}
-            >
-              🛡 Opp Reflect
-            </button>
-            <button
-              title="Opponent Light Screen active"
-              onClick={() => setOppLightScreen((v) => !v)}
-              className={cn(
-                "px-2 py-1 rounded-lg border text-[10px] font-bold transition-all flex items-center gap-1",
-                oppLightScreen
-                  ? "bg-red-400 text-white border-red-500"
-                  : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-red-400 hover:text-red-500",
-              )}
-            >
-              🌟 Opp L.Screen
-            </button>
-
-            {/* Reset all overrides */}
-            {(manualWeather !== undefined || manualTR !== undefined || myTailwind || oppTailwind || myReflect || myLightScreen || oppReflect || oppLightScreen) && (
-              <button
-                title="Reset all field overrides"
-                onClick={() => {
-                  setManualWeather(undefined);
-                  setManualTR(undefined);
-                  setMyTailwind(false);
-                  setOppTailwind(false);
-                  setMyReflect(false);
-                  setMyLightScreen(false);
-                  setOppReflect(false);
-                  setOppLightScreen(false);
-                }}
-                className="px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 text-[10px] text-muted-foreground hover:text-red-500 hover:border-red-300 transition-all bg-white dark:bg-white/5"
-              >
-                ↺ Reset
-              </button>
-            )}
-          </div>
-        </div>
+        )}
       </div>
 
       {/* ── Opponent side ── */}
@@ -4169,30 +4328,7 @@ function StrategyFlowchart({
           <Swords className="w-3 h-3" /> Opponent
           {board.oppTailwind && <span className="ml-1 text-cyan-500 font-bold">💨 Tailwind</span>}
         </div>
-
-        {/* Team prediction based on opponent's leads */}
-        {(() => {
-          const predictions = predictOpponentTeam(team2Pokemon, oppFieldIdx);
-          if (predictions.length === 0) return null;
-          return (
-            <div className="mb-2 rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50/50 dark:bg-red-950/10 p-2">
-              <div className="text-[8px] font-bold uppercase tracking-wider text-red-400 mb-1.5">
-                🔍 Likely back row (from sim data)
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {predictions.map(({ pokemon: p, label }) => (
-                  <div key={p.id} className="flex flex-col items-center gap-px p-1 rounded-lg border border-gray-200 dark:border-white/10 bg-white/60 dark:bg-white/5">
-                    <Image src={p.sprite} alt={p.name} width={28} height={28} unoptimized />
-                    <span className="text-[7px] text-muted-foreground truncate max-w-[48px] text-center">{p.name.split("-")[0]}</span>
-                    <span className="text-[6px] text-muted-foreground/70 truncate max-w-[48px] text-center">{label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })()}
-
-        <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2">
           <MonPanel
             slot={board.oppSlot1}
             side="opp"
@@ -4247,19 +4383,19 @@ function StrategyFlowchart({
               }
             }}
           />
+          </div>
         </div>
-      </div>
 
       {/* ── Speed order ── */}
       <SpeedStrip speedOrder={board.speedOrder} hasTrickRoom={board.hasTrickRoom} />
 
-      {/* ── Your side ── */}
-      <div>
-        <div className="text-[9px] font-bold uppercase tracking-wider text-blue-500 dark:text-blue-400 mb-2 flex items-center gap-1.5">
-          <Play className="w-3 h-3" /> Your side
-          {board.myTailwind && <span className="ml-1 text-cyan-500 font-bold">💨 Tailwind</span>}
-        </div>
-        <div className="grid grid-cols-2 gap-2">
+        {/* Your side */}
+        <div>
+          <div className="text-[9px] font-bold uppercase tracking-wider text-blue-500 dark:text-blue-400 mb-2 flex items-center gap-1.5">
+            <Play className="w-3 h-3" /> Your side
+            {board.myTailwind && <span className="ml-1 text-cyan-500 font-bold">💨 Tailwind</span>}
+          </div>
+          <div className="grid grid-cols-2 gap-2">
           {/* Slot 1 + advice */}
           <div className="space-y-1">
             {(() => {
@@ -4368,8 +4504,8 @@ function StrategyFlowchart({
               }}
             />
           </div>
+          </div>
         </div>
-      </div>
 
       {/* ── Field customizer ── */}
       <div className="rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden">
@@ -4388,18 +4524,23 @@ function StrategyFlowchart({
         {showPicker && (
           <div className="px-4 pb-4 pt-3 border-t border-gray-200 dark:border-white/10 space-y-4 bg-gray-50/50 dark:bg-white/[0.02]">
             <FieldPicker
-              label="Your team — pick 2 to lead"
+              label="Your team — leads & back row"
               color="blue"
               allPokemon={team1Pokemon}
               fieldIdx={myFieldIdx}
               onSwap={setMyFieldIdx}
+              backIdx={myBackIdx}
+              onBackChange={setMyBackIdx}
             />
             <FieldPicker
-              label="Opponent — pick 2 leads"
+              label="Opponent — leads & predict back"
               color="red"
               allPokemon={team2Pokemon}
               fieldIdx={oppFieldIdx}
               onSwap={setOppFieldIdx}
+              backIdx={oppBackIdx}
+              onBackChange={setOppBackIdx}
+              predictions={predictOpponentTeam(team2Pokemon, oppFieldIdx)}
             />
           </div>
         )}
