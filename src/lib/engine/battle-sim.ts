@@ -1773,21 +1773,24 @@ function executeMove(
     const weatherBypasses = bypassWeather ? state.field.weather === bypassWeather : false;
     const herbSkips = user.item === "Power Herb" && !user.itemConsumed;
     if (herbSkips) {
-      user.itemConsumed = true; // herb consumed, fire immediately
-    } else if (!weatherBypasses) {
-      // Charge turn: lock move, apply charge-turn boost (Electro Shot +1 SpAtk), return
-      user.chargingMove = moveName;
-      if (move.selfBoost) {
-        const contraryMult = user.ability === "Contrary" ? -1 : 1;
-        for (const [stat, stages] of Object.entries(move.selfBoost)) {
-          if (stat in user.boosts) {
-            (user.boosts as Record<string, number>)[stat] = Math.max(-6, Math.min(6,
-              (user.boosts as Record<string, number>)[stat] + (stages as number) * contraryMult
-            ));
-          }
+      user.itemConsumed = true;
+    }
+    // Apply self-boost before firing in all cases (charge turn, rain bypass, or herb)
+    // e.g. Electro Shot always raises SpAtk by +2 before the shot connects
+    if (move.selfBoost) {
+      const contraryMult = user.ability === "Contrary" ? -1 : 1;
+      for (const [stat, stages] of Object.entries(move.selfBoost)) {
+        if (stat in user.boosts) {
+          (user.boosts as Record<string, number>)[stat] = Math.max(-6, Math.min(6,
+            (user.boosts as Record<string, number>)[stat] + (stages as number) * contraryMult
+          ));
         }
       }
-      return; // Don't deal damage yet
+    }
+    if (!herbSkips && !weatherBypasses) {
+      // Charge turn: lock move, return (damage dealt next turn with boost already applied)
+      user.chargingMove = moveName;
+      return;
     }
     // Weather bypass or herb: fall through and fire immediately
   }

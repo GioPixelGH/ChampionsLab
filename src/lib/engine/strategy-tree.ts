@@ -2680,7 +2680,18 @@ export function computeBattleBoard(
       }
 
       // Damaging move
-      const atkPokemon = withAtkOverrides(toCalcPokemon(attacker), atkOv);
+      // Apply positive self-boosts that precede the hit (e.g. Electro Shot +2 SpAtk).
+      // Negative self-boosts (e.g. Draco Meteor -2 SpAtk) happen AFTER the hit, so skip them.
+      const _sb = m.data.selfBoost;
+      const _sbSpAtk = Math.max(0, _sb?.spAtk ?? 0);
+      const _sbAtk   = Math.max(0, _sb?.attack ?? 0);
+      const atkPokemon = (_sbSpAtk || _sbAtk)
+        ? withAtkOverrides(toCalcPokemon(attacker), {
+            ...atkOv,
+            spAtkStage: Math.min(6, (atkOv?.spAtkStage ?? 0) + _sbSpAtk),
+            atkStage:   Math.min(6, (atkOv?.atkStage   ?? 0) + _sbAtk),
+          })
+        : withAtkOverrides(toCalcPokemon(attacker), atkOv);
       const hasHH = atkOv?.helpingHand ?? false;
       const sharedOpts = {
         isDoubles: true,
@@ -2690,6 +2701,12 @@ export function computeBattleBoard(
         helpingHand: hasHH,
       };
       const calcOpts = { ...sharedOpts, lightScreen: defSide.lightScreen, reflect: defSide.reflect, auroraVeil: defSide.auroraVeil };
+
+      // Two-turn charge move note (shown in effectLabel when weather bypass is not active)
+      const _chargeBypass = m.name === "Electro Shot" ? "rain"
+        : (m.name === "Solar Beam" || m.name === "Solar Blade") ? "sun"
+        : null;
+      const _chargeTurnNote = _chargeBypass && weatherOpt !== _chargeBypass ? " · 2T" : "";
 
       const spread = isSpreadMove(m.data);
       const isAllAdjacent = m.data.target === "allAdjacent";
@@ -2731,7 +2748,7 @@ export function computeBattleBoard(
             moveType: m.data.type,
             category: m.data.category as "physical" | "special",
             targetName: bothImmune ? "–" : "both",
-            effectLabel: bothImmune ? "—" : `${loA}–${hiA}% / ${loB}–${hiB}%`,
+            effectLabel: bothImmune ? "—" : `${loA}–${hiA}% / ${loB}–${hiB}%${_chargeTurnNote}`,
             percentHPMax: bothImmune ? 0 : Math.round(Math.max(rA.percentHP[1], rB.percentHP[1])),
             isOHKO: rA.isOHKO || rB.isOHKO,
             is2HKO: rA.is2HKO || rB.is2HKO,
@@ -2767,7 +2784,7 @@ export function computeBattleBoard(
             moveType: m.data.type,
             category: m.data.category as "physical" | "special",
             targetName: bothImmune ? "–" : best.target.pokemon.name,
-            effectLabel: bothImmune ? "—" : makeDamageLabel(best.r),
+            effectLabel: bothImmune ? "—" : makeDamageLabel(best.r) + _chargeTurnNote,
             percentHPMax: bothImmune ? 0 : Math.round(best.r.percentHP[1]),
             isOHKO: best.r.isOHKO,
             is2HKO: best.r.is2HKO,

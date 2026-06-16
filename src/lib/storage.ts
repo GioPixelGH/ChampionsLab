@@ -77,6 +77,7 @@ export interface MatchRecord {
   notes?: string;
   format?: string;        // e.g. "BO3 G1", "Ladder"
   teamTesterReport?: unknown; // optional saved Team Tester PDF payload
+  picksUnknown?: boolean;    // true when only team-level data is available (e.g. tournament results)
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────

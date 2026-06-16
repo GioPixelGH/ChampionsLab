@@ -379,8 +379,8 @@ export const MOVE_DATA: Record<string, EngineMove> = {
     name: "Electro Shot", type: "electric", category: "special", basePower: 130,
     accuracy: 100, pp: 10, priority: 0, target: "normal",
     flags: {},
-    selfBoost: { spAtk: 1 },
-    effect: "Charges turn 1 (boost SpA), fires turn 2. Instant in rain.",
+    selfBoost: { spAtk: 2 },
+    effect: "Charges turn 1 (+2 SpA before firing), fires turn 2. Instant in rain.",
   },
   "Double Shock": {
     name: "Double Shock", type: "electric", category: "physical", basePower: 120,

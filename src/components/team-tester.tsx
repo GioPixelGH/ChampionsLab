@@ -3593,15 +3593,16 @@ function FieldPicker({
       else if (!hasBack) onSwap([i, fieldIdx[0]]);
       return;
     }
-    if (i === (targetSlot <= 1 ? fieldIdx[targetSlot] : backIdx![targetSlot - 2])) {
+    const ts01 = targetSlot as 0 | 1;
+    if (i === (targetSlot <= 1 ? fieldIdx[ts01] : backIdx![(targetSlot - 2) as 0 | 1])) {
       setTargetSlot(null);
       return;
     }
     if (targetSlot <= 1) {
       const newF: [number, number] = [...fieldIdx] as [number, number];
-      const other = targetSlot === 0 ? 1 : 0;
-      if (newF[other] === i) { newF[targetSlot] = i; newF[other] = fieldIdx[targetSlot]; }
-      else { newF[targetSlot] = i; }
+      const other = ts01 === 0 ? 1 : 0;
+      if (newF[other] === i) { newF[ts01] = i; newF[other] = fieldIdx[ts01]; }
+      else { newF[ts01] = i; }
       onSwap(newF);
       // Clear from back if it was there
       if (hasBack) {
@@ -3955,6 +3956,7 @@ function computeSlotAdvice(
   };
 }
 
+
 // ── Main component ──────────────────────────────────────────────────────────
 function StrategyFlowchart({
   team1Pokemon,
@@ -4031,9 +4033,19 @@ function StrategyFlowchart({
 
   const applyDamageToMy = (key: "myMon1" | "myMon2", dmgPct: number) => {
     if (key === "myMon1") {
-      setOvMyMon1((prev) => ({ ...prev, hpPct: Math.max(0, (prev.hpPct ?? 100) - dmgPct) }));
+      const hasStamina = board?.mySlot1.ability === "Stamina";
+      setOvMyMon1((prev) => ({
+        ...prev,
+        hpPct: Math.max(0, (prev.hpPct ?? 100) - dmgPct),
+        ...(hasStamina ? { defStage: Math.min(6, (prev.defStage ?? 0) + 1) } : {}),
+      }));
     } else {
-      setOvMyMon2((prev) => ({ ...prev, hpPct: Math.max(0, (prev.hpPct ?? 100) - dmgPct) }));
+      const hasStamina = board?.mySlot2.ability === "Stamina";
+      setOvMyMon2((prev) => ({
+        ...prev,
+        hpPct: Math.max(0, (prev.hpPct ?? 100) - dmgPct),
+        ...(hasStamina ? { defStage: Math.min(6, (prev.defStage ?? 0) + 1) } : {}),
+      }));
     }
   };
 
@@ -4441,6 +4453,13 @@ function StrategyFlowchart({
                 if (move.moveName === "Sandstorm") { setManualWeather("sand"); return; }
                 if (move.moveName === "Hail" || move.moveName === "Snowscape") { setManualWeather("hail"); return; }
                 if (move.category === "status") return;
+                // Two-turn charge moves: charge turn applies stat boost, no damage yet
+                const chargeBypass = CHARGE_MOVE_BYPASS[move.moveName];
+                if (chargeBypass && board.weather !== chargeBypass) {
+                  if (move.moveName === "Electro Shot")
+                    setOvMyMon1(prev => ({ ...prev, spAtkStage: Math.min(6, (prev.spAtkStage ?? 0) + 2) }));
+                  return;
+                }
                 if (move.perTarget) {
                   const tgt = ti === 0 ? move.perTarget.a : move.perTarget.b;
                   if (tgt.effectiveness > 0) applyDamageToOpp(ti === 0 ? "oppMon1" : "oppMon2", Math.round(tgt.percent));
@@ -4495,6 +4514,13 @@ function StrategyFlowchart({
                 if (move.moveName === "Sandstorm") { setManualWeather("sand"); return; }
                 if (move.moveName === "Hail" || move.moveName === "Snowscape") { setManualWeather("hail"); return; }
                 if (move.category === "status") return;
+                // Two-turn charge moves: charge turn applies stat boost, no damage yet
+                const chargeBypass = CHARGE_MOVE_BYPASS[move.moveName];
+                if (chargeBypass && board.weather !== chargeBypass) {
+                  if (move.moveName === "Electro Shot")
+                    setOvMyMon2(prev => ({ ...prev, spAtkStage: Math.min(6, (prev.spAtkStage ?? 0) + 2) }));
+                  return;
+                }
                 if (move.perTarget) {
                   const tgt = ti === 0 ? move.perTarget.a : move.perTarget.b;
                   if (tgt.effectiveness > 0) applyDamageToOpp(ti === 0 ? "oppMon1" : "oppMon2", Math.round(tgt.percent));
@@ -4545,6 +4571,7 @@ function StrategyFlowchart({
           </div>
         )}
       </div>
+
     </div>
   );
 }

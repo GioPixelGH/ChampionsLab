@@ -9,7 +9,7 @@ import {
   Plus, Trash2, X, Trophy, Swords, ChevronDown,
   BarChart3, BookOpen, Check, ClipboardList, Flame,
   TrendingUp, TrendingDown, Minus, AlertCircle, ExternalLink, FlaskConical, Download,
-  ArrowUp, ArrowDown, ArrowUpDown, Users, Tag,
+  ArrowUp, ArrowDown, ArrowUpDown, Users, Tag, Globe, Loader2,
 } from "lucide-react";
 import { POKEMON_SEED } from "@/lib/pokemon-data";
 import { cn } from "@/lib/utils";
@@ -26,6 +26,99 @@ import { type ChampionsPokemon } from "@/lib/types";
 // ─────────────────────────────────────────────────────────────────────────────
 
 const ALL_POKEMON = POKEMON_SEED.filter((p) => !p.hidden).sort((a, b) => a.dexNumber - b.dexNumber);
+
+// ── Limitless import helpers ──────────────────────────────────────────────────
+
+const LIMITLESS_SLUG_OVERRIDES: Record<string, string> = {
+  "rotom-heat": "Heat Rotom", "rotom-wash": "Wash Rotom", "rotom-mow": "Mow Rotom",
+  "rotom-fan": "Fan Rotom", "rotom-frost": "Frost Rotom",
+  "arcanine-hisui": "Hisuian Arcanine", "typhlosion-hisui": "Hisuian Typhlosion",
+  "lilligant-hisui": "Hisuian Lilligant", "zoroark-hisui": "Hisuian Zoroark",
+  "braviary-hisui": "Hisuian Braviary", "goodra-hisui": "Hisuian Goodra",
+  "decidueye-hisui": "Hisuian Decidueye", "samurott-hisui": "Hisuian Samurott",
+  "electrode-hisui": "Hisuian Electrode", "avalugg-hisui": "Hisuian Avalugg",
+  "sneasel-hisui": "Hisuian Sneasel", "voltorb-hisui": "Hisuian Voltorb",
+  "ninetales-alola": "Alolan Ninetales", "muk-alola": "Alolan Muk",
+  "marowak-alola": "Alolan Marowak", "raichu-alola": "Alolan Raichu",
+  "exeggutor-alola": "Alolan Exeggutor", "persian-alola": "Alolan Persian",
+  "sandslash-alola": "Alolan Sandslash", "golem-alola": "Alolan Golem",
+  "slowking-galar": "Galarian Slowking", "slowbro-galar": "Galarian Slowbro",
+  "weezing-galar": "Galarian Weezing", "moltres-galar": "Galarian Moltres",
+  "zapdos-galar": "Galarian Zapdos", "articuno-galar": "Galarian Articuno",
+  "tauros-paldea-combat": "Paldean Tauros Combat", "tauros-paldea-blaze": "Paldean Tauros Blaze",
+  "tauros-paldea-aqua": "Paldean Tauros Aqua", "tauros-paldea": "Paldean Tauros Combat",
+  "basculegion-f": "Basculegion-F", "basculegion-female": "Basculegion-F",
+  "basculegion": "Basculegion-M", "basculegion-m": "Basculegion-M", "basculegion-male": "Basculegion-M",
+  "meowstic": "Meowstic-M", "meowstic-f": "Meowstic-F", "meowstic-female": "Meowstic-F",
+  "indeedee": "Indeedee-M", "indeedee-f": "Indeedee-F", "indeedee-female": "Indeedee-F",
+  "urshifu": "Urshifu", "urshifu-rapid-strike": "Urshifu-Rapid-Strike",
+  "ogerpon-wellspring": "Ogerpon-Wellspring", "ogerpon-hearthflame": "Ogerpon-Hearthflame",
+  "ogerpon-cornerstone": "Ogerpon-Cornerstone",
+  "palafin": "Palafin", "palafin-hero": "Palafin",
+  "aegislash": "Aegislash", "aegislash-blade": "Aegislash",
+  "wormadam-sandy": "Wormadam-Sandy", "wormadam-trash": "Wormadam-Trash", "wormadam": "Wormadam",
+  "lycanroc-midnight": "Lycanroc-Midnight", "lycanroc-dusk": "Lycanroc-Dusk", "lycanroc": "Lycanroc",
+  "kommo-o": "Kommo-o", "jangmo-o": "Jangmo-o", "hakamo-o": "Hakamo-o",
+  "ho-oh": "Ho-Oh", "chi-yu": "Chi-Yu", "ting-lu": "Ting-Lu",
+  "chien-pao": "Chien-Pao", "wo-chien": "Wo-Chien",
+  "mr-rime": "Mr. Rime", "mr-mime": "Mr. Mime", "mime-jr": "Mime Jr.",
+  "type-null": "Type: Null",
+};
+
+const pokemonNameMap = new Map<string, number>(POKEMON_SEED.map((p) => [p.name.toLowerCase(), p.id]));
+
+function resolveSlug(slug: string): number | null {
+  const ov = LIMITLESS_SLUG_OVERRIDES[slug.toLowerCase()];
+  if (ov) { const id = pokemonNameMap.get(ov.toLowerCase()); if (id !== undefined) return id; }
+  const direct = slug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  const did = pokemonNameMap.get(direct.toLowerCase());
+  if (did !== undefined) return did;
+  const first = slug.split("-")[0];
+  const fid = pokemonNameMap.get((first.charAt(0).toUpperCase() + first.slice(1)).toLowerCase());
+  if (fid !== undefined) return fid;
+  return null;
+}
+
+function parseLimitlessUrl(raw: string): { tournamentId: string; playerId: string } | null {
+  try {
+    const url = raw.trim().startsWith("http") ? raw.trim() : `https://${raw.trim()}`;
+    const parts = new URL(url).pathname.split("/").filter(Boolean);
+    if (parts.length >= 3 && parts[1] === "player") return { tournamentId: parts[0], playerId: parts[2] };
+    return null;
+  } catch { return null; }
+}
+
+interface LimitlessMatchRaw {
+  table: number;
+  round: number;
+  phase: number;
+  completed: number;
+  winner: number | null;
+  p1_id: number;
+  p2_id: number | null;
+  p1_name: string;
+  p2_name: string | null;
+  p1_team: string;
+  p2_team: string | null;
+}
+interface LimitlessTournamentInfo {
+  name?: string;
+  city?: string;
+  country?: string;
+  date?: string;
+}
+interface ImportMatch {
+  round: number;
+  phase: string;
+  result: "win" | "loss" | "tie";
+  myTeam: number[];
+  oppTeam: number[];
+  oppName: string;
+  format: string;
+  isDuplicate: boolean;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 function getById(id: number): ChampionsPokemon | undefined {
   return POKEMON_SEED.find((p) => p.id === id);
@@ -198,8 +291,11 @@ function computeStats(records: MatchRecord[]) {
   const total = records.length;
   const winRate = total > 0 ? (wins / total) * 100 : 0;
 
+  const picksUnknownCount = records.filter((r) => r.picksUnknown).length;
+  const picksRecords = records.filter((r) => !r.picksUnknown);
+
   const myPickMap = new Map<number, { wins: number; losses: number; ties: number }>();
-  for (const r of records) {
+  for (const r of picksRecords) {
     for (const id of r.myPicks) {
       if (!myPickMap.has(id)) myPickMap.set(id, { wins: 0, losses: 0, ties: 0 });
       const s = myPickMap.get(id)!;
@@ -213,7 +309,7 @@ function computeStats(records: MatchRecord[]) {
     .sort((a, b) => b.total - a.total);
 
   const oppPickMap = new Map<number, { wins: number; losses: number; ties: number }>();
-  for (const r of records) {
+  for (const r of picksRecords) {
     for (const id of r.opponentPicks) {
       if (!oppPickMap.has(id)) oppPickMap.set(id, { wins: 0, losses: 0, ties: 0 });
       const s = oppPickMap.get(id)!;
@@ -228,7 +324,7 @@ function computeStats(records: MatchRecord[]) {
 
   // ── My lead pairs (only first 2 picks = actual leads) ────────────────────
   const myPairMap = new Map<string, { id1: number; id2: number; wins: number; losses: number; ties: number }>();
-  for (const r of records) {
+  for (const r of picksRecords) {
     const picks = r.myPicks;
     if (picks.length < 2) continue;
     // Canonical key uses sorted IDs so (A,B) and (B,A) are the same lead
@@ -245,7 +341,7 @@ function computeStats(records: MatchRecord[]) {
 
   // ── Opponent lead pairs (only first 2 picks = actual leads) ───────────────
   const oppPairMap = new Map<string, { id1: number; id2: number; wins: number; losses: number; ties: number }>();
-  for (const r of records) {
+  for (const r of picksRecords) {
     const picks = r.opponentPicks;
     if (picks.length < 2) continue;
     const canonKey = `${Math.min(picks[0], picks[1])}_${Math.max(picks[0], picks[1])}`;
@@ -274,7 +370,7 @@ function computeStats(records: MatchRecord[]) {
     .map(([format, s]) => { const t = s.wins + s.losses + s.ties; return { format, ...s, total: t, winRate: t > 0 ? (s.wins / t) * 100 : 0 }; })
     .sort((a, b) => b.total - a.total);
 
-  return { wins, losses, ties, total, winRate, myPickStats, oppPickStats, myLeadStats, oppLeadStats, formatStats };
+  return { wins, losses, ties, total, winRate, myPickStats, oppPickStats, myLeadStats, oppLeadStats, formatStats, picksUnknownCount };
 }
 
 // ── Pair row ─────────────────────────────────────────────────────────────
@@ -429,6 +525,14 @@ export default function MatchJournalPage() {
   const [result, setResult] = useState<MatchRecord["result"]>("win");
   const [notes, setNotes] = useState("");
   const [format, setFormat] = useState("");
+  const [picksUnknown, setPicksUnknown] = useState(false);
+
+  const [showImport, setShowImport] = useState(false);
+  const [importUrl, setImportUrl] = useState("");
+  const [importLoading, setImportLoading] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [importPreview, setImportPreview] = useState<ImportMatch[] | null>(null);
+  const [importTournamentName, setImportTournamentName] = useState("");
 
   const [activeTab, setActiveTab] = useState<"history" | "stats">("history");
   const [expandedRecord, setExpandedRecord] = useState<string | null>(null);
@@ -449,7 +553,13 @@ export default function MatchJournalPage() {
     );
   }
 
-  const stepIndex = STEPS.findIndex((s) => s.key === step);
+  const activeSteps = useMemo(
+    () => picksUnknown
+      ? STEPS.filter((s) => s.key !== "myPicks" && s.key !== "opponentPicks")
+      : STEPS,
+    [picksUnknown]
+  );
+  const stepIndex = activeSteps.findIndex((s) => s.key === step);
 
   const toggleMyTeam = useCallback((id: number) => {
     setMyTeam((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : prev.length < 6 ? [...prev, id] : prev);
@@ -512,11 +622,11 @@ export default function MatchJournalPage() {
     }
   }
 
-  function goNext() { const n = STEPS[stepIndex + 1]; if (n) setStep(n.key); }
-  function goPrev() { const p = STEPS[stepIndex - 1]; if (p) setStep(p.key); }
+  function goNext() { const n = activeSteps[stepIndex + 1]; if (n) setStep(n.key); }
+  function goPrev() { const p = activeSteps[stepIndex - 1]; if (p) setStep(p.key); }
 
   function handleSave() {
-    const saved = saveMatchRecord({ myTeam, myPicks, opponentTeam, opponentPicks, result, notes: notes.trim() || undefined, format: format.trim() || undefined });
+    const saved = saveMatchRecord({ myTeam, myPicks: picksUnknown ? [] : myPicks, opponentTeam, opponentPicks: picksUnknown ? [] : opponentPicks, result, notes: notes.trim() || undefined, format: format.trim() || undefined, picksUnknown: picksUnknown || undefined });
     setRecords((prev) => [saved, ...prev]);
     resetForm();
   }
@@ -524,7 +634,74 @@ export default function MatchJournalPage() {
   function resetForm() {
     setShowForm(false); setStep("myTeam");
     setMyTeam([]); setMyPicks([]); setOpponentTeam([]); setOpponentPicks([]);
-    setResult("win"); setNotes(""); setFormat("");
+    setResult("win"); setNotes(""); setFormat(""); setPicksUnknown(false);
+  }
+
+  function resetImport() {
+    setShowImport(false);
+    setImportUrl("");
+    setImportPreview(null);
+    setImportError(null);
+    setImportTournamentName("");
+  }
+
+  async function fetchImportData() {
+    const parsed = parseLimitlessUrl(importUrl);
+    if (!parsed) {
+      setImportError("URL non valido. Formato atteso: standings.limitlessvgc.com/{torneoId}/player/{playerId}");
+      return;
+    }
+    setImportLoading(true);
+    setImportError(null);
+    setImportPreview(null);
+    setImportTournamentName("");
+    try {
+      const res = await fetch(`/api/limitless-matches?tournamentId=${parsed.tournamentId}&playerId=${parsed.playerId}`);
+      const data = await res.json() as { matches?: LimitlessMatchRaw[]; tournament?: LimitlessTournamentInfo; error?: string };
+      if (!res.ok) { setImportError(data.error ?? "Errore nel caricamento"); return; }
+      const { matches = [], tournament } = data;
+      if (tournament) {
+        const parts = [
+          tournament.name,
+          [tournament.city, tournament.country].filter(Boolean).join(", "),
+          tournament.date,
+        ].filter(Boolean);
+        setImportTournamentName(parts.join(" · "));
+      }
+      const myId = parseInt(parsed.playerId, 10);
+      const existingFormats = new Set(records.map((r) => r.format).filter(Boolean));
+      const preview: ImportMatch[] = matches
+        .filter((m) => m.completed && (m.p1_id === myId || m.p2_id === myId) && m.p2_id != null)
+        .sort((a, b) => a.round - b.round)
+        .map((m) => {
+          const iP1 = m.p1_id === myId;
+          const myTeamStr = iP1 ? m.p1_team : (m.p2_team ?? "");
+          const oppTeamStr = iP1 ? (m.p2_team ?? "") : m.p1_team;
+          const oppName = iP1 ? (m.p2_name ?? "???") : m.p1_name;
+          const myTeam = myTeamStr.split(",").map((s) => resolveSlug(s.trim())).filter((id): id is number => id !== null);
+          const oppTeam = oppTeamStr.split(",").map((s) => resolveSlug(s.trim())).filter((id): id is number => id !== null);
+          const result: "win" | "loss" | "tie" = m.winner === null ? "tie" : m.winner === myId ? "win" : "loss";
+          const phaseLabel = m.phase >= 3 ? "Top Cut" : "Swiss";
+          const fmt = `Limitless #${parsed.tournamentId} ${phaseLabel} R${m.round}`;
+          return { round: m.round, phase: phaseLabel, result, myTeam, oppTeam, oppName, format: fmt, isDuplicate: existingFormats.has(fmt) };
+        });
+      setImportPreview(preview);
+    } catch { setImportError("Errore di rete. Riprova."); }
+    finally { setImportLoading(false); }
+  }
+
+  function handleImport() {
+    if (!importPreview) return;
+    const newMatches = importPreview.filter((m) => !m.isDuplicate);
+    if (newMatches.length === 0) return;
+    const saved = newMatches.map((m) =>
+      saveMatchRecord({
+        myTeam: m.myTeam, myPicks: [], opponentTeam: m.oppTeam, opponentPicks: [],
+        result: m.result, format: m.format, notes: `vs ${m.oppName}`, picksUnknown: true,
+      }),
+    );
+    setRecords((prev) => [...saved.reverse(), ...prev]);
+    resetImport();
   }
 
   function handleDelete(id: string) {
@@ -722,14 +899,24 @@ export default function MatchJournalPage() {
               </h1>
               <p className="text-xs text-gray-400 mt-0.5">{records.length} {records.length === 1 ? "match" : "matches"} recorded</p>
             </div>
-            <button
-              type="button"
-              onClick={() => { setShowForm(true); setStep("myTeam"); setMyTeam([]); setMyPicks([]); setOpponentTeam([]); setOpponentPicks([]); setResult("win"); setNotes(""); setFormat(""); setFormSearch(""); }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-semibold shadow-lg shadow-emerald-500/30"
-            >
-              <Plus className="w-4 h-4" />
-              New
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowImport((p) => !p)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-500/20 border border-blue-500/30 text-blue-400 text-sm font-semibold"
+              >
+                <Globe className="w-4 h-4" />
+                Import
+              </button>
+              <button
+                type="button"
+                onClick={() => { setShowForm(true); setStep("myTeam"); setMyTeam([]); setMyPicks([]); setOpponentTeam([]); setOpponentPicks([]); setResult("win"); setNotes(""); setFormat(""); setFormSearch(""); setPicksUnknown(false); }}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-semibold shadow-lg shadow-emerald-500/30"
+              >
+                <Plus className="w-4 h-4" />
+                New
+              </button>
+            </div>
           </div>
         </div>
 
@@ -834,14 +1021,17 @@ export default function MatchJournalPage() {
                           <ChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform", isExp && "rotate-180")} />
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="flex gap-0.5 flex-1">
-                            {myPicksPokemon.slice(0, 4).map((p) => p && (
+                          <div className={cn("flex gap-0.5 flex-1", record.picksUnknown && "opacity-60")}>
+                            {(record.picksUnknown ? myTeamPokemon : myPicksPokemon).slice(0, 4).map((p) => p && (
                               <Image key={p.id} src={spriteUrl(p.sprite)} alt={p.name} width={30} height={30} className="object-contain" unoptimized />
                             ))}
                           </div>
-                          <span className="text-gray-600 text-xs">vs</span>
-                          <div className="flex gap-0.5 flex-1 justify-end">
-                            {oppPicksPokemon.slice(0, 4).map((p) => p && (
+                          <div className="flex flex-col items-center gap-0.5 shrink-0">
+                            <span className="text-gray-600 text-xs">vs</span>
+                            {record.picksUnknown && <span className="text-[8px] text-amber-500 bg-amber-500/10 px-1 rounded leading-tight">torneo</span>}
+                          </div>
+                          <div className={cn("flex gap-0.5 flex-1 justify-end", record.picksUnknown && "opacity-60")}>
+                            {(record.picksUnknown ? oppTeamPokemon : oppPicksPokemon).slice(0, 4).map((p) => p && (
                               <Image key={p.id} src={spriteUrl(p.sprite)} alt={p.name} width={30} height={30} className="object-contain" unoptimized />
                             ))}
                           </div>
@@ -851,6 +1041,12 @@ export default function MatchJournalPage() {
                       {isExp && (
                         <div className="px-3 pb-3 pt-1 border-t border-white/10 space-y-3">
                           {/* Full teams */}
+                          {record.picksUnknown && (
+                            <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                              <AlertCircle className="w-3 h-3 text-amber-400 flex-shrink-0" />
+                              <span className="text-[10px] text-amber-400">Picks non registrati (risultato di torneo)</span>
+                            </div>
+                          )}
                           <div className="grid grid-cols-2 gap-3">
                             <div>
                               <p className="text-[10px] font-semibold text-gray-500 uppercase mb-1.5">My Team</p>
@@ -860,14 +1056,14 @@ export default function MatchJournalPage() {
                                     key={p.id}
                                     className={cn(
                                       "flex items-center gap-1 px-1.5 py-0.5 rounded-lg border",
-                                      record.myPicks.includes(p.id)
+                                      !record.picksUnknown && record.myPicks.includes(p.id)
                                         ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300"
                                         : "bg-white/5 border-white/10 text-gray-400"
                                     )}
                                   >
                                     <Image src={spriteUrl(p.sprite)} alt={p.name} width={18} height={18} className="object-contain" unoptimized />
                                     <span className="text-[10px]">{tp(p.name)}</span>
-                                    {record.myPicks.includes(p.id) && <Check className="w-2.5 h-2.5 text-emerald-400 flex-shrink-0" />}
+                                    {!record.picksUnknown && record.myPicks.includes(p.id) && <Check className="w-2.5 h-2.5 text-emerald-400 flex-shrink-0" />}
                                   </div>
                                 ))}
                               </div>
@@ -880,14 +1076,14 @@ export default function MatchJournalPage() {
                                     key={p.id}
                                     className={cn(
                                       "flex items-center gap-1 px-1.5 py-0.5 rounded-lg border",
-                                      record.opponentPicks.includes(p.id)
+                                      !record.picksUnknown && record.opponentPicks.includes(p.id)
                                         ? "bg-red-500/15 border-red-500/30 text-red-300"
                                         : "bg-white/5 border-white/10 text-gray-400"
                                     )}
                                   >
                                     <Image src={spriteUrl(p.sprite)} alt={p.name} width={18} height={18} className="object-contain" unoptimized />
                                     <span className="text-[10px]">{tp(p.name)}</span>
-                                    {record.opponentPicks.includes(p.id) && <Swords className="w-2.5 h-2.5 text-red-400 flex-shrink-0" />}
+                                    {!record.picksUnknown && record.opponentPicks.includes(p.id) && <Swords className="w-2.5 h-2.5 text-red-400 flex-shrink-0" />}
                                   </div>
                                 ))}
                               </div>
@@ -948,6 +1144,14 @@ export default function MatchJournalPage() {
             ) : (
               <>
                 {/* My Picks */}
+                {stats.picksUnknownCount > 0 && (
+                  <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                    <AlertCircle className="w-3 h-3 text-amber-400 flex-shrink-0" />
+                    <span className="text-[10px] text-amber-400">
+                      {stats.picksUnknownCount} match{stats.picksUnknownCount !== 1 ? "es" : ""} di torneo esclusi da picks/leads stats
+                    </span>
+                  </div>
+                )}
                 {sortedMyPickStats.length > 0 && (
                   <div>
                     <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">My Pokémon Performance</p>
@@ -1088,6 +1292,118 @@ export default function MatchJournalPage() {
           </div>
         )}
 
+        {/* Import from Limitless sheet (mobile) */}
+        {showImport && (
+          <div className="fixed inset-0 z-[70] flex flex-col justify-end">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={resetImport} />
+            <div className="relative bg-[#0d1526] border-t border-white/10 rounded-t-3xl flex flex-col" style={{ maxHeight: "85vh" }}>
+              <div className="px-4 pt-3 pb-3 flex-shrink-0 border-b border-white/10">
+                <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-3" />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-blue-400" />
+                    <p className="text-sm font-bold text-white">Import da Limitless</p>
+                  </div>
+                  <button type="button" onClick={resetImport} className="text-gray-400"><X className="w-5 h-5" /></button>
+                </div>
+              </div>
+              <div className="flex-1 overflow-y-auto px-4 pt-3 pb-4 space-y-3 min-h-0">
+                {/* URL input */}
+                <div className="space-y-2">
+                  <p className="text-[10px] text-gray-500 uppercase tracking-widest">URL profilo Limitless</p>
+                  <input
+                    type="url"
+                    value={importUrl}
+                    onChange={(e) => setImportUrl(e.target.value)}
+                    placeholder="standings.limitlessvgc.com/0035/player/0154"
+                    className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-blue-500/50 focus:outline-none text-sm text-white placeholder:text-gray-600"
+                  />
+                  <button
+                    type="button"
+                    onClick={fetchImportData}
+                    disabled={importLoading || !importUrl.trim()}
+                    className="w-full py-2.5 rounded-xl bg-blue-600 text-white text-sm font-bold disabled:opacity-40 flex items-center justify-center gap-2"
+                  >
+                    {importLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
+                    {importLoading ? "Caricamento..." : "Cerca partite"}
+                  </button>
+                </div>
+                {importError && (
+                  <div className="flex items-start gap-2 px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/20">
+                    <AlertCircle className="w-3.5 h-3.5 text-red-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-red-400">{importError}</p>
+                  </div>
+                )}
+                {importTournamentName && (
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                    <Trophy className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+                    <p className="text-xs text-amber-300">{importTournamentName}</p>
+                  </div>
+                )}
+                {importPreview && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3 text-[10px]">
+                      <span className="text-gray-400">{importPreview.length} partite</span>
+                      {importPreview.filter((m) => m.isDuplicate).length > 0 && (
+                        <span className="text-amber-400">{importPreview.filter((m) => m.isDuplicate).length} già importate</span>
+                      )}
+                      <span className="text-emerald-400 font-semibold">{importPreview.filter((m) => !m.isDuplicate).length} nuove</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {importPreview.map((m, i) => (
+                        <div
+                          key={i}
+                          className={cn(
+                            "flex items-center gap-2 px-2.5 py-2 rounded-xl border",
+                            m.isDuplicate ? "opacity-40 bg-white/3 border-white/10"
+                              : m.result === "win" ? "bg-emerald-500/10 border-emerald-500/20"
+                              : m.result === "loss" ? "bg-red-500/10 border-red-500/20"
+                              : "bg-white/5 border-white/10"
+                          )}
+                        >
+                          <span className={cn(
+                            "text-[9px] font-bold px-1.5 py-0.5 rounded-md flex-shrink-0 uppercase",
+                            m.phase === "Top Cut" ? "bg-amber-500/20 text-amber-400" : "bg-white/10 text-gray-400"
+                          )}>
+                            {m.phase === "Top Cut" ? "TC" : "R"}{m.round}
+                          </span>
+                          <span className={cn(
+                            "text-[10px] font-bold flex-shrink-0",
+                            m.result === "win" ? "text-emerald-400" : m.result === "loss" ? "text-red-400" : "text-gray-400"
+                          )}>
+                            {m.result === "win" ? "W" : m.result === "loss" ? "L" : "T"}
+                          </span>
+                          <span className="text-[11px] text-white flex-1 truncate">{m.oppName}</span>
+                          <div className="flex gap-0.5 flex-shrink-0">
+                            {m.oppTeam.slice(0, 4).map((id) => <PSprite key={id} id={id} size={20} />)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              {importPreview && importPreview.filter((m) => !m.isDuplicate).length > 0 && (
+                <div className="px-4 py-3 border-t border-white/10 flex-shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleImport}
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-bold flex items-center justify-center gap-2"
+                  >
+                    <Check className="w-4 h-4" />
+                    Importa {importPreview.filter((m) => !m.isDuplicate).length} partite
+                  </button>
+                </div>
+              )}
+              {importPreview && importPreview.filter((m) => !m.isDuplicate).length === 0 && (
+                <div className="px-4 py-3 border-t border-white/10 flex-shrink-0">
+                  <p className="text-center text-xs text-gray-500">Tutte le partite sono già state importate.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Multi-step form */}
         {showForm && (
           <div className="fixed inset-0 z-[70] flex flex-col justify-end">
@@ -1098,7 +1414,7 @@ export default function MatchJournalPage() {
                 <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-3" />
                 {/* Step dots */}
                 <div className="flex gap-1.5 justify-center mb-3">
-                  {STEPS.map((s, i) => (
+                  {activeSteps.map((s, i) => (
                     <div
                       key={s.key}
                       className={cn(
@@ -1110,8 +1426,8 @@ export default function MatchJournalPage() {
                 </div>
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <p className="text-sm font-bold text-white">{STEPS[stepIndex].label}</p>
-                    <p className="text-[11px] text-gray-400 mt-0.5">{STEPS[stepIndex].description}</p>
+                    <p className="text-sm font-bold text-white">{activeSteps[stepIndex]?.label}</p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">{activeSteps[stepIndex]?.description}</p>
                   </div>
                   <button type="button" onClick={resetForm} className="text-gray-400 flex-shrink-0" aria-label="Close">
                     <X className="w-5 h-5" />
@@ -1141,6 +1457,29 @@ export default function MatchJournalPage() {
                         </div>
                       </div>
                     )}
+                    <div className="px-4 pt-1 pb-1 flex-shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setPicksUnknown((p) => !p)}
+                        className={cn(
+                          "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-left transition-all",
+                          picksUnknown
+                            ? "bg-amber-500/15 border-amber-500/40 text-amber-300"
+                            : "bg-white/5 border-white/10 text-gray-400"
+                        )}
+                      >
+                        <div className={cn(
+                          "w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors",
+                          picksUnknown ? "bg-amber-500 border-amber-500" : "border-gray-500"
+                        )}>
+                          {picksUnknown && <Check className="w-2.5 h-2.5 text-white" />}
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-semibold">Risultato di torneo</p>
+                          <p className="text-[10px] text-gray-500">Picks non disponibili — solo i team</p>
+                        </div>
+                      </button>
+                    </div>
                     <MiniPokemonGrid selected={myTeam} onToggle={toggleMyTeam} maxCount={6} highlightColor="bg-emerald-500/20 border-emerald-500/50 text-emerald-300" />
                   </>
                 )}
@@ -1265,7 +1604,7 @@ export default function MatchJournalPage() {
                     Back
                   </button>
                 )}
-                {stepIndex < STEPS.length - 1 ? (
+                {stepIndex < activeSteps.length - 1 ? (
                   <button
                     type="button"
                     onClick={() => { goNext(); setFormSearch(""); }}
@@ -1277,7 +1616,7 @@ export default function MatchJournalPage() {
                         : "bg-white/5 border border-white/10 text-gray-500"
                     )}
                   >
-                    Next → {STEPS[stepIndex + 1]?.label}
+                    Next → {activeSteps[stepIndex + 1]?.label}
                   </button>
                 ) : (
                   <button
@@ -1330,13 +1669,27 @@ export default function MatchJournalPage() {
 
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-3">
-        <button
-          onClick={() => setShowForm((p) => !p)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-violet-500 to-indigo-600 text-white text-sm font-medium shadow-sm hover:from-violet-600 hover:to-indigo-700 transition-all"
-        >
-          {showForm ? <X size={15} /> : <Plus size={15} />}
-          {showForm ? "Cancel" : "Log New Game"}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowForm((p) => !p)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-violet-500 to-indigo-600 text-white text-sm font-medium shadow-sm hover:from-violet-600 hover:to-indigo-700 transition-all"
+          >
+            {showForm ? <X size={15} /> : <Plus size={15} />}
+            {showForm ? "Cancel" : "Log New Game"}
+          </button>
+          <button
+            onClick={() => { setShowImport((p) => !p); if (showImport) resetImport(); }}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all border",
+              showImport
+                ? "bg-blue-50 dark:bg-blue-500/10 border-blue-300 dark:border-blue-500/30 text-blue-700 dark:text-blue-400"
+                : "glass glass-hover border-border text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Globe size={15} />
+            Import Limitless
+          </button>
+        </div>
 
         <div className="flex items-center gap-1 glass rounded-xl p-1">
           {(["history", "stats"] as const).map((tab) => (
@@ -1370,7 +1723,7 @@ export default function MatchJournalPage() {
 
               {/* Step indicator */}
               <div className="flex items-center gap-1">
-                {STEPS.map((s, i) => (
+                {activeSteps.map((s, i) => (
                   <div key={s.key} className="flex items-center gap-1 flex-1">
                     <button
                       onClick={() => { if (i <= stepIndex) setStep(s.key); }}
@@ -1383,7 +1736,7 @@ export default function MatchJournalPage() {
                     >
                       {i < stepIndex ? <Check size={12} /> : i + 1}
                     </button>
-                    {i < STEPS.length - 1 && (
+                    {i < activeSteps.length - 1 && (
                       <div className={cn("flex-1 h-0.5 rounded", i < stepIndex ? "bg-violet-400" : "bg-border")} />
                     )}
                   </div>
@@ -1391,8 +1744,8 @@ export default function MatchJournalPage() {
               </div>
 
               <div>
-                <h2 className="font-semibold text-foreground">Step {stepIndex + 1}: {STEPS[stepIndex].label}</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">{STEPS[stepIndex].description}</p>
+                <h2 className="font-semibold text-foreground">Step {stepIndex + 1}: {activeSteps[stepIndex]?.label}</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">{activeSteps[stepIndex]?.description}</p>
               </div>
 
               <AnimatePresence mode="wait">
@@ -1421,6 +1774,24 @@ export default function MatchJournalPage() {
                           </div>
                         </div>
                       )}
+                      <label className="flex items-center gap-2.5 p-2.5 rounded-xl border border-amber-200 dark:border-amber-500/20 bg-amber-50 dark:bg-amber-500/5 cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-500/10 transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={picksUnknown}
+                          onChange={(e) => setPicksUnknown(e.target.checked)}
+                          className="sr-only"
+                        />
+                        <div className={cn(
+                          "w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors",
+                          picksUnknown ? "bg-amber-500 border-amber-500" : "border-muted-foreground/40 bg-background"
+                        )}>
+                          {picksUnknown && <Check size={10} className="text-white" />}
+                        </div>
+                        <div>
+                          <span className="text-xs font-medium text-foreground">Risultato di torneo</span>
+                          <span className="text-xs text-muted-foreground ml-1.5">— picks non disponibili</span>
+                        </div>
+                      </label>
                       <PokemonPicker selected={myTeam} onToggle={toggleMyTeam} maxSelect={6} label="Select up to 6 Pokemon (your full team)" />
                     </div>
                   )}
@@ -1632,7 +2003,7 @@ export default function MatchJournalPage() {
                 >
                   Back
                 </button>
-                {stepIndex < STEPS.length - 1 ? (
+                {stepIndex < activeSteps.length - 1 ? (
                   <button
                     onClick={goNext}
                     disabled={!canAdvance()}
@@ -1650,6 +2021,129 @@ export default function MatchJournalPage() {
                   </button>
                 )}
               </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Import from Limitless panel (desktop) */}
+      <AnimatePresence>
+        {showImport && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="glass rounded-2xl border border-blue-200 dark:border-blue-500/20 p-5 space-y-4">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Globe size={16} className="text-blue-500" />
+                  <h2 className="font-semibold text-foreground text-sm">Import da Limitless VGC</h2>
+                </div>
+                <button onClick={resetImport} className="text-muted-foreground hover:text-foreground transition-colors">
+                  <X size={15} />
+                </button>
+              </div>
+
+              {/* URL input */}
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={importUrl}
+                  onChange={(e) => setImportUrl(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && !importLoading && fetchImportData()}
+                  placeholder="https://standings.limitlessvgc.com/0035/player/0154"
+                  className="flex-1 px-3 py-1.5 text-sm rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/40 transition-colors"
+                />
+                <button
+                  onClick={fetchImportData}
+                  disabled={importLoading || !importUrl.trim()}
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  {importLoading ? <Loader2 size={14} className="animate-spin" /> : <Globe size={14} />}
+                  {importLoading ? "Caricamento..." : "Fetch"}
+                </button>
+              </div>
+
+              {/* Error */}
+              {importError && (
+                <p className="text-xs text-red-500 dark:text-red-400 flex items-center gap-1.5">
+                  <AlertCircle size={11} className="flex-shrink-0" />{importError}
+                </p>
+              )}
+
+              {/* Tournament info */}
+              {importTournamentName && (
+                <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                  <Trophy size={11} className="flex-shrink-0" />{importTournamentName}
+                </p>
+              )}
+
+              {/* Preview */}
+              {importPreview && (
+                <div className="space-y-3">
+                  {/* Summary */}
+                  <div className="flex items-center gap-4 text-xs">
+                    <span className="text-muted-foreground">{importPreview.length} partite trovate</span>
+                    {importPreview.filter((m) => m.isDuplicate).length > 0 && (
+                      <span className="text-amber-500 dark:text-amber-400">{importPreview.filter((m) => m.isDuplicate).length} già importate</span>
+                    )}
+                    <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                      {importPreview.filter((m) => !m.isDuplicate).length} nuove
+                    </span>
+                  </div>
+
+                  {/* Match list */}
+                  <div className="max-h-72 overflow-y-auto space-y-1 pr-1">
+                    {importPreview.map((m, i) => (
+                      <div
+                        key={i}
+                        className={cn(
+                          "flex items-center gap-2 px-3 py-2 rounded-lg border text-xs",
+                          m.isDuplicate
+                            ? "opacity-40 bg-muted/30 border-border"
+                            : m.result === "win"
+                              ? "bg-emerald-50 dark:bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/15"
+                              : m.result === "loss"
+                                ? "bg-red-50 dark:bg-red-500/5 border-red-200 dark:border-red-500/15"
+                                : "bg-muted/30 border-border"
+                        )}
+                      >
+                        <span className={cn(
+                          "text-[10px] font-bold px-1.5 py-0.5 rounded-md flex-shrink-0 uppercase",
+                          m.phase === "Top Cut" ? "bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400" : "bg-muted text-muted-foreground"
+                        )}>
+                          {m.phase === "Top Cut" ? "TC" : "R"}{m.round}
+                        </span>
+                        <ResultBadge result={m.result} />
+                        <span className="text-foreground truncate flex-1 text-xs">{m.oppName}</span>
+                        <div className="flex items-center gap-0.5 flex-shrink-0">
+                          <span className="text-[9px] text-muted-foreground mr-1">vs</span>
+                          {m.oppTeam.slice(0, 6).map((id) => <PSprite key={id} id={id} size={22} />)}
+                        </div>
+                        {m.isDuplicate && <span className="text-[9px] text-muted-foreground flex-shrink-0 ml-1">già importato</span>}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Import button */}
+                  {importPreview.filter((m) => !m.isDuplicate).length > 0 ? (
+                    <button
+                      onClick={handleImport}
+                      className="w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-sm font-medium transition-all shadow-sm flex items-center justify-center gap-2"
+                    >
+                      <Check size={14} />
+                      Importa {importPreview.filter((m) => !m.isDuplicate).length} partite nel Journal
+                    </button>
+                  ) : (
+                    <p className="text-center text-sm text-muted-foreground py-1">
+                      Tutte le partite di questo torneo sono già state importate.
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </motion.div>
         )}
@@ -1704,11 +2198,16 @@ export default function MatchJournalPage() {
                   <div className="flex flex-col gap-1 flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
                       <span className="text-[10px] text-muted-foreground uppercase tracking-wide w-6 shrink-0">Me</span>
-                      <div className="flex gap-0.5">{r.myPicks.map((id) => <PSprite key={id} id={id} size={28} />)}</div>
+                      <div className={cn("flex gap-0.5", r.picksUnknown && "opacity-50")}>
+                        {(r.picksUnknown ? r.myTeam : r.myPicks).map((id) => <PSprite key={id} id={id} size={28} />)}
+                      </div>
+                      {r.picksUnknown && <span className="text-[9px] text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 px-1 py-0.5 rounded ml-1">torneo</span>}
                     </div>
                     <div className="flex items-center gap-1.5">
                       <span className="text-[10px] text-muted-foreground uppercase tracking-wide w-6 shrink-0">Opp</span>
-                      <div className="flex gap-0.5">{r.opponentPicks.map((id) => <PSprite key={id} id={id} size={28} />)}</div>
+                      <div className={cn("flex gap-0.5", r.picksUnknown && "opacity-50")}>
+                        {(r.picksUnknown ? r.opponentTeam : r.opponentPicks).map((id) => <PSprite key={id} id={id} size={28} />)}
+                      </div>
                     </div>
                   </div>
 
@@ -1729,19 +2228,25 @@ export default function MatchJournalPage() {
                       className="overflow-hidden"
                     >
                       <div className="px-4 pb-4 pt-3 border-t border-border space-y-4">
+                        {r.picksUnknown && (
+                          <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                            <AlertCircle size={11} className="flex-shrink-0" />
+                            Picks non registrati per questo match (risultato di torneo)
+                          </p>
+                        )}
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">My Full Team</p>
                             <div className="flex flex-wrap gap-1.5">
                               {r.myTeam.map((id) => (
                                 <div key={id} className={cn("flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-xs border",
-                                  r.myPicks.includes(id)
+                                  !r.picksUnknown && r.myPicks.includes(id)
                                     ? "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300"
                                     : "bg-muted border-border text-muted-foreground"
                                 )}>
                                   <PSprite id={id} size={22} />
                                   <span>{getById(id)?.name}</span>
-                                  {r.myPicks.includes(id) && <Check size={9} className="text-emerald-500" />}
+                                  {!r.picksUnknown && r.myPicks.includes(id) && <Check size={9} className="text-emerald-500" />}
                                 </div>
                               ))}
                             </div>
@@ -1751,13 +2256,13 @@ export default function MatchJournalPage() {
                             <div className="flex flex-wrap gap-1.5">
                               {r.opponentTeam.map((id) => (
                                 <div key={id} className={cn("flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-xs border",
-                                  r.opponentPicks.includes(id)
+                                  !r.picksUnknown && r.opponentPicks.includes(id)
                                     ? "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30 text-red-800 dark:text-red-300"
                                     : "bg-muted border-border text-muted-foreground"
                                 )}>
                                   <PSprite id={id} size={22} />
                                   <span>{getById(id)?.name}</span>
-                                  {r.opponentPicks.includes(id) && <Swords size={9} className="text-red-400" />}
+                                  {!r.picksUnknown && r.opponentPicks.includes(id) && <Swords size={9} className="text-red-400" />}
                                 </div>
                               ))}
                             </div>
@@ -1825,6 +2330,12 @@ export default function MatchJournalPage() {
               </div>
               <SortBar sort={mySort} onSort={(k) => toggleSort(mySort, setMySort, k)} />
             </div>
+            {stats.picksUnknownCount > 0 && (
+              <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                <AlertCircle size={11} className="flex-shrink-0" />
+                {stats.picksUnknownCount} match{stats.picksUnknownCount !== 1 ? "es" : ""} di torneo (senza picks) esclusi da queste statistiche
+              </p>
+            )}
             {stats.myPickStats.length === 0 ? (
               <p className="text-sm text-muted-foreground">Not enough data yet.</p>
             ) : (
