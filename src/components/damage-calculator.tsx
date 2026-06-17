@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react";
 import Image from "next/image";
+import { spriteUrl } from "@/lib/sprite-url";
 import {
   Swords, Search, Sun, CloudRain, Snowflake, Wind,
   Zap, Shield, ChevronDown, Flame, Droplets, ArrowRightLeft,
@@ -834,7 +835,7 @@ export default function DamageCalculator() {
                     onClick={() => selectPokemon(p)}
                     className="flex items-center gap-2 p-3 rounded-xl glass glass-hover text-left"
                   >
-                    <Image src={p.sprite} alt={tp(p.name)} width={36} height={36} unoptimized />
+                    <Image src={spriteUrl(p.sprite)} alt={tp(p.name)} width={36} height={36} unoptimized />
                     <div>
                       <p className="text-xs font-medium">{tp(p.name)}</p>
                       <div className="flex gap-1 mt-0.5">
@@ -902,7 +903,7 @@ function PokemonPanel({
         <p className={cn("text-[10px] font-bold uppercase tracking-widest mb-2", headerText)}>{label}</p>
         {p ? (
           <div className="flex items-center gap-3">
-            <Image src={resolvedStats?.sprite ?? p.sprite} alt={tp(resolvedStats?.name ?? p.name)} width={56} height={56} unoptimized />
+            <Image src={spriteUrl(resolvedStats?.sprite ?? p.sprite)} alt={tp(resolvedStats?.name ?? p.name)} width={56} height={56} unoptimized />
             <div className="flex-1 min-w-0">
               <p className="text-lg font-bold truncate">{tp(resolvedStats?.name ?? p.name)}</p>
               <div className="flex gap-1 mt-1">

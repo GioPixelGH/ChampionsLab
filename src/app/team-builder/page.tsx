@@ -52,7 +52,7 @@ import {
 } from "@/lib/engine/picker-roles";
 import {
   getSavedTeams, saveTeam, deleteTeam, deserializeTeam, saveLastTeam, getLastTeam,
-  serializeTeam, getMyRoster, toggleRosterPokemon, saveMyRoster,
+  serializeTeam, getMyRoster, saveMyRoster,
   type SavedTeam, type SavedTeamSlot,
 } from "@/lib/storage";
 import {
@@ -243,6 +243,8 @@ export default function TeamBuilderPage() {
   const [shareImageUrl, setShareImageUrl] = useState<string | null>(null);
   const [editMode, setEditMode] = useState<"normal" | "speed" | "survival" | "damage">("normal");
   const [spToast, setSpToast] = useState<string | null>(null);
+  const [moveTypeFilter, setMoveTypeFilter] = useState<PokemonType | "">("");
+  const [moveCategoryFilter, setMoveCategoryFilter] = useState<"" | "physical" | "special" | "status">("");
 
   const defaultRegulation = getSettings().defaultRegulationId || (getActiveRegulation()?.id ?? SEASONS[0]?.regulations[0]?.id ?? "M-A");
   const [activeRegulation, setActiveRegulation] = useState(defaultRegulation);
@@ -412,6 +414,12 @@ export default function TeamBuilderPage() {
     setMyRosterIds(getMyRoster(activeSeasonId));
   }, [activeSeasonId]);
 
+  // Reset move filters when the selected Pokémon changes
+  useEffect(() => {
+    setMoveTypeFilter("");
+    setMoveCategoryFilter("");
+  }, [selectedSlotIndex]);
+
   // Validation
   const validationErrors = useMemo(() => {
     const errors: string[] = [];
@@ -449,7 +457,7 @@ export default function TeamBuilderPage() {
   const handleSaveTeam = () => {
     if (validationErrors.length > 0) return;
     trackEvent("save_team", "team_builder", teamName, filledSlots.length);
-    const team = saveTeam(teamName, slots, currentTeamId);
+    const team = saveTeam(teamName, slots, currentTeamId, activeRegulation);
     setCurrentTeamId(team.id);
     setSavedTeams(getSavedTeams());
     setSaveConfirm(true);
@@ -991,12 +999,18 @@ export default function TeamBuilderPage() {
     return scores;
   }, [savedTeams.map(s => s.id).join(",")]);
 
+  // Teams visible in the current season (legacy teams without regulation default to M-A)
+  const visibleTeams = useMemo(
+    () => savedTeams.filter(st => (st.regulation ?? "M-A") === activeRegulation),
+    [savedTeams, activeRegulation]
+  );
+
   const bestSavedTeamId = useMemo(() => {
-    if (savedTeams.length === 0) return null;
-    return savedTeams.reduce((best, st) =>
+    if (visibleTeams.length === 0) return null;
+    return visibleTeams.reduce((best, st) =>
       (savedTeamScores[st.id] ?? 0) > (savedTeamScores[best.id] ?? 0) ? st : best
     ).id;
-  }, [savedTeamScores, savedTeams]);
+  }, [savedTeamScores, visibleTeams]);
 
   const teammates = useMemo<TeammateSuggestion[]>(() => {
     if (teamPokemon.length >= 6) return [];
@@ -1686,11 +1700,11 @@ export default function TeamBuilderPage() {
         {showSavedTeams && (
           <div className="mx-4 mb-3 bg-white/5 border border-white/10 rounded-2xl p-3">
             <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Saved Teams</p>
-            {savedTeams.length === 0 ? (
-              <p className="text-xs text-gray-500 text-center py-2">No saved teams yet</p>
+            {visibleTeams.length === 0 ? (
+              <p className="text-xs text-gray-500 text-center py-2">No saved teams for this season</p>
             ) : (
               <div className="space-y-1.5">
-                {savedTeams.map((st) => (
+                {visibleTeams.map((st) => (
                   <div key={st.id} className="flex items-center gap-2">
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-white truncate">{st.name}</p>
@@ -2367,8 +2381,10 @@ export default function TeamBuilderPage() {
                       <button
                         key={p.id}
                         onClick={() => {
-                          const updated = toggleRosterPokemon(p.id, activeSeasonId);
-                          setMyRosterIds(new Set(updated));
+                          const newIds = new Set(myRosterIds);
+                          if (newIds.has(p.id)) { newIds.delete(p.id); } else { newIds.add(p.id); }
+                          setMyRosterIds(newIds);
+                          saveMyRoster(newIds, activeSeasonId);
                         }}
                         title={p.name}
                         className={cn(
@@ -2403,7 +2419,7 @@ export default function TeamBuilderPage() {
 
       {/* Saved Teams Panel */}
       <AnimatePresence>
-        {showSavedTeams && savedTeams.length > 0 && (
+        {showSavedTeams && visibleTeams.length > 0 && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
@@ -2416,7 +2432,7 @@ export default function TeamBuilderPage() {
                 {t('teamBuilder.savedTeams')}
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2">
-                {[...savedTeams].sort((a, b) => (savedTeamScores[b.id] ?? 0) - (savedTeamScores[a.id] ?? 0)).map(st => {
+                {[...visibleTeams].sort((a, b) => (savedTeamScores[b.id] ?? 0) - (savedTeamScores[a.id] ?? 0)).map(st => {
                   const score = savedTeamScores[st.id] ?? 0;
                   const isBest = st.id === bestSavedTeamId;
                   return (
@@ -2453,7 +2469,7 @@ export default function TeamBuilderPage() {
         )}
       </AnimatePresence>
 
-      {showSavedTeams && savedTeams.length === 0 && (
+      {showSavedTeams && visibleTeams.length === 0 && (
         <div className="mb-6 p-4 rounded-xl bg-gray-50 text-center">
           <p className="text-sm text-muted-foreground">{t('teamBuilder.noSavedTeams')}</p>
         </div>
@@ -3133,35 +3149,85 @@ export default function TeamBuilderPage() {
                     {/* Col 1: Moves */}
                     {editMode === "normal" && <div>
                       <p className="text-[10px] text-muted-foreground uppercase font-bold mb-2">{t('teamBuilder.moves')}</p>
+                      {/* Move filters */}
+                      {(() => {
+                        const availableTypes = [...new Set(editPkm.moves.map(m => m.type))].sort() as PokemonType[];
+                        return (
+                          <div className="mb-2 space-y-1.5">
+                            <div className="flex flex-wrap gap-1">
+                              {(["", "physical", "special", "status"] as const).map(cat => (
+                                <button
+                                  key={cat}
+                                  type="button"
+                                  onClick={() => setMoveCategoryFilter(cat === moveCategoryFilter ? "" : cat)}
+                                  className={cn(
+                                    "px-2 py-0.5 rounded text-[10px] font-semibold border transition-all",
+                                    moveCategoryFilter === cat
+                                      ? cat === "physical" ? "bg-orange-100 border-orange-300 text-orange-700"
+                                        : cat === "special" ? "bg-blue-100 border-blue-300 text-blue-700"
+                                        : cat === "status" ? "bg-gray-200 border-gray-400 text-gray-700"
+                                        : "bg-violet-100 border-violet-300 text-violet-700"
+                                      : "bg-transparent border-gray-200 text-muted-foreground hover:border-gray-300"
+                                  )}
+                                >
+                                  {cat === "" ? "All" : cat === "physical" ? "Phys" : cat === "special" ? "Spec" : "Status"}
+                                </button>
+                              ))}
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                              {availableTypes.map(type => (
+                                <button
+                                  key={type}
+                                  type="button"
+                                  onClick={() => setMoveTypeFilter(moveTypeFilter === type ? "" : type)}
+                                  style={{
+                                    backgroundColor: moveTypeFilter === type ? `${TYPE_COLORS[type]}CC` : `${TYPE_COLORS[type]}22`,
+                                    borderColor: `${TYPE_COLORS[type]}88`,
+                                    color: moveTypeFilter === type ? "#fff" : undefined,
+                                  }}
+                                  className={cn("px-2 py-0.5 rounded text-[10px] font-bold border transition-all", moveTypeFilter !== type && "text-gray-700")}
+                                >
+                                  {tt(type)}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })()}
                       <div className="space-y-2">
-                        {[0, 1, 2, 3].map((moveIdx) => {
-                          const currentMove = editSlotData.moves[moveIdx] || "";
-                          const sortedMoves = [...editPkm.moves].sort((a, b) => a.name.localeCompare(b.name));
-                          const moveData = editPkm.moves.find(m => m.name === currentMove);
+                        {(() => {
                           const suggestedNames = slotSuggestion?.suggestedMoves.map(m => m.name) ?? [];
-                          const moveOptions: SearchSelectOption[] = [
-                            { value: "", label: t('teamBuilder.emptySlot') },
-                            ...sortedMoves.map((m) => ({
-                              value: m.name,
-                              label: tm(m.name),
-                              sub: `${m.type} · ${m.category}${m.power ? ` · ${m.power}bp` : ""}${m.accuracy ? ` · ${m.accuracy}%` : ""} · ${m.pp}pp`,
-                              badge: tt(m.type),
-                              badgeColor: `${TYPE_COLORS[m.type]}AA`,
-                              suggested: suggestedNames.includes(m.name),
-                              description: m.description ? tmd(m.name, m.description) : undefined,
-                            })),
-                          ];
-                          return (
-                            <SearchSelect
-                              key={moveIdx}
-                              value={currentMove}
-                              options={moveOptions}
-                              onChange={(v) => updateMove(selectedSlotIndex, moveIdx, v)}
-                              placeholder={t('teamBuilder.emptySlot')}
-                              triggerBadge={moveData ? { text: tt(moveData.type), color: `${TYPE_COLORS[moveData.type]}AA` } : null}
-                            />
-                          );
-                        })}
+                          const sortedMoves = [...editPkm.moves]
+                            .filter(m => !moveTypeFilter || m.type === moveTypeFilter)
+                            .filter(m => !moveCategoryFilter || m.category === moveCategoryFilter)
+                            .sort((a, b) => a.name.localeCompare(b.name));
+                          return [0, 1, 2, 3].map((moveIdx) => {
+                            const currentMove = editSlotData.moves[moveIdx] || "";
+                            const moveData = editPkm.moves.find(m => m.name === currentMove);
+                            const moveOptions: SearchSelectOption[] = [
+                              { value: "", label: t('teamBuilder.emptySlot') },
+                              ...sortedMoves.map((m) => ({
+                                value: m.name,
+                                label: tm(m.name),
+                                sub: `${m.type} · ${m.category}${m.power ? ` · ${m.power}bp` : ""}${m.accuracy ? ` · ${m.accuracy}%` : ""} · ${m.pp}pp`,
+                                badge: tt(m.type),
+                                badgeColor: `${TYPE_COLORS[m.type]}AA`,
+                                suggested: suggestedNames.includes(m.name),
+                                description: m.description ? tmd(m.name, m.description) : undefined,
+                              })),
+                            ];
+                            return (
+                              <SearchSelect
+                                key={moveIdx}
+                                value={currentMove}
+                                options={moveOptions}
+                                onChange={(v) => updateMove(selectedSlotIndex, moveIdx, v)}
+                                placeholder={t('teamBuilder.emptySlot')}
+                                triggerBadge={moveData ? { text: tt(moveData.type), color: `${TYPE_COLORS[moveData.type]}AA` } : null}
+                              />
+                            );
+                          });
+                        })()}
                       </div>
                       {slotSuggestion && slotSuggestion.suggestedMoves.length > 0 && <p className="text-[9px] text-muted-foreground mt-2">{t('teamBuilder.engineRecommended')}</p>}
 

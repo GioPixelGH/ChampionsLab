@@ -283,26 +283,48 @@ export function updateSettings(partial: Partial<UserSettings>): UserSettings {
 
 // ── My Roster ────────────────────────────────────────────────────────────
 
-/** Get the set of Pokémon IDs the user owns for a specific season */
-export function getMyRoster(seasonId: number): Set<number> {
+/** Read the raw stored IDs for a season (no inheritance, with season-1 legacy migration) */
+function getStoredRosterIds(seasonId: number): number[] {
   const key = getRosterKey(seasonId);
   const ids = readJSON<number[] | null>(key, null);
-  if (ids !== null) return new Set(ids);
-  // Migrate legacy single-roster (season 1 only)
+  if (ids !== null) return ids;
   if (seasonId === 1) {
     const legacy = readJSON<number[]>(KEYS.MY_ROSTER_LEGACY, []);
     if (legacy.length > 0) {
       writeJSON(key, legacy);
       if (typeof window !== "undefined") localStorage.removeItem(KEYS.MY_ROSTER_LEGACY);
     }
-    return new Set(legacy);
+    return legacy;
   }
-  return new Set();
+  return [];
 }
 
-/** Save the full set of owned Pokémon IDs for a specific season */
+/**
+ * Get the set of Pokémon IDs the user owns for a specific season.
+ * Each season automatically inherits all picks from the previous season
+ * (M-3 always includes M-1 & M-2 selections), but not vice versa.
+ */
+export function getMyRoster(seasonId: number): Set<number> {
+  const own = new Set(getStoredRosterIds(seasonId));
+  if (seasonId > 1) {
+    getMyRoster(seasonId - 1).forEach(id => own.add(id));
+  }
+  return own;
+}
+
+/**
+ * Save the owned Pokémon IDs for a specific season.
+ * For seasons > 1, only the delta relative to the parent season is persisted
+ * so that the parent's picks are never duplicated in storage.
+ */
 export function saveMyRoster(ids: Set<number>, seasonId: number): void {
-  writeJSON(getRosterKey(seasonId), Array.from(ids));
+  if (seasonId > 1) {
+    const parentRoster = getMyRoster(seasonId - 1);
+    const delta = Array.from(ids).filter(id => !parentRoster.has(id));
+    writeJSON(getRosterKey(seasonId), delta);
+  } else {
+    writeJSON(getRosterKey(seasonId), Array.from(ids));
+  }
 }
 
 /** Toggle a single Pokémon in/out of the roster for a specific season and persist */

@@ -189,4 +189,14 @@ export const SUPPLEMENTARY_EVENTS: VGCEvent[] = [
     registrationUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSfuy8z2eDOZyQTuq6dwESxDTgWY_zYoFevuqZfymPie_zOhnQ/viewform',
     cpPoints: 500,
   },
+  {
+    id: 'monthly-challenge-june-2026',
+    name: 'Monthly Challenge Series June 2026',
+    city: 'Online', country: 'Global',
+    startDate: '2026-06-26', endDate: '2026-06-29',
+    tier: 'online', format: 'Pokémon Champions (Single Battle)', region: 'ONLINE',
+    registrationUrl: 'https://champions.pokemon.com/en-us/',
+    registrationNote: 'Registration: Jun 19–29. Rewards: Tyranitar, 100 Quick Coupons, and the MCS 06/2026 Challenger title for 3+ battles. Regulation M-B.',
+    cpPoints: 0,
+  },
 ];

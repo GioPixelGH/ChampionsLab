@@ -299,6 +299,9 @@ export default function MetaPage() {
   // ── Official Usage "Show More" state ──────────────────────────
   const [showAllOfficial, setShowAllOfficial] = useState(false);
 
+  // ── Official Usage roster filter ──────────────────────────────
+  const [officialRosterFilter, setOfficialRosterFilter] = useState(false);
+
   // ── Official Usage view mode ──────────────────────────────────
   const [officialViewMode, setOfficialViewMode] = useState<"grid" | "table">("grid");
 
@@ -1992,6 +1995,11 @@ export default function MetaPage() {
               ? (liveFiltered[0]?.usagePct ?? 53)
               : (_VALID_TOURNAMENT_USAGE[0]?.usageRate ?? 53);
             const totalCount = officialData.length;
+            const officialIndexed = officialData.map((p, i) => ({ rank: i + 1, data: p }));
+            const officialFiltered = officialRosterFilter
+              ? officialIndexed.filter(({ data: p }) => myRoster.has(p.pokemonId))
+              : officialIndexed;
+            const filteredCount = officialFiltered.length;
             return (
               <div className="glass rounded-2xl p-6 border-2 border-amber-200/80 bg-gradient-to-br from-amber-50/40 via-white to-yellow-50/40 shadow-lg shadow-amber-100/30">
                 <div className="flex items-center justify-between mb-1">
@@ -2073,11 +2081,26 @@ export default function MetaPage() {
                 <div className="flex items-center justify-between mb-5 gap-4">
                   <p className="text-sm text-muted-foreground">
                     {usingLiveOfficial
-                      ? `${totalCount} Pokémon · dati da ${usageCacheMeta?.tournamentCount ?? "?"} tornei Limitless`
+                      ? `${filteredCount}${officialRosterFilter ? ` / ${totalCount}` : ""} Pokémon · dati da ${usageCacheMeta?.tournamentCount ?? "?"} tornei Limitless`
                       : t('meta.officialUsageDesc')}
                   </p>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {myRoster.size > 0 && (
+                      <button
+                        onClick={() => setOfficialRosterFilter(v => !v)}
+                        className={cn(
+                          "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all",
+                          officialRosterFilter
+                            ? "bg-emerald-100 dark:bg-emerald-500/20 border-emerald-300 dark:border-emerald-500/40 text-emerald-700 dark:text-emerald-300"
+                            : "bg-white dark:bg-white/[0.05] border-gray-200 dark:border-white/10 text-muted-foreground hover:border-gray-300 dark:hover:border-white/20"
+                        )}
+                      >
+                        <Users className="w-3 h-3" />
+                        My Roster
+                      </button>
+                    )}
                   {/* View Toggle */}
-                  <div className="hidden md:flex items-center gap-1 bg-gray-100 dark:bg-white/[0.06] rounded-lg p-0.5 shrink-0">
+                  <div className="hidden md:flex items-center gap-1 bg-gray-100 dark:bg-white/[0.06] rounded-lg p-0.5">
                     <button
                       onClick={() => setOfficialViewMode("grid")}
                       className={cn("flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all", officialViewMode === "grid" ? "bg-white dark:bg-white/10 shadow-sm text-amber-700 dark:text-amber-400" : "text-muted-foreground hover:text-foreground")}
@@ -2091,12 +2114,13 @@ export default function MetaPage() {
                       <TableIcon className="w-3.5 h-3.5" /> Table
                     </button>
                   </div>
+                  </div>
                 </div>
                 {/* Card View — always visible on mobile, or when selected on desktop */}
                 <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3", officialViewMode === "table" && "md:hidden")}>
-                  {officialData
-                    .slice(0, showAllOfficial ? totalCount : 15)
-                    .map((p, i) => {
+                  {officialFiltered
+                    .slice(0, showAllOfficial ? filteredCount : 15)
+                    .map(({ rank, data: p }) => {
                       const usageVal = usingLiveOfficial ? (p as UsageRankingEntry).usagePct : (p as typeof _VALID_TOURNAMENT_USAGE[0]).usageRate;
                       const pokemon = POKEMON_SEED.find(pk => pk.id === p.pokemonId);
                       return (
@@ -2104,16 +2128,16 @@ export default function MetaPage() {
                           key={p.pokemonId}
                           className={cn(
                             "flex items-center gap-3 p-3 rounded-xl transition-colors cursor-pointer",
-                            i < 5 ? "bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 hover:border-amber-300" :
-                            i < 15 ? "bg-gray-50/80 dark:bg-white/[0.04] border border-gray-100 dark:border-white/[0.06] hover:border-gray-200 dark:hover:border-white/10" :
+                            rank <= 5 ? "bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 hover:border-amber-300" :
+                            rank <= 15 ? "bg-gray-50/80 dark:bg-white/[0.04] border border-gray-100 dark:border-white/[0.06] hover:border-gray-200 dark:hover:border-white/10" :
                             "bg-gray-50/50 dark:bg-white/[0.03] hover:bg-gray-100/80 dark:hover:bg-white/[0.06]"
                           )}
                           onClick={() => setModal({ kind: "pokemon", name: p.name })}
                         >
                           <span className={cn(
                             "text-sm font-extrabold w-7 text-center tabular-nums",
-                            i < 3 ? "text-amber-600" : i < 10 ? "text-gray-600" : "text-gray-400"
-                          )}>{i + 1}</span>
+                            rank <= 3 ? "text-amber-600" : rank <= 10 ? "text-gray-600" : "text-gray-400"
+                          )}>{rank}</span>
                           {pokemon && <Image src={pokemon.sprite} alt={p.name} width={36} height={36} className="drop-shadow-sm" unoptimized />}
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-bold truncate">{tp(p.name)}</p>
@@ -2146,9 +2170,9 @@ export default function MetaPage() {
                           <span className="text-center">SpD</span>
                           <span className="text-center">Spe</span>
                         </div>
-                        {officialData
-                          .slice(0, showAllOfficial ? totalCount : 15)
-                          .map((p, i) => {
+                        {officialFiltered
+                          .slice(0, showAllOfficial ? filteredCount : 15)
+                          .map(({ rank, data: p }) => {
                             const usageVal = usingLiveOfficial ? (p as UsageRankingEntry).usagePct : (p as typeof _VALID_TOURNAMENT_USAGE[0]).usageRate;
                             const pokemon = POKEMON_SEED.find(pk => pk.id === p.pokemonId);
                             const types = getTypesForName(p.name) ?? pokemon?.types ?? [];
@@ -2158,11 +2182,11 @@ export default function MetaPage() {
                                 key={p.pokemonId}
                                 className={cn(
                                   "grid grid-cols-[2rem_2.5rem_2fr_1.5fr_repeat(6,1fr)] gap-x-3 gap-y-0 px-4 py-2.5 items-center border-b border-gray-100 dark:border-white/[0.06] hover:bg-gray-50 dark:hover:bg-white/[0.04] transition-colors cursor-pointer",
-                                  i < 3 ? "bg-amber-50/40 dark:bg-amber-500/[0.05]" : i < 15 ? "bg-white/50 dark:bg-transparent" : "bg-gray-50/30 dark:bg-white/[0.02]"
+                                  rank <= 3 ? "bg-amber-50/40 dark:bg-amber-500/[0.05]" : rank <= 15 ? "bg-white/50 dark:bg-transparent" : "bg-gray-50/30 dark:bg-white/[0.02]"
                                 )}
                                 onClick={() => setModal({ kind: "pokemon", name: p.name })}
                               >
-                                <span className={cn("text-center text-xs font-extrabold tabular-nums", i < 3 ? "text-amber-600 dark:text-amber-400" : i < 10 ? "text-gray-600 dark:text-gray-300" : "text-gray-400 dark:text-gray-400")}>{i + 1}</span>
+                                <span className={cn("text-center text-xs font-extrabold tabular-nums", rank <= 3 ? "text-amber-600 dark:text-amber-400" : rank <= 10 ? "text-gray-600 dark:text-gray-300" : "text-gray-400 dark:text-gray-400")}>{rank}</span>
                                 <div className="flex justify-center">
                                   {pokemon && <Image src={pokemon.sprite} alt={p.name} width={28} height={28} className="drop-shadow-sm" unoptimized />}
                                 </div>
@@ -2222,12 +2246,12 @@ export default function MetaPage() {
                     </div>
                   </div>
                 )}
-                {!showAllOfficial && (
+                {!showAllOfficial && filteredCount > 15 && (
                   <button
                     onClick={() => setShowAllOfficial(true)}
                     className="mt-4 w-full py-2.5 rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-700 text-sm font-bold hover:border-amber-300 hover:shadow-md transition-all flex items-center justify-center gap-2"
                   >
-                    Show All {totalCount} Pokémon <ChevronDown className="w-4 h-4" />
+                    Show All {filteredCount} Pokémon <ChevronDown className="w-4 h-4" />
                   </button>
                 )}
                 {showAllOfficial && (

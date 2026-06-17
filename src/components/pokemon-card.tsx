@@ -2,6 +2,7 @@
 
 import { motion } from "@/lib/motion";
 import Image from "next/image";
+import { spriteUrl } from "@/lib/sprite-url";
 import { ChampionsPokemon } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Sparkles } from "lucide-react";
@@ -75,7 +76,7 @@ export function PokemonCard({ pokemon, onClick, index }: PokemonCardProps) {
           {/* Sprite */}
           <div className="relative z-10 transition-transform duration-500 group-hover:scale-110">
             <Image
-              src={pokemon.officialArt}
+              src={spriteUrl(pokemon.officialArt)}
               alt={tp(pokemon.name)}
               width={130}
               height={130}

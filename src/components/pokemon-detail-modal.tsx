@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "@/lib/motion";
 import Image from "next/image";
+import { spriteUrl } from "@/lib/sprite-url";
 import { useRouter } from "next/navigation";
 import { ChampionsPokemon, TYPE_COLORS, CommonSet, WinningTeam, WinningTeamMember, type PokemonType } from "@/lib/types";
 import type { MetaEntry } from "@/app/api/meta/route";
@@ -317,7 +318,7 @@ export function PokemonDetailModal({ pokemon, onClose, liveMetaEntry }: PokemonD
                       className="relative"
                     >
                       <Image
-                        src={spriteError ? pokemon.officialArt : (currentForm?.sprite || pokemon.officialArt)}
+                        src={spriteUrl(spriteError ? pokemon.officialArt : (currentForm?.sprite || pokemon.officialArt))}
                         alt={tp(currentForm?.name || pokemon.name)}
                         width={200}
                         height={200}

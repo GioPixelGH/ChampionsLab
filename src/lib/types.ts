@@ -127,7 +127,7 @@ export interface Team {
 }
 
 export interface Regulation {
-  id: string;           // e.g. "M-A", "M-B", "M-C"
+  id: string;           // e.g. "M-A", "M-B"
   label: string;        // e.g. "Regulation M-A"
   seasonId: number;     // parent Season id
   startDate: string;
