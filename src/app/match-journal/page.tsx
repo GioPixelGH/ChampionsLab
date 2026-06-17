@@ -9,7 +9,7 @@ import {
   Plus, Trash2, X, Trophy, Swords, ChevronDown,
   BarChart3, BookOpen, Check, ClipboardList, Flame,
   TrendingUp, TrendingDown, Minus, AlertCircle, ExternalLink, FlaskConical, Download,
-  ArrowUp, ArrowDown, ArrowUpDown, Users, Tag, Globe, Loader2,
+  ArrowUp, ArrowDown, ArrowUpDown, Users, Tag, Globe, Loader2, Film,
 } from "lucide-react";
 import { POKEMON_SEED } from "@/lib/pokemon-data";
 import { cn } from "@/lib/utils";
@@ -534,6 +534,11 @@ export default function MatchJournalPage() {
   const [importPreview, setImportPreview] = useState<ImportMatch[] | null>(null);
   const [importTournamentName, setImportTournamentName] = useState("");
 
+  const [showJsonImport, setShowJsonImport] = useState(false);
+  const [jsonImportText, setJsonImportText] = useState("");
+  const [jsonImportPreview, setJsonImportPreview] = useState<ImportMatch[] | null>(null);
+  const [jsonImportError, setJsonImportError] = useState<string | null>(null);
+
   const [activeTab, setActiveTab] = useState<"history" | "stats">("history");
   const [expandedRecord, setExpandedRecord] = useState<string | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
@@ -643,6 +648,105 @@ export default function MatchJournalPage() {
     setImportPreview(null);
     setImportError(null);
     setImportTournamentName("");
+  }
+
+  function resetJsonImport() {
+    setShowJsonImport(false);
+    setJsonImportText("");
+    setJsonImportPreview(null);
+    setJsonImportError(null);
+  }
+
+  interface AiJsonMatch {
+    round?: string;
+    opponent?: string;
+    result?: string;
+    opponentTeam?: string[];
+    myPicks?: string[];
+    opponentPicks?: string[];
+    opponentPicksUnknown?: boolean;
+    notes?: string;
+  }
+
+  function parseJsonImport() {
+    setJsonImportError(null);
+    setJsonImportPreview(null);
+    let parsed: { myTeam?: string[]; matches?: AiJsonMatch[] };
+    try {
+      const text = jsonImportText.trim();
+      const start = text.indexOf("{");
+      const end = text.lastIndexOf("}");
+      parsed = JSON.parse(start >= 0 && end >= 0 ? text.slice(start, end + 1) : text);
+    } catch {
+      setJsonImportError("JSON non valido. Copia l'intero output di Gemini senza modifiche.");
+      return;
+    }
+    if (!parsed.matches || !Array.isArray(parsed.matches)) {
+      setJsonImportError("Il JSON deve avere un campo \"matches\" con l'array dei match.");
+      return;
+    }
+    const globalMyTeam = (parsed.myTeam ?? [])
+      .map((s) => resolveSlug(s))
+      .filter((id): id is number => id !== null);
+
+    const existingFormats = new Set(records.map((r) => r.format).filter(Boolean));
+    const preview: ImportMatch[] = parsed.matches.map((m, i) => {
+      const myTeam = globalMyTeam;
+      const oppTeam = (m.opponentTeam ?? [])
+        .map((s) => resolveSlug(s))
+        .filter((id): id is number => id !== null);
+      const myPicks = (m.myPicks ?? [])
+        .map((s) => resolveSlug(s))
+        .filter((id): id is number => id !== null);
+      const oppPicks = m.opponentPicksUnknown ? [] :
+        (m.opponentPicks ?? [])
+          .map((s) => resolveSlug(s))
+          .filter((id): id is number => id !== null);
+      const result: "win" | "loss" | "tie" =
+        m.result === "win" || m.result === "loss" || m.result === "tie" ? m.result : "win";
+      const roundLabel = m.round ?? `Match ${i + 1}`;
+      const fmt = `AI Import · ${roundLabel}`;
+      return {
+        round: i + 1,
+        phase: roundLabel,
+        result,
+        myTeam,
+        oppTeam,
+        oppName: m.opponent ?? "Unknown",
+        format: fmt,
+        isDuplicate: existingFormats.has(fmt),
+        _myPicks: myPicks,
+        _oppPicks: oppPicks,
+        _picksUnknown: m.opponentPicksUnknown ?? false,
+        _notes: m.notes ?? "",
+      } as ImportMatch & { _myPicks: number[]; _oppPicks: number[]; _picksUnknown: boolean; _notes: string };
+    });
+    if (preview.length === 0) {
+      setJsonImportError("Nessun match trovato nel JSON.");
+      return;
+    }
+    setJsonImportPreview(preview);
+  }
+
+  function handleJsonImport() {
+    if (!jsonImportPreview) return;
+    const newMatches = jsonImportPreview.filter((m) => !m.isDuplicate);
+    if (newMatches.length === 0) return;
+    const saved = newMatches.map((m) => {
+      const ext = m as ImportMatch & { _myPicks: number[]; _oppPicks: number[]; _picksUnknown: boolean; _notes: string };
+      return saveMatchRecord({
+        myTeam: m.myTeam,
+        myPicks: ext._myPicks ?? [],
+        opponentTeam: m.oppTeam,
+        opponentPicks: ext._oppPicks ?? [],
+        result: m.result,
+        format: m.format,
+        notes: ext._notes || (m.oppName !== "Unknown" ? `vs ${m.oppName}` : undefined),
+        picksUnknown: ext._picksUnknown || ext._oppPicks?.length === 0 || undefined,
+      });
+    });
+    setRecords((prev) => [...saved.reverse(), ...prev]);
+    resetJsonImport();
   }
 
   async function fetchImportData() {
@@ -1404,6 +1508,103 @@ export default function MatchJournalPage() {
           </div>
         )}
 
+        {/* Import AI/YouTube sheet (mobile) */}
+        {showJsonImport && (
+          <div className="fixed inset-0 z-[70] flex flex-col justify-end">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={resetJsonImport} />
+            <div className="relative bg-[#0d1526] border-t border-white/10 rounded-t-3xl flex flex-col" style={{ maxHeight: "85vh" }}>
+              <div className="px-4 pt-3 pb-3 flex-shrink-0 border-b border-white/10">
+                <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-3" />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Film className="w-4 h-4 text-red-400" />
+                    <p className="text-sm font-bold text-white">Import AI / YouTube</p>
+                  </div>
+                  <button type="button" onClick={resetJsonImport} className="text-gray-400"><X className="w-5 h-5" /></button>
+                </div>
+              </div>
+              <div className="flex-1 overflow-y-auto px-4 pt-3 pb-4 space-y-3 min-h-0">
+                <p className="text-[10px] text-gray-500">Incolla il JSON restituito da Gemini dopo aver analizzato il video YouTube.</p>
+                <textarea
+                  value={jsonImportText}
+                  onChange={(e) => setJsonImportText(e.target.value)}
+                  placeholder={'{\n  "myTeam": [...],\n  "matches": [...]\n}'}
+                  rows={7}
+                  className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-red-500/50 focus:outline-none text-xs text-white placeholder:text-gray-600 font-mono resize-none"
+                />
+                <button
+                  type="button"
+                  onClick={parseJsonImport}
+                  disabled={!jsonImportText.trim()}
+                  className="w-full py-2.5 rounded-xl bg-red-600 text-white text-sm font-bold disabled:opacity-40 flex items-center justify-center gap-2"
+                >
+                  <Check className="w-4 h-4" />
+                  Analizza JSON
+                </button>
+                {jsonImportError && (
+                  <div className="flex items-start gap-2 px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/20">
+                    <AlertCircle className="w-3.5 h-3.5 text-red-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-red-400">{jsonImportError}</p>
+                  </div>
+                )}
+                {jsonImportPreview && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3 text-[10px]">
+                      <span className="text-gray-400">{jsonImportPreview.length} partite</span>
+                      {jsonImportPreview.filter((m) => m.isDuplicate).length > 0 && (
+                        <span className="text-amber-400">{jsonImportPreview.filter((m) => m.isDuplicate).length} già importate</span>
+                      )}
+                      <span className="text-emerald-400 font-semibold">{jsonImportPreview.filter((m) => !m.isDuplicate).length} nuove</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {jsonImportPreview.map((m, i) => (
+                        <div
+                          key={i}
+                          className={cn(
+                            "flex items-center gap-2 px-2.5 py-2 rounded-xl border",
+                            m.isDuplicate ? "opacity-40 bg-white/3 border-white/10"
+                              : m.result === "win" ? "bg-emerald-500/10 border-emerald-500/20"
+                              : m.result === "loss" ? "bg-red-500/10 border-red-500/20"
+                              : "bg-white/5 border-white/10"
+                          )}
+                        >
+                          <span className={cn(
+                            "text-[10px] font-bold flex-shrink-0",
+                            m.result === "win" ? "text-emerald-400" : m.result === "loss" ? "text-red-400" : "text-gray-400"
+                          )}>
+                            {m.result === "win" ? "W" : m.result === "loss" ? "L" : "T"}
+                          </span>
+                          <span className="text-[11px] text-white flex-1 truncate">{m.phase}</span>
+                          <div className="flex gap-0.5 flex-shrink-0">
+                            {m.oppTeam.slice(0, 4).map((id) => <PSprite key={id} id={id} size={20} />)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              {jsonImportPreview && jsonImportPreview.filter((m) => !m.isDuplicate).length > 0 && (
+                <div className="px-4 py-3 border-t border-white/10 flex-shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleJsonImport}
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-red-500 to-rose-600 text-white text-sm font-bold flex items-center justify-center gap-2"
+                  >
+                    <Check className="w-4 h-4" />
+                    Importa {jsonImportPreview.filter((m) => !m.isDuplicate).length} partite
+                  </button>
+                </div>
+              )}
+              {jsonImportPreview && jsonImportPreview.filter((m) => !m.isDuplicate).length === 0 && (
+                <div className="px-4 py-3 border-t border-white/10 flex-shrink-0">
+                  <p className="text-center text-xs text-gray-500">Tutte le partite sono già state importate.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Multi-step form */}
         {showForm && (
           <div className="fixed inset-0 z-[70] flex flex-col justify-end">
@@ -1678,7 +1879,7 @@ export default function MatchJournalPage() {
             {showForm ? "Cancel" : "Log New Game"}
           </button>
           <button
-            onClick={() => { setShowImport((p) => !p); if (showImport) resetImport(); }}
+            onClick={() => { setShowImport((p) => !p); if (showImport) resetImport(); if (!showImport) resetJsonImport(); }}
             className={cn(
               "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all border",
               showImport
@@ -1688,6 +1889,18 @@ export default function MatchJournalPage() {
           >
             <Globe size={15} />
             Import Limitless
+          </button>
+          <button
+            onClick={() => { setShowJsonImport((p) => !p); if (showJsonImport) resetJsonImport(); if (!showJsonImport) resetImport(); }}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all border",
+              showJsonImport
+                ? "bg-red-50 dark:bg-red-500/10 border-red-300 dark:border-red-500/30 text-red-700 dark:text-red-400"
+                : "glass glass-hover border-border text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Film size={15} />
+            Import AI/YouTube
           </button>
         </div>
 
@@ -2140,6 +2353,106 @@ export default function MatchJournalPage() {
                   ) : (
                     <p className="text-center text-sm text-muted-foreground py-1">
                       Tutte le partite di questo torneo sono già state importate.
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Import from AI/YouTube panel (desktop) */}
+      <AnimatePresence>
+        {showJsonImport && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="glass rounded-2xl border border-red-200 dark:border-red-500/20 p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Film size={16} className="text-red-500" />
+                  <h2 className="font-semibold text-foreground text-sm">Import da AI / YouTube (Gemini)</h2>
+                </div>
+                <button onClick={resetJsonImport} className="text-muted-foreground hover:text-foreground transition-colors">
+                  <X size={15} />
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Incolla il JSON restituito da Gemini dopo aver analizzato il video YouTube.
+              </p>
+              <div className="flex gap-2">
+                <textarea
+                  value={jsonImportText}
+                  onChange={(e) => setJsonImportText(e.target.value)}
+                  placeholder={'{\n  "myTeam": ["staraptor", ...],\n  "matches": [...]\n}'}
+                  rows={6}
+                  className="flex-1 px-3 py-2 text-xs rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground/50 font-mono focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500/40 transition-colors resize-none"
+                />
+              </div>
+              <button
+                onClick={parseJsonImport}
+                disabled={!jsonImportText.trim()}
+                className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                <Check size={14} />
+                Analizza JSON
+              </button>
+              {jsonImportError && (
+                <p className="text-xs text-red-500 dark:text-red-400 flex items-center gap-1.5">
+                  <AlertCircle size={11} className="flex-shrink-0" />{jsonImportError}
+                </p>
+              )}
+              {jsonImportPreview && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-4 text-xs">
+                    <span className="text-muted-foreground">{jsonImportPreview.length} partite trovate</span>
+                    {jsonImportPreview.filter((m) => m.isDuplicate).length > 0 && (
+                      <span className="text-amber-500 dark:text-amber-400">{jsonImportPreview.filter((m) => m.isDuplicate).length} già importate</span>
+                    )}
+                    <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                      {jsonImportPreview.filter((m) => !m.isDuplicate).length} nuove
+                    </span>
+                  </div>
+                  <div className="max-h-72 overflow-y-auto space-y-1 pr-1">
+                    {jsonImportPreview.map((m, i) => (
+                      <div
+                        key={i}
+                        className={cn(
+                          "flex items-center gap-2 px-3 py-2 rounded-lg border text-xs",
+                          m.isDuplicate
+                            ? "opacity-40 bg-muted/30 border-border"
+                            : m.result === "win"
+                              ? "bg-emerald-50 dark:bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/15"
+                              : m.result === "loss"
+                                ? "bg-red-50 dark:bg-red-500/5 border-red-200 dark:border-red-500/15"
+                                : "bg-muted/30 border-border"
+                        )}
+                      >
+                        <ResultBadge result={m.result} />
+                        <span className="text-foreground truncate flex-1 text-xs">{m.phase}</span>
+                        <div className="flex items-center gap-0.5 flex-shrink-0">
+                          <span className="text-[9px] text-muted-foreground mr-1">vs</span>
+                          {m.oppTeam.slice(0, 6).map((id) => <PSprite key={id} id={id} size={22} />)}
+                        </div>
+                        {m.isDuplicate && <span className="text-[9px] text-muted-foreground flex-shrink-0 ml-1">già importato</span>}
+                      </div>
+                    ))}
+                  </div>
+                  {jsonImportPreview.filter((m) => !m.isDuplicate).length > 0 ? (
+                    <button
+                      onClick={handleJsonImport}
+                      className="w-full py-2.5 rounded-xl bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white text-sm font-medium transition-all shadow-sm flex items-center justify-center gap-2"
+                    >
+                      <Check size={14} />
+                      Importa {jsonImportPreview.filter((m) => !m.isDuplicate).length} partite nel Journal
+                    </button>
+                  ) : (
+                    <p className="text-center text-sm text-muted-foreground py-1">
+                      Tutte le partite sono già state importate.
                     </p>
                   )}
                 </div>

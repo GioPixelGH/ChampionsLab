@@ -31543,6 +31543,15 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The user stimulates its brain by thinking bad thoughts. This sharply boosts the user's Sp. Atk stat."
       },
       {
+        "name": "Parting Shot",
+        "type": "dark",
+        "category": "status",
+        "power": null,
+        "accuracy": 100,
+        "pp": 20,
+        "description": "With a parting threat, the user lowers the target's Attack and Sp. Atk stats. Then it switches places with a party Pokémon."
+      },
+      {
         "name": "Power Swap",
         "type": "psychic",
         "category": "status",
