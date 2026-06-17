@@ -14,6 +14,12 @@ interface ChangelogEntry {
     {
       date: "17/06/2026",
       items: [
+        "🌐 Added Monthly Challenge Series June 2026 online competition — Regulation M-B Single Battle, June 26–29, rewards Tyranitar, 100 Quick Coupons, and the MCS 06/2026 Challenger title for 3+ battles",
+      ],
+    },
+    {
+      date: "17/06/2026",
+      items: [
         "🖼️ Uploaded all missing sprites to Hetzner Object Storage — 59 new sprite files including the 22 Regulation M-B base Pokémon, 34 Champions mega forms, 4 official mega forms, and Mega Meowstic official art",
         "🛡️ Fixed ability descriptions and flags across the full roster — every ability now has a proper description pulled from the battle engine and the correct Champions/existing flag (Mega Raichu X/Y, Mega Clefable, etc. no longer show empty text)",
         "➕ Added 18 missing battle-engine abilities used by mega forms: Electric Surge, Aerilate, Pixilate, Refrigerate, Huge Power, Pure Power, Speed Boost, Skill Link, No Guard, Filter, Magic Bounce, Shadow Tag, Berserk, Trace, Infiltrator, Stalwart, Innards Out, and Healer",

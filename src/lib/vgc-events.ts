@@ -115,6 +115,16 @@ export const SUPPLEMENTARY_EVENTS: VGCEvent[] = [
     registrationUrl: 'https://www.pokemon.co.jp/ex/pjcs/2026/game/',
     cpPoints: 100,
   },
+  {
+    id: 'monthly-challenge-june-2026',
+    name: 'Monthly Challenge Series June 2026',
+    city: 'Online', country: 'Global',
+    startDate: '2026-06-26', endDate: '2026-06-29',
+    tier: 'online', format: 'Pokémon Champions (Single Battle)', region: 'ONLINE',
+    registrationUrl: 'https://champions.pokemon.com/en-us/',
+    registrationNote: 'Registration: Jun 19–29. Rewards: Tyranitar, 100 Quick Coupons, and the MCS 06/2026 Challenger title for 3+ battles. Regulation M-B.',
+    cpPoints: 0,
+  },
 
   // ── APAC Master Ball Leagues & Nationals (not in CMS) ────────────────────
   {
