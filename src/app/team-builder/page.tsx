@@ -2006,7 +2006,14 @@ export default function TeamBuilderPage() {
                           const sets = USAGE_DATA[editPkm.id] ?? [];
                           const megaSet = sets.find(s => isMegaItem(s.item) && s.ability === form.abilities[0]?.name);
                           if (megaSet) return megaSet.item;
-                          return sets.find(s => isMegaItem(s.item))?.item;
+                          const anySet = sets.find(s => isMegaItem(s.item))?.item;
+                          if (anySet) return anySet;
+                          // Fallback to item definition for new/uncatalogued megas
+                          const suffix = form.name.endsWith(" X") ? " X" : form.name.endsWith(" Y") ? " Y" : form.name.endsWith(" Z") ? " Z" : "";
+                          const candidates = Object.values(ITEMS).filter(i => i.isMegaStone && i.forPokemon === editPkm.name);
+                          if (candidates.length === 0) return undefined;
+                          if (candidates.length === 1) return candidates[0].name;
+                          return candidates.find(i => suffix ? i.name.endsWith(suffix) : !i.name.match(/ite [XYZ]$/))?.name ?? candidates[0].name;
                         };
                         return (
                           <div className="mt-4 pt-3 border-t border-gray-100">
@@ -2080,7 +2087,14 @@ export default function TeamBuilderPage() {
                               const form = megaForms[fi];
                               if (!form) return undefined;
                               const sets = USAGE_DATA[editPkm.id] ?? [];
-                              return sets.find(s => isMegaItem(s.item) && s.ability === form.abilities[0]?.name)?.item ?? sets.find(s => isMegaItem(s.item))?.item;
+                              const set = sets.find(s => isMegaItem(s.item) && s.ability === form.abilities[0]?.name)?.item ?? sets.find(s => isMegaItem(s.item))?.item;
+                              if (set) return set;
+                              // Fallback to item definition for new/uncatalogued megas
+                              const suffix = form.name.endsWith(" X") ? " X" : form.name.endsWith(" Y") ? " Y" : form.name.endsWith(" Z") ? " Z" : "";
+                              const candidates = Object.values(ITEMS).filter(i => i.isMegaStone && i.forPokemon === editPkm.name);
+                              if (candidates.length === 0) return undefined;
+                              if (candidates.length === 1) return candidates[0].name;
+                              return candidates.find(i => suffix ? i.name.endsWith(suffix) : !i.name.match(/ite [XYZ]$/))?.name ?? candidates[0].name;
                             };
                             return (
                               <>

@@ -14,6 +14,12 @@ interface ChangelogEntry {
     {
       date: "17/06/2026",
       items: [
+        "🔧 Fixed mega stone auto-equip in Team Builder for new megas — enabling Mega Mawile / Mega Metagross now correctly sets Mawilite / Metagrossite",
+      ],
+    },
+    {
+      date: "17/06/2026",
+      items: [
         "💎 Added missing Mawilite mega stone to the item list",
       ],
     },
