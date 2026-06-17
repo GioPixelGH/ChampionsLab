@@ -14,6 +14,12 @@ interface ChangelogEntry {
     {
       date: "17/06/2026",
       items: [
+        "🤖 Refreshed battle-bot training data — 2,000,000 simulated battles, 853 teams, 271 Pokémon, updated ELO rankings, synergies, counters, and archetype insights",
+      ],
+    },
+    {
+      date: "17/06/2026",
+      items: [
         "🔧 Fixed mega stone auto-equip in Team Builder for new megas — enabling Mega Mawile / Mega Metagross now correctly sets Mawilite / Metagrossite",
       ],
     },
