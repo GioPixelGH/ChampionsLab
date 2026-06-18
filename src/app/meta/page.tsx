@@ -46,6 +46,7 @@ import {
   CHAMPIONS_TOURNAMENT_TOTAL_TEAMS, CHAMPIONS_TOURNAMENT_COUNT,
   CHAMPIONS_TOURNAMENT_TEAMS,
 } from "@/lib/simulation-data";
+import { getCompositeWR, getMLTier } from "@/lib/tiers";
 
 // ── ROSTER FILTER: exclude hidden Pokemon from all meta calculations ──────
 const _VALID_IDS = new Set(POKEMON_SEED.filter(p => !p.hidden).map(p => p.id));
@@ -65,59 +66,12 @@ const _VALID_TOURNAMENT_USAGE = TOURNAMENT_USAGE.filter(u => _VALID_IDS.has(u.po
 // Filtered prebuilt teams
 const _VALID_PREBUILT_TEAMS = PREBUILT_TEAMS.filter(t => t.pokemonIds.every((id: number) => _VALID_IDS.has(id)));
 
-// ── HYBRID TIER CALCULATION (ML + Tournament Data) ────────────────────────
-// Thresholds from ML data only (keeps percentiles stable). Individual Pokemon
-// get a composite score blending ML + tournament, which is compared against
-// these ML-only cutoffs - so tournament data acts as a pure positive adjustment.
-const _tournamentMap = new Map(TOURNAMENT_USAGE.filter(u => _VALID_IDS.has(u.pokemonId)).map(u => [u.pokemonId, u]));
-function _getCompositeWR(simEntry: (typeof SIM_POKEMON)[keyof typeof SIM_POKEMON]): number {
-  const t = _tournamentMap.get(simEntry.id);
-  if (!t) return simEntry.winRate;
-  // Blend 60% ML + 40% tournament WR, plus moderate top-cut bonus
-  return simEntry.winRate * 0.6 + t.winRate * 0.4 + (t.topCutRate ?? 0) * 0.15;
-}
-
-// Percentile thresholds computed from COMPOSITE win-rates to keep distribution stable
-const _qualifiedCWRs = Object.values(SIM_POKEMON)
-  .filter(p => p.appearances >= 500 && _VALID_IDS.has(p.id))
-  .map(p => _getCompositeWR(p))
-  .sort((a, b) => b - a);
-const _qLen = _qualifiedCWRs.length;
-const TIER_S = _qualifiedCWRs[Math.max(0, Math.floor(_qLen * 0.05))] ?? 55;  // Top 5%
-const TIER_A = _qualifiedCWRs[Math.max(0, Math.floor(_qLen * 0.25))] ?? 51;  // Top 25%
-const TIER_B = _qualifiedCWRs[Math.max(0, Math.floor(_qLen * 0.65))] ?? 46;  // Top 65%
-const TIER_C = _qualifiedCWRs[Math.max(0, Math.floor(_qLen * 0.88))] ?? 40;  // Top 88%
-
-const TIER_ORDER = { S: 0, A: 1, B: 2, C: 3, D: 4 } as const;
-
-function getMLTier(compositeWR: number, games: number, pokemonId?: number): "S" | "A" | "B" | "C" | "D" {
-  let baseTier: "S" | "A" | "B" | "C" | "D" = "D";
-  if (games >= 500) {
-    if (compositeWR >= TIER_S) baseTier = "S";
-    else if (compositeWR >= TIER_A) baseTier = "A";
-    else if (compositeWR >= TIER_B) baseTier = "B";
-    else if (compositeWR >= TIER_C) baseTier = "C";
-  }
-  // Tournament performance floor: proven tournament success can lift a tier
-  if (pokemonId != null) {
-    const t = _tournamentMap.get(pokemonId);
-    if (t) {
-      let floor: "S" | "A" | "B" | "C" | "D" = "D";
-      if (t.winRate >= 54 && t.topCutRate >= 10) floor = "S";
-      else if (t.winRate >= 51 && t.topCutRate >= 5) floor = "A";
-      else if (t.winRate >= 49 && t.topCutRate >= 2) floor = "B";
-      if (TIER_ORDER[floor] < TIER_ORDER[baseTier]) baseTier = floor;
-    }
-  }
-  return baseTier;
-}
-
 // ── ML SIMULATION RESULTS - derived from simulation-data.ts + tournament ──
 const ML_POKEMON_RANKINGS = Object.values(SIM_POKEMON)
   .filter(p => _VALID_IDS.has(p.id))
   .sort((a, b) => b.elo - a.elo)
   .map(p => {
-    const cwr = _getCompositeWR(p);
+    const cwr = getCompositeWR(p);
     return { name: p.name, elo: p.elo, wr: p.winRate, compositeWR: cwr, games: p.appearances, tier: getMLTier(cwr, p.appearances, p.id) };
   });
 
@@ -534,7 +488,7 @@ export default function MetaPage() {
         baseSpeed: p.baseStats.speed,
         maxPositive: maxPos, maxNeutral: maxNeu, uninvested: unin, minNegative: minNeg,
         scarfPositive: Math.floor(maxPos * 1.5), scarfNeutral: Math.floor(maxNeu * 1.5),
-        tier: (tierMap.get(p.name) ?? "-"),
+        tier: (tierMap.get(p.name) ?? p.tier ?? "-"),
       });
 
       if (p.forms) {
@@ -550,7 +504,7 @@ export default function MetaPage() {
             baseSpeed: f.baseStats.speed,
             maxPositive: mPos, maxNeutral: mNeu, uninvested: mUn, minNegative: mNeg,
             scarfPositive: null, scarfNeutral: null,
-            tier: (tierMap.get(f.name) ?? tierMap.get(p.name) ?? "-"),
+            tier: (tierMap.get(f.name) ?? tierMap.get(p.name) ?? p.tier ?? "-"),
           });
         }
       }
@@ -1474,6 +1428,15 @@ export default function MetaPage() {
                             <span className="text-[10px] font-bold text-white drop-shadow-sm">{usageVal}%</span>
                           </div>
                         </div>
+                        {pokemon?.tier && (
+                          <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded border flex-shrink-0",
+                            pokemon.tier === "S" ? "text-amber-600 bg-amber-50 border-amber-200" :
+                            pokemon.tier === "A" ? "text-violet-600 bg-violet-50 border-violet-200" :
+                            pokemon.tier === "B" ? "text-blue-600 bg-blue-50 border-blue-200" :
+                            pokemon.tier === "C" ? "text-gray-500 bg-gray-50 border-gray-200" :
+                            "text-gray-400 bg-gray-50 border-gray-100"
+                          )}>{pokemon.tier}</span>
+                        )}
                         {usingLive ? (
                           <span className={cn("text-[10px] font-bold w-12 text-right flex items-center justify-end gap-0.5",
                             trend === "up" ? "text-emerald-600" : trend === "down" ? "text-red-500" : "text-muted-foreground"
@@ -2148,6 +2111,15 @@ export default function MetaPage() {
                               <span className="text-xs font-bold text-amber-700 dark:text-amber-300 tabular-nums shrink-0">{usageVal}%</span>
                             </div>
                           </div>
+                          {pokemon?.tier && (
+                            <span className={cn("shrink-0 text-xs font-bold px-2 py-0.5 rounded border",
+                              pokemon.tier === "S" ? "text-amber-700 bg-amber-100 border-amber-200" :
+                              pokemon.tier === "A" ? "text-violet-700 bg-violet-100 border-violet-200" :
+                              pokemon.tier === "B" ? "text-blue-700 bg-blue-100 border-blue-200" :
+                              pokemon.tier === "C" ? "text-gray-600 bg-gray-100 border-gray-200" :
+                              "text-gray-400 bg-gray-50 border-gray-100"
+                            )}>{pokemon.tier}</span>
+                          )}
                         </div>
                       );
                     })}
@@ -2158,11 +2130,12 @@ export default function MetaPage() {
                   <div className="hidden md:block">
                     <div className="overflow-x-auto -mx-2 px-2">
                       <div className="border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden w-full">
-                        <div className="grid grid-cols-[2rem_2.5rem_2fr_1.5fr_repeat(6,1fr)] gap-x-3 gap-y-0 px-4 py-2.5 bg-gray-50/80 dark:bg-white/[0.04] border-b border-gray-200 dark:border-white/10 text-[10px] font-bold uppercase text-muted-foreground">
+                        <div className="grid grid-cols-[2rem_2.5rem_2fr_1.5fr_3rem_repeat(6,1fr)] gap-x-3 gap-y-0 px-4 py-2.5 bg-gray-50/80 dark:bg-white/[0.04] border-b border-gray-200 dark:border-white/10 text-[10px] font-bold uppercase text-muted-foreground">
                           <span className="text-center">#</span>
                           <span></span>
                           <span>Pokémon</span>
                           <span className="text-right">Usage</span>
+                          <span className="text-center">Tier</span>
                           <span className="text-center">HP</span>
                           <span className="text-center">Atk</span>
                           <span className="text-center">Def</span>
@@ -2181,7 +2154,7 @@ export default function MetaPage() {
                               <div
                                 key={p.pokemonId}
                                 className={cn(
-                                  "grid grid-cols-[2rem_2.5rem_2fr_1.5fr_repeat(6,1fr)] gap-x-3 gap-y-0 px-4 py-2.5 items-center border-b border-gray-100 dark:border-white/[0.06] hover:bg-gray-50 dark:hover:bg-white/[0.04] transition-colors cursor-pointer",
+                                  "grid grid-cols-[2rem_2.5rem_2fr_1.5fr_3rem_repeat(6,1fr)] gap-x-3 gap-y-0 px-4 py-2.5 items-center border-b border-gray-100 dark:border-white/[0.06] hover:bg-gray-50 dark:hover:bg-white/[0.04] transition-colors cursor-pointer",
                                   rank <= 3 ? "bg-amber-50/40 dark:bg-amber-500/[0.05]" : rank <= 15 ? "bg-white/50 dark:bg-transparent" : "bg-gray-50/30 dark:bg-white/[0.02]"
                                 )}
                                 onClick={() => setModal({ kind: "pokemon", name: p.name })}
@@ -2211,6 +2184,19 @@ export default function MetaPage() {
                                   <div className="h-1 bg-gray-200 dark:bg-white/10 rounded-full mt-0.5 overflow-hidden">
                                     <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400" style={{ width: `${Math.min(100, (usageVal / officialMax) * 100)}%` }} />
                                   </div>
+                                </div>
+                                <div className="flex justify-center">
+                                  {pokemon?.tier ? (
+                                    <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded border",
+                                      pokemon.tier === "S" ? "text-amber-700 bg-amber-100 border-amber-200 dark:bg-amber-500/30 dark:border-amber-500/50" :
+                                      pokemon.tier === "A" ? "text-violet-700 bg-violet-100 border-violet-200 dark:bg-violet-500/30 dark:border-violet-500/50" :
+                                      pokemon.tier === "B" ? "text-blue-700 bg-blue-100 border-blue-200 dark:bg-blue-500/30 dark:border-blue-500/50" :
+                                      pokemon.tier === "C" ? "text-gray-600 bg-gray-100 border-gray-200 dark:bg-white/10 dark:border-white/20" :
+                                      "text-gray-400 bg-gray-50 border-gray-100 dark:bg-white/[0.05] dark:border-white/10"
+                                    )}>{pokemon.tier}</span>
+                                  ) : (
+                                    <span className="text-[10px] text-gray-300 dark:text-gray-600">—</span>
+                                  )}
                                 </div>
                                 {stats ? (
                                   <>
@@ -3424,7 +3410,7 @@ export default function MetaPage() {
               const corePairs = getCorePairsForPokemon(pokemon.id);
               const teamAppearances = getTournamentTeamsWithPokemon(pokemon.id);
               const prebuiltTeams = getPrebuiltTeamsWithPokemon(pokemon.id);
-              const tier = mlData ? mlData.tier : usageData ? (usageData.usageRate >= 30 ? "S" : usageData.usageRate >= 15 ? "A" : "B") : "-";
+              const tier = pokemon.tier ?? "-";
               // For mega forms, try to get mega stats from the form data
               // Match the exact form name suffix (X/Y) so Mega Charizard Y doesn't show X's stats
               const megaForms = pokemon.forms?.filter(f => f.isMega && !f.hidden) ?? [];

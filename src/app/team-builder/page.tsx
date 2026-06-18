@@ -12,6 +12,7 @@ import {
   Lock, LockOpen,
 } from "lucide-react";
 import { POKEMON_SEED, STAT_PRESETS, getPokemonByRegulation, getActiveRegulation, SEASONS } from "@/lib/pokemon-data";
+import { TIER_ORDER } from "@/lib/tiers";
 import { SeasonTabs } from "@/components/season-tabs";
 import { getSettings } from "@/lib/storage";
 import {
@@ -623,7 +624,6 @@ export default function TeamBuilderPage() {
       if (i % 200 === 199) await new Promise(res => setTimeout(res, 0));
     }
 
-    const TIER_ORDER: Record<string, number> = { S: 0, A: 1, B: 2, C: 3, D: 4 };
     results.sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score;
       const ta = TIER_ORDER[a.pokemon.tier ?? "D"] ?? 4;

@@ -1,5 +1,6 @@
 ﻿import { ChampionsPokemon, Season } from "./types";
 import { spriteUrl } from "./sprite-url";
+import { getTierForId } from "./tiers";
 
 // ============================================================
 // Auto-generated from PokeAPI - updated 2026-03-26
@@ -192,7 +193,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "S",
+    "tier": "A",
     "usageRate": 10.5,
   },
   {
@@ -363,7 +364,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "A",
+    "tier": "S",
     "usageRate": 23.33,
   },
   {
@@ -1259,7 +1260,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "C",
+    "tier": "D",
     "usageRate": 0.39,
   },
   {
@@ -1643,7 +1644,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "C",
     "usageRate": 0.17,
   },
   {
@@ -1769,7 +1770,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "C",
     "usageRate": 0.64,
   },
   {
@@ -1897,7 +1898,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "D",
+    "tier": "B",
     "usageRate": 0.11,
   },
   {
@@ -2182,7 +2183,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "D",
+    "tier": "A",
     "usageRate": 0.13,
   },
   {
@@ -3420,7 +3421,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "C",
+    "tier": "D",
     "usageRate": 0.04,
   },
   {
@@ -3517,7 +3518,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "D",
+    "tier": "C",
     "usageRate": 0.05,
   },
   {
@@ -3858,7 +3859,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "C",
+    "tier": "B",
     "usageRate": 0.11,
   },
   {
@@ -4383,7 +4384,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "D",
+    "tier": "A",
     "usageRate": 0.36,
   },
   {
@@ -5122,7 +5123,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "C",
+    "tier": "B",
     "usageRate": 0.12,
   },
   {
@@ -5212,7 +5213,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "A",
     "usageRate": 0.22,
   },
   {
@@ -5320,7 +5321,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "A",
     "usageRate": 0.29,
   },
   {
@@ -5438,7 +5439,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "C",
     "usageRate": 1.36,
   },
   {
@@ -5608,7 +5609,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "A",
+    "tier": "S",
     "usageRate": 3.24,
   },
   {
@@ -5951,7 +5952,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "A",
+    "tier": "B",
     "usageRate": 3.65,
   },
   {
@@ -6933,7 +6934,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "A",
     "usageRate": 2.98,
   },
   {
@@ -7075,7 +7076,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "A",
     "usageRate": 3.37,
   },
   {
@@ -7771,7 +7772,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "A",
     "usageRate": 4.4,
   },
   {
@@ -8045,7 +8046,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "C",
+    "tier": "B",
     "usageRate": 0.24,
   },
   {
@@ -8289,7 +8290,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "A",
+    "tier": "B",
     "usageRate": 12.75,
   },
   {
@@ -8723,7 +8724,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "A",
+    "tier": "B",
     "usageRate": 4.7,
   },
   {
@@ -9476,7 +9477,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "A",
+    "tier": "B",
     "usageRate": 4.25,
   },
   {
@@ -9592,7 +9593,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "D",
+    "tier": "B",
     "usageRate": 0.1,
   },
   {
@@ -9712,7 +9713,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "D",
+    "tier": "B",
     "usageRate": 0.27,
   },
   {
@@ -10000,7 +10001,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "C",
     "usageRate": 0.39,
   },
   {
@@ -11310,7 +11311,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "A",
+    "tier": "B",
     "usageRate": 2.59,
   },
   {
@@ -11471,7 +11472,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "C",
     "usageRate": 1.26,
   },
   {
@@ -11581,7 +11582,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "A",
+    "tier": "B",
     "usageRate": 5.4,
   },
   {
@@ -12059,7 +12060,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "C",
+    "tier": "B",
     "usageRate": 0.1,
   },
   {
@@ -13173,7 +13174,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "C",
     "usageRate": 0.1,
   },
   {
@@ -13588,7 +13589,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "A",
     "usageRate": 1.05,
   },
   {
@@ -13988,7 +13989,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "A",
+    "tier": "S",
     "usageRate": 1.71,
   },
   {
@@ -14087,7 +14088,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "C",
+    "tier": "S",
     "usageRate": 0.21,
   },
   {
@@ -14495,7 +14496,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "C",
     "usageRate": 0.5,
   },
   {
@@ -14602,7 +14603,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "C",
     "usageRate": 0.07,
   },
   {
@@ -14836,7 +14837,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "C",
     "usageRate": 0.25,
   },
   {
@@ -15021,7 +15022,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "A",
     "usageRate": 1.47,
   },
   {
@@ -15251,7 +15252,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "C",
+    "tier": "A",
     "usageRate": 0.04,
   },
   {
@@ -15340,7 +15341,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "A",
     "usageRate": 2.13,
   },
   {
@@ -15429,7 +15430,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "S",
+    "tier": "A",
     "usageRate": 17.5,
   },
   {
@@ -15518,7 +15519,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "D",
     "usageRate": 0.7,
   },
   {
@@ -15795,7 +15796,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "C",
+    "tier": "B",
     "usageRate": 0.32,
   },
   {
@@ -16054,7 +16055,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "A",
     "usageRate": 7.7,
   },
   {
@@ -16301,7 +16302,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "A",
+    "tier": "B",
     "usageRate": 7.4,
   },
   {
@@ -16560,7 +16561,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "A",
     "usageRate": 1.22,
   },
   {
@@ -16799,7 +16800,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "C",
     "usageRate": 0.26,
   },
   {
@@ -17134,7 +17135,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "C",
     "usageRate": 1.92,
   },
   {
@@ -17227,7 +17228,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "A",
     "usageRate": 0.56,
   },
   {
@@ -17321,7 +17322,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "C",
+    "tier": "D",
     "usageRate": 0.08,
   },
   {
@@ -17421,7 +17422,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "A",
+    "tier": "B",
     "usageRate": 0.06,
   },
   {
@@ -17517,7 +17518,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "C",
+    "tier": "B",
     "usageRate": 0.03,
   },
   {
@@ -17673,7 +17674,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "D",
     "usageRate": 2.33,
   },
   {
@@ -17898,7 +17899,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "A",
     "usageRate": 2.72,
   },
   {
@@ -18546,7 +18547,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "C",
     "usageRate": 8.6,
   },
   {
@@ -19077,7 +19078,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "A",
     "usageRate": 4.85,
   },
   {
@@ -19281,7 +19282,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "C",
+    "tier": "D",
     "usageRate": 0.11,
   },
   {
@@ -19732,7 +19733,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "D",
     "usageRate": 0.52,
   },
   {
@@ -20316,7 +20317,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "S",
+    "tier": "B",
     "usageRate": 53,
   },
   {
@@ -20427,7 +20428,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "A",
+    "tier": "S",
     "usageRate": 6.2,
   },
   {
@@ -20532,7 +20533,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "C",
+    "tier": "B",
     "usageRate": 0.06,
   },
   {
@@ -20672,7 +20673,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "C",
     "usageRate": 1.99,
   },
   {
@@ -20782,7 +20783,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "D",
     "usageRate": 0.48,
   },
   {
@@ -20886,7 +20887,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "A",
     "usageRate": 0.15,
   },
   {
@@ -21818,7 +21819,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "A",
+    "tier": "B",
     "usageRate": 8.1,
   },
   {
@@ -21935,7 +21936,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "C",
     "usageRate": 1.57,
   },
   {
@@ -22038,7 +22039,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "A",
     "usageRate": 1.64,
   },
   {
@@ -22421,7 +22422,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "A",
+    "tier": "S",
     "usageRate": 6.6,
   },
   {
@@ -22614,7 +22615,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "C",
+    "tier": "A",
     "usageRate": 0.07,
   },
   {
@@ -23079,7 +23080,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "C",
+    "tier": "B",
     "usageRate": 0.22,
   },
   {
@@ -24466,7 +24467,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "S",
+    "tier": "A",
     "usageRate": 43,
   },
   {
@@ -24578,7 +24579,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "S",
     "usageRate": 2.06,
   },
   {
@@ -25477,7 +25478,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "A",
+    "tier": "B",
     "usageRate": 11.25,
   },
   {
@@ -25682,7 +25683,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "A",
+    "tier": "B",
     "usageRate": 0.72,
   },
   {
@@ -25784,7 +25785,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "A",
     "usageRate": 0.42,
   },
   {
@@ -26107,7 +26108,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "A",
+    "tier": "B",
     "usageRate": 3.5,
   },
   {
@@ -27286,7 +27287,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "A",
+    "tier": "B",
     "usageRate": 13.5,
   },
   {
@@ -27390,7 +27391,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "S",
+    "tier": "A",
     "usageRate": 33,
   },
   {
@@ -27471,7 +27472,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "season": 1,
     "regulation": "M-A",
-    "tier": "S",
+    "tier": "B",
     "usageRate": 30,
   },
   {
@@ -27995,7 +27996,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "hasMega": false,
     "season": 1,
     "regulation": "M-A",
-    "tier": "S",
+    "tier": "C",
     "recruitmentCost": null,
     "homeCompatible": true,
     "homeSource": [
@@ -29129,7 +29130,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     "hasMega": false,
     "season": 1,
     "regulation": "M-A",
-    "tier": "B",
+    "tier": "A",
     "recruitmentCost": null,
     "homeCompatible": true,
     "homeSource": [
@@ -47466,3 +47467,10 @@ export const STAT_PRESETS = {
   "Trick Room Tank": { hp: 32, attack: 32, defense: 2, spAtk: 0, spDef: 0, speed: 0 },
   "Mixed Attacker": { hp: 2, attack: 16, defense: 0, spAtk: 16, spDef: 0, speed: 32 },
 } as const;
+
+// Apply ML-computed tiers at module load — always overwrites static baked-in values.
+// Pokemon not in simulation data (e.g. new M-B regulation Pokemon) get tier = undefined,
+// so no tier badge is shown for them in the UI.
+for (const p of POKEMON_SEED) {
+  p.tier = getTierForId(p.id);
+}
