@@ -5,6 +5,7 @@ export interface CachedTournamentSet {
   item: string;
   moves: string[];
   teraType?: string;
+  nature?: string;
 }
 
 export interface CachedTeam {
@@ -65,6 +66,95 @@ export function loadUsageCache(regulationId: string): UsageRankingsCache | null 
 export function saveUsageCache(data: UsageRankingsCache): void {
   if (typeof window === "undefined") return;
   localStorage.setItem(key(data.regulationId), JSON.stringify(data));
+}
+
+export function clearUsageCache(regulationId: string): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(key(regulationId));
+}
+
+// ── Best set from cached tournament data ──────────────────────────────────────
+
+export interface BestSetFromCache {
+  ability: string | null;
+  item: string | null;
+  moves: string[];
+  nature: string | null;
+  totalSamples: number;
+}
+
+/**
+ * Computes the most-used ability, item, moves, and nature for a Pokémon across
+ * all cached tournaments for the given regulation. Returns null if no data exists.
+ * Nature is only available in data synced after the sync-route update that adds it.
+ */
+export function computeBestSetFromCache(
+  pokemonId: number,
+  regulationId: string
+): BestSetFromCache | null {
+  const cache = loadUsageCache(regulationId);
+  if (!cache || cache.tournaments.length === 0) return null;
+
+  const abilityCounts = new Map<string, number>();
+  const itemCounts = new Map<string, number>();
+  const moveCounts = new Map<string, number>();
+  const natureCounts = new Map<string, number>();
+  let total = 0;
+
+  for (const tournament of cache.tournaments) {
+    for (const team of tournament.teams) {
+      const idx = team.pokemonIds.indexOf(pokemonId);
+      if (idx === -1) continue;
+      const set = team.sets[idx];
+      if (!set) continue;
+      total++;
+      if (set.ability) abilityCounts.set(set.ability, (abilityCounts.get(set.ability) ?? 0) + 1);
+      if (set.item) itemCounts.set(set.item, (itemCounts.get(set.item) ?? 0) + 1);
+      if (set.nature) natureCounts.set(set.nature, (natureCounts.get(set.nature) ?? 0) + 1);
+      for (const move of set.moves) {
+        if (move) moveCounts.set(move, (moveCounts.get(move) ?? 0) + 1);
+      }
+    }
+  }
+
+  if (total === 0) return null;
+
+  const topAbility = [...abilityCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+  const topItem = [...itemCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+  const topNature = [...natureCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+  // Return ALL moves sorted by frequency so callers can filter against the
+  // Pokémon's actual learnset and pick the top 4 valid ones.
+  const movesSorted = [...moveCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([move]) => move);
+
+  return { ability: topAbility, item: topItem, moves: movesSorted, nature: topNature, totalSamples: total };
+}
+
+// ── Tier derivation from ranking position ─────────────────────────────────────
+
+export function getTierFromRank(rank: number): string {
+  if (rank <= 10) return "Z";
+  if (rank <= 20) return "S";
+  if (rank <= 30) return "A";
+  if (rank <= 40) return "B";
+  if (rank <= 50) return "C";
+  return "D";
+}
+
+/**
+ * Returns a Map<pokemonId, tier> derived from the cached usage rankings for
+ * the given regulation. Returns an empty Map when no cache is available.
+ * Pokémon not in the top 50 receive "D" tier.
+ */
+export function computeTierMap(regulationId: string): Map<number, string> {
+  const cache = loadUsageCache(regulationId);
+  if (!cache || cache.rankings.length === 0) return new Map();
+  const map = new Map<number, string>();
+  cache.rankings.forEach((entry, index) => {
+    map.set(entry.pokemonId, getTierFromRank(index + 1));
+  });
+  return map;
 }
 
 // ── Rolling window merge ──────────────────────────────────────────────────────

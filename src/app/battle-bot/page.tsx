@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "@/lib/motion";
@@ -51,7 +51,7 @@ import {
 import { USAGE_DATA } from "@/lib/usage-data";
 import { CHAMPIONS_TOURNAMENT_TEAMS } from "@/lib/simulation-data";
 
-// â”€â”€ Build best available set for a pokemon â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Build best available set for a pokemon ──────────────────────────────
 
 const MAX_TOTAL_POINTS = 66;
 const MAX_PER_STAT = 32;
@@ -73,7 +73,7 @@ function bestAvailableSet(p: ChampionsPokemon): CommonSet {
   return defaultSet(p);
 }
 
-// â”€â”€ Build default set for a pokemon â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Build default set for a pokemon ─────────────────────────────────────
 
 function defaultSet(p: ChampionsPokemon): CommonSet {
   const isSpecial = p.baseStats.spAtk > p.baseStats.attack;
@@ -129,7 +129,7 @@ function defaultSet(p: ChampionsPokemon): CommonSet {
   };
 }
 
-// â”€â”€ Result types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Result types ────────────────────────────────────────────────────────
 
 type ResultTab = "overview" | "matchups" | "threats" | "leads" | "replay";
 
@@ -165,7 +165,7 @@ interface FullSimResult {
   totalBattles: number;
 }
 
-// â”€â”€ Normalize granular archetypes into broad categories â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Normalize granular archetypes into broad categories ─────────────────
 const ARCHETYPE_MAP: Record<string, string> = {
   // Weather
   "rain": "Rain", "modern rain": "Rain",
@@ -204,7 +204,7 @@ function normalizeArchetype(raw: string): string {
   return ARCHETYPE_MAP[raw.toLowerCase()] ?? "Balance";
 }
 
-// â”€â”€ Sim Runner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Sim Runner ──────────────────────────────────────────────────────────
 
 function runFullSimulation(
   team: ChampionsPokemon[],
@@ -533,7 +533,7 @@ export default function BattleBotPage() {
     if ((m = s.match(/^(.+)'s (.+) failed!$/))) return t("battleBot.events.protectFailed", { name: tp(m[1]), move: tm(m[2]) });
     // Field setup
     if ((m = s.match(/^(Your|Opponent's) team's Speed doubled for 4 turns!$/))) return t("battleBot.events.tailwindSet", { side: t(`battleBot.events.${m[1] === "Your" ? "your" : "opponents"}`) });
-    if (s === "Slower PokÃ©mon now move first!") return t("battleBot.events.trickRoomOn");
+    if (s === "Slower Pokémon now move first!") return t("battleBot.events.trickRoomOn");
     if (s === "Normal speed order restored!") return t("battleBot.events.trickRoomOff");
     if ((m = s.match(/^Special damage reduced for (your|opponent's) side!$/))) return t("battleBot.events.lightScreenSet", { side: t(`battleBot.events.${m[1] === "your" ? "your" : "opponents"}`) });
     if ((m = s.match(/^Physical damage reduced for (your|opponent's) side!$/))) return t("battleBot.events.reflectSet", { side: t(`battleBot.events.${m[1] === "your" ? "your" : "opponents"}`) });
@@ -639,7 +639,7 @@ export default function BattleBotPage() {
       setPickerOpen(false);
       setSearchQuery("");
       setPickerTypeFilter(null);
-      // Open edit modal for the newly added PokÃ©mon
+      // Open edit modal for the newly added Pokémon
       setTimeout(() => setEditingSlotIndex(newIndex), 50);
     }
   };
@@ -655,7 +655,7 @@ export default function BattleBotPage() {
     }
   };
 
-  // â”€â”€ Edit helpers for the slot edit modal â”€â”€
+  // ── Edit helpers for the slot edit modal ──
   const updateSetField = (index: number, updates: Partial<CommonSet>) => {
     setSelectedSets(prev => prev.map((s, i) => i === index ? { ...s, ...updates } : s));
   };
@@ -792,7 +792,7 @@ export default function BattleBotPage() {
 
   const totalBattleEstimate = iterations;
 
-  // â”€â”€ MOBILE LAYOUT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── MOBILE LAYOUT ──────────────────────────────────────────────────────────
   if (isNative) {
     const handleRun = () => {
       if (selectedPokemon.length === 0 || isSimulating) return;
@@ -822,7 +822,7 @@ export default function BattleBotPage() {
           <h1 className="text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
             Battle Bot
           </h1>
-          <p className="text-xs text-gray-400 mt-0.5">VGC doubles battle simulator Â· {PREBUILT_TEAMS.length} archetypes</p>
+          <p className="text-xs text-gray-400 mt-0.5">VGC doubles battle simulator · {PREBUILT_TEAMS.length} archetypes</p>
         </div>
 
         {/* Main tab navigation */}
@@ -1042,7 +1042,7 @@ export default function BattleBotPage() {
                 <div>
                   <p className="text-3xl font-black text-white">{result.winRate.toFixed(1)}%</p>
                   <p className="text-xs text-gray-400 mt-0.5">
-                    {result.wins}W / {result.losses}L Â· {result.totalGames} battles Â· {result.avgTurns.toFixed(1)} avg turns
+                    {result.wins}W / {result.losses}L · {result.totalGames} battles · {result.avgTurns.toFixed(1)} avg turns
                   </p>
                 </div>
                 <div className={cn(
@@ -1186,7 +1186,7 @@ export default function BattleBotPage() {
                       {mon && <Image src={spriteUrl(mon.sprite)} alt={mon.name} width={32} height={32} className="object-contain flex-shrink-0" unoptimized />}
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-white truncate">{tp(threat.name)}</p>
-                        <p className="text-[10px] text-gray-500">appeared {threat.appearances}Ã— Â· score {threat.threatScore.toFixed(0)}</p>
+                        <p className="text-[10px] text-gray-500">appeared {threat.appearances}× · score {threat.threatScore.toFixed(0)}</p>
                       </div>
                       <span className={cn("text-sm font-bold flex-shrink-0", lossRate >= 60 ? "text-red-400" : lossRate >= 40 ? "text-orange-400" : "text-gray-400")}>
                         {lossRate.toFixed(0)}% loss
@@ -1324,7 +1324,7 @@ export default function BattleBotPage() {
                   aria-label="Replay turn"
                 />
                 <p className="text-[10px] text-center text-gray-500">
-                  Turn {result.sampleBattle.log[replayTurn]?.turn ?? 0} / {result.sampleBattle.turnsPlayed} Â· {result.sampleBattle.winner === 1 ? "You won" : "Opponent won"}
+                  Turn {result.sampleBattle.log[replayTurn]?.turn ?? 0} / {result.sampleBattle.turnsPlayed} · {result.sampleBattle.winner === 1 ? "You won" : "Opponent won"}
                 </p>
               </div>
             )}
@@ -1357,7 +1357,7 @@ export default function BattleBotPage() {
             >
               <div className="px-4 pt-4 pb-2 flex-shrink-0">
                 <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-3" />
-                <p className="text-sm font-semibold text-white mb-3">Add PokÃ©mon ({selectedPokemon.length}/6)</p>
+                <p className="text-sm font-semibold text-white mb-3">Add Pokémon ({selectedPokemon.length}/6)</p>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                   <input
@@ -1406,7 +1406,7 @@ export default function BattleBotPage() {
                   <Image src={spriteUrl(editPkm.sprite)} alt={tp(editPkm.name)} width={40} height={40} className="object-contain" unoptimized />
                   <div className="flex-1">
                     <p className="text-sm font-bold text-white">{tp(editPkm.name)}</p>
-                    <p className="text-[11px] text-gray-400">{editSet.ability} Â· {editSet.nature} Â· {editSet.item}</p>
+                    <p className="text-[11px] text-gray-400">{editSet.ability} · {editSet.nature} · {editSet.item}</p>
                   </div>
                   <button
                     type="button"
@@ -1440,7 +1440,7 @@ export default function BattleBotPage() {
                           className="flex-shrink-0 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-left"
                         >
                           <p className="text-[11px] font-semibold text-amber-400">Set {i + 1}</p>
-                          <p className="text-[10px] text-gray-400">{s.nature} Â· {s.item}</p>
+                          <p className="text-[10px] text-gray-400">{s.nature} · {s.item}</p>
                         </button>
                       ))}
                     </div>
@@ -1455,8 +1455,8 @@ export default function BattleBotPage() {
                       const moveData = editPkm.moves.find(m => m.name === move);
                       return (
                         <div key={mi} className="px-2.5 py-2 rounded-xl bg-white/5 border border-white/10">
-                          <p className="text-xs text-white font-medium truncate">{move || <span className="text-gray-600">â€”</span>}</p>
-                          {moveData && <p className="text-[10px] text-gray-500">{moveData.type} Â· {(moveData.power ?? 0) > 0 ? `${moveData.power}BP` : "Status"}</p>}
+                          <p className="text-xs text-white font-medium truncate">{move || <span className="text-gray-600">—</span>}</p>
+                          {moveData && <p className="text-[10px] text-gray-500">{moveData.type} · {(moveData.power ?? 0) > 0 ? `${moveData.power}BP` : "Status"}</p>}
                         </div>
                       );
                     })}
@@ -1509,7 +1509,7 @@ export default function BattleBotPage() {
                         <p className="text-[10px] text-gray-400 uppercase">{stat.replace("spAtk", "SpA").replace("spDef", "SpD").replace("attack", "Atk").replace("defense", "Def").replace("speed", "Spe")}</p>
                         <p className="text-sm font-bold text-white">{editSet.sp[stat] ?? 0}</p>
                         <div className="flex gap-1">
-                          <button type="button" onClick={() => updateSetSP(editingSlotIndex, stat, -4)} className="w-5 h-5 rounded bg-white/10 text-gray-300 text-xs flex items-center justify-center">âˆ’</button>
+                          <button type="button" onClick={() => updateSetSP(editingSlotIndex, stat, -4)} className="w-5 h-5 rounded bg-white/10 text-gray-300 text-xs flex items-center justify-center">−</button>
                           <button type="button" onClick={() => updateSetSP(editingSlotIndex, stat, 4)} className="w-5 h-5 rounded bg-white/10 text-gray-300 text-xs flex items-center justify-center">+</button>
                         </div>
                       </div>
@@ -1532,7 +1532,7 @@ export default function BattleBotPage() {
     );
   }
 
-  // â”€â”€ RENDER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── RENDER ──────────────────────────────────────────────────────────────
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-x-hidden">
@@ -1580,7 +1580,7 @@ export default function BattleBotPage() {
         </div>
       </motion.div>
 
-      {/* â”€â”€ MAIN TAB NAVIGATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── MAIN TAB NAVIGATION ──────────────────────────────────────── */}
       <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-200/5 rounded-xl mb-8">
         {([
           { id: "battle-engine" as MainTab, icon: Swords, label: t('battleBot.tabs.battleEngine') },
@@ -1603,19 +1603,19 @@ export default function BattleBotPage() {
         ))}
       </div>
 
-      {/* â”€â”€ DAMAGE CALCULATOR TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── DAMAGE CALCULATOR TAB ────────────────────────────────────── */}
       {mainTab === "damage-calc" && <DamageCalculator />}
 
-      {/* â”€â”€ TEAM TESTER TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── TEAM TESTER TAB ──────────────────────────────────────────── */}
       {mainTab === "team-tester" && <TeamTester initialTeam2Ids={journalTeam2Ids.length > 0 ? journalTeam2Ids : undefined} />}
 
-      {/* â”€â”€ BATTLE ENGINE TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── BATTLE ENGINE TAB ────────────────────────────────────────── */}
       {mainTab === "battle-engine" && (
       <>
       <div className="grid lg:grid-cols-[380px_1fr] gap-8 min-w-0">
-        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+        {/* ═══════════════════════════════════════════════════════════════ */}
         {/* LEFT: TEAM INPUT + SETTINGS                                    */}
-        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+        {/* ═══════════════════════════════════════════════════════════════ */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1655,7 +1655,7 @@ export default function BattleBotPage() {
                               <Save className="w-4 h-4 text-violet-500 flex-shrink-0" />
                               <div className="min-w-0">
                                 <p className="text-xs font-medium truncate">{st.name}</p>
-                                <p className="text-[10px] text-muted-foreground">{st.slots.length} PokÃ©mon Â· {new Date(st.updatedAt).toLocaleDateString()} {new Date(st.updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
+                                <p className="text-[10px] text-muted-foreground">{st.slots.length} Pokémon · {new Date(st.updatedAt).toLocaleDateString()} {new Date(st.updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
                               </div>
                             </button>
                           ))}
@@ -1722,7 +1722,7 @@ export default function BattleBotPage() {
                           onClick={(e) => { e.stopPropagation(); removePokemon(mon.id); }}
                           className="self-end -mt-1 -mr-1 p-0.5 rounded hover:bg-red-100 dark:hover:bg-red-500/20"
                         >
-                          <span className="text-xs text-muted-foreground hover:text-red-600">âœ•</span>
+                          <span className="text-xs text-muted-foreground hover:text-red-600">✕</span>
                         </button>
                         <Image src={spriteUrl(mon.sprite)} alt={mon.name} width={44} height={44} unoptimized />
                         <span className="text-[10px] font-medium mt-0.5 truncate w-full text-center">{tp(mon.name)}</span>
@@ -1849,9 +1849,9 @@ export default function BattleBotPage() {
           )}
         </motion.div>
 
-        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+        {/* ═══════════════════════════════════════════════════════════════ */}
         {/* RIGHT: RESULTS                                                 */}
-        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+        {/* ═══════════════════════════════════════════════════════════════ */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -2025,7 +2025,7 @@ export default function BattleBotPage() {
                   </button>
                 </div>
 
-                {/* â”€â”€ OVERVIEW TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+                {/* ── OVERVIEW TAB ────────────────────────────────────── */}
                 {resultTab === "overview" && (
                   <div className="space-y-5">
                     {result.archetypeBreakdown.length > 0 && (
@@ -2065,7 +2065,7 @@ export default function BattleBotPage() {
                           <ul className="space-y-2">
                             {result.commonWeaknesses.map((w, i) => (
                               <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
-                                <span className="text-amber-500 mt-0.5 flex-shrink-0">â€¢</span> {translateBotInsight(w)}
+                                <span className="text-amber-500 mt-0.5 flex-shrink-0">•</span> {translateBotInsight(w)}
                               </li>
                             ))}
                           </ul>
@@ -2081,7 +2081,7 @@ export default function BattleBotPage() {
                           <ul className="space-y-2">
                             {result.strategyTips.map((tip, i) => (
                               <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
-                                <span className="text-cyan-600 mt-0.5 flex-shrink-0">â€¢</span> {translateBotInsight(tip)}
+                                <span className="text-cyan-600 mt-0.5 flex-shrink-0">•</span> {translateBotInsight(tip)}
                               </li>
                             ))}
                           </ul>
@@ -2091,7 +2091,7 @@ export default function BattleBotPage() {
                   </div>
                 )}
 
-                {/* â”€â”€ MATCHUPS TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+                {/* ── MATCHUPS TAB ────────────────────────────────────── */}
                 {resultTab === "matchups" && (
                   <div className="glass rounded-2xl p-5 border border-gray-200/60 dark:border-gray-200/10">
                     <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
@@ -2138,7 +2138,7 @@ export default function BattleBotPage() {
                   </div>
                 )}
 
-                {/* â”€â”€ THREATS TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+                {/* ── THREATS TAB ─────────────────────────────────────── */}
                 {resultTab === "threats" && (
                   <div className="glass rounded-2xl p-5 border border-gray-200/60 dark:border-gray-200/10">
                     <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
@@ -2197,7 +2197,7 @@ export default function BattleBotPage() {
                   </div>
                 )}
 
-                {/* â”€â”€ LEADS TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+                {/* ── LEADS TAB ──────────────────────────────────────── */}
                 {resultTab === "leads" && (
                   <div className="glass rounded-2xl p-5 border border-gray-200/60 dark:border-gray-200/10">
                     <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
@@ -2250,7 +2250,7 @@ export default function BattleBotPage() {
                   </div>
                 )}
 
-                {/* â”€â”€ REPLAY TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+                {/* ── REPLAY TAB ─────────────────────────────────────── */}
                 {resultTab === "replay" && result.sampleBattle && (
                   <div className="glass rounded-2xl p-5 border border-gray-200/60 dark:border-gray-200/10">
                     <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
@@ -2470,9 +2470,9 @@ export default function BattleBotPage() {
         </motion.div>
       </div>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
       {/* POKEMON PICKER MODAL (Battle Engine)                           */}
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
       <AnimatePresence>
         {pickerOpen && (
           <>
@@ -2551,9 +2551,9 @@ export default function BattleBotPage() {
         )}
       </AnimatePresence>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
       {/* POKEMON EDIT MODAL (Battle Engine)                             */}
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
       <AnimatePresence>
         {editingSlotIndex !== null && selectedPokemon[editingSlotIndex] && (() => {
           const editPkm = selectedPokemon[editingSlotIndex];
@@ -2645,7 +2645,7 @@ export default function BattleBotPage() {
                             ...sortedMoves.map((m) => ({
                               value: m.name,
                               label: tm(m.name),
-                              sub: `${m.type} Â· ${m.category}${m.power ? ` Â· ${m.power}bp` : ""}${m.accuracy ? ` Â· ${m.accuracy}%` : ""} Â· ${m.pp}pp`,
+                              sub: `${m.type} · ${m.category}${m.power ? ` · ${m.power}bp` : ""}${m.accuracy ? ` · ${m.accuracy}%` : ""} · ${m.pp}pp`,
                               badge: tt(m.type),
                               badgeColor: `${TYPE_COLORS[m.type]}AA`,
                               description: m.description ? tmd(m.name, m.description) : undefined,
@@ -2679,7 +2679,7 @@ export default function BattleBotPage() {
                                 return (
                                   <button key={ab.name} onClick={() => updateSetField(editingSlotIndex, { preMegaAbility: ab.name })} className={cn("w-full text-left px-2.5 py-1.5 rounded-lg text-[10px] border transition-all", isActive ? "bg-emerald-100 dark:bg-emerald-500/30 border-emerald-300 dark:border-emerald-400/50 font-semibold text-emerald-800 dark:text-white" : "bg-gray-50 dark:bg-gray-200/5 border-gray-200 dark:border-gray-200/10 hover:bg-gray-100 dark:hover:bg-gray-200/10")}>
                                     <div className="flex items-center justify-between">
-                                      <span>{ta(ab.name)}{ab.isHidden ? " (H)" : ""}{ab.isChampions ? " âœ¦" : ""}</span>
+                                      <span>{ta(ab.name)}{ab.isHidden ? " (H)" : ""}{ab.isChampions ? " ✦" : ""}</span>
                                       {isActive && <span className="text-[8px] text-emerald-500 dark:text-emerald-400 font-bold">ACTIVE</span>}
                                     </div>
                                     <p className={cn("text-[8px] mt-0.5 line-clamp-1", isActive ? "text-emerald-600 dark:text-emerald-300" : "text-muted-foreground")}>{tad(ab.name, ab.description)}</p>
@@ -2707,7 +2707,7 @@ export default function BattleBotPage() {
                             <>
                               {editPkm.abilities.map((ab) => (
                                 <button key={ab.name} onClick={() => updateSetField(editingSlotIndex, { ability: ab.name })} className={cn("w-full text-left px-2.5 py-1.5 rounded-lg text-[10px] border transition-all", editSet.ability === ab.name ? "bg-violet-100 dark:bg-violet-500/30 border-violet-300 dark:border-violet-400/50 font-semibold text-violet-800 dark:text-white" : "bg-gray-50 dark:bg-gray-200/5 border-gray-200 dark:border-gray-200/10 hover:bg-gray-100 dark:hover:bg-gray-200/10")}>
-                                  <span>{ta(ab.name)}{ab.isHidden ? " (H)" : ""}{ab.isChampions ? " âœ¦" : ""}</span>
+                                  <span>{ta(ab.name)}{ab.isHidden ? " (H)" : ""}{ab.isChampions ? " ✦" : ""}</span>
                                   <p className={cn("text-[8px] mt-0.5 line-clamp-1", editSet.ability === ab.name ? "text-violet-600 dark:text-violet-300" : "text-muted-foreground")}>{tad(ab.name, ab.description)}</p>
                                 </button>
                               ))}
@@ -2742,7 +2742,7 @@ export default function BattleBotPage() {
                             };
                           })}
                           onChange={(v) => updateSetField(editingSlotIndex, { nature: v })}
-                          placeholder="Select natureâ€¦"
+                          placeholder="Select nature…"
                         />
                       </div>
                       <div>

@@ -1,4 +1,4 @@
-﻿import { ChampionsPokemon, Season } from "./types";
+import { ChampionsPokemon, Season } from "./types";
 import { spriteUrl } from "./sprite-url";
 import { getTierForId } from "./tiers";
 
@@ -5819,7 +5819,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         {"name":"Stored Power","type":"psychic","category":"special","power":20,"accuracy":100,"pp":10,"description":"The user attacks the target with stored power. The more the user's stats are boosted, the greater the move's power."},
         {"name":"Substitute","type":"normal","category":"status","power":null,"accuracy":null,"pp":10,"description":"The user creates a substitute for itself using some of its own HP. The substitute serves as the user's decoy."},
         {"name":"Tail Slap","type":"normal","category":"physical","power":25,"accuracy":85,"pp":10,"description":"The user attacks by striking the target with its hard tail. This move hits two to five times in a row."},
-        {"name":"Triple Axel","type":"ice","category":"physical","power":20,"accuracy":90,"pp":20,"description":"The user attacks 3 times in a rowâ€”first with a power of 20 then with a power of 40 then with a power of 60. The attack ends if the user misses."},
+        {"name":"Triple Axel","type":"ice","category":"physical","power":20,"accuracy":90,"pp":20,"description":"The user attacks 3 times in a row—first with a power of 20 then with a power of 40 then with a power of 60. The attack ends if the user misses."},
         {"name":"Weather Ball","type":"normal","category":"special","power":50,"accuracy":100,"pp":10,"description":"This move's type and power change depending on the weather at the time the move is used."},
         {"name":"Wonder Room","type":"psychic","category":"status","power":null,"accuracy":null,"pp":20,"description":"Gives the entire field the Wonder Room status for 5 turns."},
         {"name":"Zen Headbutt","type":"psychic","category":"physical","power":80,"accuracy":90,"pp":15,"description":"The user focuses its willpower to its head and attacks the target. This may also make the target flinch."}
@@ -41162,6 +41162,15 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "accuracy": 75,
         "pp": 5,
         "description": "The target is attacked by a kick launched with muscle-packed power."
+      },
+      {
+        "name": "Wave Crash",
+        "type": "water",
+        "category": "physical",
+        "power": 120,
+        "accuracy": 100,
+        "pp": 10,
+        "description": "The user shrouds itself in water and slams into the target. This also damages the user."
       },
       {
         "name": "Double Edge",

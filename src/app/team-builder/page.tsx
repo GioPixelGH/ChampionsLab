@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { POKEMON_SEED, STAT_PRESETS, getPokemonByRegulation, getActiveRegulation, SEASONS } from "@/lib/pokemon-data";
 import { TIER_ORDER } from "@/lib/tiers";
+import { computeTierMap, computeBestSetFromCache } from "@/lib/usage-rankings-cache";
 import { SeasonTabs } from "@/components/season-tabs";
 import { getSettings } from "@/lib/storage";
 import {
@@ -249,6 +250,8 @@ export default function TeamBuilderPage() {
 
   const defaultRegulation = getSettings().defaultRegulationId || (getActiveRegulation()?.id ?? SEASONS[0]?.regulations[0]?.id ?? "M-A");
   const [activeRegulation, setActiveRegulation] = useState(defaultRegulation);
+  const [tierMap, setTierMap] = useState<Map<number, string>>(() => computeTierMap(defaultRegulation));
+  useEffect(() => { setTierMap(computeTierMap(activeRegulation)); }, [activeRegulation]);
   const activeSeasonId = useMemo(
     () => SEASONS.find(s => s.regulations.some(r => r.id === activeRegulation))?.id ?? 1,
     [activeRegulation]
@@ -626,8 +629,8 @@ export default function TeamBuilderPage() {
 
     results.sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score;
-      const ta = TIER_ORDER[a.pokemon.tier ?? "D"] ?? 4;
-      const tb = TIER_ORDER[b.pokemon.tier ?? "D"] ?? 4;
+      const ta = TIER_ORDER[(tierMap.size > 0 ? tierMap.get(a.pokemon.id) ?? "D" : a.pokemon.tier) ?? "D"] ?? 5;
+      const tb = TIER_ORDER[(tierMap.size > 0 ? tierMap.get(b.pokemon.id) ?? "D" : b.pokemon.tier) ?? "D"] ?? 5;
       return ta - tb;
     });
     // Auto-apply the best pick into searchBestTeam
@@ -2623,16 +2626,21 @@ export default function TeamBuilderPage() {
                             <span className="text-[9px] font-bold text-amber-600/60 w-4 flex-shrink-0">#{i + 1}</span>
                             <Image src={r.pokemon.sprite} alt={r.pokemon.name} width={28} height={28} unoptimized className="flex-shrink-0" />
                             <span className="text-[10px] font-semibold flex-1 truncate">{tp(r.pokemon.name)}</span>
-                            {r.pokemon.tier && (
-                              <span className={cn(
-                                "text-[9px] font-bold flex-shrink-0 px-1 rounded",
-                                r.pokemon.tier === "S" ? "bg-yellow-100 text-yellow-700" :
-                                r.pokemon.tier === "A" ? "bg-orange-100 text-orange-700" :
-                                r.pokemon.tier === "B" ? "bg-blue-100 text-blue-700" :
-                                r.pokemon.tier === "C" ? "bg-gray-100 text-gray-600" :
-                                "bg-gray-50 text-gray-400"
-                              )}>{r.pokemon.tier}</span>
-                            )}
+                            {(() => {
+                              const pt = tierMap.size > 0 ? (tierMap.get(r.pokemon.id) ?? "D") : r.pokemon.tier;
+                              if (!pt) return null;
+                              return (
+                                <span className={cn(
+                                  "text-[9px] font-bold flex-shrink-0 px-1 rounded",
+                                  pt === "Z" ? "bg-rose-100 text-rose-700" :
+                                  pt === "S" ? "bg-yellow-100 text-yellow-700" :
+                                  pt === "A" ? "bg-orange-100 text-orange-700" :
+                                  pt === "B" ? "bg-blue-100 text-blue-700" :
+                                  pt === "C" ? "bg-gray-100 text-gray-600" :
+                                  "bg-gray-50 text-gray-400"
+                                )}>{pt}</span>
+                              );
+                            })()}
                             <span className={cn(
                               "text-[10px] font-bold flex-shrink-0",
                               r.score >= 70 ? "text-green-600" : r.score >= 50 ? "text-amber-500" : "text-red-500"
@@ -3104,16 +3112,44 @@ export default function TeamBuilderPage() {
                           ? isMega ? sets.filter(s => isMegaItem(s.item)) : sets.filter(s => !isMegaItem(s.item))
                           : sets;
                         const bestSet = filteredSets[0];
+                        const tourSet = computeBestSetFromCache(editPkm.id, activeRegulation);
+                        const hasAnyData = tourSet !== null || bestSet != null;
+                        const handleAutoFill = () => {
+                          if (tourSet) {
+                            // Walk moves sorted by tournament frequency; take first 4 that exist
+                            // in this Pokémon's learnset (case-insensitive). Skips moves that
+                            // aren't in our database so we always get 4 usable slots when possible.
+                            const validMoves: string[] = [];
+                            for (const moveName of tourSet.moves) {
+                              if (validMoves.length >= 4) break;
+                              const lower = moveName.toLowerCase().trim();
+                              const match = editPkm.moves.find(m => m.name.toLowerCase().trim() === lower);
+                              if (match) validMoves.push(match.name);
+                            }
+                            applySet(selectedSlotIndex, {
+                              ability: tourSet.ability ?? undefined,
+                              item: tourSet.item ?? undefined,
+                              moves: validMoves.length > 0 ? validMoves : undefined,
+                              nature: tourSet.nature ?? bestSet?.nature,
+                            });
+                          } else if (bestSet) {
+                            applySet(selectedSlotIndex, { ability: bestSet.ability, moves: bestSet.moves, sp: bestSet.sp, nature: bestSet.nature, item: bestSet.item });
+                          }
+                        };
                         return (
                           <>
-                            {bestSet && (
-                              <button
-                                onClick={() => applySet(selectedSlotIndex, { ability: bestSet.ability, moves: bestSet.moves, sp: bestSet.sp, nature: bestSet.nature, item: bestSet.item })}
-                                className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 hover:border-emerald-400 transition-all text-[11px] font-bold text-emerald-700 flex items-center gap-1.5"
-                              >
-                                <Zap className="w-3 h-3" /> {t('teamBuilder.autoFill')}
-                              </button>
-                            )}
+                            <button
+                              onClick={handleAutoFill}
+                              disabled={!hasAnyData}
+                              className={cn(
+                                "px-3 py-1.5 rounded-lg border transition-all text-[11px] font-bold flex items-center gap-1.5",
+                                hasAnyData
+                                  ? "bg-emerald-50 hover:bg-emerald-100 border-emerald-300 hover:border-emerald-400 text-emerald-700"
+                                  : "bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed opacity-50"
+                              )}
+                            >
+                              <Zap className="w-3 h-3" /> {t('teamBuilder.autoFill')}
+                            </button>
                             {filteredSets.slice(bestSet ? 1 : 0, 5).map((s, i) => (
                               <button key={i} onClick={() => applySet(selectedSlotIndex, { ability: s.ability, moves: s.moves, sp: s.sp, nature: s.nature, item: s.item })} className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 hover:border-emerald-300 transition-all text-[11px] font-medium text-emerald-700">
                                 {translateSetName(s.name)}

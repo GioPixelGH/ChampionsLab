@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
@@ -67,7 +67,7 @@ import {
   type SavedTeam, type MatchRecord,
 } from "@/lib/storage";
 
-// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Helpers ──────────────────────────────────────────────────────────────
 
 const MAX_TOTAL_POINTS = 66;
 const MAX_PER_STAT = 32;
@@ -112,7 +112,7 @@ interface TeamTestResult {
 
 type TeamTesterPdfData = Parameters<typeof exportTeamTesterPDF>[0];
 
-// â”€â”€ Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Component ────────────────────────────────────────────────────────────
 
 interface TeamTesterProps {
   initialTeam2Ids?: number[];
@@ -296,7 +296,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
     if (idx >= 0) setDetailMon({ pokemon: pokemon[idx], set: sets[idx], team, editable, slotIndex: idx });
   }, [team1Pokemon, team1Sets, team2Pokemon, team2Sets]);
 
-  // â”€â”€ Edit helpers (for editable detail modal) â”€â”€
+  // ── Edit helpers (for editable detail modal) ──
   const updateTesterSetField = (team: 1 | 2, index: number, updates: Partial<CommonSet>) => {
     const setter = team === 1 ? setTeam1Sets : setTeam2Sets;
     setter(prev => prev.map((s, i) => i === index ? { ...s, ...updates } : s));
@@ -340,7 +340,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
     }));
   };
 
-  // â”€â”€ Battle event translation (reuse battleBot.events.* keys) â”€â”€
+  // ── Battle event translation (reuse battleBot.events.* keys) ──
   const translateBattleEvent = useCallback((s: string): string => {
     if (locale === 'en') return s;
     let m;
@@ -396,7 +396,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
     if ((m = s.match(/^(.+) used (.+) - no target$/))) return t("battleBot.events.usedMoveNoTarget", { name: tp(m[1]), move: tm(m[2]) });
     if ((m = s.match(/^(.+)'s (.+) failed!$/))) return t("battleBot.events.protectFailed", { name: tp(m[1]), move: tm(m[2]) });
     if ((m = s.match(/^(Your|Opponent's) team's Speed doubled for 4 turns!$/))) return t("battleBot.events.tailwindSet", { side: t(`battleBot.events.${m[1] === "Your" ? "your" : "opponents"}`) });
-    if (s === "Slower PokÃ©mon now move first!") return t("battleBot.events.trickRoomOn");
+    if (s === "Slower Pokémon now move first!") return t("battleBot.events.trickRoomOn");
     if (s === "Normal speed order restored!") return t("battleBot.events.trickRoomOff");
     if ((m = s.match(/^Special damage reduced for (your|opponent's) side!$/))) return t("battleBot.events.lightScreenSet", { side: t(`battleBot.events.${m[1] === "your" ? "your" : "opponents"}`) });
     if ((m = s.match(/^Physical damage reduced for (your|opponent's) side!$/))) return t("battleBot.events.reflectSet", { side: t(`battleBot.events.${m[1] === "your" ? "your" : "opponents"}`) });
@@ -538,12 +538,12 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
         const prefix = regionalSuffixes[suffix];
         if (prefix && pName === `${prefix.toLowerCase()} ${base}`) return true;
       }
-      // Gendered forms: "Basculegion" â†’ "Basculegion-M", "Meowstic" â†’ "Meowstic-M" (default = male in Showdown)
+      // Gendered forms: "Basculegion" → "Basculegion-M", "Meowstic" → "Meowstic-M" (default = male in Showdown)
       if (pName === `${c}-m`) return true;
       return false;
     };
     const blocks = text.trim().split(/\n\n+/).filter(Boolean);
-    if (blocks.length === 0) { setPasteError("No PokÃ©mon found in the paste."); return; }
+    if (blocks.length === 0) { setPasteError("No Pokémon found in the paste."); return; }
     const pokemon: ChampionsPokemon[] = [];
     const sets: CommonSet[] = [];
     for (const block of blocks.slice(0, 6)) {
@@ -589,7 +589,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
           if ((isSP && maxVal <= MAX_PER_STAT) || (!isSP && maxVal <= MAX_PER_STAT && totalVal <= MAX_TOTAL_POINTS)) isNativeSP = true;
         }
       }
-      // Convert Showdown EVs â†’ stat points if needed
+      // Convert Showdown EVs → stat points if needed
       let converted = sp;
       if (!isNativeSP) {
         const raw = STAT_KEYS.map(k => Math.min(MAX_PER_STAT, Math.round(sp[k] * MAX_PER_STAT / 252)));
@@ -613,7 +613,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
         sp: converted,
       });
     }
-    if (pokemon.length === 0) { setPasteError("Could not match any PokÃ©mon. Check Pokepaste/Showdown format."); return; }
+    if (pokemon.length === 0) { setPasteError("Could not match any Pokémon. Check Pokepaste/Showdown format."); return; }
     if (target === 1) { setTeam1Pokemon(pokemon); setTeam1Sets(sets); }
     else { setTeam2Pokemon(pokemon); setTeam2Sets(sets); }
     setShowLoader(null);
@@ -682,7 +682,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
     }
   }, [canRun, team1Pokemon, team1Sets, team2Pokemon, team2Sets, iterations]);
 
-  // â”€â”€ Match Journal Intelligence â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Match Journal Intelligence ────────────────────────────────────────────
   interface JournalInsight {
     name: string; sprite: string; pokemonId: number;
     journalGames: number; journalWins: number;
@@ -704,7 +704,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
     const allRecords: MatchRecord[] = getMatchRecords();
     const team1Ids = new Set(team1Pokemon.map(p => p.id));
 
-    // Prefer team-specific records (myTeam shares â‰¥4 PokÃ©mon with current team)
+    // Prefer team-specific records (myTeam shares ≥4 Pokémon with current team)
     const teamRecords = allRecords.filter(r =>
       r.myTeam.filter(id => team1Ids.has(id)).length >= Math.min(4, team1Ids.size)
     );
@@ -767,7 +767,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
     });
   }, [pickerTarget, pickerSearch, pickerTypeFilter, team1Pokemon, team2Pokemon, tp, tm, ta, t]);
 
-  // â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Render ─────────────────────────────────────────────────────────────
 
   return (
     <div className="space-y-6">
@@ -941,7 +941,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                   <p className="text-[10px] text-muted-foreground mt-1">{t('teamTester.nBattles', { n: result.totalGames })}</p>
                   <p className="text-[10px] text-muted-foreground">{t('teamTester.turnsAvg', { n: result.avgTurns })}</p>
                   {elapsed > 0 && (
-                    <p className="text-[10px] font-mono text-muted-foreground/70 mt-0.5">â± {elapsed.toFixed(1)}s</p>
+                    <p className="text-[10px] font-mono text-muted-foreground/70 mt-0.5">⏱ {elapsed.toFixed(1)}s</p>
                   )}
                 </div>
 
@@ -1050,7 +1050,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                 </button>
               </div>
 
-              {/* â”€â”€ Journal Form (inline, collapsible) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+              {/* ── Journal Form (inline, collapsible) ────────────────────── */}
               <AnimatePresence>
                 {journalOpen && (
                   <motion.div
@@ -1078,7 +1078,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                           {/* My Picks */}
                           <div>
                             <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                              My Picks <span className="normal-case font-normal opacity-60">â€” default: selected lead combo (2â€“4)</span>
+                              My Picks <span className="normal-case font-normal opacity-60">— default: selected lead combo (2–4)</span>
                             </p>
                             <div className="flex flex-wrap gap-1.5">
                               {team1Pokemon.map(p => {
@@ -1109,7 +1109,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                           {/* Opponent Picks */}
                           <div>
                             <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                              Opponent Picks <span className="normal-case font-normal opacity-60">â€” what they brought (2â€“4)</span>
+                              Opponent Picks <span className="normal-case font-normal opacity-60">— what they brought (2–4)</span>
                             </p>
                             <div className="flex flex-wrap gap-1.5">
                               {team2Pokemon.map(p => {
@@ -1313,7 +1313,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                           ))}
                         </div>
 
-                        {/* Back 2 PokÃ©mon */}
+                        {/* Back 2 Pokémon */}
                         {(combo.back1 || combo.back2) && (() => {
                           const backs = [
                             combo.back1 ? { name: combo.back1, sprite: combo.back1Sprite! } : null,
@@ -1347,7 +1347,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                                           )}
                                         </div>
                                         {s && (
-                                          <p className="text-[8px] text-muted-foreground truncate">{ta(s.ability)} Â· {ti(s.item)}</p>
+                                          <p className="text-[8px] text-muted-foreground truncate">{ta(s.ability)} · {ti(s.item)}</p>
                                         )}
                                       </div>
                                     </button>
@@ -1386,9 +1386,9 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
               </div>
             )}
 
-            {/* PokÃ©mon Impact + Matchup Insights  -  Side by Side */}
+            {/* Pokémon Impact + Matchup Insights  -  Side by Side */}
             <div className="grid lg:grid-cols-2 gap-5">
-              {/* PokÃ©mon Impact Analysis */}
+              {/* Pokémon Impact Analysis */}
               {result.pokemonImpact.length > 0 && (
                 <div className="glass rounded-2xl p-5 border border-gray-200/60">
                   <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
@@ -1418,7 +1418,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                             <div className="flex-1 min-w-0">
                               <span className="text-xs font-semibold truncate block">{mon.name}</span>
                               {set && (
-                                <span className="text-[9px] text-muted-foreground">{ta(set.ability)} Â· {ti(set.item)}</span>
+                                <span className="text-[9px] text-muted-foreground">{ta(set.ability)} · {ti(set.item)}</span>
                               )}
                             </div>
                             <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -1513,7 +1513,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                                   )}
                                 </>
                               ) : (
-                                <span className="italic">Nessun dato â€” inizia a loggare partite</span>
+                                <span className="italic">Nessun dato — inizia a loggare partite</span>
                               )}
                             </div>
                           </div>
@@ -1571,10 +1571,10 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
 
                   {/* Legend */}
                   <div className="mt-4 pt-3 border-t border-violet-200/40 dark:border-violet-500/20 flex flex-wrap gap-3 text-[10px] text-muted-foreground">
-                    <span><strong className="text-emerald-600">Core pick</strong> â€” forte sia in sim che in partita</span>
-                    <span><strong className="text-violet-600">Utility gem</strong> â€” vince in partita ma non emerge nel sim (es. Perish Song, support)</span>
-                    <span><strong className="text-orange-500">Overrated</strong> â€” buono in sim, delude in partita reale</span>
-                    <span className="text-muted-foreground/60">(Soglia minima: 3 partite per PokÃ©mon)</span>
+                    <span><strong className="text-emerald-600">Core pick</strong> — forte sia in sim che in partita</span>
+                    <span><strong className="text-violet-600">Utility gem</strong> — vince in partita ma non emerge nel sim (es. Perish Song, support)</span>
+                    <span><strong className="text-orange-500">Overrated</strong> — buono in sim, delude in partita reale</span>
+                    <span className="text-muted-foreground/60">(Soglia minima: 3 partite per Pokémon)</span>
                   </div>
                 </div>
               )}
@@ -1611,7 +1611,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                               : "bg-white/60 dark:bg-white/5 text-muted-foreground border-gray-200 dark:border-white/10 hover:border-blue-300"
                           )}
                         >
-                          ðŸŒ¬ï¸ Tailwind
+                          🌬️ Tailwind
                         </button>
                         <button
                           onClick={() => setSpeedTailwindOpp(v => !v)}
@@ -1622,7 +1622,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                               : "bg-white/60 dark:bg-white/5 text-muted-foreground border-gray-200 dark:border-white/10 hover:border-red-300"
                           )}
                         >
-                          ðŸŒ¬ï¸ Tailwind Opp
+                          🌬️ Tailwind Opp
                         </button>
                         <button
                           onClick={() => setSpeedTrickRoom(v => !v)}
@@ -1633,7 +1633,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                               : "bg-white/60 dark:bg-white/5 text-muted-foreground border-gray-200 dark:border-white/10 hover:border-violet-300"
                           )}
                         >
-                          ðŸ”€ Trick Room
+                          🔀 Trick Room
                         </button>
                       </div>
                     </div>
@@ -1696,7 +1696,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                   </h3>
                   <div className="space-y-2">
                     {(locale === 'fr' ? translateInsights(result.insights, tm) : locale === 'es' ? translateInsightsES(result.insights, tm) : locale === 'it' ? translateInsightsIT(result.insights, tm) : locale === 'de' ? translateInsightsDE(result.insights, tm) : result.insights).map((tip, idx) => (                      <div key={idx} className="flex items-start gap-2.5 p-2.5 rounded-lg bg-gray-50 dark:bg-white/5">
-                        <span className="text-sm mt-0.5">ðŸ’¡</span>
+                        <span className="text-sm mt-0.5">💡</span>
                         <p className="text-xs text-muted-foreground leading-relaxed">{tip}</p>
                       </div>
                     ))}
@@ -1895,7 +1895,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
         </div>
       )}
 
-      {/* â”€â”€ POKEMON PICKER MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── POKEMON PICKER MODAL ────────────────────────────────── */}
       {pickerTarget && (
         <>
           <div
@@ -1967,7 +1967,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
         </>
       )}
 
-      {/* â”€â”€ TEAM LOADER MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── TEAM LOADER MODAL ────────────────────────────────── */}
       {showLoader && (
         <>
           <div
@@ -2015,7 +2015,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                       <Save className="w-4 h-4 text-violet-500 flex-shrink-0" />
                       <div className="min-w-0">
                         <p className="text-xs font-medium truncate">{t.name}</p>
-                        <p className="text-[10px] text-muted-foreground">{t.slots.length} PokÃ©mon Â· {new Date(t.updatedAt).toLocaleDateString()} {new Date(t.updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
+                        <p className="text-[10px] text-muted-foreground">{t.slots.length} Pokémon · {new Date(t.updatedAt).toLocaleDateString()} {new Date(t.updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
                       </div>
                     </button>
                   ))}
@@ -2045,7 +2045,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
         </>
       )}
 
-      {/* â”€â”€ POKEMON DETAIL / EDIT MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── POKEMON DETAIL / EDIT MODAL ─────────────────────────── */}
       {detailMon && (() => {
         const editPkm = detailMon.pokemon;
         const editSet = detailMon.editable
@@ -2112,7 +2112,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
               {/* Content */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {detailMon.editable ? (
-                  /* â”€â”€ EDITABLE MODE â”€â”€ */
+                  /* ── EDITABLE MODE ── */
                   <>
                     {/* Quick Apply Sets */}
                     {usageSets.length > 0 && (
@@ -2142,7 +2142,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                               ...sortedMoves.map((m) => ({
                                 value: m.name,
                                 label: tm(m.name),
-                                sub: `${m.type} Â· ${m.category}${m.power ? ` Â· ${m.power}bp` : ""}${m.accuracy ? ` Â· ${m.accuracy}%` : ""} Â· ${m.pp}pp`,
+                                sub: `${m.type} · ${m.category}${m.power ? ` · ${m.power}bp` : ""}${m.accuracy ? ` · ${m.accuracy}%` : ""} · ${m.pp}pp`,
                                 badge: tt(m.type),
                                 badgeColor: `${TYPE_COLORS[m.type]}AA`,
                                 description: m.description ? tmd(m.name, m.description) : undefined,
@@ -2327,7 +2327,7 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
                     )}
                   </>
                 ) : (
-                  /* â”€â”€ DISPLAY-ONLY MODE â”€â”€ */
+                  /* ── DISPLAY-ONLY MODE ── */
                   <>
                     {/* Ability + Item + Nature */}
                     <div className="grid grid-cols-3 gap-2">
@@ -2532,7 +2532,7 @@ function TeamPanel({
                       onClick={(e) => { e.stopPropagation(); onRemove(mon.id); }}
                       className="self-end -mt-1 -mr-1 p-0.5 rounded hover:bg-red-100"
                     >
-                      <span className="text-xs text-muted-foreground hover:text-red-600">âœ•</span>
+                      <span className="text-xs text-muted-foreground hover:text-red-600">✕</span>
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); onPokemonClick?.(mon.name); }}
@@ -2572,13 +2572,13 @@ function TeamPanel({
   );
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════════════════════════════════
 // BATTLE BOARD  -  Visual VGC battle field analyzer
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════════════════════════════════
 
 // (imports hoisted to file top)
 
-// â”€â”€ Target sub-cell (one per opponent inside a perTarget move card) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Target sub-cell (one per opponent inside a perTarget move card) ──────────
 function TargetSubCell({
   tgt,
   isOpp,
@@ -2616,24 +2616,24 @@ function TargetSubCell({
     <div className={cellClass}>
       <div className="flex items-center gap-0.5 min-w-0">
         {isBest && (
-          <span className={cn("text-[7px] font-bold flex-shrink-0", isOpp ? "text-red-500" : "text-emerald-500")}>â˜…</span>
+          <span className={cn("text-[7px] font-bold flex-shrink-0", isOpp ? "text-red-500" : "text-emerald-500")}>★</span>
         )}
         <span className="text-[7px] text-muted-foreground/80 font-medium truncate">{tgt.name.split("-")[0]}</span>
       </div>
       {isStatus ? (
         tgt.pranksterBlocked ? (
-          <span className="text-[7px] text-orange-400/80 font-semibold leading-tight">âœ— Prankster</span>
+          <span className="text-[7px] text-orange-400/80 font-semibold leading-tight">✗ Prankster</span>
         ) : onApply && showApplyBtn ? (
           <button
             onClick={(e) => { e.stopPropagation(); onApply(); }}
             title="Apply effect"
             className="mt-0.5 w-full text-[6px] font-bold px-1 py-px rounded bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white leading-tight transition-all"
           >
-            â–¶ Apply
+            ▶ Apply
           </button>
         ) : null
       ) : isImmune ? (
-        <span className="text-[7px] text-muted-foreground/40">âœ— Immune</span>
+        <span className="text-[7px] text-muted-foreground/40">✗ Immune</span>
       ) : (
         <>
           <div className="flex items-center gap-0.5">
@@ -2654,7 +2654,7 @@ function TargetSubCell({
               title={`Apply ${Math.round(tgt.percent)}% damage`}
               className="mt-0.5 w-full text-[6px] font-bold px-1 py-px rounded bg-orange-500 hover:bg-orange-600 active:scale-95 text-white leading-tight transition-all"
             >
-              â–¶ Apply
+              ▶ Apply
             </button>
           )}
         </>
@@ -2663,7 +2663,7 @@ function TargetSubCell({
   );
 }
 
-// â”€â”€ Move cell (grid card) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Move cell (grid card) ───────────────────────────────────────────────────
 function MoveCell({
   move,
   side,
@@ -2696,7 +2696,7 @@ function MoveCell({
     ? "bg-orange-50/40 dark:bg-orange-950/10 border-gray-100 dark:border-white/10"
     : "bg-white/50 dark:bg-white/5 border-gray-100 dark:border-white/10";
 
-  // â”€â”€ Opponent-targeting moves: compact card with two stacked sub-cells â”€â”€
+  // ── Opponent-targeting moves: compact card with two stacked sub-cells ──
   if (hasPerTarget) {
     return (
       <div className={`rounded-lg p-1.5 border flex flex-col gap-0.5 min-w-0 ${bgClass}`}>
@@ -2711,10 +2711,10 @@ function MoveCell({
             <span className="flex-shrink-0 text-[7px] text-muted-foreground/50">{move.priority}</span>
           )}
           {move.isRecommended && (
-            <span className={cn("text-[8px] flex-shrink-0 font-bold", isOpp ? "text-red-500" : "text-emerald-500")}>â˜…</span>
+            <span className={cn("text-[8px] flex-shrink-0 font-bold", isOpp ? "text-red-500" : "text-emerald-500")}>★</span>
           )}
           {move.priority > 0 && (
-            <span className="flex-shrink-0 text-[7px] font-bold text-amber-500 dark:text-amber-400">â–²+{move.priority}</span>
+            <span className="flex-shrink-0 text-[7px] font-bold text-amber-500 dark:text-amber-400">▲+{move.priority}</span>
           )}
           <span
             className={cn("font-semibold text-[10px] leading-tight truncate", onMoveNameClick && "cursor-pointer hover:underline underline-offset-2")}
@@ -2726,36 +2726,36 @@ function MoveCell({
           <TargetSubCell tgt={move.perTarget!.a} isOpp={isOpp} isStatus={isStatus} isBest={move.perTarget!.best === "a" || move.perTarget!.best === "both"} onApply={onApplyA} showApplyBtn={move.moveName === "Will-O-Wisp"} />
           <TargetSubCell tgt={move.perTarget!.b} isOpp={isOpp} isStatus={isStatus} isBest={move.perTarget!.best === "b" || move.perTarget!.best === "both"} onApply={onApplyB} showApplyBtn={move.moveName === "Will-O-Wisp"} />
         </div>
-        {/* Apply Both â€” shown for spread moves when both targets are valid */}
+        {/* Apply Both — shown for spread moves when both targets are valid */}
         {onApplyA && onApplyB && !isStatus && move.isSpread && move.perTarget!.a.effectiveness > 0 && move.perTarget!.b.effectiveness > 0 && (
           <button
             onClick={(e) => { e.stopPropagation(); onApplyA(); onApplyB(); }}
             title="Apply damage to both opponents"
             className="mt-0.5 w-full text-[6px] font-bold px-1 py-px rounded bg-orange-600 hover:bg-orange-700 active:scale-95 text-white leading-tight transition-all"
           >
-            â–¶ Apply Both
+            ▶ Apply Both
           </button>
         )}
-        {/* Ally damage warning for allAdjacent moves (Earthquake, Bulldozeâ€¦) */}
+        {/* Ally damage warning for allAdjacent moves (Earthquake, Bulldoze…) */}
         {move.perTarget!.ally && move.perTarget!.ally.effectiveness > 0 && (
           <div className="flex items-center gap-1 px-1 py-0.5 rounded bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40">
-            <span className="text-[8px] font-bold text-amber-600 dark:text-amber-400 flex-shrink-0">âš  Ally</span>
+            <span className="text-[8px] font-bold text-amber-600 dark:text-amber-400 flex-shrink-0">⚠ Ally</span>
             <span className="text-[7px] text-amber-700 dark:text-amber-300 font-medium flex-shrink-0 truncate">{move.perTarget!.ally.name.split("-")[0]}</span>
             <div className="flex-1 h-1 rounded-full bg-amber-100 dark:bg-amber-900/40 overflow-hidden">
               <div className="h-full rounded-full bg-amber-400" style={{ width: `${Math.min(move.perTarget!.ally.percent, 100)}%` }} />
             </div>
-            <span className={cn("text-[7px] font-semibold flex-shrink-0 tabular-nums", move.perTarget!.ally.koColor)}>{move.perTarget!.ally.koText !== "â€”" ? move.perTarget!.ally.koText : `${move.perTarget!.ally.percent}%`}</span>
+            <span className={cn("text-[7px] font-semibold flex-shrink-0 tabular-nums", move.perTarget!.ally.koColor)}>{move.perTarget!.ally.koText !== "—" ? move.perTarget!.ally.koText : `${move.perTarget!.ally.percent}%`}</span>
           </div>
         )}
         {/* Shared effect label (status moves) */}
-        {isStatus && move.effectLabel && move.effectLabel !== "â€“" && (
+        {isStatus && move.effectLabel && move.effectLabel !== "–" && (
           <div className="text-[8px] text-muted-foreground/80 leading-tight italic truncate">{move.effectLabel}</div>
         )}
       </div>
     );
   }
 
-  // â”€â”€ Self / field moves: original compact single-cell layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Self / field moves: original compact single-cell layout ────────────
   const isImmune = !isStatus && move.effectiveness === 0 && move.percentHPMax === 0;
   const barColor = move.isOHKO
     ? "#ef4444"
@@ -2780,7 +2780,7 @@ function MoveCell({
           <span className="flex-shrink-0 text-[7px] text-muted-foreground/50">{move.priority}</span>
         )}
         <span className="text-[7px] text-muted-foreground ml-auto truncate">
-          {move.targetName === "self" ? "â†’ self" : ""}
+          {move.targetName === "self" ? "→ self" : ""}
         </span>
       </div>
 
@@ -2788,11 +2788,11 @@ function MoveCell({
       <div className="flex items-center gap-0.5 min-w-0">
         {move.isRecommended && (
           <span className={cn("text-[8px] flex-shrink-0 font-bold", isOpp ? "text-red-500" : "text-emerald-500")}>
-            â˜…
+            ★
           </span>
         )}
         {move.priority > 0 && (
-          <span className="flex-shrink-0 text-[7px] font-bold text-amber-500 dark:text-amber-400">â–²+{move.priority}</span>
+          <span className="flex-shrink-0 text-[7px] font-bold text-amber-500 dark:text-amber-400">▲+{move.priority}</span>
         )}
         <span
           className={cn("font-semibold text-[10px] leading-tight truncate", onMoveNameClick && "cursor-pointer hover:underline underline-offset-2")}
@@ -2823,12 +2823,12 @@ function MoveCell({
               title={`Apply: ${move.moveName}`}
               className="mt-0.5 w-full text-[6px] font-bold px-1 py-px rounded bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white leading-tight transition-all"
             >
-              â–¶ Apply
+              ▶ Apply
             </button>
           )}
         </>
       ) : isImmune ? (
-        <div className="text-[8px] text-muted-foreground/40">âœ— Immune</div>
+        <div className="text-[8px] text-muted-foreground/40">✗ Immune</div>
       ) : (
         <>
           <div className="flex items-center gap-1 mt-px">
@@ -2842,7 +2842,7 @@ function MoveCell({
               {move.koText}
             </span>
           </div>
-          {move.effectLabel && move.effectLabel !== "â€“" && (
+          {move.effectLabel && move.effectLabel !== "–" && (
             <span className="text-[8px] tabular-nums font-semibold text-foreground/75 leading-tight">{move.effectLabel}</span>
           )}
           {onApplyA && move.percentHPMax > 0 && (
@@ -2851,7 +2851,7 @@ function MoveCell({
               title={`Apply ~${Math.round(move.percentHPMax)}% damage`}
               className="mt-0.5 w-full text-[6px] font-bold px-1 py-px rounded bg-orange-500 hover:bg-orange-600 active:scale-95 text-white leading-tight transition-all"
             >
-              â–¶ Apply
+              ▶ Apply
             </button>
           )}
         </>
@@ -2860,14 +2860,14 @@ function MoveCell({
   );
 }
 
-// â”€â”€ Single PokÃ©mon panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Single Pokémon panel ────────────────────────────────────────────────────
 function StageBtn({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   return (
     <div className="flex items-center gap-0.5">
       <button
         onClick={() => onChange(Math.max(-6, value - 1))}
         className="w-4 h-4 rounded flex items-center justify-center hover:bg-gray-200 dark:hover:bg-white/15 text-muted-foreground text-[10px] leading-none"
-      >âˆ’</button>
+      >−</button>
       <span className={cn("w-5 text-center text-[9px] font-mono font-bold tabular-nums",
         value > 0 ? "text-green-500" : value < 0 ? "text-red-500" : "text-muted-foreground/50"
       )}>
@@ -2881,7 +2881,7 @@ function StageBtn({ value, onChange }: { value: number; onChange: (v: number) =>
   );
 }
 
-// â”€â”€ Move picker panel (sub-component to allow hooks) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Move picker panel (sub-component to allow hooks) ─────────────────────────
 function MovePickerPanel({
   slot,
   monOv,
@@ -2900,7 +2900,7 @@ function MovePickerPanel({
     ? [...monOv.moveOverrides]
     : slot.set.moves.slice(0, 4).concat(["", "", "", ""]).slice(0, 4);
 
-  // All moves from the PokÃ©mon's learnset, sorted alphabetically
+  // All moves from the Pokémon's learnset, sorted alphabetically
   const allMoves = slot.pokemon.moves.map((m) => m.name).sort((a, b) => a.localeCompare(b));
 
   const metaMoveNames = new Set(slot.metaMoves.map((m) => m.moveName));
@@ -2920,7 +2920,7 @@ function MovePickerPanel({
   return (
     <div className="px-2 pb-2 bg-orange-50/40 dark:bg-orange-950/10 border-t border-orange-200 dark:border-orange-800/30">
       <div className={`text-[7px] font-bold uppercase tracking-wider text-orange-400 mb-1.5 pt-1.5`}>
-        Custom moves â€” click a slot to change
+        Custom moves — click a slot to change
       </div>
       {/* 4 move slot buttons */}
       <div className="grid grid-cols-2 gap-1 mb-2">
@@ -2937,13 +2937,13 @@ function MovePickerPanel({
                   : "bg-white/50 dark:bg-white/[0.03] border-dashed border-gray-300 dark:border-white/10 text-muted-foreground/50",
             )}
           >
-            {moveName || `â€” Slot ${i + 1}`}
-            {editSlotIdx === i && <span className="ml-1 opacity-70">â–¾</span>}
+            {moveName || `— Slot ${i + 1}`}
+            {editSlotIdx === i && <span className="ml-1 opacity-70">▾</span>}
           </button>
         ))}
       </div>
 
-      {/* Move grid â€” shown when a slot is being edited */}
+      {/* Move grid — shown when a slot is being edited */}
       {editSlotIdx !== null && (
         <div className="max-h-40 overflow-y-auto rounded-lg border border-orange-200 dark:border-orange-800/40 bg-white dark:bg-white/[0.03] p-1">
           <div className="flex flex-wrap gap-1">
@@ -2973,7 +2973,7 @@ function MovePickerPanel({
           onClick={resetMoves}
           className="mt-1.5 text-[7px] text-orange-500 hover:text-orange-700 underline"
         >
-          â†º Reset to default moves
+          ↺ Reset to default moves
         </button>
       )}
     </div>
@@ -3033,7 +3033,7 @@ function MonPanel({
   const maxHp = slot.actualStats.hp;
   const currentHp = Math.round(maxHp * hp / 100);
 
-  // Local draft for HP text input â€” avoids recalc-on-every-keystroke
+  // Local draft for HP text input — avoids recalc-on-every-keystroke
   const [hpDraft, setHpDraft] = useState<string | null>(null);
 
   const commitHp = (raw: string) => {
@@ -3101,7 +3101,7 @@ function MonPanel({
               })()}
             </div>
 
-            {/* Form buttons â€” Base always visible, Mega only if available */}
+            {/* Form buttons — Base always visible, Mega only if available */}
             <div className="flex flex-wrap gap-1 mt-1.5">
               {/* Base form button */}
               <button
@@ -3134,7 +3134,7 @@ function MonPanel({
                         : "border-violet-200 dark:border-violet-500/30 text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10",
                     )}
                   >
-                    â—† Mega{suffix ? ` ${suffix}` : ""}
+                    ◆ Mega{suffix ? ` ${suffix}` : ""}
                   </button>
                 );
               })}
@@ -3142,7 +3142,7 @@ function MonPanel({
 
             <div className="mt-1 space-y-px">
               <div className="text-[9px] text-muted-foreground">
-                âš¡ <span className="font-semibold">{slot.speed}</span>
+                ⚡ <span className="font-semibold">{slot.speed}</span>
                 {slot.speedNote && (
                   <span className="ml-1.5 text-sky-600 dark:text-sky-400 font-semibold text-[8px]">
                     ({slot.speedNote})
@@ -3166,7 +3166,7 @@ function MonPanel({
                         ? "text-amber-600 dark:text-amber-400 font-semibold"
                         : "text-muted-foreground/70 hover:text-foreground"
                     )}
-                    title="Clicca per cambiare abilitÃ "
+                    title="Clicca per cambiare abilità"
                   >
                     {slot.ability}
                   </button>
@@ -3187,7 +3187,7 @@ function MonPanel({
                             slot.ability === a.name ? "font-semibold text-foreground" : "text-muted-foreground"
                           )}
                         >
-                          {slot.ability === a.name && <span className="text-amber-500 flex-shrink-0">â—</span>}
+                          {slot.ability === a.name && <span className="text-amber-500 flex-shrink-0">●</span>}
                           <span className="flex-1">{a.name}</span>
                           {a.name === slot.set.ability && (
                             <span className="text-[7px] text-muted-foreground/40 flex-shrink-0">default</span>
@@ -3212,7 +3212,7 @@ function MonPanel({
               </div>
             </div>
           </div>
-          {/* HP â€” right column */}
+          {/* HP — right column */}
           <div className="flex-1 flex flex-col justify-between min-w-0 py-0.5">
             <div className="flex items-center gap-1.5">
               <span className="text-[9px] font-semibold text-muted-foreground flex-shrink-0">HP</span>
@@ -3231,10 +3231,10 @@ function MonPanel({
             />
             <div className="flex items-center gap-0.5">
               <button
-                title="âˆ’1 HP"
+                title="−1 HP"
                 onClick={() => stepHp(-1)}
                 className={cn("w-5 h-5 rounded text-[11px] font-bold leading-none flex items-center justify-center bg-black/5 dark:bg-white/10 transition-colors flex-shrink-0 text-muted-foreground", isOpp ? "hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-500" : "hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-500")}
-              >âˆ’</button>
+              >−</button>
               <input
                 type="text"
                 inputMode="numeric"
@@ -3262,22 +3262,22 @@ function MonPanel({
           className="mt-1.5 w-full flex items-center justify-center gap-1 text-[8px] font-semibold text-muted-foreground hover:text-foreground py-0.5 rounded hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
         >
           <ChevronRight className={cn("w-3 h-3 transition-transform", movesOpen && "rotate-90")} />
-          {movesOpen ? "Hide" : isOpp ? "âš  Attacks" : "â˜… Actions"}
+          {movesOpen ? "Hide" : isOpp ? "⚠ Attacks" : "★ Actions"}
         </button>
       </div>
 
       {movesOpen && <>
-      {/* Move grid â€” shows all top moves */}
+      {/* Move grid — shows all top moves */}
       <div className="p-2 bg-white/30 dark:bg-black/10">
         <div className={`text-[8px] font-bold uppercase tracking-wider mb-1.5 ${labelColor}`}>
           {isOpp
             ? slot.topMoves.find(m => m.isRecommended)?.isProtection
-              ? "ðŸ›¡ Likely protects"
-              : "âš  Likely attacks"
-            : "â˜… Do this"}
+              ? "🛡 Likely protects"
+              : "⚠ Likely attacks"
+            : "★ Do this"}
         </div>
         {slot.topMoves.length === 0 ? (
-          <div className="text-[10px] text-muted-foreground italic py-2 text-center">â€”</div>
+          <div className="text-[10px] text-muted-foreground italic py-2 text-center">—</div>
         ) : (
           <div className="grid grid-cols-2 gap-1.5">
             {slot.topMoves.map((move, i) => {
@@ -3308,7 +3308,7 @@ function MonPanel({
             className="w-full px-3 py-1.5 flex items-center justify-between text-[9px] font-semibold text-muted-foreground hover:text-foreground bg-gray-50/60 dark:bg-white/[0.03] border-t border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors"
           >
             <span className="flex items-center gap-1.5">
-              ðŸ“Š Meta moves
+              📊 Meta moves
               <span className="text-[7px] text-muted-foreground/60">({slot.metaMoves[0]?.total ?? 0} sets)</span>
             </span>
             <ChevronRight className={cn("w-3 h-3 transition-transform", showMetaMoves && "rotate-90")} />
@@ -3352,9 +3352,9 @@ function MonPanel({
         className="w-full px-3 py-1.5 flex items-center justify-between text-[9px] font-semibold text-muted-foreground hover:text-foreground bg-gray-50/60 dark:bg-white/[0.03] border-t border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors"
       >
         <span className="flex items-center gap-1.5">
-          âœŽ Edit moves
+          ✎ Edit moves
           {monOv.moveOverrides && (
-            <span className="px-1 py-px rounded-full bg-orange-400 text-white text-[7px]">â—</span>
+            <span className="px-1 py-px rounded-full bg-orange-400 text-white text-[7px]">●</span>
           )}
         </span>
         <ChevronRight className={cn("w-3 h-3 transition-transform", showMovePicker && "rotate-90")} />
@@ -3378,7 +3378,7 @@ function MonPanel({
         <span className="flex items-center gap-1.5">
           <Shield className="w-3 h-3" /> Calcdex
           {(monOv.atkStage || monOv.defStage || monOv.spAtkStage || monOv.spDefStage || monOv.spdStage || monOv.isBurned || monOv.status || monOv.helpingHand || (monOv.megaFormIndex != null && monOv.megaFormIndex >= 0)) && (
-            <span className="px-1 py-px rounded-full bg-violet-500 text-white text-[7px]">â—</span>
+            <span className="px-1 py-px rounded-full bg-violet-500 text-white text-[7px]">●</span>
           )}
         </span>
         <ChevronRight className={cn("w-3 h-3 transition-transform", showCalcdex && "rotate-90")} />
@@ -3387,7 +3387,7 @@ function MonPanel({
       {showCalcdex && (
         <div className="px-3 py-2.5 border-t border-gray-200 dark:border-white/10 space-y-2.5 bg-gray-50/60 dark:bg-white/[0.03]">
 
-          {/* â”€â”€ Actual stat spread â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {/* ── Actual stat spread ─────────────────────────────────── */}
           <div>
             <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Stats (Lv.50)</div>
             <div className="grid grid-cols-3 gap-x-2 gap-y-0.5">
@@ -3413,7 +3413,7 @@ function MonPanel({
             </div>
           </div>
 
-          {/* â”€â”€ Stat stages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {/* ── Stat stages ────────────────────────────────────────── */}
           <div>
             <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Stages</div>
             <div className="grid grid-cols-2 gap-x-3 gap-y-1">
@@ -3435,7 +3435,7 @@ function MonPanel({
             </div>
           </div>
 
-          {/* â”€â”€ Status condition â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {/* ── Status condition ────────────────────────────────────── */}
           <div>
             <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Status</div>
             <div className="flex flex-wrap gap-1">
@@ -3467,7 +3467,7 @@ function MonPanel({
             </div>
           </div>
 
-          {/* â”€â”€ Other toggles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {/* ── Other toggles ───────────────────────────────────────── */}
           <div className="flex flex-wrap gap-1">
             <button
               onClick={() => onMonOvChange({ helpingHand: !monOv.helpingHand })}
@@ -3478,7 +3478,7 @@ function MonPanel({
                   : "border-border text-muted-foreground hover:border-violet-300 hover:text-violet-500"
               )}
             >
-              ðŸ¤ HH
+              🤝 HH
             </button>
 
             {/* Reset all */}
@@ -3487,7 +3487,7 @@ function MonPanel({
                 onClick={() => onMonOvChange({ atkStage: 0, defStage: 0, spAtkStage: 0, spDefStage: 0, spdStage: 0, isBurned: false, status: null, helpingHand: false, megaFormIndex: -1 })}
                 className="px-2 py-0.5 rounded-full border border-gray-200 dark:border-white/10 text-[9px] text-muted-foreground hover:text-red-500 hover:border-red-300 transition-colors"
               >
-                â†º Reset
+                ↺ Reset
               </button>
             )}
           </div>
@@ -3498,7 +3498,7 @@ function MonPanel({
   );
 }
 
-// â”€â”€ Speed order strip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Speed order strip ───────────────────────────────────────────────────────
 function SpeedStrip({
   speedOrder,
   hasTrickRoom,
@@ -3509,12 +3509,12 @@ function SpeedStrip({
   return (
     <div className="w-full py-2 px-3 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 flex items-center gap-2">
       <span className="text-[9px] font-bold text-muted-foreground flex-shrink-0 uppercase tracking-wide">
-        {hasTrickRoom ? "ðŸ”® TR" : "âš¡"}
+        {hasTrickRoom ? "🔮 TR" : "⚡"}
       </span>
       <div className="flex items-center gap-1 flex-wrap">
         {speedOrder.map((mon, i) => (
           <div key={`${i}-${mon.name}`} className="flex items-center gap-0.5">
-            {i > 0 && <span className="text-[10px] text-muted-foreground">â€º</span>}
+            {i > 0 && <span className="text-[10px] text-muted-foreground">›</span>}
             <div
               className={cn(
                 "flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-[9px] font-bold",
@@ -3527,10 +3527,10 @@ function SpeedStrip({
               <span className="truncate max-w-[48px]">{mon.name.split("-")[0]}</span>
               <span className="opacity-70">
                 {mon.hasTailwind ? (
-                  <><span className="line-through">{mon.speed}</span>â†’{mon.effectiveSpeed}</>
+                  <><span className="line-through">{mon.speed}</span>→{mon.effectiveSpeed}</>
                 ) : mon.effectiveSpeed}
               </span>
-              {mon.hasTailwind && <span className="text-cyan-500 dark:text-cyan-400">ðŸ’¨</span>}
+              {mon.hasTailwind && <span className="text-cyan-500 dark:text-cyan-400">💨</span>}
             </div>
           </div>
         ))}
@@ -3539,11 +3539,11 @@ function SpeedStrip({
   );
 }
 
-// â”€â”€ Field picker â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Field picker ─────────────────────────────────────────────────────────────
 /**
  * Slot-explicit field picker: two clearly labelled slot buttons at the top,
- * click a slot to "target" it, then click any PokÃ©mon below to assign it.
- * Clicking an already-active PokÃ©mon in the non-targeted slot swaps it into
+ * click a slot to "target" it, then click any Pokémon below to assign it.
+ * Clicking an already-active Pokémon in the non-targeted slot swaps it into
  * the targeted slot. The two slots always stay filled.
  */
 function FieldPicker({
@@ -3577,7 +3577,7 @@ function FieldPicker({
     : "bg-red-200 dark:bg-red-900/50 text-red-800 dark:text-red-200 border-red-300 dark:border-red-700";
   const targetClass = "bg-violet-500 text-white border-violet-600 ring-2 ring-violet-300 ring-offset-1";
 
-  // Map pokemon index â†’ which slot (0=L1, 1=L2, 2=B1, 3=B2)
+  // Map pokemon index → which slot (0=L1, 1=L2, 2=B1, 3=B2)
   const slotOf = new Map<number, 0 | 1 | 2 | 3>();
   if (fieldIdx[0] >= 0) slotOf.set(fieldIdx[0], 0);
   if (fieldIdx[1] >= 0) slotOf.set(fieldIdx[1], 1);
@@ -3638,8 +3638,8 @@ function FieldPicker({
               className={cn("flex items-center gap-1.5 px-2 py-1.5 rounded-xl border text-[9px] font-semibold transition-all flex-1", isT ? targetClass : leadActiveClass)}>
               <span className="text-[7px] opacity-70 text-white">L{si + 1}</span>
               {mon && <Image src={spriteUrl(mon.sprite)} alt={mon.name} width={18} height={18} unoptimized />}
-              <span className="truncate text-white">{mon?.name.split("-")[0] ?? "â€”"}</span>
-              {isT && <span className="ml-auto text-[8px] opacity-80">âœŽ</span>}
+              <span className="truncate text-white">{mon?.name.split("-")[0] ?? "—"}</span>
+              {isT && <span className="ml-auto text-[8px] opacity-80">✎</span>}
             </button>
           );
         })}
@@ -3656,13 +3656,13 @@ function FieldPicker({
               {mon
                 ? <><Image src={spriteUrl(mon.sprite)} alt={mon.name} width={18} height={18} unoptimized /><span className="truncate text-white">{mon.name.split("-")[0]}</span></>
                 : <span className="truncate text-white">?</span>}
-              {isT && <span className="ml-auto text-[8px] opacity-80">âœŽ</span>}
+              {isT && <span className="ml-auto text-[8px] opacity-80">✎</span>}
             </button>
           );
         })}
       </div>
 
-      {/* PokÃ©mon grid */}
+      {/* Pokémon grid */}
       <div className="flex flex-wrap gap-1.5">
         {allPokemon.map((p, i) => {
           const slot = slotOf.get(i) ?? null;
@@ -3706,24 +3706,24 @@ function FieldPicker({
       {targetSlot !== null && (
         <p className="text-[8px] text-violet-500 mt-1.5 animate-pulse">
           {targetSlot <= 1
-            ? `Click a PokÃ©mon for Lead ${targetSlot + 1}`
-            : `Click a PokÃ©mon for Back ${targetSlot - 1}`}
+            ? `Click a Pokémon for Lead ${targetSlot + 1}`
+            : `Click a Pokémon for Back ${targetSlot - 1}`}
         </p>
       )}
     </div>
   );
 }
 
-// â”€â”€ Team prediction â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Team prediction ──────────────────────────────────────────────────────────
 /**
- * Given the opponent's full team and which PokÃ©mon are currently on the field,
- * returns the bench PokÃ©mon (not on field) ranked by how likely they are to
+ * Given the opponent's full team and which Pokémon are currently on the field,
+ * returns the bench Pokémon (not on field) ranked by how likely they are to
  * be brought in, based on:
  *   1. Co-usage score: how often each bench mon appears as a bestPartner with
  *      either of the leads in the simulation data (SIM_POKEMON.bestPartners).
  *   2. Fallback: TOURNAMENT_USAGE bringRate when no sim pair data exists.
  *
- * Only PokÃ©mon actually in the opponent's team are shown.
+ * Only Pokémon actually in the opponent's team are shown.
  */
 function predictOpponentTeam(
   allPokemon: ChampionsPokemon[],
@@ -3739,7 +3739,7 @@ function predictOpponentTeam(
   if (bench.length === 0) return [];
 
   // Build partner score from SIM_POKEMON.bestPartners
-  // bestPartners is [{name, winRate, games}] â€” use winRate*games as weight
+  // bestPartners is [{name, winRate, games}] — use winRate*games as weight
   const pairScore = (benchMon: ChampionsPokemon, lead: ChampionsPokemon): number => {
     const simKey = String(benchMon.id);
     const simData = SIM_POKEMON[simKey];
@@ -3774,7 +3774,7 @@ function predictOpponentTeam(
     .sort((a, b) => b.score - a.score);
 }
 
-// â”€â”€ Slot advice computation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Slot advice computation ─────────────────────────────────────────────────
 const PROTECT_MOVES = new Set([
   "Protect", "Detect", "King's Shield", "Spiky Shield", "Baneful Bunker",
   "Max Guard", "Silk Trap", "Burning Bulwark", "Obstruct",
@@ -3830,7 +3830,7 @@ function computeSlotAdvice(
     return null;
   };
 
-  // â”€â”€ Decision tree â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Decision tree ────────────────────────────────────────────────────────
 
   // Both opponents OHKO me
   if (opp1OHKOs && opp2OHKOs) {
@@ -3845,7 +3845,7 @@ function computeSlotAdvice(
     return {
       action: alt ? "support" : "switch", urgency: "high",
       reason: "Entrambi gli avversari possono OHKOarti",
-      detail: alt ?? "Cambia con un PokÃ©mon con matchup migliore â€” non puoi sopravvivere in campo",
+      detail: alt ?? "Cambia con un Pokémon con matchup migliore — non puoi sopravvivere in campo",
     };
   }
 
@@ -3854,34 +3854,34 @@ function computeSlotAdvice(
     if (hasProtect) {
       return {
         action: "protect", urgency: "high",
-        reason: `${oppSlot1.pokemon.name} puÃ² OHKOarti`,
-        detail: `Il tuo alleato ${allySlot.pokemon.name} puÃ² eliminarlo â€” usa Protect per sopravvivere`,
+        reason: `${oppSlot1.pokemon.name} può OHKOarti`,
+        detail: `Il tuo alleato ${allySlot.pokemon.name} può eliminarlo — usa Protect per sopravvivere`,
       };
     }
     const alt = defensiveAlt();
     return {
       action: alt ? "support" : "switch", urgency: "high",
-      reason: `${oppSlot1.pokemon.name} puÃ² OHKOarti`,
-      detail: alt ?? `Cambia â€” il tuo alleato ${allySlot.pokemon.name} puÃ² eliminare la minaccia`,
+      reason: `${oppSlot1.pokemon.name} può OHKOarti`,
+      detail: alt ?? `Cambia — il tuo alleato ${allySlot.pokemon.name} può eliminare la minaccia`,
     };
   }
   if (opp2OHKOs && allyOHKOvsOpp2) {
     if (hasProtect) {
       return {
         action: "protect", urgency: "high",
-        reason: `${oppSlot2.pokemon.name} puÃ² OHKOarti`,
-        detail: `Il tuo alleato ${allySlot.pokemon.name} puÃ² eliminarlo â€” usa Protect per sopravvivere`,
+        reason: `${oppSlot2.pokemon.name} può OHKOarti`,
+        detail: `Il tuo alleato ${allySlot.pokemon.name} può eliminarlo — usa Protect per sopravvivere`,
       };
     }
     const alt = defensiveAlt();
     return {
       action: alt ? "support" : "switch", urgency: "high",
-      reason: `${oppSlot2.pokemon.name} puÃ² OHKOarti`,
-      detail: alt ?? `Cambia â€” il tuo alleato ${allySlot.pokemon.name} puÃ² eliminare la minaccia`,
+      reason: `${oppSlot2.pokemon.name} può OHKOarti`,
+      detail: alt ?? `Cambia — il tuo alleato ${allySlot.pokemon.name} può eliminare la minaccia`,
     };
   }
 
-  // I can OHKO something â†’ attack
+  // I can OHKO something → attack
   if (myOHKOvsOpp1) {
     const mv = mySlot.topMoves.find(m => m.isOHKO && m.targetName === oppSlot1.pokemon.name);
     return {
@@ -3899,21 +3899,21 @@ function computeSlotAdvice(
     };
   }
 
-  // One OHKOs me, can't respond well â†’ protect if possible
+  // One OHKOs me, can't respond well → protect if possible
   if (opp1OHKOs || opp2OHKOs) {
     const killer = opp1OHKOs ? oppSlot1 : oppSlot2;
     if (hasProtect) {
       return {
         action: "protect", urgency: "medium",
-        reason: `${killer.pokemon.name} puÃ² OHKOarti`,
-        detail: "Considera Protect per guadagnare un turno â€” aspetta il momento migliore per attaccare",
+        reason: `${killer.pokemon.name} può OHKOarti`,
+        detail: "Considera Protect per guadagnare un turno — aspetta il momento migliore per attaccare",
       };
     }
     const alt = defensiveAlt();
     return {
       action: alt ? "support" : "switch", urgency: "medium",
-      reason: `${killer.pokemon.name} puÃ² OHKOarti`,
-      detail: alt ?? "Considera il cambio se hai un PokÃ©mon con resistenza al tipo della mossa in arrivo",
+      reason: `${killer.pokemon.name} può OHKOarti`,
+      detail: alt ?? "Considera il cambio se hai un Pokémon con resistenza al tipo della mossa in arrivo",
     };
   }
 
@@ -3923,7 +3923,7 @@ function computeSlotAdvice(
       return {
         action: "protect", urgency: "medium",
         reason: "Pressione combinata elevata",
-        detail: `${oppSlot1.pokemon.name} + ${oppSlot2.pokemon.name} coprono ${Math.round(maxThreatOpp1 + maxThreatOpp2)}% HP totale â€” considera Protect`,
+        detail: `${oppSlot1.pokemon.name} + ${oppSlot2.pokemon.name} coprono ${Math.round(maxThreatOpp1 + maxThreatOpp2)}% HP totale — considera Protect`,
       };
     }
     const alt = defensiveAlt();
@@ -3942,10 +3942,10 @@ function computeSlotAdvice(
     .sort((a, b) => b.percentHPMax - a.percentHPMax)[0];
 
   if (bestDmgMove) {
-    const tgt = bestDmgMove.targetName !== "â€“" ? ` su ${bestDmgMove.targetName}` : "";
+    const tgt = bestDmgMove.targetName !== "–" ? ` su ${bestDmgMove.targetName}` : "";
     return {
       action: "attack", urgency: "low",
-      reason: "Situazione stabile â€” attacca",
+      reason: "Situazione stabile — attacca",
       detail: `${bestDmgMove.moveName}${tgt} (${bestDmgMove.percentHPMax}% HP max)`,
     };
   }
@@ -3953,12 +3953,12 @@ function computeSlotAdvice(
   return {
     action: "support", urgency: "low",
     reason: "Considera mosse di supporto",
-    detail: "Nessun danno rilevante â€” usa setup, redirect o supporto all'alleato",
+    detail: "Nessun danno rilevante — usa setup, redirect o supporto all'alleato",
   };
 }
 
 
-// â”€â”€ Main component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Main component ──────────────────────────────────────────────────────────
 function StrategyFlowchart({
   team1Pokemon,
   team1Sets,
@@ -4102,10 +4102,10 @@ function StrategyFlowchart({
 
   // Weather options
   const WEATHER_OPTIONS: Array<{ key: string; label: string; emoji: string; color: string; activeClass: string }> = [
-    { key: "sun",  label: "Sun",  emoji: "â˜€",  color: "text-amber-600",   activeClass: "bg-amber-400 text-white border-amber-500" },
-    { key: "rain", label: "Rain", emoji: "ðŸŒ§", color: "text-blue-500",    activeClass: "bg-blue-500 text-white border-blue-600" },
-    { key: "sand", label: "Sand", emoji: "ðŸœ", color: "text-yellow-600",  activeClass: "bg-yellow-500 text-white border-yellow-600" },
-    { key: "hail", label: "Snow", emoji: "â„",  color: "text-cyan-500",    activeClass: "bg-cyan-400 text-white border-cyan-500" },
+    { key: "sun",  label: "Sun",  emoji: "☀",  color: "text-amber-600",   activeClass: "bg-amber-400 text-white border-amber-500" },
+    { key: "rain", label: "Rain", emoji: "🌧", color: "text-blue-500",    activeClass: "bg-blue-500 text-white border-blue-600" },
+    { key: "sand", label: "Sand", emoji: "🏜", color: "text-yellow-600",  activeClass: "bg-yellow-500 text-white border-yellow-600" },
+    { key: "hail", label: "Snow", emoji: "❄",  color: "text-cyan-500",    activeClass: "bg-cyan-400 text-white border-cyan-500" },
   ];
 
   const toggleWeather = (key: string) => {
@@ -4142,7 +4142,7 @@ function StrategyFlowchart({
 
   return (
     <div className="space-y-2">
-      {/* â”€â”€ Win rate â”€â”€ */}
+      {/* ── Win rate ── */}
       <div className="flex items-center gap-2">
         <div className="flex-1 h-2 rounded-full bg-gray-200 dark:bg-white/10 overflow-hidden">
           <div className={`h-full rounded-full transition-all ${winBarColor}`} style={{ width: `${winPct}%` }} />
@@ -4150,7 +4150,7 @@ function StrategyFlowchart({
         <span className={`text-sm font-bold flex-shrink-0 tabular-nums ${winTextColor}`}>{winPct}%</span>
       </div>
 
-      {/* â”€â”€ Field State Controls (collapsible) â”€â”€ */}
+      {/* ── Field State Controls (collapsible) ── */}
       <div className="rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden">
         <button
           onClick={() => setFieldOpen(v => !v)}
@@ -4161,18 +4161,18 @@ function StrategyFlowchart({
           <div className="flex flex-wrap gap-1 flex-1 min-w-0 ml-1">
             {(() => {
               const activeWeather = manualWeather !== undefined ? manualWeather : board.weather;
-              const WEATHER_EMOJI: Record<string, string> = { sun: "â˜€", rain: "ðŸŒ§", sand: "ðŸœ", hail: "â„" };
+              const WEATHER_EMOJI: Record<string, string> = { sun: "☀", rain: "🌧", sand: "🏜", hail: "❄" };
               const hasAny = activeWeather || effectiveTR || myTailwind || oppTailwind || myReflect || myLightScreen || oppReflect || oppLightScreen;
               if (!hasAny) return <span className="text-muted-foreground/50">No overrides</span>;
               return <>
                 {activeWeather && <span className="px-1 py-px rounded text-[7px] font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">{WEATHER_EMOJI[activeWeather] ?? activeWeather}</span>}
-                {effectiveTR && <span className="px-1 py-px rounded text-[7px] font-bold bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">ðŸ”®TR</span>}
-                {myTailwind && <span className="px-1 py-px rounded text-[7px] font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">ðŸ’¨My</span>}
-                {oppTailwind && <span className="px-1 py-px rounded text-[7px] font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300">ðŸ’¨Opp</span>}
-                {myReflect && <span className="px-1 py-px rounded text-[7px] font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">ðŸ›¡MyRef</span>}
-                {myLightScreen && <span className="px-1 py-px rounded text-[7px] font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">ðŸŒŸMyLS</span>}
-                {oppReflect && <span className="px-1 py-px rounded text-[7px] font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300">ðŸ›¡ORef</span>}
-                {oppLightScreen && <span className="px-1 py-px rounded text-[7px] font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300">ðŸŒŸOLS</span>}
+                {effectiveTR && <span className="px-1 py-px rounded text-[7px] font-bold bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">🔮TR</span>}
+                {myTailwind && <span className="px-1 py-px rounded text-[7px] font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">💨My</span>}
+                {oppTailwind && <span className="px-1 py-px rounded text-[7px] font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300">💨Opp</span>}
+                {myReflect && <span className="px-1 py-px rounded text-[7px] font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">🛡MyRef</span>}
+                {myLightScreen && <span className="px-1 py-px rounded text-[7px] font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">🌟MyLS</span>}
+                {oppReflect && <span className="px-1 py-px rounded text-[7px] font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300">🛡ORef</span>}
+                {oppLightScreen && <span className="px-1 py-px rounded text-[7px] font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300">🌟OLS</span>}
               </>;
             })()}
           </div>
@@ -4208,7 +4208,7 @@ function StrategyFlowchart({
                     onClick={() => setManualWeather(null)}
                     className="px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 text-[10px] text-muted-foreground hover:text-red-500 hover:border-red-300 transition-all bg-white dark:bg-white/5"
                   >
-                    âœ•
+                    ✕
                   </button>
                 )}
               </div>
@@ -4228,7 +4228,7 @@ function StrategyFlowchart({
                     manualTR !== undefined && manualTR !== autoTR && "ring-1 ring-orange-400 ring-offset-1",
                   )}
                 >
-                  ðŸ”® Trick Room
+                  🔮 Trick Room
                   {manualTR !== undefined && manualTR !== autoTR && (
                     <span className="text-[7px] opacity-80">(manual)</span>
                   )}
@@ -4243,7 +4243,7 @@ function StrategyFlowchart({
                       : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-blue-400 hover:text-blue-600",
                   )}
                 >
-                  ðŸ’¨ My TW
+                  💨 My TW
                 </button>
                 <button
                   title="Opponent Tailwind active"
@@ -4255,7 +4255,7 @@ function StrategyFlowchart({
                       : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-red-400 hover:text-red-600",
                   )}
                 >
-                  ðŸ’¨ Opp TW
+                  💨 Opp TW
                 </button>
               </div>
             </div>
@@ -4273,7 +4273,7 @@ function StrategyFlowchart({
                       : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-blue-400 hover:text-blue-600",
                   )}
                 >
-                  ðŸ›¡ My Reflect
+                  🛡 My Reflect
                 </button>
                 <button
                   title="Your Light Screen active"
@@ -4285,7 +4285,7 @@ function StrategyFlowchart({
                       : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-blue-400 hover:text-blue-500",
                   )}
                 >
-                  ðŸŒŸ My L.Screen
+                  🌟 My L.Screen
                 </button>
                 <button
                   title="Opponent Reflect active"
@@ -4297,7 +4297,7 @@ function StrategyFlowchart({
                       : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-red-400 hover:text-red-600",
                   )}
                 >
-                  ðŸ›¡ Opp Reflect
+                  🛡 Opp Reflect
                 </button>
                 <button
                   title="Opponent Light Screen active"
@@ -4309,7 +4309,7 @@ function StrategyFlowchart({
                       : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-muted-foreground hover:border-red-400 hover:text-red-500",
                   )}
                 >
-                  ðŸŒŸ Opp L.Screen
+                  🌟 Opp L.Screen
                 </button>
                 {(manualWeather !== undefined || manualTR !== undefined || myTailwind || oppTailwind || myReflect || myLightScreen || oppReflect || oppLightScreen) && (
                   <button
@@ -4326,7 +4326,7 @@ function StrategyFlowchart({
                     }}
                     className="px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 text-[10px] text-muted-foreground hover:text-red-500 hover:border-red-300 transition-all bg-white dark:bg-white/5"
                   >
-                    â†º Reset
+                    ↺ Reset
                   </button>
                 )}
               </div>
@@ -4335,11 +4335,11 @@ function StrategyFlowchart({
         )}
       </div>
 
-      {/* â”€â”€ Opponent side â”€â”€ */}
+      {/* ── Opponent side ── */}
       <div>
         <div className="text-[9px] font-bold uppercase tracking-wider text-red-500 dark:text-red-400 mb-2 flex items-center gap-1.5">
           <Swords className="w-3 h-3" /> Opponent
-          {board.oppTailwind && <span className="ml-1 text-cyan-500 font-bold">ðŸ’¨ Tailwind</span>}
+          {board.oppTailwind && <span className="ml-1 text-cyan-500 font-bold">💨 Tailwind</span>}
         </div>
           <div className="grid grid-cols-2 gap-2">
           <MonPanel
@@ -4399,14 +4399,14 @@ function StrategyFlowchart({
           </div>
         </div>
 
-      {/* â”€â”€ Speed order â”€â”€ */}
+      {/* ── Speed order ── */}
       <SpeedStrip speedOrder={board.speedOrder} hasTrickRoom={board.hasTrickRoom} />
 
         {/* Your side */}
         <div>
           <div className="text-[9px] font-bold uppercase tracking-wider text-blue-500 dark:text-blue-400 mb-2 flex items-center gap-1.5">
             <Play className="w-3 h-3" /> Your side
-            {board.myTailwind && <span className="ml-1 text-cyan-500 font-bold">ðŸ’¨ Tailwind</span>}
+            {board.myTailwind && <span className="ml-1 text-cyan-500 font-bold">💨 Tailwind</span>}
           </div>
           <div className="grid grid-cols-2 gap-2">
           {/* Slot 1 + advice */}
@@ -4423,7 +4423,7 @@ function StrategyFlowchart({
                 "attack-low":    "border-gray-300 bg-gray-50 dark:bg-white/5 text-muted-foreground",
                 "support-low":   "border-gray-300 bg-gray-50 dark:bg-white/5 text-muted-foreground",
               };
-              const ADVICE_ICON: Record<string, string> = { protect: "ðŸ›¡ï¸", switch: "ðŸ”„", attack: "âš”ï¸", support: "ðŸ¤" };
+              const ADVICE_ICON: Record<string, string> = { protect: "🛡️", switch: "🔄", attack: "⚔️", support: "🤝" };
               const styleKey = `${adv.action}-${adv.urgency}`;
               const cls = ADVICE_STYLE[styleKey] ?? ADVICE_STYLE["attack-low"];
               return (
@@ -4484,7 +4484,7 @@ function StrategyFlowchart({
                 "attack-low":    "border-gray-300 bg-gray-50 dark:bg-white/5 text-muted-foreground",
                 "support-low":   "border-gray-300 bg-gray-50 dark:bg-white/5 text-muted-foreground",
               };
-              const ADVICE_ICON: Record<string, string> = { protect: "ðŸ›¡ï¸", switch: "ðŸ”„", attack: "âš”ï¸", support: "ðŸ¤" };
+              const ADVICE_ICON: Record<string, string> = { protect: "🛡️", switch: "🔄", attack: "⚔️", support: "🤝" };
               const styleKey = `${adv.action}-${adv.urgency}`;
               const cls = ADVICE_STYLE[styleKey] ?? ADVICE_STYLE["attack-low"];
               return (
@@ -4534,7 +4534,7 @@ function StrategyFlowchart({
           </div>
         </div>
 
-      {/* â”€â”€ Field customizer â”€â”€ */}
+      {/* ── Field customizer ── */}
       <div className="rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden">
         <button
           onClick={() => setShowPicker((p) => !p)}
@@ -4542,7 +4542,7 @@ function StrategyFlowchart({
         >
           <span className="flex items-center gap-2">
             <ArrowRightLeft className="w-3.5 h-3.5" />
-            Change PokÃ©mon on field
+            Change Pokémon on field
           </span>
           <ChevronRight
             className={cn("w-3.5 h-3.5 transition-transform duration-200", showPicker && "rotate-90")}
@@ -4551,7 +4551,7 @@ function StrategyFlowchart({
         {showPicker && (
           <div className="px-4 pb-4 pt-3 border-t border-gray-200 dark:border-white/10 space-y-4 bg-gray-50/50 dark:bg-white/[0.02]">
             <FieldPicker
-              label="Your team â€” leads & back row"
+              label="Your team — leads & back row"
               color="blue"
               allPokemon={team1Pokemon}
               fieldIdx={myFieldIdx}
@@ -4560,7 +4560,7 @@ function StrategyFlowchart({
               onBackChange={setMyBackIdx}
             />
             <FieldPicker
-              label="Opponent â€” leads & predict back"
+              label="Opponent — leads & predict back"
               color="red"
               allPokemon={team2Pokemon}
               fieldIdx={oppFieldIdx}

@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
 import { getMyRoster, getSettings } from "@/lib/storage";
 import {
-  loadUsageCache, saveUsageCache, mergeIncomingTournaments, computeUsageRankings,
+  loadUsageCache, saveUsageCache, mergeIncomingTournaments, computeUsageRankings, clearUsageCache, getTierFromRank,
   type UsageRankingEntry, type CachedTournament, type UsageRankingsCache,
 } from "@/lib/usage-rankings-cache";
 import { useI18n } from "@/lib/i18n";
@@ -446,6 +446,14 @@ export default function MetaPage() {
     }
   };
 
+  const handleClearCache = () => {
+    clearUsageCache(selectedRegulationId);
+    setLiveUsageRankings([]);
+    setUsageCacheMeta(null);
+    setUsageSyncState("idle");
+    setUsageSyncLog("");
+  };
+
   // ── Find Teams by Pokémon filter ──────────────────────────────
   const [teamFilterIds, setTeamFilterIds] = useState<number[]>([]);
   const [teamFilterSearch, setTeamFilterSearch] = useState("");
@@ -470,7 +478,7 @@ export default function MetaPage() {
       types: PokemonType[]; isMega: boolean; baseSpeed: number;
       maxPositive: number; maxNeutral: number; uninvested: number; minNegative: number;
       scarfPositive: number | null; scarfNeutral: number | null;
-      tier: "S" | "A" | "B" | "C" | "D" | "-";
+      tier: "Z" | "S" | "A" | "B" | "C" | "D" | "-";
     };
 
     const tierMap = new Map(ML_POKEMON_RANKINGS.map(p => [p.name, p.tier]));
@@ -1366,6 +1374,16 @@ export default function MetaPage() {
                         <><TrendingUp className="w-3 h-3" />Sync Limitless</>
                       )}
                     </button>
+                    {/* Clear cache button */}
+                    {usageCacheMeta && usageSyncState !== "running" && (
+                      <button
+                        onClick={handleClearCache}
+                        title={`Svuota cache ${selectedRegulationId}`}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all bg-white dark:bg-white/[0.05] border-gray-200 dark:border-white/10 text-muted-foreground hover:text-red-600 hover:border-red-300 dark:hover:border-red-500/40"
+                      >
+                        <X className="w-3 h-3" />Svuota cache
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -1428,15 +1446,20 @@ export default function MetaPage() {
                             <span className="text-[10px] font-bold text-white drop-shadow-sm">{usageVal}%</span>
                           </div>
                         </div>
-                        {pokemon?.tier && (
-                          <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded border flex-shrink-0",
-                            pokemon.tier === "S" ? "text-amber-600 bg-amber-50 border-amber-200" :
-                            pokemon.tier === "A" ? "text-violet-600 bg-violet-50 border-violet-200" :
-                            pokemon.tier === "B" ? "text-blue-600 bg-blue-50 border-blue-200" :
-                            pokemon.tier === "C" ? "text-gray-500 bg-gray-50 border-gray-200" :
-                            "text-gray-400 bg-gray-50 border-gray-100"
-                          )}>{pokemon.tier}</span>
-                        )}
+                        {(() => {
+                          const t = usingLive ? getTierFromRank(i + 1) : pokemon?.tier;
+                          if (!t) return null;
+                          return (
+                            <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded border flex-shrink-0",
+                              t === "Z" ? "text-rose-600 bg-rose-50 border-rose-200" :
+                              t === "S" ? "text-amber-600 bg-amber-50 border-amber-200" :
+                              t === "A" ? "text-violet-600 bg-violet-50 border-violet-200" :
+                              t === "B" ? "text-blue-600 bg-blue-50 border-blue-200" :
+                              t === "C" ? "text-gray-500 bg-gray-50 border-gray-200" :
+                              "text-gray-400 bg-gray-50 border-gray-100"
+                            )}>{t}</span>
+                          );
+                        })()}
                         {usingLive ? (
                           <span className={cn("text-[10px] font-bold w-12 text-right flex items-center justify-end gap-0.5",
                             trend === "up" ? "text-emerald-600" : trend === "down" ? "text-red-500" : "text-muted-foreground"
@@ -2021,6 +2044,16 @@ export default function MetaPage() {
                         <><TrendingUp className="w-3 h-3" />Sync Limitless</>
                       )}
                     </button>
+                    {/* Clear cache button */}
+                    {usageCacheMeta && usageSyncState !== "running" && (
+                      <button
+                        onClick={handleClearCache}
+                        title={`Svuota cache ${selectedRegulationId}`}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all bg-white dark:bg-white/[0.05] border-gray-200 dark:border-white/10 text-muted-foreground hover:text-red-600 hover:border-red-300 dark:hover:border-red-500/40"
+                      >
+                        <X className="w-3 h-3" />Svuota cache
+                      </button>
+                    )}
                   </div>
                 </div>
                 {/* Progress / result log */}
@@ -2111,15 +2144,20 @@ export default function MetaPage() {
                               <span className="text-xs font-bold text-amber-700 dark:text-amber-300 tabular-nums shrink-0">{usageVal}%</span>
                             </div>
                           </div>
-                          {pokemon?.tier && (
-                            <span className={cn("shrink-0 text-xs font-bold px-2 py-0.5 rounded border",
-                              pokemon.tier === "S" ? "text-amber-700 bg-amber-100 border-amber-200" :
-                              pokemon.tier === "A" ? "text-violet-700 bg-violet-100 border-violet-200" :
-                              pokemon.tier === "B" ? "text-blue-700 bg-blue-100 border-blue-200" :
-                              pokemon.tier === "C" ? "text-gray-600 bg-gray-100 border-gray-200" :
-                              "text-gray-400 bg-gray-50 border-gray-100"
-                            )}>{pokemon.tier}</span>
-                          )}
+                          {(() => {
+                            const t = usingLiveOfficial ? getTierFromRank(rank) : pokemon?.tier;
+                            if (!t) return null;
+                            return (
+                              <span className={cn("shrink-0 text-xs font-bold px-2 py-0.5 rounded border",
+                                t === "Z" ? "text-rose-700 bg-rose-100 border-rose-200" :
+                                t === "S" ? "text-amber-700 bg-amber-100 border-amber-200" :
+                                t === "A" ? "text-violet-700 bg-violet-100 border-violet-200" :
+                                t === "B" ? "text-blue-700 bg-blue-100 border-blue-200" :
+                                t === "C" ? "text-gray-600 bg-gray-100 border-gray-200" :
+                                "text-gray-400 bg-gray-50 border-gray-100"
+                              )}>{t}</span>
+                            );
+                          })()}
                         </div>
                       );
                     })}
@@ -2186,17 +2224,20 @@ export default function MetaPage() {
                                   </div>
                                 </div>
                                 <div className="flex justify-center">
-                                  {pokemon?.tier ? (
-                                    <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded border",
-                                      pokemon.tier === "S" ? "text-amber-700 bg-amber-100 border-amber-200 dark:bg-amber-500/30 dark:border-amber-500/50" :
-                                      pokemon.tier === "A" ? "text-violet-700 bg-violet-100 border-violet-200 dark:bg-violet-500/30 dark:border-violet-500/50" :
-                                      pokemon.tier === "B" ? "text-blue-700 bg-blue-100 border-blue-200 dark:bg-blue-500/30 dark:border-blue-500/50" :
-                                      pokemon.tier === "C" ? "text-gray-600 bg-gray-100 border-gray-200 dark:bg-white/10 dark:border-white/20" :
-                                      "text-gray-400 bg-gray-50 border-gray-100 dark:bg-white/[0.05] dark:border-white/10"
-                                    )}>{pokemon.tier}</span>
-                                  ) : (
-                                    <span className="text-[10px] text-gray-300 dark:text-gray-600">—</span>
-                                  )}
+                                  {(() => {
+                                    const t = usingLiveOfficial ? getTierFromRank(rank) : pokemon?.tier;
+                                    if (!t) return <span className="text-[10px] text-gray-300 dark:text-gray-600">—</span>;
+                                    return (
+                                      <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded border",
+                                        t === "Z" ? "text-rose-700 bg-rose-100 border-rose-200 dark:bg-rose-500/30 dark:border-rose-500/50" :
+                                        t === "S" ? "text-amber-700 bg-amber-100 border-amber-200 dark:bg-amber-500/30 dark:border-amber-500/50" :
+                                        t === "A" ? "text-violet-700 bg-violet-100 border-violet-200 dark:bg-violet-500/30 dark:border-violet-500/50" :
+                                        t === "B" ? "text-blue-700 bg-blue-100 border-blue-200 dark:bg-blue-500/30 dark:border-blue-500/50" :
+                                        t === "C" ? "text-gray-600 bg-gray-100 border-gray-200 dark:bg-white/10 dark:border-white/20" :
+                                        "text-gray-400 bg-gray-50 border-gray-100 dark:bg-white/[0.05] dark:border-white/10"
+                                      )}>{t}</span>
+                                    );
+                                  })()}
                                 </div>
                                 {stats ? (
                                   <>

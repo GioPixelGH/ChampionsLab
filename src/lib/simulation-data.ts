@@ -11882,159 +11882,183 @@ export interface ChampionsTournamentUsage {
   top8Count: number;   // How many top-8 finishes included this Pokémon
 }
 
-export const CHAMPIONS_TOURNAMENT_TOTAL_TEAMS = 690;
-export const CHAMPIONS_TOURNAMENT_DATE = "2026-06-12";
+export const CHAMPIONS_TOURNAMENT_TOTAL_TEAMS = 900;
+export const CHAMPIONS_TOURNAMENT_DATE = "2026-06-19";
 
 export const CHAMPIONS_TOURNAMENT_USAGE: ChampionsTournamentUsage[] = [
-  { rank: 1, name: "Garchomp", count: 288, usagePct: 41.7, top8Count: 79 },
-  { rank: 2, name: "Incineroar", count: 268, usagePct: 38.8, top8Count: 72 },
-  { rank: 3, name: "Basculegion-M", count: 260, usagePct: 37.7, top8Count: 84 },
-  { rank: 4, name: "Kingambit", count: 257, usagePct: 37.2, top8Count: 89 },
-  { rank: 5, name: "Sneasler", count: 241, usagePct: 34.9, top8Count: 70 },
-  { rank: 6, name: "Sinistcha", count: 207, usagePct: 30, top8Count: 52 },
-  { rank: 7, name: "Charizard", count: 206, usagePct: 29.9, top8Count: 63 },
-  { rank: 8, name: "Floette", count: 186, usagePct: 27, top8Count: 53 },
-  { rank: 9, name: "Whimsicott", count: 142, usagePct: 20.6, top8Count: 47 },
-  { rank: 10, name: "Farigiraf", count: 105, usagePct: 15.2, top8Count: 30 },
-  { rank: 11, name: "Froslass", count: 83, usagePct: 12, top8Count: 19 },
-  { rank: 12, name: "Aerodactyl", count: 82, usagePct: 11.9, top8Count: 22 },
-  { rank: 13, name: "Archaludon", count: 81, usagePct: 11.7, top8Count: 24 },
-  { rank: 14, name: "Sylveon", count: 75, usagePct: 10.9, top8Count: 19 },
-  { rank: 15, name: "Venusaur", count: 73, usagePct: 10.6, top8Count: 15 },
-  { rank: 16, name: "Delphox", count: 64, usagePct: 9.3, top8Count: 18 },
-  { rank: 17, name: "Glimmora", count: 62, usagePct: 9, top8Count: 14 },
-  { rank: 18, name: "Dragonite", count: 61, usagePct: 8.8, top8Count: 20 },
-  { rank: 19, name: "Tyranitar", count: 61, usagePct: 8.8, top8Count: 13 },
-  { rank: 20, name: "Wash Rotom", count: 58, usagePct: 8.4, top8Count: 10 },
-  { rank: 21, name: "Pelipper", count: 58, usagePct: 8.4, top8Count: 14 },
-  { rank: 22, name: "Kommo-o", count: 54, usagePct: 7.8, top8Count: 15 },
-  { rank: 23, name: "Gengar", count: 53, usagePct: 7.7, top8Count: 14 },
-  { rank: 24, name: "Politoed", count: 50, usagePct: 7.2, top8Count: 12 },
-  { rank: 25, name: "Talonflame", count: 42, usagePct: 6.1, top8Count: 5 },
-  { rank: 26, name: "Maushold", count: 42, usagePct: 6.1, top8Count: 9 },
-  { rank: 27, name: "Vivillon", count: 41, usagePct: 5.9, top8Count: 12 },
-  { rank: 28, name: "Milotic", count: 41, usagePct: 5.9, top8Count: 9 },
-  { rank: 29, name: "Scovillain", count: 39, usagePct: 5.7, top8Count: 11 },
-  { rank: 30, name: "Scizor", count: 38, usagePct: 5.5, top8Count: 11 },
-  { rank: 31, name: "Hisuian Arcanine", count: 38, usagePct: 5.5, top8Count: 14 },
-  { rank: 32, name: "Torkoal", count: 36, usagePct: 5.2, top8Count: 9 },
-  { rank: 33, name: "Corviknight", count: 35, usagePct: 5.1, top8Count: 10 },
-  { rank: 34, name: "Kangaskhan", count: 33, usagePct: 4.8, top8Count: 10 },
-  { rank: 35, name: "Blastoise", count: 30, usagePct: 4.3, top8Count: 4 },
-  { rank: 36, name: "Hydreigon", count: 29, usagePct: 4.2, top8Count: 5 },
-  { rank: 37, name: "Sableye", count: 25, usagePct: 3.6, top8Count: 4 },
-  { rank: 38, name: "Alolan Ninetales", count: 24, usagePct: 3.5, top8Count: 4 },
-  { rank: 39, name: "Aegislash", count: 20, usagePct: 2.9, top8Count: 4 },
-  { rank: 40, name: "Gardevoir", count: 20, usagePct: 2.9, top8Count: 5 },
-  { rank: 41, name: "Lycanroc", count: 19, usagePct: 2.8, top8Count: 4 },
-  { rank: 42, name: "Gallade", count: 18, usagePct: 2.6, top8Count: 4 },
-  { rank: 43, name: "Heat Rotom", count: 16, usagePct: 2.3, top8Count: 6 },
-  { rank: 44, name: "Camerupt", count: 16, usagePct: 2.3, top8Count: 5 },
-  { rank: 45, name: "Kleavor", count: 16, usagePct: 2.3, top8Count: 3 },
-  { rank: 46, name: "Excadrill", count: 15, usagePct: 2.2, top8Count: 2 },
-  { rank: 47, name: "Primarina", count: 14, usagePct: 2, top8Count: 5 },
-  { rank: 48, name: "Tsareena", count: 14, usagePct: 2, top8Count: 4 },
-  { rank: 49, name: "Crabominable", count: 14, usagePct: 2, top8Count: 2 },
-  { rank: 50, name: "Tinkaton", count: 13, usagePct: 1.9, top8Count: 3 },
-  { rank: 51, name: "Espathra", count: 13, usagePct: 1.9, top8Count: 3 },
-  { rank: 52, name: "Skarmory", count: 11, usagePct: 1.6, top8Count: 2 },
-  { rank: 53, name: "Gyarados", count: 11, usagePct: 1.6, top8Count: 8 },
-  { rank: 54, name: "Araquanid", count: 9, usagePct: 1.3, top8Count: 3 },
-  { rank: 55, name: "Weavile", count: 9, usagePct: 1.3, top8Count: 2 },
-  { rank: 56, name: "Hatterene", count: 9, usagePct: 1.3, top8Count: 4 },
-  { rank: 57, name: "Azumarill", count: 9, usagePct: 1.3, top8Count: 1 },
-  { rank: 58, name: "Drampa", count: 8, usagePct: 1.2, top8Count: 3 },
-  { rank: 59, name: "Chandelure", count: 8, usagePct: 1.2, top8Count: 2 },
-  { rank: 60, name: "Mimikyu", count: 8, usagePct: 1.2, top8Count: 2 },
-  { rank: 61, name: "Meganium", count: 8, usagePct: 1.2, top8Count: 0 },
-  { rank: 62, name: "Clefable", count: 8, usagePct: 1.2, top8Count: 3 },
-  { rank: 63, name: "Steelix", count: 8, usagePct: 1.2, top8Count: 3 },
-  { rank: 64, name: "Lopunny", count: 7, usagePct: 1, top8Count: 0 },
-  { rank: 65, name: "Ceruledge", count: 7, usagePct: 1, top8Count: 3 },
-  { rank: 66, name: "Hawlucha", count: 7, usagePct: 1, top8Count: 1 },
-  { rank: 67, name: "Toxapex", count: 7, usagePct: 1, top8Count: 3 },
-  { rank: 68, name: "Meowscarada", count: 7, usagePct: 1, top8Count: 1 },
-  { rank: 69, name: "Golurk", count: 7, usagePct: 1, top8Count: 1 },
-  { rank: 70, name: "Oranguru", count: 7, usagePct: 1, top8Count: 2 },
-  { rank: 71, name: "Dragapult", count: 7, usagePct: 1, top8Count: 1 },
-  { rank: 72, name: "Aggron", count: 6, usagePct: 0.9, top8Count: 2 },
-  { rank: 73, name: "Chesnaught", count: 6, usagePct: 0.9, top8Count: 2 },
-  { rank: 74, name: "Meowstic-M", count: 6, usagePct: 0.9, top8Count: 1 },
-  { rank: 75, name: "Serperior", count: 6, usagePct: 0.9, top8Count: 3 },
-  { rank: 76, name: "Palafin", count: 6, usagePct: 0.9, top8Count: 0 },
-  { rank: 77, name: "Feraligatr", count: 5, usagePct: 0.7, top8Count: 2 },
-  { rank: 78, name: "Hisuian Typhlosion", count: 5, usagePct: 0.7, top8Count: 1 },
-  { rank: 79, name: "Snorlax", count: 5, usagePct: 0.7, top8Count: 1 },
-  { rank: 80, name: "Lucario", count: 5, usagePct: 0.7, top8Count: 0 },
-  { rank: 81, name: "Manectric", count: 5, usagePct: 0.7, top8Count: 1 },
-  { rank: 82, name: "Pikachu", count: 5, usagePct: 0.7, top8Count: 0 },
-  { rank: 83, name: "Arcanine", count: 5, usagePct: 0.7, top8Count: 1 },
-  { rank: 84, name: "Wyrdeer", count: 5, usagePct: 0.7, top8Count: 1 },
-  { rank: 85, name: "Alakazam", count: 5, usagePct: 0.7, top8Count: 1 },
-  { rank: 86, name: "Hisuian Samurott", count: 5, usagePct: 0.7, top8Count: 1 },
-  { rank: 87, name: "Mr. Rime", count: 5, usagePct: 0.7, top8Count: 0 },
-  { rank: 88, name: "Greninja", count: 4, usagePct: 0.6, top8Count: 0 },
-  { rank: 89, name: "Bellibolt", count: 4, usagePct: 0.6, top8Count: 1 },
-  { rank: 90, name: "Volcarona", count: 4, usagePct: 0.6, top8Count: 2 },
-  { rank: 91, name: "Empoleon", count: 4, usagePct: 0.6, top8Count: 0 },
-  { rank: 92, name: "Ampharos", count: 4, usagePct: 0.6, top8Count: 1 },
-  { rank: 93, name: "Klefki", count: 4, usagePct: 0.6, top8Count: 2 },
-  { rank: 94, name: "Vanilluxe", count: 4, usagePct: 0.6, top8Count: 1 },
-  { rank: 95, name: "Hisuian Zoroark", count: 3, usagePct: 0.4, top8Count: 0 },
-  { rank: 96, name: "Chimecho", count: 3, usagePct: 0.4, top8Count: 1 },
-  { rank: 97, name: "Heliolisk", count: 3, usagePct: 0.4, top8Count: 1 },
-  { rank: 98, name: "Beedrill", count: 3, usagePct: 0.4, top8Count: 1 },
-  { rank: 99, name: "Pidgeot", count: 3, usagePct: 0.4, top8Count: 1 },
-  { rank: 100, name: "Mamoswine", count: 3, usagePct: 0.4, top8Count: 0 },
-  { rank: 101, name: "Tauros", count: 3, usagePct: 0.4, top8Count: 0 },
-  { rank: 102, name: "Umbreon", count: 3, usagePct: 0.4, top8Count: 1 },
-  { rank: 103, name: "Galarian Slowking", count: 3, usagePct: 0.4, top8Count: 0 },
-  { rank: 104, name: "Trevenant", count: 2, usagePct: 0.3, top8Count: 1 },
-  { rank: 105, name: "Toxicroak", count: 2, usagePct: 0.3, top8Count: 0 },
-  { rank: 106, name: "Hydrapple", count: 2, usagePct: 0.3, top8Count: 0 },
-  { rank: 107, name: "Hisuian Goodra", count: 2, usagePct: 0.3, top8Count: 0 },
-  { rank: 108, name: "Armarouge", count: 2, usagePct: 0.3, top8Count: 0 },
-  { rank: 109, name: "Spiritomb", count: 2, usagePct: 0.3, top8Count: 0 },
-  { rank: 110, name: "Cofagrigus", count: 2, usagePct: 0.3, top8Count: 0 },
-  { rank: 111, name: "Mow Rotom", count: 2, usagePct: 0.3, top8Count: 0 },
-  { rank: 112, name: "Raichu", count: 2, usagePct: 0.3, top8Count: 0 },
-  { rank: 113, name: "Ninetales", count: 2, usagePct: 0.3, top8Count: 0 },
-  { rank: 114, name: "Ariados", count: 2, usagePct: 0.3, top8Count: 1 },
-  { rank: 115, name: "Sharpedo", count: 2, usagePct: 0.3, top8Count: 1 },
-  { rank: 116, name: "Rhyperior", count: 2, usagePct: 0.3, top8Count: 0 },
-  { rank: 117, name: "Hisuian Decidueye", count: 2, usagePct: 0.3, top8Count: 0 },
-  { rank: 118, name: "Starmie", count: 2, usagePct: 0.3, top8Count: 0 },
-  { rank: 119, name: "Conkeldurr", count: 2, usagePct: 0.3, top8Count: 1 },
-  { rank: 120, name: "Slowbro", count: 1, usagePct: 0.1, top8Count: 1 },
-  { rank: 121, name: "Appletun", count: 1, usagePct: 0.1, top8Count: 0 },
-  { rank: 122, name: "Heracross", count: 1, usagePct: 0.1, top8Count: 0 },
-  { rank: 123, name: "Galarian Slowbro", count: 1, usagePct: 0.1, top8Count: 0 },
-  { rank: 124, name: "Medicham", count: 1, usagePct: 0.1, top8Count: 0 },
-  { rank: 125, name: "Basculegion-F", count: 1, usagePct: 0.1, top8Count: 0 },
-  { rank: 126, name: "Emolga", count: 1, usagePct: 0.1, top8Count: 0 },
-  { rank: 127, name: "Alcremie", count: 1, usagePct: 0.1, top8Count: 0 },
-  { rank: 128, name: "Clawitzer", count: 1, usagePct: 0.1, top8Count: 1 },
-  { rank: 129, name: "Simisage", count: 1, usagePct: 0.1, top8Count: 0 },
-  { rank: 130, name: "Runerigus", count: 1, usagePct: 0.1, top8Count: 0 },
-  { rank: 131, name: "Slowking", count: 1, usagePct: 0.1, top8Count: 0 },
-  { rank: 132, name: "Altaria", count: 1, usagePct: 0.1, top8Count: 0 },
-  { rank: 133, name: "Torterra", count: 1, usagePct: 0.1, top8Count: 0 },
-  { rank: 134, name: "Ditto", count: 1, usagePct: 0.1, top8Count: 1 },
-  { rank: 135, name: "Bastiodon", count: 1, usagePct: 0.1, top8Count: 0 },
-  { rank: 136, name: "Machamp", count: 1, usagePct: 0.1, top8Count: 1 },
-  { rank: 137, name: "Typhlosion", count: 1, usagePct: 0.1, top8Count: 1 },
-  { rank: 138, name: "Emboar", count: 1, usagePct: 0.1, top8Count: 1 },
-  { rank: 139, name: "Infernape", count: 1, usagePct: 0.1, top8Count: 1 },
-  { rank: 140, name: "Jolteon", count: 1, usagePct: 0.1, top8Count: 1 },
-  { rank: 141, name: "Beartic", count: 1, usagePct: 0.1, top8Count: 1 },
-  { rank: 142, name: "Gliscor", count: 1, usagePct: 0.1, top8Count: 0 },
-  { rank: 143, name: "Audino", count: 1, usagePct: 0.1, top8Count: 0 },
-  { rank: 144, name: "Roserade", count: 1, usagePct: 0.1, top8Count: 0 },
-  { rank: 145, name: "Simipour", count: 1, usagePct: 0.1, top8Count: 0 },
-  { rank: 146, name: "Victreebel", count: 1, usagePct: 0.1, top8Count: 0 },
-  { rank: 147, name: "Leafeon", count: 1, usagePct: 0.1, top8Count: 0 },
-  { rank: 148, name: "Orthworm", count: 1, usagePct: 0.1, top8Count: 0 },
-  { rank: 149, name: "Frost Rotom", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 1, name: "Garchomp", count: 331, usagePct: 36.8, top8Count: 66 },
+  { rank: 2, name: "Incineroar", count: 316, usagePct: 35.1, top8Count: 71 },
+  { rank: 3, name: "Sinistcha", count: 295, usagePct: 32.8, top8Count: 58 },
+  { rank: 4, name: "Basculegion-M", count: 271, usagePct: 30.1, top8Count: 82 },
+  { rank: 5, name: "Sneasler", count: 267, usagePct: 29.7, top8Count: 74 },
+  { rank: 6, name: "Kingambit", count: 257, usagePct: 28.6, top8Count: 88 },
+  { rank: 7, name: "Charizard", count: 211, usagePct: 23.4, top8Count: 62 },
+  { rank: 8, name: "Whimsicott", count: 203, usagePct: 22.6, top8Count: 39 },
+  { rank: 9, name: "Floette", count: 186, usagePct: 20.7, top8Count: 62 },
+  { rank: 10, name: "Archaludon", count: 140, usagePct: 15.6, top8Count: 35 },
+  { rank: 11, name: "Aerodactyl", count: 122, usagePct: 13.6, top8Count: 45 },
+  { rank: 12, name: "Pelipper", count: 119, usagePct: 13.2, top8Count: 19 },
+  { rank: 13, name: "Sylveon", count: 114, usagePct: 12.7, top8Count: 29 },
+  { rank: 14, name: "Farigiraf", count: 113, usagePct: 12.6, top8Count: 20 },
+  { rank: 15, name: "Staraptor", count: 100, usagePct: 11.1, top8Count: 6 },
+  { rank: 16, name: "Grimmsnarl", count: 86, usagePct: 9.6, top8Count: 3 },
+  { rank: 17, name: "Metagross", count: 80, usagePct: 8.9, top8Count: 2 },
+  { rank: 18, name: "Wash Rotom", count: 80, usagePct: 8.9, top8Count: 8 },
+  { rank: 19, name: "Venusaur", count: 77, usagePct: 8.6, top8Count: 11 },
+  { rank: 20, name: "Tyranitar", count: 71, usagePct: 7.9, top8Count: 14 },
+  { rank: 21, name: "Froslass", count: 69, usagePct: 7.7, top8Count: 25 },
+  { rank: 22, name: "Raichu", count: 65, usagePct: 7.2, top8Count: 7 },
+  { rank: 23, name: "Gholdengo", count: 64, usagePct: 7.1, top8Count: 3 },
+  { rank: 24, name: "Maushold", count: 63, usagePct: 7, top8Count: 5 },
+  { rank: 25, name: "Dragonite", count: 61, usagePct: 6.8, top8Count: 17 },
+  { rank: 26, name: "Glimmora", count: 58, usagePct: 6.4, top8Count: 9 },
+  { rank: 27, name: "Milotic", count: 58, usagePct: 6.4, top8Count: 14 },
+  { rank: 28, name: "Delphox", count: 57, usagePct: 6.3, top8Count: 16 },
+  { rank: 29, name: "Swampert", count: 50, usagePct: 5.6, top8Count: 4 },
+  { rank: 30, name: "Sableye", count: 49, usagePct: 5.4, top8Count: 6 },
+  { rank: 31, name: "Corviknight", count: 45, usagePct: 5, top8Count: 12 },
+  { rank: 32, name: "Scovillain", count: 45, usagePct: 5, top8Count: 17 },
+  { rank: 33, name: "Hydreigon", count: 44, usagePct: 4.9, top8Count: 11 },
+  { rank: 34, name: "Alolan Ninetales", count: 43, usagePct: 4.8, top8Count: 7 },
+  { rank: 35, name: "Gengar", count: 43, usagePct: 4.8, top8Count: 5 },
+  { rank: 36, name: "Talonflame", count: 40, usagePct: 4.4, top8Count: 3 },
+  { rank: 37, name: "Torkoal", count: 39, usagePct: 4.3, top8Count: 4 },
+  { rank: 38, name: "Politoed", count: 38, usagePct: 4.2, top8Count: 12 },
+  { rank: 39, name: "Annihilape", count: 34, usagePct: 3.8, top8Count: 2 },
+  { rank: 40, name: "Lycanroc", count: 33, usagePct: 3.7, top8Count: 12 },
+  { rank: 41, name: "Kangaskhan", count: 32, usagePct: 3.6, top8Count: 4 },
+  { rank: 42, name: "Blastoise", count: 32, usagePct: 3.6, top8Count: 8 },
+  { rank: 43, name: "Excadrill", count: 30, usagePct: 3.3, top8Count: 6 },
+  { rank: 44, name: "Aegislash", count: 28, usagePct: 3.1, top8Count: 4 },
+  { rank: 45, name: "Mawile", count: 28, usagePct: 3.1, top8Count: 2 },
+  { rank: 46, name: "Hisuian Arcanine", count: 27, usagePct: 3, top8Count: 9 },
+  { rank: 47, name: "Toxapex", count: 26, usagePct: 2.9, top8Count: 5 },
+  { rank: 48, name: "Kommo-o", count: 23, usagePct: 2.6, top8Count: 5 },
+  { rank: 49, name: "Vivillon", count: 22, usagePct: 2.4, top8Count: 6 },
+  { rank: 50, name: "Clefable", count: 21, usagePct: 2.3, top8Count: 6 },
+  { rank: 51, name: "Gyarados", count: 21, usagePct: 2.3, top8Count: 8 },
+  { rank: 52, name: "Ceruledge", count: 20, usagePct: 2.2, top8Count: 8 },
+  { rank: 53, name: "Gardevoir", count: 19, usagePct: 2.1, top8Count: 2 },
+  { rank: 54, name: "Eelektross", count: 19, usagePct: 2.1, top8Count: 1 },
+  { rank: 55, name: "Scizor", count: 19, usagePct: 2.1, top8Count: 10 },
+  { rank: 56, name: "Primarina", count: 18, usagePct: 2, top8Count: 1 },
+  { rank: 57, name: "Mamoswine", count: 18, usagePct: 2, top8Count: 4 },
+  { rank: 58, name: "Meowscarada", count: 17, usagePct: 1.9, top8Count: 6 },
+  { rank: 59, name: "Heat Rotom", count: 17, usagePct: 1.9, top8Count: 0 },
+  { rank: 60, name: "Tsareena", count: 15, usagePct: 1.7, top8Count: 3 },
+  { rank: 61, name: "Lucario", count: 14, usagePct: 1.6, top8Count: 2 },
+  { rank: 62, name: "Palafin", count: 13, usagePct: 1.4, top8Count: 6 },
+  { rank: 63, name: "Espathra", count: 13, usagePct: 1.4, top8Count: 5 },
+  { rank: 64, name: "Scrafty", count: 12, usagePct: 1.3, top8Count: 1 },
+  { rank: 65, name: "Volcarona", count: 12, usagePct: 1.3, top8Count: 2 },
+  { rank: 66, name: "Dragapult", count: 11, usagePct: 1.2, top8Count: 2 },
+  { rank: 67, name: "Greninja", count: 11, usagePct: 1.2, top8Count: 1 },
+  { rank: 68, name: "Tinkaton", count: 11, usagePct: 1.2, top8Count: 3 },
+  { rank: 69, name: "Blaziken", count: 11, usagePct: 1.2, top8Count: 1 },
+  { rank: 70, name: "Sceptile", count: 11, usagePct: 1.2, top8Count: 1 },
+  { rank: 71, name: "Mimikyu", count: 11, usagePct: 1.2, top8Count: 4 },
+  { rank: 72, name: "Lopunny", count: 11, usagePct: 1.2, top8Count: 1 },
+  { rank: 73, name: "Azumarill", count: 10, usagePct: 1.1, top8Count: 2 },
+  { rank: 74, name: "Gallade", count: 10, usagePct: 1.1, top8Count: 2 },
+  { rank: 75, name: "Weavile", count: 9, usagePct: 1, top8Count: 1 },
+  { rank: 76, name: "Kleavor", count: 9, usagePct: 1, top8Count: 2 },
+  { rank: 77, name: "Skarmory", count: 9, usagePct: 1, top8Count: 2 },
+  { rank: 78, name: "Heliolisk", count: 9, usagePct: 1, top8Count: 1 },
+  { rank: 79, name: "Camerupt", count: 9, usagePct: 1, top8Count: 0 },
+  { rank: 80, name: "Hatterene", count: 8, usagePct: 0.9, top8Count: 0 },
+  { rank: 81, name: "Hisuian Zoroark", count: 8, usagePct: 0.9, top8Count: 1 },
+  { rank: 82, name: "Wyrdeer", count: 8, usagePct: 0.9, top8Count: 0 },
+  { rank: 83, name: "Crabominable", count: 8, usagePct: 0.9, top8Count: 1 },
+  { rank: 84, name: "Pyroar", count: 7, usagePct: 0.8, top8Count: 2 },
+  { rank: 85, name: "Dragalge", count: 7, usagePct: 0.8, top8Count: 0 },
+  { rank: 86, name: "Meowstic-M", count: 7, usagePct: 0.8, top8Count: 0 },
+  { rank: 87, name: "Conkeldurr", count: 7, usagePct: 0.8, top8Count: 1 },
+  { rank: 88, name: "Meganium", count: 7, usagePct: 0.8, top8Count: 1 },
+  { rank: 89, name: "Feraligatr", count: 7, usagePct: 0.8, top8Count: 0 },
+  { rank: 90, name: "Drampa", count: 7, usagePct: 0.8, top8Count: 1 },
+  { rank: 91, name: "Empoleon", count: 7, usagePct: 0.8, top8Count: 1 },
+  { rank: 92, name: "Manectric", count: 7, usagePct: 0.8, top8Count: 3 },
+  { rank: 93, name: "Oranguru", count: 7, usagePct: 0.8, top8Count: 2 },
+  { rank: 94, name: "Arcanine", count: 7, usagePct: 0.8, top8Count: 3 },
+  { rank: 95, name: "Araquanid", count: 6, usagePct: 0.7, top8Count: 1 },
+  { rank: 96, name: "Golurk", count: 6, usagePct: 0.7, top8Count: 1 },
+  { rank: 97, name: "Heracross", count: 6, usagePct: 0.7, top8Count: 0 },
+  { rank: 98, name: "Basculegion-F", count: 6, usagePct: 0.7, top8Count: 3 },
+  { rank: 99, name: "Scolipede", count: 5, usagePct: 0.6, top8Count: 0 },
+  { rank: 100, name: "Armarouge", count: 5, usagePct: 0.6, top8Count: 2 },
+  { rank: 101, name: "Tauros", count: 5, usagePct: 0.6, top8Count: 0 },
+  { rank: 102, name: "Mow Rotom", count: 5, usagePct: 0.6, top8Count: 2 },
+  { rank: 103, name: "Hisuian Samurott", count: 5, usagePct: 0.6, top8Count: 1 },
+  { rank: 104, name: "Toxicroak", count: 5, usagePct: 0.6, top8Count: 2 },
+  { rank: 105, name: "Serperior", count: 5, usagePct: 0.6, top8Count: 0 },
+  { rank: 106, name: "Hisuian Typhlosion", count: 4, usagePct: 0.4, top8Count: 0 },
+  { rank: 107, name: "Salazzle", count: 4, usagePct: 0.4, top8Count: 1 },
+  { rank: 108, name: "Overqwil", count: 4, usagePct: 0.4, top8Count: 0 },
+  { rank: 109, name: "Clawitzer", count: 4, usagePct: 0.4, top8Count: 0 },
+  { rank: 110, name: "Beedrill", count: 4, usagePct: 0.4, top8Count: 0 },
+  { rank: 111, name: "Orthworm", count: 4, usagePct: 0.4, top8Count: 1 },
+  { rank: 112, name: "Chimecho", count: 4, usagePct: 0.4, top8Count: 1 },
+  { rank: 113, name: "Snorlax", count: 4, usagePct: 0.4, top8Count: 0 },
+  { rank: 114, name: "Chesnaught", count: 4, usagePct: 0.4, top8Count: 0 },
+  { rank: 115, name: "Galarian Slowking", count: 4, usagePct: 0.4, top8Count: 0 },
+  { rank: 116, name: "Ninetales", count: 3, usagePct: 0.3, top8Count: 1 },
+  { rank: 117, name: "Rhyperior", count: 3, usagePct: 0.3, top8Count: 0 },
+  { rank: 118, name: "Luxray", count: 3, usagePct: 0.3, top8Count: 0 },
+  { rank: 119, name: "Jolteon", count: 3, usagePct: 0.3, top8Count: 2 },
+  { rank: 120, name: "Hawlucha", count: 3, usagePct: 0.3, top8Count: 0 },
+  { rank: 121, name: "Ampharos", count: 3, usagePct: 0.3, top8Count: 0 },
+  { rank: 122, name: "Pidgeot", count: 3, usagePct: 0.3, top8Count: 0 },
+  { rank: 123, name: "Starmie", count: 3, usagePct: 0.3, top8Count: 0 },
+  { rank: 124, name: "Steelix", count: 3, usagePct: 0.3, top8Count: 0 },
+  { rank: 125, name: "Vileplume", count: 2, usagePct: 0.2, top8Count: 1 },
+  { rank: 126, name: "Victreebel", count: 2, usagePct: 0.2, top8Count: 0 },
+  { rank: 127, name: "Mudsdale", count: 2, usagePct: 0.2, top8Count: 1 },
+  { rank: 128, name: "Machamp", count: 2, usagePct: 0.2, top8Count: 0 },
+  { rank: 129, name: "Alakazam", count: 2, usagePct: 0.2, top8Count: 0 },
+  { rank: 130, name: "Audino", count: 2, usagePct: 0.2, top8Count: 0 },
+  { rank: 131, name: "Liepard", count: 2, usagePct: 0.2, top8Count: 0 },
+  { rank: 132, name: "Bellibolt", count: 2, usagePct: 0.2, top8Count: 0 },
+  { rank: 133, name: "Tyrantrum", count: 2, usagePct: 0.2, top8Count: 1 },
+  { rank: 134, name: "Klefki", count: 2, usagePct: 0.2, top8Count: 1 },
+  { rank: 135, name: "Aggron", count: 2, usagePct: 0.2, top8Count: 1 },
+  { rank: 136, name: "Umbreon", count: 2, usagePct: 0.2, top8Count: 0 },
+  { rank: 137, name: "Chandelure", count: 2, usagePct: 0.2, top8Count: 1 },
+  { rank: 138, name: "Vaporeon", count: 2, usagePct: 0.2, top8Count: 0 },
+  { rank: 139, name: "Vanilluxe", count: 2, usagePct: 0.2, top8Count: 0 },
+  { rank: 140, name: "Altaria", count: 2, usagePct: 0.2, top8Count: 0 },
+  { rank: 141, name: "Hydrapple", count: 2, usagePct: 0.2, top8Count: 0 },
+  { rank: 142, name: "Noivern", count: 2, usagePct: 0.2, top8Count: 0 },
+  { rank: 143, name: "Hisuian Goodra", count: 2, usagePct: 0.2, top8Count: 1 },
+  { rank: 144, name: "Musharna", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 145, name: "Malamar", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 146, name: "Toucannon", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 147, name: "Sandaconda", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 148, name: "Runerigus", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 149, name: "Emboar", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 150, name: "Ditto", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 151, name: "Barbaracle", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 152, name: "Trevenant", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 153, name: "Galarian Slowbro", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 154, name: "Frost Rotom", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 155, name: "Houndstone", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 156, name: "Falinks", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 157, name: "Zoroark", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 158, name: "Slowbro", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 159, name: "Appletun", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 160, name: "Torterra", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 161, name: "Pikachu", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 162, name: "Espeon", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 163, name: "Passimian", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 164, name: "Polteageist", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 165, name: "Pangoro", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 166, name: "Flapple", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 167, name: "Ariados", count: 1, usagePct: 0.1, top8Count: 1 },
+  { rank: 168, name: "Glalie", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 169, name: "Medicham", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 170, name: "Hisuian Decidueye", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 171, name: "Infernape", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 172, name: "Goodra", count: 1, usagePct: 0.1, top8Count: 0 },
+  { rank: 173, name: "Skeledirge", count: 1, usagePct: 0.1, top8Count: 0 },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -12063,535 +12087,199 @@ export interface ChampionsTournamentTeam {
 }
 
 export const CHAMPIONS_TOURNAMENT_TEAMS: ChampionsTournamentTeam[] = [
-  { id: "ct-1", tournament: "Intimidators Champions Challenge #17 REG M-A", players: 17, placement: 1, player: "lucardrgs", wins: 7, losses: 1, pokemonIds: [903, 727, 670, 1013, 6, 983], pokemonNames: ["Sneasler", "Incineroar", "Floette", "Sinistcha", "Charizard", "Kingambit"], sets: [
-    { ability: "Unburden", item: "White Herb", moves: ["Dire Claw", "Close Combat", "Fake Out", "Coaching"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Parting Shot", "Will-O-Wisp", "Fake Out"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Draining Kiss", "Calm Mind", "Protect"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Protect", "Trick Room"] },
-    { ability: "Blaze", item: "Charizardite X", moves: ["Flare Blitz", "Dragon Claw", "Dragon Dance", "Protect"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] }
-  ] },
-  { id: "ct-2", tournament: "Intimidators Champions Challenge #17 REG M-A", players: 17, placement: 2, player: "TaoDoSavio", wins: 6, losses: 2, pokemonIds: [727, 1013, 903, 670, 6, 983], pokemonNames: ["Incineroar", "Sinistcha", "Sneasler", "Floette", "Charizard", "Kingambit"], sets: [
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Throat Chop", "Parting Shot"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Life Dew", "Rage Powder", "Protect"] },
-    { ability: "Unburden", item: "Focus Sash", moves: ["Fake Out", "Close Combat", "Dire Claw", "Coaching"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Calm Mind", "Protect"] },
-    { ability: "Blaze", item: "Charizardite X", moves: ["Flare Blitz", "Dragon Claw", "Dragon Dance", "Protect"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Low Kick", "Protect"] }
-  ] },
-  { id: "ct-3", tournament: "Intimidators Champions Challenge #17 REG M-A", players: 17, placement: 3, player: "NMR | Gostzin I", wins: 4, losses: 3, pokemonIds: [902, 780, 547, 670, 903, 10008], pokemonNames: ["Basculegion-M", "Drampa", "Whimsicott", "Floette", "Sneasler", "Heat Rotom"], sets: [
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Aqua Jet", "Flip Turn", "Last Respects", "Wave Crash"] },
-    { ability: "Cloud Nine", item: "Chople Berry", moves: ["Earth Power", "Flamethrower", "Draco Meteor", "Protect"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Protect", "Encore"] },
-    { ability: "Fairy Aura", item: "Floettite", moves: ["Light of Ruin", "Moonblast", "Protect", "Dazzling Gleam"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Protect", "Dire Claw", "Close Combat"] },
-    { ability: "Levitate", item: "Sitrus Berry", moves: ["Will-O-Wisp", "Thunderbolt", "Protect", "Overheat"] }
-  ] },
-  { id: "ct-4", tournament: "Intimidators Champions Challenge #17 REG M-A", players: 17, placement: 4, player: "Dibraldinho13", wins: 4, losses: 3, pokemonIds: [6, 670, 983, 445, 547, 902], pokemonNames: ["Charizard", "Floette", "Kingambit", "Garchomp", "Whimsicott", "Basculegion-M"], sets: [
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Protect"] },
-    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Poison Jab", "Earthquake", "Rock Slide", "Dragon Claw"] },
-    { ability: "Prankster", item: "Coba Berry", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
-    { ability: "Adaptability", item: "Focus Sash", moves: ["Liquidation", "Last Respects", "Aqua Jet", "Protect"] }
-  ] },
-  { id: "ct-5", tournament: "Intimidators Champions Challenge #17 REG M-A", players: 17, placement: 5, player: "LucasVBC", wins: 4, losses: 2, pokemonIds: [306, 142, 115, 727, 212, 1013], pokemonNames: ["Aggron", "Aerodactyl", "Kangaskhan", "Incineroar", "Scizor", "Sinistcha"], sets: [
-    { ability: "Heavy Metal", item: "Aggronite", moves: ["Iron Defense", "Body Press", "Heavy Slam", "Protect"] },
-    { ability: "Unnerve", item: "Focus Sash", moves: ["Rock Slide", "Dual Wingbeat", "Wide Guard", "Tailwind"] },
-    { ability: "Scrappy", item: "Kangaskhanite", moves: ["Fake Out", "Double-Edge", "Drain Punch", "Sucker Punch"] },
-    { ability: "Intimidate", item: "Leftovers", moves: ["Fake Out", "Flare Blitz", "Throat Chop", "Taunt"] },
-    { ability: "Technician", item: "Metal Coat", moves: ["Bullet Punch", "Bug Bite", "Dual Wingbeat", "Protect"] },
-    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Matcha Gotcha", "Trick Room", "Rage Powder", "Pain Split"] }
-  ] },
-  { id: "ct-6", tournament: "Intimidators Champions Challenge #17 REG M-A", players: 17, placement: 6, player: "Victor Matheus", wins: 4, losses: 2, pokemonIds: [983, 903, 478, 952, 902, 745], pokemonNames: ["Kingambit", "Sneasler", "Froslass", "Scovillain", "Basculegion-M", "Lycanroc"], sets: [
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Swords Dance", "Protect"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Dire Claw", "Close Combat", "Fake Out", "Protect"] },
-    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Aurora Veil", "Shadow Ball", "Protect"] },
-    { ability: "Moody", item: "Scovillainite", moves: ["Overheat", "Rage Powder", "Giga Drain", "Protect"] },
-    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Aqua Jet", "Wave Crash", "Last Respects", "Protect"] },
-    { ability: "Tough Claws", item: "Focus Sash", moves: ["Rock Slide", "Accelerock", "Close Combat", "Protect"] }
-  ] },
-  { id: "ct-7", tournament: "Intimidators Champions Challenge #17 REG M-A", players: 17, placement: 7, player: "AlexIannoneVGC", wins: 3, losses: 3, pokemonIds: [160, 983, 903, 700, 10008, 1013], pokemonNames: ["Feraligatr", "Kingambit", "Sneasler", "Sylveon", "Heat Rotom", "Sinistcha"], sets: [
-    { ability: "Sheer Force", item: "Feraligite", moves: ["Liquidation", "Dragon Dance", "Body Slam", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Protect", "Swords Dance"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Close Combat", "Dire Claw", "Protect"] },
-    { ability: "Pixilate", item: "Fairy Feather", moves: ["Quick Attack", "Detect", "Hyper Beam", "Hyper Voice"] },
-    { ability: "Levitate", item: "Choice Scarf", moves: ["Volt Switch", "Electroweb", "Thunderbolt", "Overheat"] },
-    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Trick Room", "Protect", "Matcha Gotcha", "Rage Powder"] }
-  ] },
-  { id: "ct-8", tournament: "Intimidators Champions Challenge #17 REG M-A", players: 17, placement: 8, player: "Zantut", wins: 3, losses: 3, pokemonIds: [9, 670, 902, 115, 547, 981], pokemonNames: ["Blastoise", "Floette", "Basculegion-M", "Kangaskhan", "Whimsicott", "Farigiraf"], sets: [
-    { ability: "Rain Dish", item: "Blastoisinite", moves: ["Protect", "Water Spout", "Aura Sphere", "Dark Pulse"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Protect", "Dazzling Gleam", "Moonblast", "Light of Ruin"] },
-    { ability: "Adaptability", item: "Mystic Water", moves: ["Protect", "Aqua Jet", "Liquidation", "Last Respects"] },
-    { ability: "Scrappy", item: "Silk Scarf", moves: ["Fake Out", "Last Resort"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Protect", "Moonblast", "Encore", "Tailwind"] },
-    { ability: "Armor Tail", item: "Mental Herb", moves: ["Twin Beam", "Rain Dance", "Trick Room", "Protect"] }
-  ] },
-  { id: "ct-9", tournament: "Talon's FIGHT CLUB #88 POKEMON CHAMPIONS", players: 50, placement: 1, player: "SuperDialga", wins: 8, losses: 2, pokemonIds: [670, 547, 902, 983, 1018, 5059], pokemonNames: ["Floette", "Whimsicott", "Basculegion-M", "Kingambit", "Archaludon", "Hisuian Arcanine"], sets: [
-    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Last Respects", "Wave Crash", "Aqua Jet", "Flip Turn"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Sucker Punch", "Kowtow Cleave", "Iron Head", "Protect"] },
-    { ability: "Sturdy", item: "White Herb", moves: ["Draco Meteor", "Flash Cannon", "Aura Sphere", "Protect"] },
-    { ability: "Rock Head", item: "Sitrus Berry", moves: ["Flare Blitz", "Rock Slide", "Extreme Speed", "Protect"] }
-  ] },
-  { id: "ct-10", tournament: "Talon's FIGHT CLUB #88 POKEMON CHAMPIONS", players: 50, placement: 2, player: "QueerCrocodile", wins: 9, losses: 1, pokemonIds: [670, 547, 5059, 902, 983, 1018], pokemonNames: ["Floette", "Whimsicott", "Hisuian Arcanine", "Basculegion-M", "Kingambit", "Archaludon"], sets: [
-    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Tailwind", "Moonblast", "Encore", "Protect"] },
-    { ability: "Rock Head", item: "Sitrus Berry", moves: ["Rock Slide", "Flare Blitz", "Extreme Speed", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
-    { ability: "Sturdy", item: "White Herb", moves: ["Aura Sphere", "Draco Meteor", "Flash Cannon", "Protect"] }
-  ] },
-  { id: "ct-11", tournament: "Talon's FIGHT CLUB #88 POKEMON CHAMPIONS", players: 50, placement: 3, player: "TimidTailwind", wins: 7, losses: 2, pokemonIds: [666, 1013, 350, 727, 937, 670], pokemonNames: ["Vivillon", "Sinistcha", "Milotic", "Incineroar", "Ceruledge", "Floette"], sets: [
-    { ability: "Compound Eyes", item: "Focus Sash", moves: ["Hurricane", "Sleep Powder", "Rage Powder", "Protect"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"] },
-    { ability: "Competitive", item: "Leftovers", moves: ["Muddy Water", "Coil", "Hypnosis", "Protect"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Throat Chop", "Fake Out", "Parting Shot"] },
-    { ability: "Flash Fire", item: "Colbur Berry", moves: ["Bitter Blade", "Shadow Sneak", "Bulk Up", "Protect"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Draining Kiss", "Calm Mind", "Protect"] }
-  ] },
-  { id: "ct-12", tournament: "Talon's FIGHT CLUB #88 POKEMON CHAMPIONS", players: 50, placement: 4, player: "Altkyle", wins: 6, losses: 3, pokemonIds: [149, 902, 212, 1018, 279, 727], pokemonNames: ["Dragonite", "Basculegion-M", "Scizor", "Archaludon", "Pelipper", "Incineroar"], sets: [
-    { ability: "Inner Focus", item: "Dragoninite", moves: ["Dragon Pulse", "Flamethrower", "Tailwind", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] },
-    { ability: "Technician", item: "Scizorite", moves: ["Bullet Punch", "Close Combat", "Swords Dance", "Protect"] },
-    { ability: "Stamina", item: "Chople Berry", moves: ["Electro Shot", "Dragon Pulse", "Aura Sphere", "Protect"] },
-    { ability: "Drizzle", item: "Focus Sash", moves: ["Hurricane", "Weather Ball", "Tailwind", "Protect"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Throat Chop", "Parting Shot"] }
-  ] },
-  { id: "ct-13", tournament: "Talon's FIGHT CLUB #88 POKEMON CHAMPIONS", players: 50, placement: 5, player: "Quewin2406", wins: 6, losses: 2, pokemonIds: [143, 186, 727, 1013, 94, 701], pokemonNames: ["Snorlax", "Politoed", "Incineroar", "Sinistcha", "Gengar", "Hawlucha"], sets: [
-    { ability: "Thick Fat", item: "Leftovers", moves: ["Protect", "Body Press", "Fissure", "Stockpile"] },
-    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Weather Ball", "Perish Song", "Encore", "Protect"] },
-    { ability: "Intimidate", item: "Passho Berry", moves: ["Parting Shot", "Protect", "Throat Chop", "Fake Out"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Protect", "Trick Room", "Matcha Gotcha", "Rage Powder"] },
-    { ability: "Cursed Body", item: "Gengarite", moves: ["Protect", "Shadow Ball", "Disable", "Perish Song"] },
-    { ability: "Limber", item: "Hawluchanite", moves: ["Detect", "Close Combat", "Brave Bird", "Entrainment"] }
-  ] },
-  { id: "ct-14", tournament: "Talon's FIGHT CLUB #88 POKEMON CHAMPIONS", players: 50, placement: 6, player: "Storm2184", wins: 6, losses: 2, pokemonIds: [655, 903, 983, 763, 902, 142], pokemonNames: ["Delphox", "Sneasler", "Kingambit", "Tsareena", "Basculegion-M", "Aerodactyl"], sets: [
-    { ability: "Magician", item: "Delphoxite", moves: ["Protect", "Calm Mind", "Psychic", "Heat Wave"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Close Combat", "Dire Claw", "Protect"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Protect", "Sucker Punch", "Kowtow Cleave", "Iron Head"] },
-    { ability: "Queenly Majesty", item: "Choice Scarf", moves: ["Power Whip", "Triple Axel", "Low Kick", "Knock Off"] },
-    { ability: "Adaptability", item: "Mystic Water", moves: ["Protect", "Aqua Jet", "Wave Crash", "Last Respects"] },
-    { ability: "Unnerve", item: "Focus Sash", moves: ["Protect", "Tailwind", "Dual Wingbeat", "Rock Slide"] }
-  ] },
-  { id: "ct-15", tournament: "Talon's FIGHT CLUB #88 POKEMON CHAMPIONS", players: 50, placement: 7, player: "GloriWasHere", wins: 5, losses: 3, pokemonIds: [670, 445, 823, 10008, 959, 248], pokemonNames: ["Floette", "Garchomp", "Corviknight", "Heat Rotom", "Tinkaton", "Tyranitar"], sets: [
-    { ability: "Flower Veil", item: "Floettite", moves: ["Light of Ruin", "Moonblast", "Dazzling Gleam", "Protect"] },
-    { ability: "Rough Skin", item: "Garchompite", moves: ["Scale Shot", "Earthquake", "Rock Slide", "Protect"] },
-    { ability: "Unnerve", item: "Leftovers", moves: ["Tailwind", "Brave Bird", "Iron Head", "Protect"] },
-    { ability: "Levitate", item: "Charcoal", moves: ["Overheat", "Thunderbolt", "Will-O-Wisp", "Light Screen"] },
-    { ability: "Mold Breaker", item: "Occa Berry", moves: ["Fake Out", "Gigaton Hammer", "Encore", "Protect"] },
-    { ability: "Sand Stream", item: "Focus Sash", moves: ["Rock Slide", "Knock Off", "Low Kick", "Protect"] }
-  ] },
-  { id: "ct-16", tournament: "Talon's FIGHT CLUB #88 POKEMON CHAMPIONS", players: 50, placement: 8, player: "almondspy", wins: 5, losses: 3, pokemonIds: [149, 727, 748, 1013, 1018, 80], pokemonNames: ["Dragonite", "Incineroar", "Toxapex", "Sinistcha", "Archaludon", "Slowbro"], sets: [
-    { ability: "Multiscale", item: "Dragoninite", moves: ["Dragon Pulse", "Air Slash", "Roost", "Protect"] },
-    { ability: "Intimidate", item: "Passho Berry", moves: ["Flare Blitz", "Darkest Lariat", "Fake Out", "Parting Shot"] },
-    { ability: "Regenerator", item: "Leftovers", moves: ["Toxic", "Infestation", "Recover", "Baneful Bunker"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"] },
-    { ability: "Stamina", item: "Sitrus Berry", moves: ["Dragon Pulse", "Aura Sphere", "Electro Shot", "Protect"] },
-    { ability: "Regenerator", item: "Slowbronite", moves: ["Body Press", "Iron Defense", "Slack Off", "Scald"] }
-  ] },
-  { id: "ct-17", tournament: "[REG M-A] LearningtoSam's Weekly", players: 29, placement: 1, player: "SuperDialga", wins: 6, losses: 1, pokemonIds: [670, 547, 902, 983, 1018, 5059], pokemonNames: ["Floette", "Whimsicott", "Basculegion-M", "Kingambit", "Archaludon", "Hisuian Arcanine"], sets: [
-    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Last Respects", "Wave Crash", "Aqua Jet", "Flip Turn"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Sucker Punch", "Kowtow Cleave", "Iron Head", "Protect"] },
-    { ability: "Sturdy", item: "White Herb", moves: ["Draco Meteor", "Flash Cannon", "Aura Sphere", "Protect"] },
-    { ability: "Rock Head", item: "Sitrus Berry", moves: ["Flare Blitz", "Rock Slide", "Extreme Speed", "Protect"] }
-  ] },
-  { id: "ct-18", tournament: "[REG M-A] LearningtoSam's Weekly", players: 29, placement: 2, player: "IcyMomentum", wins: 5, losses: 2, pokemonIds: [547, 925, 655, 784, 763, 310], pokemonNames: ["Whimsicott", "Maushold", "Delphox", "Kommo-o", "Tsareena", "Manectric"], sets: [
+  { id: "ct-1", tournament: "r/VGC Regulation M-B Kickoff Cup", players: 232, placement: 1, player: "Snorlaxpikachu1", wins: 9, losses: 1, pokemonIds: [668, 547, 38, 981, 902, 670], pokemonNames: ["Pyroar", "Whimsicott", "Ninetales", "Farigiraf", "Basculegion-M", "Floette"], sets: [
+    { ability: "Unnerve", item: "Pyroarite", moves: ["Heat Wave", "Overheat", "Solar Beam", "Protect"] },
     { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Sunny Day", "Protect"] },
-    { ability: "Friend Guard", item: "Sitrus Berry", moves: ["Follow Me", "Protect", "Baby-Doll Eyes", "Taunt"] },
-    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psyshock", "Nasty Plot", "Protect"] },
-    { ability: "Soundproof", item: "Leftovers", moves: ["Clangorous Soul", "Protect", "Aura Sphere", "Clanging Scales"] },
-    { ability: "Queenly Majesty", item: "Choice Scarf", moves: ["Power Whip", "Triple Axel", "Low Kick", "U-turn"] },
-    { ability: "Lightning Rod", item: "Manectite", moves: ["Volt Switch", "Snarl", "Protect", "Thunderbolt"] }
+    { ability: "Drought", item: "Choice Scarf", moves: ["Overheat", "Heat Wave", "Solar Beam", "Fake Tears"] },
+    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Thunderbolt", "Twin Beam", "Trick Room", "Helping Hand"] },
+    { ability: "Adaptability", item: "Life Orb", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] }
   ] },
-  { id: "ct-19", tournament: "[REG M-A] LearningtoSam's Weekly", players: 29, placement: 3, player: "BERNAMONAS", wins: 4, losses: 2, pokemonIds: [6, 727, 981, 700, 142, 445], pokemonNames: ["Charizard", "Incineroar", "Farigiraf", "Sylveon", "Aerodactyl", "Garchomp"], sets: [
-    { ability: "Solar Power", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Protect", "Solar Beam"] },
-    { ability: "Intimidate", item: "Passho Berry", moves: ["Flare Blitz", "Darkest Lariat", "Fake Out", "Parting Shot"] },
-    { ability: "Armor Tail", item: "Twisted Spoon", moves: ["Psychic", "Helping Hand", "Trick Room", "Imprison"] },
-    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Moonblast", "Quick Attack", "Detect"] },
-    { ability: "Unnerve", item: "Focus Sash", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Sunny Day"] },
-    { ability: "Rough Skin", item: "Garchompite", moves: ["Stomping Tantrum", "Dragon Claw", "Earthquake", "Protect"] }
+  { id: "ct-2", tournament: "r/VGC Regulation M-B Kickoff Cup", players: 232, placement: 2, player: "Hirseknabe", wins: 8, losses: 2, pokemonIds: [115, 981, 324, 902, 45, 784], pokemonNames: ["Kangaskhan", "Farigiraf", "Torkoal", "Basculegion-M", "Vileplume", "Kommo-o"], sets: [
+    { ability: "Scrappy", item: "Kangaskhanite", moves: ["Double-Edge", "Fake Out", "Low Kick", "Sucker Punch"] },
+    { ability: "Armor Tail", item: "Colbur Berry", moves: ["Hyper Voice", "Psychic", "Protect", "Trick Room"] },
+    { ability: "Drought", item: "Charcoal", moves: ["Eruption", "Weather Ball", "Earth Power", "Protect"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Aqua Jet", "Wave Crash", "Last Respects", "Flip Turn"] },
+    { ability: "Chlorophyll", item: "Focus Sash", moves: ["Sludge Bomb", "Energy Ball", "Sleep Powder", "After You"] },
+    { ability: "Overcoat", item: "Haban Berry", moves: ["Clanging Scales", "Aura Sphere", "Protect", "Clangorous Soul"] }
   ] },
-  { id: "ct-20", tournament: "[REG M-A] LearningtoSam's Weekly", players: 29, placement: 4, player: "Gorgonzill", wins: 4, losses: 2, pokemonIds: [6, 981, 142, 445, 727, 700], pokemonNames: ["Charizard", "Farigiraf", "Aerodactyl", "Garchomp", "Incineroar", "Sylveon"], sets: [
-    { ability: "Solar Power", item: "Charizardite Y", moves: ["Protect", "Heat Wave", "Weather Ball", "Solar Beam"] },
-    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Protect", "Psychic", "Helping Hand", "Trick Room"] },
-    { ability: "Unnerve", item: "Focus Sash", moves: ["Tailwind", "Wide Guard", "Rock Slide", "Sunny Day"] },
-    { ability: "Rough Skin", item: "Garchompite", moves: ["Rock Tomb", "Protect", "Earthquake", "Dragon Claw"] },
-    { ability: "Intimidate", item: "Charcoal", moves: ["Fake Out", "Flare Blitz", "Darkest Lariat", "Parting Shot"] },
-    { ability: "Pixilate", item: "Fairy Feather", moves: ["Detect", "Quick Attack", "Hyper Voice", "Hyper Beam"] }
-  ] },
-  { id: "ct-21", tournament: "[REG M-A] LearningtoSam's Weekly", players: 29, placement: 5, player: "Steady96", wins: 4, losses: 1, pokemonIds: [823, 635, 478, 445, 5059, 248], pokemonNames: ["Corviknight", "Hydreigon", "Froslass", "Garchomp", "Hisuian Arcanine", "Tyranitar"], sets: [
-    { ability: "Mirror Armor", item: "Occa Berry", moves: ["Brave Bird", "Iron Head", "Tailwind", "Protect"] },
-    { ability: "Levitate", item: "Choice Scarf", moves: ["Dark Pulse", "Draco Meteor", "Earth Power", "Snarl"] },
-    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Protect", "Shadow Ball", "Aurora Veil"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Earthquake", "Rock Slide", "Dragon Claw", "Protect"] },
-    { ability: "Rock Head", item: "Focus Sash", moves: ["Protect", "Head Smash", "Extreme Speed", "Flare Blitz"] },
-    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Rock Slide", "Knock Off", "Low Kick", "Protect"] }
-  ] },
-  { id: "ct-22", tournament: "[REG M-A] LearningtoSam's Weekly", players: 29, placement: 6, player: "thepostmanp", wins: 4, losses: 1, pokemonIds: [727, 670, 1013, 6, 983, 903], pokemonNames: ["Incineroar", "Floette", "Sinistcha", "Charizard", "Kingambit", "Sneasler"], sets: [
-    { ability: "Intimidate", item: "Leftovers", moves: ["Throat Chop", "Fake Out", "Flare Blitz", "Parting Shot"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Draining Kiss", "Dazzling Gleam", "Calm Mind", "Protect"] },
-    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Trick Room"] },
-    { ability: "Blaze", item: "Charizardite X", moves: ["Breaking Swipe", "Flare Blitz", "Dragon Dance", "Protect"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Protect", "Iron Head"] },
-    { ability: "Unburden", item: "Focus Sash", moves: ["Close Combat", "Dire Claw", "Fake Out", "Coaching"] }
-  ] },
-  { id: "ct-23", tournament: "[REG M-A] LearningtoSam's Weekly", players: 29, placement: 7, player: "Charley O", wins: 3, losses: 2, pokemonIds: [6, 547, 445, 983, 902, 970], pokemonNames: ["Charizard", "Whimsicott", "Garchomp", "Kingambit", "Basculegion-M", "Glimmora"], sets: [
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
-    { ability: "Prankster", item: "Fairy Feather", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Dragon Claw", "Earthquake", "Rock Slide", "Protect"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Low Kick", "Protect"] },
-    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
-    { ability: "Toxic Debris", item: "Focus Sash", moves: ["Power Gem", "Sludge Bomb", "Earth Power", "Spiky Shield"] }
-  ] },
-  { id: "ct-24", tournament: "[REG M-A] LearningtoSam's Weekly", players: 29, placement: 8, player: "BountyOG", wins: 3, losses: 2, pokemonIds: [3, 6, 445, 727, 670, 1013], pokemonNames: ["Venusaur", "Charizard", "Garchomp", "Incineroar", "Floette", "Sinistcha"], sets: [
-    { ability: "Chlorophyll", item: "Focus Sash", moves: ["Sleep Powder", "Sludge Bomb", "Earth Power", "Protect"] },
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Solar Beam", "Heat Wave", "Protect", "Weather Ball"] },
-    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Dragon Claw", "Stomping Tantrum", "Rock Slide", "Earthquake"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Crunch", "Parting Shot"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Moonblast", "Light of Ruin", "Protect"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"] }
-  ] },
-  { id: "ct-25", tournament: "Hunter's Howl Pokémon Champions M-A Tournament #2", players: 19, placement: 1, player: "MrPokEnjoy", wins: 9, losses: 0, pokemonIds: [6, 635, 94, 983, 445, 547], pokemonNames: ["Charizard", "Hydreigon", "Gengar", "Kingambit", "Garchomp", "Whimsicott"], sets: [
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
-    { ability: "Levitate", item: "Choice Scarf", moves: ["Draco Meteor", "Earth Power", "Snarl", "Dark Pulse"] },
-    { ability: "Cursed Body", item: "Focus Sash", moves: ["Shadow Ball", "Sludge Bomb", "Icy Wind", "Destiny Bond"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Protect"] },
-    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Earthquake", "Rock Slide", "Poison Jab", "Dragon Claw"] },
-    { ability: "Prankster", item: "Fairy Feather", moves: ["Moonblast", "Protect", "Tailwind", "Encore"] }
-  ] },
-  { id: "ct-26", tournament: "Hunter's Howl Pokémon Champions M-A Tournament #2", players: 19, placement: 2, player: "TitanoPigro3", wins: 6, losses: 3, pokemonIds: [547, 970, 6, 445, 983, 902], pokemonNames: ["Whimsicott", "Glimmora", "Charizard", "Garchomp", "Kingambit", "Basculegion-M"], sets: [
-    { ability: "Prankster", item: "Fairy Feather", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
-    { ability: "Toxic Debris", item: "Focus Sash", moves: ["Power Gem", "Sludge Bomb", "Earth Power", "Spiky Shield"] },
-    { ability: "Solar Power", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Earthquake", "Dragon Claw", "Poison Jab", "Protect"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Low Kick"] },
-    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] }
-  ] },
-  { id: "ct-27", tournament: "Hunter's Howl Pokémon Champions M-A Tournament #2", players: 19, placement: 3, player: "NachoVGCs", wins: 5, losses: 3, pokemonIds: [94, 10103, 983, 727, 903, 142], pokemonNames: ["Gengar", "Alolan Ninetales", "Kingambit", "Incineroar", "Sneasler", "Aerodactyl"], sets: [
-    { ability: "Cursed Body", item: "Gengarite", moves: ["Shadow Ball", "Perish Song", "Disable", "Protect"] },
-    { ability: "Snow Warning", item: "Never-Melt Ice", moves: ["Blizzard", "Encore", "Aurora Veil", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Sucker Punch", "Kowtow Cleave", "Swords Dance", "Protect"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Protect", "Fake Out", "Parting Shot"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Close Combat", "Dire Claw", "Protect"] },
-    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Protect", "Wide Guard"] }
-  ] },
-  { id: "ct-28", tournament: "Hunter's Howl Pokémon Champions M-A Tournament #2", players: 19, placement: 4, player: "Endy_2006", wins: 5, losses: 3, pokemonIds: [983, 670, 547, 902, 6, 981], pokemonNames: ["Kingambit", "Floette", "Whimsicott", "Basculegion-M", "Charizard", "Farigiraf"], sets: [
-    { ability: "Defiant", item: "Chople Berry", moves: ["Iron Head", "Low Kick", "Protect", "Sucker Punch"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Calm Mind", "Dazzling Gleam", "Protect"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Encore", "Sunny Day"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Last Respects", "Aqua Jet", "Wave Crash", "Flip Turn"] },
-    { ability: "Solar Power", item: "Charizardite Y", moves: ["Weather Ball", "Protect", "Heat Wave", "Solar Beam"] },
-    { ability: "Armor Tail", item: "Colbur Berry", moves: ["Imprison", "Trick Room", "Hyper Voice", "Twin Beam"] }
-  ] },
-  { id: "ct-29", tournament: "Hunter's Howl Pokémon Champions M-A Tournament #2", players: 19, placement: 5, player: "bootlegflanderz", wins: 5, losses: 2, pokemonIds: [939, 730, 709, 981, 208, 727], pokemonNames: ["Bellibolt", "Primarina", "Trevenant", "Farigiraf", "Steelix", "Incineroar"], sets: [
-    { ability: "Electromorphosis", item: "Leftovers", moves: ["Thunderbolt", "Protect", "Acid Spray", "Parabolic Charge"] },
-    { ability: "Liquid Voice", item: "Mystic Water", moves: ["Hyper Voice", "Draining Kiss", "Calm Mind", "Protect"] },
-    { ability: "Harvest", item: "Sitrus Berry", moves: ["Horn Leech", "Poltergeist", "Protect", "Trick Room"] },
-    { ability: "Armor Tail", item: "Colbur Berry", moves: ["Psychic Noise", "Helping Hand", "Foul Play", "Trick Room"] },
-    { ability: "Sturdy", item: "Steelixite", moves: ["Earthquake", "Rock Slide", "Heavy Slam", "Wide Guard"] },
-    { ability: "Intimidate", item: "Shuca Berry", moves: ["Darkest Lariat", "Flare Blitz", "Fake Out", "Parting Shot"] }
-  ] },
-  { id: "ct-30", tournament: "Hunter's Howl Pokémon Champions M-A Tournament #2", players: 19, placement: 6, player: "catskill", wins: 4, losses: 3, pokemonIds: [142, 445, 350, 983, 727, 903], pokemonNames: ["Aerodactyl", "Garchomp", "Milotic", "Kingambit", "Incineroar", "Sneasler"], sets: [
-    { ability: "Unnerve", item: "Aerodactylite", moves: ["Protect", "Rock Slide", "Dual Wingbeat", "Iron Head"] },
-    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Earthquake", "Rock Slide", "Dragon Claw", "Stomping Tantrum"] },
-    { ability: "Competitive", item: "Leftovers", moves: ["Protect", "Scald", "Helping Hand", "Recover"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Swords Dance", "Sucker Punch", "Kowtow Cleave", "Iron Head"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Close Combat", "Flare Blitz", "Parting Shot"] },
-    { ability: "Unburden", item: "Focus Sash", moves: ["Fake Out", "Swords Dance", "Close Combat", "Dire Claw"] }
-  ] },
-  { id: "ct-31", tournament: "Hunter's Howl Pokémon Champions M-A Tournament #2", players: 19, placement: 7, player: "OGalbina", wins: 4, losses: 3, pokemonIds: [6, 727, 981, 700, 142, 445], pokemonNames: ["Charizard", "Incineroar", "Farigiraf", "Sylveon", "Aerodactyl", "Garchomp"], sets: [
-    { ability: "Solar Power", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Protect", "Solar Beam"] },
-    { ability: "Intimidate", item: "Passho Berry", moves: ["Flare Blitz", "Darkest Lariat", "Fake Out", "Parting Shot"] },
-    { ability: "Armor Tail", item: "Twisted Spoon", moves: ["Hyper Voice", "Twin Beam", "Trick Room", "Helping Hand"] },
-    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Moonblast", "Quick Attack", "Detect"] },
-    { ability: "Unnerve", item: "Focus Sash", moves: ["Rock Slide", "Tailwind", "Wide Guard", "Sunny Day"] },
-    { ability: "Rough Skin", item: "Garchompite", moves: ["Stomping Tantrum", "Dragon Claw", "Earthquake", "Protect"] }
-  ] },
-  { id: "ct-32", tournament: "Hunter's Howl Pokémon Champions M-A Tournament #2", players: 19, placement: 8, player: "CArlosP", wins: 4, losses: 3, pokemonIds: [655, 10009, 445, 903, 547, 983], pokemonNames: ["Delphox", "Wash Rotom", "Garchomp", "Sneasler", "Whimsicott", "Kingambit"], sets: [
-    { ability: "Magician", item: "Delphoxite", moves: ["Psyshock", "Heat Wave", "Nasty Plot", "Protect"] },
-    { ability: "Levitate", item: "Sitrus Berry", moves: ["Hydro Pump", "Thunderbolt", "Will-O-Wisp", "Helping Hand"] },
-    { ability: "Rough Skin", item: "Haban Berry", moves: ["Earthquake", "Dragon Claw", "Rock Slide", "Iron Head"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Fake Out", "Protect"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Tailwind", "Encore", "Energy Ball", "Moonblast"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Sucker Punch", "Kowtow Cleave", "Swords Dance", "Protect"] }
-  ] },
-  { id: "ct-33", tournament: "Hatterene Series W24/2026 - Champions M-A", players: 10, placement: 1, player: "AceEmerald", wins: 4, losses: 2, pokemonIds: [445, 130, 1013, 6, 903, 3], pokemonNames: ["Garchomp", "Gyarados", "Sinistcha", "Charizard", "Sneasler", "Venusaur"], sets: [
-    { ability: "Rough Skin", item: "Dragon Fang", moves: ["Earthquake", "Rock Slide", "Scale Shot", "Protect"] },
-    { ability: "Intimidate", item: "Gyaradosite", moves: ["Waterfall", "Lash Out", "Dragon Dance", "Protect"] },
-    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"] },
-    { ability: "Solar Power", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Dire Claw", "Close Combat", "Coaching", "Fake Out"] },
-    { ability: "Chlorophyll", item: "Focus Sash", moves: ["Sleep Powder", "Sludge Bomb", "Earth Power", "Protect"] }
-  ] },
-  { id: "ct-34", tournament: "Hatterene Series W24/2026 - Champions M-A", players: 10, placement: 2, player: "picofarad", wins: 3, losses: 3, pokemonIds: [952, 186, 956, 1018, 903, 149], pokemonNames: ["Scovillain", "Politoed", "Espathra", "Archaludon", "Sneasler", "Dragonite"], sets: [
-    { ability: "Moody", item: "Scovillainite", moves: ["Overheat", "Leech Seed", "Rage Powder", "Protect"] },
-    { ability: "Drizzle", item: "Mystic Water", moves: ["Protect", "Muddy Water", "Weather Ball", "Ice Beam"] },
-    { ability: "Speed Boost", item: "Sitrus Berry", moves: ["Calm Mind", "Protect", "Lumina Crash", "Baton Pass"] },
-    { ability: "Stamina", item: "Leftovers", moves: ["Electro Shot", "Dragon Pulse", "Flash Cannon", "Protect"] },
-    { ability: "Unburden", item: "Focus Sash", moves: ["Fake Out", "Dire Claw", "Close Combat", "Protect"] },
-    { ability: "Multiscale", item: "Dragoninite", moves: ["Protect", "Dragon Pulse", "Hurricane", "Extreme Speed"] }
-  ] },
-  { id: "ct-35", tournament: "Hatterene Series W24/2026 - Champions M-A", players: 10, placement: 3, player: "merrypasta", wins: 4, losses: 1, pokemonIds: [282, 903, 925, 902, 1018, 279], pokemonNames: ["Gardevoir", "Sneasler", "Maushold", "Basculegion-M", "Archaludon", "Pelipper"], sets: [
-    { ability: "Trace", item: "Gardevoirite", moves: ["Hyper Voice", "Psyshock", "Protect", "Vacuum Wave"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Protect", "Fake Out"] },
-    { ability: "Friend Guard", item: "Focus Sash", moves: ["Super Fang", "Follow Me", "Protect", "Rain Dance"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] },
-    { ability: "Stamina", item: "Leftovers", moves: ["Electro Shot", "Dragon Pulse", "Protect", "Flash Cannon"] },
-    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Weather Ball", "Hurricane", "Wide Guard", "Tailwind"] }
-  ] },
-  { id: "ct-36", tournament: "Hatterene Series W24/2026 - Champions M-A", players: 10, placement: 4, player: "Ophelia C", wins: 3, losses: 2, pokemonIds: [358, 983, 1018, 279, 637, 695], pokemonNames: ["Chimecho", "Kingambit", "Archaludon", "Pelipper", "Volcarona", "Heliolisk"], sets: [
-    { ability: "Levitate", item: "Chimechite", moves: ["Psychic", "Trick Room", "Protect", "Heal Pulse"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Iron Head", "Kowtow Cleave", "Sucker Punch", "Protect"] },
-    { ability: "Stamina", item: "Leftovers", moves: ["Electro Shot", "Dragon Pulse", "Aura Sphere", "Protect"] },
-    { ability: "Drizzle", item: "Focus Sash", moves: ["Hurricane", "Weather Ball", "Protect", "Tailwind"] },
-    { ability: "Flame Body", item: "Sitrus Berry", moves: ["Rage Powder", "Struggle Bug", "Heat Wave", "Protect"] },
-    { ability: "Solar Power", item: "Magnet", moves: ["Thunderbolt", "Volt Switch", "Hyper Voice", "Protect"] }
-  ] },
-  { id: "ct-37", tournament: "Hatterene Series W24/2026 - Champions M-A", players: 10, placement: 5, player: "Gaëlle Coe", wins: 2, losses: 2, pokemonIds: [3, 730, 823, 445, 248, 10008], pokemonNames: ["Venusaur", "Primarina", "Corviknight", "Garchomp", "Tyranitar", "Heat Rotom"], sets: [
-    { ability: "Chlorophyll", item: "Venusaurite", moves: ["Sludge Bomb", "Giga Drain", "Protect", "Earth Power"] },
-    { ability: "Liquid Voice", item: "Sitrus Berry", moves: ["Hyper Voice", "Moonblast", "Protect", "Psychic"] },
-    { ability: "Mirror Armor", item: "Leftovers", moves: ["Iron Head", "Body Press", "Roost", "Bulk Up"] },
-    { ability: "Sand Veil", item: "Bright Powder", moves: ["Earthquake", "Rock Slide", "Protect", "Dragon Claw"] },
-    { ability: "Sand Stream", item: "Focus Sash", moves: ["Rock Slide", "Knock Off", "Protect", "Dragon Dance"] },
-    { ability: "Levitate", item: "Choice Scarf", moves: ["Overheat", "Thunderbolt", "Volt Switch", "Electroweb"] }
-  ] },
-  { id: "ct-38", tournament: "Hatterene Series W24/2026 - Champions M-A", players: 10, placement: 6, player: "MeganVGC", wins: 2, losses: 2, pokemonIds: [970, 637, 635, 350, 1013, 547], pokemonNames: ["Glimmora", "Volcarona", "Hydreigon", "Milotic", "Sinistcha", "Whimsicott"], sets: [
-    { ability: "Toxic Debris", item: "Glimmoranite", moves: ["Sludge Bomb", "Power Gem", "Earth Power", "Spiky Shield"] },
-    { ability: "Flame Body", item: "Charcoal", moves: ["Fiery Dance", "Giga Drain", "Quiver Dance", "Protect"] },
-    { ability: "Levitate", item: "Scope Lens", moves: ["Draco Meteor", "Dark Pulse", "Focus Energy", "Protect"] },
-    { ability: "Competitive", item: "Leftovers", moves: ["Scald", "Ice Beam", "Recover", "Protect"] },
-    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Matcha Gotcha", "Strength Sap", "Rage Powder", "Protect"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] }
-  ] },
-  { id: "ct-39", tournament: "*Sitrus-Series*|Champions|$50 to First Place|#62", players: 108, placement: 1, player: "KoonKy2", wins: 10, losses: 2, pokemonIds: [445, 547, 903, 6, 983, 902], pokemonNames: ["Garchomp", "Whimsicott", "Sneasler", "Charizard", "Kingambit", "Basculegion-M"], sets: [
-    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Earthquake", "Rock Slide", "Poison Jab", "Dragon Claw"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Tailwind", "Moonblast", "Encore", "Protect"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Dire Claw", "Close Combat", "Fake Out", "Protect"] },
-    { ability: "Drought", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
-    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] }
-  ] },
-  { id: "ct-40", tournament: "*Sitrus-Series*|Champions|$50 to First Place|#62", players: 108, placement: 2, player: "Altkyle", wins: 9, losses: 3, pokemonIds: [149, 902, 212, 1018, 279, 727], pokemonNames: ["Dragonite", "Basculegion-M", "Scizor", "Archaludon", "Pelipper", "Incineroar"], sets: [
-    { ability: "Inner Focus", item: "Dragoninite", moves: ["Dragon Pulse", "Flamethrower", "Tailwind", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] },
-    { ability: "Technician", item: "Scizorite", moves: ["Bullet Punch", "Close Combat", "Swords Dance", "Protect"] },
-    { ability: "Stamina", item: "Chople Berry", moves: ["Electro Shot", "Dragon Pulse", "Aura Sphere", "Protect"] },
-    { ability: "Drizzle", item: "Focus Sash", moves: ["Hurricane", "Weather Ball", "Tailwind", "Protect"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Throat Chop", "Parting Shot"] }
-  ] },
-  { id: "ct-41", tournament: "*Sitrus-Series*|Champions|$50 to First Place|#62", players: 108, placement: 3, player: "Risten Labba", wins: 9, losses: 2, pokemonIds: [823, 248, 635, 478, 445, 5059], pokemonNames: ["Corviknight", "Tyranitar", "Hydreigon", "Froslass", "Garchomp", "Hisuian Arcanine"], sets: [
-    { ability: "Mirror Armor", item: "Occa Berry", moves: ["Protect", "Tailwind", "Brave Bird", "Iron Head"] },
-    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Protect", "Rock Slide", "Knock Off", "Low Kick"] },
+  { id: "ct-3", tournament: "r/VGC Regulation M-B Kickoff Cup", players: 232, placement: 3, player: "KoelSaul", wins: 8, losses: 1, pokemonIds: [925, 979, 700, 681, 635, 142], pokemonNames: ["Maushold", "Annihilape", "Sylveon", "Aegislash", "Hydreigon", "Aerodactyl"], sets: [
+    { ability: "Friend Guard", item: "Chople Berry", moves: ["Protect", "Beat Up", "Super Fang", "Follow Me"] },
+    { ability: "Defiant", item: "Leftovers", moves: ["Protect", "Bulk Up", "Drain Punch", "Rage Fist"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Protect", "Hyper Voice", "Hyper Beam", "Quick Attack"] },
+    { ability: "Stance Change", item: "Spell Tag", moves: ["King's Shield", "Poltergeist", "Shadow Sneak", "Iron Head"] },
     { ability: "Levitate", item: "Choice Scarf", moves: ["Dark Pulse", "Snarl", "Draco Meteor", "Earth Power"] },
-    { ability: "Cursed Body", item: "Froslassite", moves: ["Protect", "Weather Ball", "Blizzard", "Shadow Ball"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"] },
-    { ability: "Rock Head", item: "Focus Sash", moves: ["Protect", "Extreme Speed", "Head Smash", "Flare Blitz"] }
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Wide Guard", "Rock Slide", "Dual Wingbeat", "Tailwind"] }
   ] },
-  { id: "ct-42", tournament: "*Sitrus-Series*|Champions|$50 to First Place|#62", players: 108, placement: 4, player: "averagememer57", wins: 8, losses: 3, pokemonIds: [6, 3, 981, 727, 784, 324], pokemonNames: ["Charizard", "Venusaur", "Farigiraf", "Incineroar", "Kommo-o", "Torkoal"], sets: [
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
-    { ability: "Chlorophyll", item: "Focus Sash", moves: ["Leaf Storm", "Sludge Bomb", "Sleep Powder", "Protect"] },
-    { ability: "Armor Tail", item: "Twisted Spoon", moves: ["Psychic", "Trick Room", "Helping Hand", "Protect"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Darkest Lariat", "Parting Shot"] },
-    { ability: "Soundproof", item: "Leftovers", moves: ["Clanging Scales", "Aura Sphere", "Clangorous Soul", "Protect"] },
-    { ability: "Drought", item: "Charcoal", moves: ["Eruption", "Heat Wave", "Earth Power", "Protect"] }
+  { id: "ct-4", tournament: "r/VGC Regulation M-B Kickoff Cup", players: 232, placement: 4, player: "porygon2", wins: 7, losses: 2, pokemonIds: [903, 727, 670, 983, 1013, 887], pokemonNames: ["Sneasler", "Incineroar", "Floette", "Kingambit", "Sinistcha", "Dragapult"], sets: [
+    { ability: "Unburden", item: "White Herb", moves: ["Dire Claw", "Close Combat", "Fake Out", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Throat Chop", "Parting Shot", "Fake Out"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Draining Kiss", "Calm Mind", "Protect"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Swords Dance", "Kowtow Cleave", "Sucker Punch", "Protect"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Life Dew", "Trick Room", "Rage Powder"] },
+    { ability: "Clear Body", item: "Focus Sash", moves: ["Psychic Fangs", "Phantom Force", "Dragon Darts", "Light Screen"] }
   ] },
-  { id: "ct-43", tournament: "*Sitrus-Series*|Champions|$50 to First Place|#62", players: 108, placement: 5, player: "AthenaStriveVGC", wins: 9, losses: 1, pokemonIds: [670, 652, 902, 1013, 279, 445], pokemonNames: ["Floette", "Chesnaught", "Basculegion-M", "Sinistcha", "Pelipper", "Garchomp"], sets: [
-    { ability: "Flower Veil", item: "Floettite", moves: ["Protect", "Moonblast", "Dazzling Gleam", "Light of Ruin"] },
-    { ability: "Bulletproof", item: "Chesnaughtite", moves: ["Spiky Shield", "Wood Hammer", "Body Press", "Iron Defense"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] },
-    { ability: "Hospitality", item: "Coba Berry", moves: ["Rage Powder", "Matcha Gotcha", "Life Dew", "Trick Room"] },
-    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Weather Ball", "Hurricane", "Tailwind", "Wide Guard"] },
-    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Protect", "Earthquake", "Poison Jab", "Rock Slide"] }
-  ] },
-  { id: "ct-44", tournament: "*Sitrus-Series*|Champions|$50 to First Place|#62", players: 108, placement: 6, player: "UmarVGC", wins: 7, losses: 3, pokemonIds: [6, 670, 1013, 445, 727, 3], pokemonNames: ["Charizard", "Floette", "Sinistcha", "Garchomp", "Incineroar", "Venusaur"], sets: [
-    { ability: "Solar Power", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Protect", "Weather Ball"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Draining Kiss", "Protect", "Calm Mind"] },
-    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"] },
-    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Dragon Claw", "Earthquake", "Rock Tomb", "Stomping Tantrum"] },
-    { ability: "Intimidate", item: "Leftovers", moves: ["Flare Blitz", "Throat Chop", "Parting Shot", "Fake Out"] },
-    { ability: "Chlorophyll", item: "Focus Sash", moves: ["Earth Power", "Sludge Bomb", "Protect", "Sleep Powder"] }
-  ] },
-  { id: "ct-45", tournament: "*Sitrus-Series*|Champions|$50 to First Place|#62", players: 108, placement: 7, player: "Jorge_prods", wins: 7, losses: 3, pokemonIds: [6, 149, 902, 983, 445, 970], pokemonNames: ["Charizard", "Dragonite", "Basculegion-M", "Kingambit", "Garchomp", "Glimmora"], sets: [
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Protect", "Heat Wave", "Overheat", "Solar Beam"] },
-    { ability: "Multiscale", item: "Dragoninite", moves: ["Flamethrower", "Draco Meteor", "Tailwind", "Extreme Speed"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Flip Turn", "Last Respects", "Aqua Jet"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Low Kick"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Protect", "Dragon Claw", "Stomping Tantrum", "Rock Tomb"] },
-    { ability: "Toxic Debris", item: "Focus Sash", moves: ["Power Gem", "Sludge Bomb", "Earth Power", "Spiky Shield"] }
-  ] },
-  { id: "ct-46", tournament: "*Sitrus-Series*|Champions|$50 to First Place|#62", players: 108, placement: 8, player: "Jin-Hao Jiang", wins: 7, losses: 3, pokemonIds: [727, 981, 670, 983, 666, 323], pokemonNames: ["Incineroar", "Farigiraf", "Floette", "Kingambit", "Vivillon", "Camerupt"], sets: [
-    { ability: "Intimidate", item: "Charcoal", moves: ["Flare Blitz", "Darkest Lariat", "Fake Out", "Darkest Lariat"] },
-    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Psychic", "Helping Hand", "Trick Room", "Protect"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Swords Dance"] },
-    { ability: "Compound Eyes", item: "Focus Sash", moves: ["Sleep Powder", "Rage Powder", "Hurricane", "Protect"] },
-    { ability: "Solid Rock", item: "Cameruptite", moves: ["Heat Wave", "Earth Power", "Ancient Power", "Protect"] }
-  ] },
-  { id: "ct-47", tournament: "Alpensee Tour (Reg M-A) #61 - ✨ for #1!", players: 73, placement: 1, player: "Rees", wins: 9, losses: 2, pokemonIds: [248, 1013, 903, 727, 670, 823], pokemonNames: ["Tyranitar", "Sinistcha", "Sneasler", "Incineroar", "Floette", "Corviknight"], sets: [
-    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Rock Slide", "Knock Off", "Dragon Dance", "Protect"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Trick Room", "Rage Powder", "Protect"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Close Combat", "Dire Claw", "Coaching"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Parting Shot", "Darkest Lariat"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Calm Mind", "Dazzling Gleam", "Draining Kiss", "Protect"] },
-    { ability: "Mirror Armor", item: "Leftovers", moves: ["Tailwind", "Iron Head", "Brave Bird", "Roost"] }
-  ] },
-  { id: "ct-48", tournament: "Alpensee Tour (Reg M-A) #61 - ✨ for #1!", players: 73, placement: 2, player: "Teto2106VGC", wins: 9, losses: 2, pokemonIds: [478, 952, 902, 983, 903, 745], pokemonNames: ["Froslass", "Scovillain", "Basculegion-M", "Kingambit", "Sneasler", "Lycanroc"], sets: [
-    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Aurora Veil", "Protect"] },
-    { ability: "Moody", item: "Scovillainite", moves: ["Giga Drain", "Overheat", "Rage Powder", "Protect"] },
-    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Swords Dance", "Protect"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Gunk Shot", "Protect", "Fake Out"] },
-    { ability: "Tough Claws", item: "Focus Sash", moves: ["Close Combat", "Accelerock", "Rock Slide", "Protect"] }
-  ] },
-  { id: "ct-49", tournament: "Alpensee Tour (Reg M-A) #61 - ✨ for #1!", players: 73, placement: 3, player: "Jeronimo321", wins: 7, losses: 3, pokemonIds: [655, 670, 727, 1013, 784, 902], pokemonNames: ["Delphox", "Floette", "Incineroar", "Sinistcha", "Kommo-o", "Basculegion-M"], sets: [
-    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psyshock", "Nasty Plot", "Protect"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Parting Shot", "Throat Chop", "Flare Blitz"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Protect"] },
-    { ability: "Soundproof", item: "Dragon Fang", moves: ["Clanging Scales", "Aura Sphere", "Clangorous Soul", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] }
-  ] },
-  { id: "ct-50", tournament: "Alpensee Tour (Reg M-A) #61 - ✨ for #1!", players: 73, placement: 4, player: "PequenoRei1", wins: 7, losses: 3, pokemonIds: [983, 902, 547, 445, 227, 6], pokemonNames: ["Kingambit", "Basculegion-M", "Whimsicott", "Garchomp", "Skarmory", "Charizard"], sets: [
-    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Low Kick"] },
-    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Protect", "Tailwind", "Encore"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Earthquake", "Dragon Claw", "Rock Tomb", "Poison Jab"] },
-    { ability: "Sturdy", item: "Skarmorite", moves: ["Brave Bird", "Iron Head", "Rock Slide", "Protect"] },
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Solar Beam", "Heat Wave", "Weather Ball", "Protect"] }
-  ] },
-  { id: "ct-51", tournament: "Alpensee Tour (Reg M-A) #61 - ✨ for #1!", players: 73, placement: 5, player: "2005SteveNash", wins: 8, losses: 1, pokemonIds: [670, 350, 899, 937, 784, 497], pokemonNames: ["Floette", "Milotic", "Wyrdeer", "Ceruledge", "Kommo-o", "Serperior"], sets: [
-    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Calm Mind", "Protect"] },
-    { ability: "Competitive", item: "Leftovers", moves: ["Muddy Water", "Hypnosis", "Coil", "Life Dew"] },
-    { ability: "Intimidate", item: "Colbur Berry", moves: ["Psyshield Bash", "Gravity", "Hypnosis", "Trick Room"] },
-    { ability: "Flash Fire", item: "Charcoal", moves: ["Bitter Blade", "Shadow Sneak", "Bulk Up", "Protect"] },
-    { ability: "Soundproof", item: "Dragon Fang", moves: ["Clanging Scales", "Clangorous Soul", "Drain Punch", "Protect"] },
-    { ability: "Contrary", item: "Sitrus Berry", moves: ["Leaf Storm", "Glare", "Reflect", "Light Screen"] }
-  ] },
-  { id: "ct-52", tournament: "Alpensee Tour (Reg M-A) #61 - ✨ for #1!", players: 73, placement: 6, player: "Frytki", wins: 7, losses: 2, pokemonIds: [983, 149, 903, 902, 727, 670], pokemonNames: ["Kingambit", "Dragonite", "Sneasler", "Basculegion-M", "Incineroar", "Floette"], sets: [
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Protect"] },
-    { ability: "Multiscale", item: "Dragoninite", moves: ["Dragon Pulse", "Flamethrower", "Thunderbolt", "Protect"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Fake Out", "Protect"] },
-    { ability: "Adaptability", item: "Focus Sash", moves: ["Last Respects", "Liquidation", "Aqua Jet", "Protect"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Parting Shot", "Flare Blitz", "Throat Chop", "Fake Out"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Moonblast", "Light of Ruin", "Protect"] }
-  ] },
-  { id: "ct-53", tournament: "Alpensee Tour (Reg M-A) #61 - ✨ for #1!", players: 73, placement: 7, player: "AndreVGC", wins: 6, losses: 3, pokemonIds: [306, 666, 900, 115, 981, 784], pokemonNames: ["Aggron", "Vivillon", "Kleavor", "Kangaskhan", "Farigiraf", "Kommo-o"], sets: [
-    { ability: "Sturdy", item: "Aggronite", moves: ["Heavy Slam", "Body Press", "Iron Defense", "Protect"] },
-    { ability: "Compound Eyes", item: "Focus Sash", moves: ["Pollen Puff", "Rage Powder", "Sleep Powder", "Protect"] },
-    { ability: "Sharpness", item: "Choice Scarf", moves: ["Stone Axe", "X-Scissor", "Rock Slide", "Close Combat"] },
-    { ability: "Scrappy", item: "Silk Scarf", moves: ["Fake Out", "Last Resort"] },
-    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Foul Play", "Thunderbolt", "Helping Hand", "Trick Room"] },
-    { ability: "Soundproof", item: "Leftovers", moves: ["Clanging Scales", "Aura Sphere", "Clangorous Soul", "Protect"] }
-  ] },
-  { id: "ct-54", tournament: "Alpensee Tour (Reg M-A) #61 - ✨ for #1!", players: 73, placement: 8, player: "Nisanth", wins: 6, losses: 3, pokemonIds: [9, 666, 981, 475, 983, 323], pokemonNames: ["Blastoise", "Vivillon", "Farigiraf", "Gallade", "Kingambit", "Camerupt"], sets: [
-    { ability: "Torrent", item: "Blastoisinite", moves: ["Fake Out", "Dark Pulse", "Shell Smash", "Water Spout"] },
-    { ability: "Compound Eyes", item: "Choice Scarf", moves: ["Sleep Powder", "Hurricane", "Tailwind", "Rage Powder"] },
-    { ability: "Armor Tail", item: "Colbur Berry", moves: ["Psychic", "Helping Hand", "Trick Room", "Protect"] },
-    { ability: "Sharpness", item: "White Herb", moves: ["Sacred Sword", "Psycho Cut", "Wide Guard", "Trick Room"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Iron Head", "Kowtow Cleave", "Sucker Punch", "Low Kick"] },
-    { ability: "Solid Rock", item: "Cameruptite", moves: ["Heat Wave", "Ancient Power", "Earth Power", "Protect"] }
-  ] },
-  { id: "ct-55", tournament: "Tenki's Cart - Road to NAIC", players: 18, placement: 1, player: "AMFI", wins: 6, losses: 1, pokemonIds: [142, 983, 700, 981, 6, 445], pokemonNames: ["Aerodactyl", "Kingambit", "Sylveon", "Farigiraf", "Charizard", "Garchomp"], sets: [
-    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Ice Fang", "Tailwind"] },
-    { ability: "Defiant", item: "Focus Sash", moves: ["Kowtow Cleave", "Sucker Punch", "Low Kick", "Iron Head"] },
-    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Hyper Beam", "Quick Attack", "Detect"] },
-    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Psychic", "Thunderbolt", "Helping Hand", "Trick Room"] },
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Weather Ball", "Protect"] },
-    { ability: "Rough Skin", item: "Haban Berry", moves: ["Dragon Claw", "Rock Slide", "Earthquake", "Protect"] }
-  ] },
-  { id: "ct-56", tournament: "Tenki's Cart - Road to NAIC", players: 18, placement: 2, player: "PJoker", wins: 6, losses: 1, pokemonIds: [6, 730, 445, 983, 302, 903], pokemonNames: ["Charizard", "Primarina", "Garchomp", "Kingambit", "Sableye", "Sneasler"], sets: [
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Flamethrower", "Ancient Power", "Solar Beam", "Protect"] },
-    { ability: "Liquid Voice", item: "Leftovers", moves: ["Hyper Voice", "Moonblast", "Psychic", "Protect"] },
-    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Dragon Claw", "Poison Jab", "Earthquake", "Rock Slide"] },
-    { ability: "Defiant", item: "Shuca Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
-    { ability: "Prankster", item: "Roseli Berry", moves: ["Fake Out", "Reflect", "Light Screen", "Will-O-Wisp"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Dire Claw", "Close Combat", "Fake Out", "Protect"] }
-  ] },
-  { id: "ct-57", tournament: "Tenki's Cart - Road to NAIC", players: 18, placement: 3, player: "Spinarak167", wins: 4, losses: 2, pokemonIds: [142, 6, 445, 700, 902, 168], pokemonNames: ["Aerodactyl", "Charizard", "Garchomp", "Sylveon", "Basculegion-M", "Ariados"], sets: [
-    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Protect"] },
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Weather Ball", "Protect"] },
-    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Earthquake", "Stomping Tantrum", "Dragon Claw", "Rock Slide"] },
-    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Quick Attack", "Hyper Beam", "Detect"] },
-    { ability: "Adaptability", item: "Focus Sash", moves: ["Liquidation", "Last Respects", "Aqua Jet", "Protect"] },
-    { ability: "Insomnia", item: "Sitrus Berry", moves: ["Knock Off", "String Shot", "Rage Powder", "Protect"] }
-  ] },
-  { id: "ct-58", tournament: "Tenki's Cart - Road to NAIC", players: 18, placement: 4, player: "Ivothebbrothers", wins: 4, losses: 2, pokemonIds: [903, 663, 983, 445, 478, 10009], pokemonNames: ["Sneasler", "Talonflame", "Kingambit", "Garchomp", "Froslass", "Wash Rotom"], sets: [
-    { ability: "Unburden", item: "White Herb", moves: ["Dire Claw", "Fake Out", "Close Combat", "Protect"] },
-    { ability: "Gale Wings", item: "Sharp Beak", moves: ["Tailwind", "Dual Wingbeat", "Flare Blitz", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Protect", "Kowtow Cleave", "Sucker Punch", "Iron Head"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Protect", "Rock Slide", "Earthquake", "Dragon Claw"] },
-    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Aurora Veil", "Shadow Ball", "Protect"] },
-    { ability: "Levitate", item: "Leftovers", moves: ["Protect", "Will-O-Wisp", "Hydro Pump", "Thunderbolt"] }
-  ] },
-  { id: "ct-59", tournament: "Tenki's Cart - Road to NAIC", players: 18, placement: 5, player: "Candytrouble", wins: 3, losses: 2, pokemonIds: [6, 445, 983, 547, 902, 727], pokemonNames: ["Charizard", "Garchomp", "Kingambit", "Whimsicott", "Basculegion-M", "Incineroar"], sets: [
-    { ability: "Solar Power", item: "Charizardite Y", moves: ["Weather Ball", "Heat Wave", "Ancient Power", "Protect"] },
-    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Dragon Claw", "Poison Jab", "Earthquake", "Protect"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Low Kick", "Protect"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Aqua Jet", "Flip Turn", "Last Respects"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Darkest Lariat", "Fake Out", "Parting Shot"] }
-  ] },
-  { id: "ct-60", tournament: "Tenki's Cart - Road to NAIC", players: 18, placement: 6, player: "Abe", wins: 3, losses: 2, pokemonIds: [700, 142, 445, 902, 6, 981], pokemonNames: ["Sylveon", "Aerodactyl", "Garchomp", "Basculegion-M", "Charizard", "Farigiraf"], sets: [
-    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Hyper Beam", "Quick Attack", "Protect"] },
-    { ability: "Unnerve", item: "Aerodactylite", moves: ["Dual Wingbeat", "Ice Fang", "Tailwind", "Rock Slide"] },
-    { ability: "Rough Skin", item: "Soft Sand", moves: ["Earthquake", "Protect", "Rock Slide", "Dragon Claw"] },
-    { ability: "Adaptability", item: "Focus Sash", moves: ["Aqua Jet", "Liquidation", "Protect", "Last Respects"] },
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Protect", "Weather Ball", "Solar Beam"] },
-    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Trick Room", "Hyper Voice", "Helping Hand", "Psychic"] }
-  ] },
-  { id: "ct-61", tournament: "Tenki's Cart - Road to NAIC", players: 18, placement: 7, player: "Sebas13aguinaga", wins: 2, losses: 2, pokemonIds: [983, 149, 902, 478, 903, 445], pokemonNames: ["Kingambit", "Dragonite", "Basculegion-M", "Froslass", "Sneasler", "Garchomp"], sets: [
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
-    { ability: "Multiscale", item: "Dragoninite", moves: ["Flamethrower", "Protect", "Thunderbolt", "Dragon Pulse"] },
-    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Last Respects", "Protect", "Wave Crash", "Aqua Jet"] },
-    { ability: "Cursed Body", item: "Froslassite", moves: ["Shadow Ball", "Aurora Veil", "Blizzard", "Protect"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Protect", "Dire Claw", "Fake Out", "Close Combat"] },
-    { ability: "Rough Skin", item: "Lum Berry", moves: ["Rock Slide", "Dragon Claw", "Protect", "Earthquake"] }
-  ] },
-  { id: "ct-62", tournament: "Tenki's Cart - Road to NAIC", players: 18, placement: 8, player: "Romeastwood", wins: 2, losses: 2, pokemonIds: [727, 350, 1013, 903, 670, 6], pokemonNames: ["Incineroar", "Milotic", "Sinistcha", "Sneasler", "Floette", "Charizard"], sets: [
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Throat Chop", "Parting Shot"] },
-    { ability: "Competitive", item: "Leftovers", moves: ["Muddy Water", "Hypnosis", "Coil", "Recover"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Protect", "Trick Room", "Rage Powder", "Matcha Gotcha"] },
-    { ability: "Unburden", item: "Focus Sash", moves: ["Protect", "Close Combat", "Fake Out", "Dire Claw"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Calm Mind", "Protect"] },
-    { ability: "Blaze", item: "Charizardite X", moves: ["Flare Blitz", "Dragon Claw", "Dragon Dance", "Protect"] }
-  ] },
-  { id: "ct-63", tournament: "Torneo #8 Ranking PokéChampionsDestiny", players: 20, placement: 1, player: "Goldeboy77", wins: 5, losses: 0, pokemonIds: [983, 6, 445, 902, 727, 547], pokemonNames: ["Kingambit", "Charizard", "Garchomp", "Basculegion-M", "Incineroar", "Whimsicott"], sets: [
-    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Swords Dance", "Protect"] },
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Dragon Claw", "Stomping Tantrum", "Rock Slide", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] },
-    { ability: "Intimidate", item: "Leftovers", moves: ["Throat Chop", "Flare Blitz", "Parting Shot", "Fake Out"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] }
-  ] },
-  { id: "ct-64", tournament: "Torneo #8 Ranking PokéChampionsDestiny", players: 20, placement: 2, player: "Matteo De Ruvo", wins: 4, losses: 1, pokemonIds: [6, 445, 903, 3, 350, 727], pokemonNames: ["Charizard", "Garchomp", "Sneasler", "Venusaur", "Milotic", "Incineroar"], sets: [
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Protect", "Weather Ball"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Dragon Claw", "Rock Slide", "Earthquake", "Protect"] },
+  { id: "ct-5", tournament: "r/VGC Regulation M-B Kickoff Cup", players: 232, placement: 5, player: "ヒミーは最低だ ヒ", wins: 6, losses: 2, pokemonIds: [279, 903, 902, 149, 1018, 1000], pokemonNames: ["Pelipper", "Sneasler", "Basculegion-M", "Dragonite", "Archaludon", "Gholdengo"], sets: [
+    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Hurricane", "Weather Ball", "Tailwind", "Wide Guard"] },
     { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Close Combat", "Dire Claw", "Protect"] },
-    { ability: "Chlorophyll", item: "Focus Sash", moves: ["Energy Ball", "Protect", "Sludge Bomb", "Sleep Powder"] },
-    { ability: "Competitive", item: "Leftovers", moves: ["Muddy Water", "Protect", "Coil", "Hypnosis"] },
-    { ability: "Intimidate", item: "Chople Berry", moves: ["Fake Out", "Flare Blitz", "Parting Shot", "Throat Chop"] }
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Flip Turn", "Aqua Jet"] },
+    { ability: "Inner Focus", item: "Dragoninite", moves: ["Dragon Pulse", "Heat Wave", "Tailwind", "Protect"] },
+    { ability: "Stamina", item: "Leftovers", moves: ["Electro Shot", "Dragon Pulse", "Flash Cannon", "Protect"] },
+    { ability: "Good as Gold", item: "Focus Sash", moves: ["Make It Rain", "Shadow Ball", "Nasty Plot", "Protect"] }
   ] },
-  { id: "ct-65", tournament: "Torneo #8 Ranking PokéChampionsDestiny", players: 20, placement: 3, player: "xFlecha", wins: 4, losses: 1, pokemonIds: [547, 6, 902, 445, 970, 983], pokemonNames: ["Whimsicott", "Charizard", "Basculegion-M", "Garchomp", "Glimmora", "Kingambit"], sets: [
-    { ability: "Prankster", item: "Fairy Feather", moves: ["Protect", "Tailwind", "Moonblast", "Encore"] },
-    { ability: "Drought", item: "Charizardite Y", moves: ["Protect", "Heat Wave", "Solar Beam", "Weather Ball"] },
-    { ability: "Adaptability", item: "Colbur Berry", moves: ["Protect", "Wave Crash", "Last Respects", "Aqua Jet"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Protect", "Earthquake", "Dragon Claw", "Stomping Tantrum"] },
-    { ability: "Toxic Debris", item: "Focus Sash", moves: ["Spiky Shield", "Power Gem", "Sludge Bomb", "Earth Power"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Protect", "Kowtow Cleave", "Iron Head", "Sucker Punch"] }
+  { id: "ct-6", tournament: "r/VGC Regulation M-B Kickoff Cup", players: 232, placement: 6, player: "godey95", wins: 6, losses: 2, pokemonIds: [279, 1018, 302, 260, 979, 1013], pokemonNames: ["Pelipper", "Archaludon", "Sableye", "Swampert", "Annihilape", "Sinistcha"], sets: [
+    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Hurricane", "Weather Ball", "Tailwind", "Wide Guard"], teraType: "Water" },
+    { ability: "Stamina", item: "Leftovers", moves: ["Protect", "Electro Shot", "Dragon Pulse", "Flash Cannon"] },
+    { ability: "Prankster", item: "Roseli Berry", moves: ["Rain Dance", "Will-O-Wisp", "Reflect", "Light Screen"] },
+    { ability: "Torrent", item: "Swampertite", moves: ["High Horsepower", "Protect", "Rock Slide", "Wave Crash"] },
+    { ability: "Defiant", item: "Leftovers", moves: ["Drain Punch", "Rage Fist", "Bulk Up", "Protect"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Strength Sap"] }
   ] },
-  { id: "ct-66", tournament: "Torneo #8 Ranking PokéChampionsDestiny", players: 20, placement: 4, player: "Ismavp97", wins: 3, losses: 2, pokemonIds: [981, 983, 445, 547, 902, 6], pokemonNames: ["Farigiraf", "Kingambit", "Garchomp", "Whimsicott", "Basculegion-M", "Charizard"], sets: [
-    { ability: "Armor Tail", item: "Colbur Berry", moves: ["Twin Beam", "Helping Hand", "Trick Room", "Protect"] },
+  { id: "ct-7", tournament: "r/VGC Regulation M-B Kickoff Cup", players: 232, placement: 7, player: "washy", wins: 6, losses: 2, pokemonIds: [279, 903, 902, 149, 1018, 1000], pokemonNames: ["Pelipper", "Sneasler", "Basculegion-M", "Dragonite", "Archaludon", "Gholdengo"], sets: [
+    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Hurricane", "Weather Ball", "Tailwind", "Wide Guard"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Close Combat", "Dire Claw", "Protect"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Flip Turn", "Aqua Jet"] },
+    { ability: "Inner Focus", item: "Dragoninite", moves: ["Dragon Pulse", "Heat Wave", "Tailwind", "Protect"] },
+    { ability: "Stamina", item: "Leftovers", moves: ["Electro Shot", "Dragon Pulse", "Flash Cannon", "Protect"] },
+    { ability: "Good as Gold", item: "Focus Sash", moves: ["Make It Rain", "Shadow Ball", "Nasty Plot", "Protect"] }
+  ] },
+  { id: "ct-8", tournament: "r/VGC Regulation M-B Kickoff Cup", players: 232, placement: 8, player: "MiniMitre", wins: 6, losses: 2, pokemonIds: [6, 398, 445, 461, 902, 547], pokemonNames: ["Charizard", "Staraptor", "Garchomp", "Weavile", "Basculegion-M", "Whimsicott"], sets: [
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Weather Ball", "Protect"] },
+    { ability: "Intimidate", item: "Staraptite", moves: ["Dual Wingbeat", "Close Combat", "Facade", "Protect"] },
+    { ability: "Rough Skin", item: "Life Orb", moves: ["Dragon Claw", "Earthquake", "Rock Slide", "Protect"] },
+    { ability: "Pressure", item: "Wide Lens", moves: ["Fake Out", "Icy Wind", "Snarl", "Triple Axel"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] },
+    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Charm", "Encore"] }
+  ] },
+  { id: "ct-9", tournament: "*Sitrus-Series*|Champions-MB|#63", players: 100, placement: 1, player: "BHelixB", wins: 9, losses: 2, pokemonIds: [5059, 547, 903, 445, 983, 478], pokemonNames: ["Hisuian Arcanine", "Whimsicott", "Sneasler", "Garchomp", "Kingambit", "Froslass"], sets: [
+    { ability: "Rock Head", item: "Focus Sash", moves: ["Flare Blitz", "Rock Slide", "Extreme Speed", "Protect"] },
+    { ability: "Prankster", item: "Occa Berry", moves: ["Protect", "Encore", "Tailwind", "Moonblast"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Dire Claw", "Close Combat", "Protect"] },
+    { ability: "Rough Skin", item: "Life Orb", moves: ["Dragon Claw", "Earthquake", "Rock Slide", "Protect"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Protect"] },
+    { ability: "Snow Cloak", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Aurora Veil", "Protect"] }
+  ] },
+  { id: "ct-10", tournament: "*Sitrus-Series*|Champions-MB|#63", players: 100, placement: 2, player: "AndreVGC", wins: 9, losses: 2, pokemonIds: [376, 784, 700, 142, 727, 350], pokemonNames: ["Metagross", "Kommo-o", "Sylveon", "Aerodactyl", "Incineroar", "Milotic"], sets: [
+    { ability: "Clear Body", item: "Metagrossite", moves: ["Iron Head", "Psychic Fangs", "Stomping Tantrum", "Protect"] },
+    { ability: "Soundproof", item: "Leftovers", moves: ["Clanging Scales", "Aura Sphere", "Clangorous Soul", "Protect"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Hyper Beam", "Quick Attack", "Detect"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Protect"] },
+    { ability: "Intimidate", item: "Passho Berry", moves: ["Flare Blitz", "Throat Chop", "Parting Shot", "Fake Out"] },
+    { ability: "Competitive", item: "Sitrus Berry", moves: ["Scald", "Icy Wind", "Life Dew", "Protect"] }
+  ] },
+  { id: "ct-11", tournament: "*Sitrus-Series*|Champions-MB|#63", players: 100, placement: 3, player: "quivern", wins: 7, losses: 3, pokemonIds: [282, 750, 981, 666, 324, 254], pokemonNames: ["Gardevoir", "Mudsdale", "Farigiraf", "Vivillon", "Torkoal", "Sceptile"], sets: [
+    { ability: "Telepathy", item: "Gardevoirite", moves: ["Psychic", "Hyper Voice", "Trick Room", "Protect"] },
+    { ability: "Inner Focus", item: "Life Orb", moves: ["Rock Slide", "High Horsepower", "Heavy Slam", "Earthquake"] },
+    { ability: "Armor Tail", item: "Colbur Berry", moves: ["Protect", "Trick Room", "Thunderbolt", "Helping Hand"] },
+    { ability: "Compound Eyes", item: "Focus Sash", moves: ["Hurricane", "Protect", "Rage Powder", "Sleep Powder"] },
+    { ability: "Drought", item: "Charcoal", moves: ["Eruption", "Flamethrower", "Earth Power", "Protect"] },
+    { ability: "Overgrow", item: "Sceptilite", moves: ["Leaf Storm", "Dragon Pulse", "Protect", "Shed Tail"] }
+  ] },
+  { id: "ct-12", tournament: "*Sitrus-Series*|Champions-MB|#63", players: 100, placement: 4, player: "SleepySilverVGC", wins: 7, losses: 3, pokemonIds: [10103, 398, 655, 902, 925, 983], pokemonNames: ["Alolan Ninetales", "Staraptor", "Delphox", "Basculegion-M", "Maushold", "Kingambit"], sets: [
+    { ability: "Snow Warning", item: "Never-Melt Ice", moves: ["Blizzard", "Freeze-Dry", "Icy Wind", "Protect"] },
+    { ability: "Intimidate", item: "Staraptite", moves: ["Brave Bird", "Close Combat", "Protect", "Tailwind"] },
+    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psyshock", "Protect", "Substitute"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Flip Turn", "Aqua Jet"] },
+    { ability: "Friend Guard", item: "Focus Sash", moves: ["Super Fang", "Protect", "Follow Me", "Encore"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] }
+  ] },
+  { id: "ct-13", tournament: "*Sitrus-Series*|Champions-MB|#63", players: 100, placement: 5, player: "Skraw", wins: 7, losses: 2, pokemonIds: [260, 670, 279, 861, 1013, 1018], pokemonNames: ["Swampert", "Floette", "Pelipper", "Grimmsnarl", "Sinistcha", "Archaludon"], sets: [
+    { ability: "Torrent", item: "Swampertite", moves: ["Wave Crash", "Earthquake", "Ice Punch", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Calm Mind", "Protect"] },
+    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Hurricane", "Weather Ball", "Tailwind", "Wide Guard"] },
+    { ability: "Prankster", item: "Light Clay", moves: ["Reflect", "Light Screen", "Parting Shot", "Foul Play"] },
+    { ability: "Hospitality", item: "Coba Berry", moves: ["Matcha Gotcha", "Life Dew", "Trick Room", "Rage Powder"] },
+    { ability: "Stamina", item: "Leftovers", moves: ["Electro Shot", "Dragon Pulse", "Flash Cannon", "Protect"] }
+  ] },
+  { id: "ct-14", tournament: "*Sitrus-Series*|Champions-MB|#63", players: 100, placement: 6, player: "AlexShyness", wins: 7, losses: 2, pokemonIds: [6, 3, 324, 303, 981, 727], pokemonNames: ["Charizard", "Venusaur", "Torkoal", "Mawile", "Farigiraf", "Incineroar"], sets: [
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Protect", "Heat Wave", "Solar Beam", "Weather Ball"] },
+    { ability: "Chlorophyll", item: "Focus Sash", moves: ["Protect", "Sleep Powder", "Sludge Bomb", "Energy Ball"] },
+    { ability: "Drought", item: "Charcoal", moves: ["Protect", "Eruption", "Heat Wave", "Weather Ball"] },
+    { ability: "Hyper Cutter", item: "Mawilite", moves: ["Protect", "Play Rough", "Sucker Punch", "Iron Head"] },
+    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Psychic", "Helping Hand", "Trick Room", "Hyper Voice"] },
+    { ability: "Intimidate", item: "Passho Berry", moves: ["Fake Out", "Flare Blitz", "Throat Chop", "Parting Shot"] }
+  ] },
+  { id: "ct-15", tournament: "*Sitrus-Series*|Champions-MB|#63", players: 100, placement: 7, player: "Teach_12", wins: 7, losses: 2, pokemonIds: [398, 547, 727, 1013, 902, 670], pokemonNames: ["Staraptor", "Whimsicott", "Incineroar", "Sinistcha", "Basculegion-M", "Floette"], sets: [
+    { ability: "Intimidate", item: "Staraptite", moves: ["Close Combat", "Brave Bird", "Protect", "Roost"] },
+    { ability: "Prankster", item: "Focus Sash", moves: ["Charm", "Tailwind", "Moonblast", "Light Screen"] },
+    { ability: "Intimidate", item: "Passho Berry", moves: ["Parting Shot", "Protect", "Flare Blitz", "Fake Out"] },
+    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Life Dew", "Rage Powder", "Matcha Gotcha", "Protect"] },
+    { ability: "Swift Swim", item: "Choice Scarf", moves: ["Last Respects", "Flip Turn", "Wave Crash", "Aqua Jet"] },
+    { ability: "Flower veil", item: "Floettite", moves: ["Calm Mind", "Protect", "Moonblast", "Dazzling Gleam"] }
+  ] },
+  { id: "ct-16", tournament: "*Sitrus-Series*|Champions-MB|#63", players: 100, placement: 8, player: "NMR | FelipeT", wins: 7, losses: 2, pokemonIds: [260, 279, 1018, 983, 1013, 727], pokemonNames: ["Swampert", "Pelipper", "Archaludon", "Kingambit", "Sinistcha", "Incineroar"], sets: [
+    { ability: "Damp", item: "Swampertite", moves: ["Wave Crash", "Ice Punch", "Earthquake", "Protect"] },
+    { ability: "Drizzle", item: "Focus Sash", moves: ["Weather Ball", "Hurricane", "Protect", "Tailwind"] },
+    { ability: "Stamina", item: "Leftovers", moves: ["Electro Shot", "Flash Cannon", "Dragon Pulse", "Protect"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Protect", "Iron Head"] },
+    { ability: "Hospitality", item: "Colbur Berry", moves: ["Matcha Gotcha", "Protect", "Rage Powder", "Trick Room"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Throat Chop", "Parting Shot", "Flare Blitz"] }
+  ] },
+  { id: "ct-17", tournament: "Alpensee Tour (Reg M-B) #62 - ✨ for #1! IN-GAME!", players: 54, placement: 1, player: "Testing444", wins: 5, losses: 0, pokemonIds: [279, 903, 902, 149, 1018, 260], pokemonNames: ["Pelipper", "Sneasler", "Basculegion-M", "Dragonite", "Archaludon", "Swampert"], sets: [
+    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Wide Guard", "Tailwind", "Weather Ball", "Hurricane"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Fake Out", "Protect"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Flip Turn", "Aqua Jet"] },
+    { ability: "Inner Focus", item: "Dragoninite", moves: ["Dragon Pulse", "Heat Wave", "Tailwind", "Protect"] },
+    { ability: "Stamina", item: "Leftovers", moves: ["Electro Shot", "Dragon Pulse", "Flash Cannon", "Protect"] },
+    { ability: "Torrent", item: "Swampertite", moves: ["Wave Crash", "Earthquake", "High Horsepower", "Protect"] }
+  ] },
+  { id: "ct-18", tournament: "Alpensee Tour (Reg M-B) #62 - ✨ for #1! IN-GAME!", players: 54, placement: 2, player: "ImTengenUzui", wins: 4, losses: 1, pokemonIds: [727, 670, 1013, 655, 983, 903], pokemonNames: ["Incineroar", "Floette", "Sinistcha", "Delphox", "Kingambit", "Sneasler"], sets: [
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Throat Chop", "Fake Out", "Flare Blitz", "Parting Shot"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Calm Mind", "Protect"] },
+    { ability: "Hospitality", item: "Occa Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Trick Room"] },
+    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psychic", "Nasty Plot", "Protect"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Fake Out", "Protect"] }
+  ] },
+  { id: "ct-19", tournament: "Alpensee Tour (Reg M-B) #62 - ✨ for #1! IN-GAME!", players: 54, placement: 3, player: "Frytki", wins: 4, losses: 1, pokemonIds: [149, 925, 1018, 279, 902, 303], pokemonNames: ["Dragonite", "Maushold", "Archaludon", "Pelipper", "Basculegion-M", "Mawile"], sets: [
+    { ability: "Multiscale", item: "Dragoninite", moves: ["Dragon Pulse", "Hurricane", "Weather Ball", "Protect"] },
+    { ability: "Technician", item: "Wide Lens", moves: ["Protect", "Population Bomb", "Rain Dance", "Follow Me"] },
+    { ability: "Stamina", item: "Leftovers", moves: ["Dragon Pulse", "Flash Cannon", "Electro Shot", "Protect"] },
+    { ability: "Drizzle", item: "Life Orb", moves: ["Hurricane", "Weather Ball", "Wide Guard", "Tailwind"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] },
+    { ability: "Intimidate", item: "Mawilite", moves: ["Play Rough", "Iron Head", "Sucker Punch", "Protect"] }
+  ] },
+  { id: "ct-20", tournament: "Alpensee Tour (Reg M-B) #62 - ✨ for #1! IN-GAME!", players: 54, placement: 4, player: "shabarai", wins: 4, losses: 1, pokemonIds: [547, 6, 983, 902, 1013, 398], pokemonNames: ["Whimsicott", "Charizard", "Kingambit", "Basculegion-M", "Sinistcha", "Staraptor"], sets: [
+    { ability: "Prankster", item: "Focus Sash", moves: ["Tailwind", "Moonblast", "Charm", "Protect"] },
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
     { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Low Kick"] },
-    { ability: "Rough Skin", item: "Lum Berry", moves: ["Protect", "Rock Slide", "Stomping Tantrum", "Dragon Claw"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Protect", "Tailwind", "Encore", "Moonblast"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Aqua Jet", "Last Respects", "Flip Turn"] },
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Protect", "Solar Beam", "Heat Wave", "Weather Ball"] }
+    { ability: "Adaptability", item: "Focus Sash", moves: ["Liquidation", "Last Respects", "Aqua Jet", "Protect"] },
+    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Rage Powder", "Matcha Gotcha", "Trick Room", "Life Dew"] },
+    { ability: "Intimidate", item: "Staraptite", moves: ["Brave Bird", "Close Combat", "Roost", "Protect"] }
   ] },
-  { id: "ct-67", tournament: "Torneo #8 Ranking PokéChampionsDestiny", players: 20, placement: 5, player: "Soosendosen", wins: 3, losses: 2, pokemonIds: [6, 727, 903, 983, 670, 1013], pokemonNames: ["Charizard", "Incineroar", "Sneasler", "Kingambit", "Floette", "Sinistcha"], sets: [
+  { id: "ct-21", tournament: "Alpensee Tour (Reg M-B) #62 - ✨ for #1! IN-GAME!", players: 54, placement: 5, player: "Yoshi1267", wins: 4, losses: 1, pokemonIds: [655, 730, 903, 983, 1013, 727], pokemonNames: ["Delphox", "Primarina", "Sneasler", "Kingambit", "Sinistcha", "Incineroar"], sets: [
+    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psyshock", "Nasty Plot", "Protect"] },
+    { ability: "Liquid Voice", item: "Leftovers", moves: ["Hyper Voice", "Draining Kiss", "Calm Mind", "Protect"] },
+    { ability: "Poison Touch", item: "Focus Sash", moves: ["Dire Claw", "Close Combat", "Quick Guard", "Fake Out"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Sucker Punch", "Kowtow Cleave", "Swords Dance", "Protect"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Parting Shot", "Throat Chop"] }
+  ] },
+  { id: "ct-22", tournament: "Alpensee Tour (Reg M-B) #62 - ✨ for #1! IN-GAME!", players: 54, placement: 6, player: "Jayisdecent", wins: 4, losses: 1, pokemonIds: [257, 635, 727, 1013, 350, 670], pokemonNames: ["Blaziken", "Hydreigon", "Incineroar", "Sinistcha", "Milotic", "Floette"], sets: [
+    { ability: "Speed Boost", item: "Blazikenite", moves: ["Flare Blitz", "Close Combat", "Swords Dance", "Detect"] },
+    { ability: "Levitate", item: "Choice Scarf", moves: ["Draco Meteor", "Heat Wave", "Dark Pulse", "Snarl"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Throat Chop", "Parting Shot"] },
+    { ability: "Hospitality", item: "Occa Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Protect"] },
+    { ability: "Competitive", item: "Leftovers", moves: ["Muddy Water", "Coil", "Hypnosis", "Recover"] },
+    { ability: "Fairy Aura", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Calm Mind", "Protect"] }
+  ] },
+  { id: "ct-23", tournament: "Alpensee Tour (Reg M-B) #62 - ✨ for #1! IN-GAME!", players: 54, placement: 7, player: "trevYah", wins: 4, losses: 1, pokemonIds: [727, 3, 6, 1013, 903, 983], pokemonNames: ["Incineroar", "Venusaur", "Charizard", "Sinistcha", "Sneasler", "Kingambit"], sets: [
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Throat Chop", "Parting Shot", "Fake Out"] },
+    { ability: "Chlorophyll", item: "Venusaurite", moves: ["Sludge Bomb", "Leaf Storm", "Earth Power", "Protect"] },
+    { ability: "Blaze", item: "Charizardite X", moves: ["Dragon Claw", "Temper Flare", "Dragon Dance", "Protect"] },
+    { ability: "Hospitality", item: "Leftovers", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Fake Out", "Protect"] },
+    { ability: "Defiant", item: "Life Orb", moves: ["Kowtow Cleave", "Swords Dance", "Sucker Punch", "Protect"] }
+  ] },
+  { id: "ct-24", tournament: "Alpensee Tour (Reg M-B) #62 - ✨ for #1! IN-GAME!", players: 54, placement: 8, player: "SDGRyo", wins: 4, losses: 1, pokemonIds: [26, 398, 1013, 727, 445, 902], pokemonNames: ["Raichu", "Staraptor", "Sinistcha", "Incineroar", "Garchomp", "Basculegion-M"], sets: [
+    { ability: "Lightning Rod", item: "Raichunite X", moves: ["Fake Out", "Charm", "Volt Tackle", "Protect"] },
+    { ability: "Intimidate", item: "Staraptite", moves: ["Close Combat", "Brave Bird", "Tailwind", "Protect"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Strength Sap"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Throat Chop", "Fake Out", "Parting Shot"] },
+    { ability: "Rough Skin", item: "Life Orb", moves: ["Earthquake", "Rock Slide", "Dragon Claw", "Protect"] },
+    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] }
+  ] },
+  { id: "ct-25", tournament: "Último Torneo Ranking PokéchampionsDestiny #9", players: 12, placement: 1, player: "Soosendosen", wins: 4, losses: 0, pokemonIds: [6, 727, 903, 983, 670, 1013], pokemonNames: ["Charizard", "Incineroar", "Sneasler", "Kingambit", "Floette", "Sinistcha"], sets: [
     { ability: "Blaze", item: "Charizardite X", moves: ["Protect", "Temper Flare", "Dragon Claw", "Dragon Dance"] },
     { ability: "Intimidate", item: "Leftovers", moves: ["Fake Out", "Parting Shot", "Flare Blitz", "Helping Hand"] },
     { ability: "Unburden", item: "Focus Sash", moves: ["Fake Out", "Coaching", "Close Combat", "Dire Claw"] },
@@ -12599,607 +12287,247 @@ export const CHAMPIONS_TOURNAMENT_TEAMS: ChampionsTournamentTeam[] = [
     { ability: "Flower Veil", item: "Floettite", moves: ["Protect", "Dazzling Gleam", "Draining Kiss", "Calm Mind"] },
     { ability: "Hospitality", item: "Sitrus Berry", moves: ["Matcha Gotcha", "Rage Powder", "Protect", "Trick Room"] }
   ] },
-  { id: "ct-68", tournament: "Torneo #8 Ranking PokéChampionsDestiny", players: 20, placement: 6, player: "Saulas", wins: 3, losses: 2, pokemonIds: [547, 670, 6, 902, 903, 445], pokemonNames: ["Whimsicott", "Floette", "Charizard", "Basculegion-M", "Sneasler", "Garchomp"], sets: [
-    { ability: "Prankster", item: "Fairy Feather", moves: ["Protect", "Encore", "Tailwind", "Moonblast"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] },
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Protect", "Heat Wave", "Solar Beam", "Weather Ball"] },
-    { ability: "Adaptability", item: "Colbur Berry", moves: ["Protect", "Wave Crash", "Last Respects", "Aqua Jet"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Close Combat", "Dire Claw", "Protect"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Stomping Tantrum", "Dragon Claw", "Earthquake", "Protect"] }
+  { id: "ct-26", tournament: "Último Torneo Ranking PokéchampionsDestiny #9", players: 12, placement: 2, player: "tpgamer007", wins: 3, losses: 1, pokemonIds: [983, 981, 666, 700, 248, 26], pokemonNames: ["Kingambit", "Farigiraf", "Vivillon", "Sylveon", "Tyranitar", "Raichu"], sets: [
+    { ability: "Defiant", item: "Choice Scarf", moves: ["Iron Head", "Low Kick", "Kowtow Cleave", "Sucker Punch"] },
+    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Roar", "Trick Room", "Twin Beam", "Thunderbolt"] },
+    { ability: "Compound Eyes", item: "Choice Scarf", moves: ["Hurricane", "Energy Ball", "Rage Powder", "Sleep Powder"] },
+    { ability: "Pixilate", item: "Life Orb", moves: ["Hyper Beam", "Hyper Voice", "Quick Attack", "Detect"] },
+    { ability: "Sand stream", item: "Chople Berry", moves: ["High horsepower", "knock off", "protect", "Rock Slide"] },
+    { ability: "Lightning Rod", item: "Raichunite Y", moves: ["Zap Cannon", "Volt Switch", "Focus Blast", "Fake out"] }
   ] },
-  { id: "ct-69", tournament: "Torneo #8 Ranking PokéChampionsDestiny", players: 20, placement: 7, player: "Mewoxys", wins: 3, losses: 2, pokemonIds: [6, 142, 983, 700, 445, 981], pokemonNames: ["Charizard", "Aerodactyl", "Kingambit", "Sylveon", "Garchomp", "Farigiraf"], sets: [
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
-    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Protect"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
-    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Hyper Beam", "Quick Attack", "Detect"] },
-    { ability: "Rough Skin", item: "Focus Sash", moves: ["Earthquake", "Dragon Claw", "Stomping Tantrum", "Protect"] },
-    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Psyshock", "Helping Hand", "Trick Room", "Protect"] }
-  ] },
-  { id: "ct-70", tournament: "Torneo #8 Ranking PokéChampionsDestiny", players: 20, placement: 8, player: "ProgramVoid", wins: 3, losses: 2, pokemonIds: [142, 670, 1013, 727, 903, 6], pokemonNames: ["Aerodactyl", "Floette", "Sinistcha", "Incineroar", "Sneasler", "Charizard"], sets: [
-    { ability: "Unnerve", item: "Focus Sash", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Protect"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Draining Kiss", "Calm Mind", "Protect"] },
-    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Life Dew"] },
-    { ability: "Intimidate", item: "Passho Berry", moves: ["Flare Blitz", "Throat Chop", "Parting Shot", "Fake Out"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Dire Claw", "Close Combat", "Protect", "Fake Out"] },
-    { ability: "Blaze", item: "Charizardite X", moves: ["Dragon Claw", "Flare Blitz", "Dragon Dance", "Protect"] }
-  ] },
-  { id: "ct-71", tournament: "WARTORTLE WEEK NAIC PREP REG M-A BO3 SWISS", players: 16, placement: 1, player: "tsumi88", wins: 7, losses: 1, pokemonIds: [149, 983, 902, 727, 670, 903], pokemonNames: ["Dragonite", "Kingambit", "Basculegion-M", "Incineroar", "Floette", "Sneasler"], sets: [
-    { ability: "Multiscale", item: "Dragon Fang", moves: ["Dragon Claw", "Extreme Speed", "Low Kick", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Swords Dance", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Flip Turn", "Aqua Jet"] },
-    { ability: "Intimidate", item: "Chople Berry", moves: ["Flare Blitz", "Darkest Lariat", "Fake Out", "Parting Shot"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] },
-    { ability: "Unburden", item: "Focus Sash", moves: ["Dire Claw", "Close Combat", "Fake Out", "Protect"] }
-  ] },
-  { id: "ct-72", tournament: "WARTORTLE WEEK NAIC PREP REG M-A BO3 SWISS", players: 16, placement: 2, player: "Nervo2103", wins: 6, losses: 2, pokemonIds: [900, 547, 6, 902, 903, 983], pokemonNames: ["Kleavor", "Whimsicott", "Charizard", "Basculegion-M", "Sneasler", "Kingambit"], sets: [
-    { ability: "Sharpness", item: "Choice Scarf", moves: ["Stone Axe", "U-turn", "Rock Slide", "Close Combat"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Tailwind", "Protect", "Encore", "Moonblast"] },
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Protect", "Weather Ball", "Heat Wave", "Solar Beam"] },
-    { ability: "Adaptability", item: "Mystic Water", moves: ["Protect", "Wave Crash", "Aqua Jet", "Last Respects"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Protect", "Fake Out"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Iron Head", "Low Kick", "Kowtow Cleave", "Sucker Punch"] }
-  ] },
-  { id: "ct-73", tournament: "WARTORTLE WEEK NAIC PREP REG M-A BO3 SWISS", players: 16, placement: 3, player: "BrazBR", wins: 5, losses: 2, pokemonIds: [547, 983, 902, 6, 445, 670], pokemonNames: ["Whimsicott", "Kingambit", "Basculegion-M", "Charizard", "Garchomp", "Floette"], sets: [
-    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Flip Turn", "Aqua Jet"] },
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] }
-  ] },
-  { id: "ct-74", tournament: "WARTORTLE WEEK NAIC PREP REG M-A BO3 SWISS", players: 16, placement: 4, player: "FLOWER POWER ", wins: 4, losses: 3, pokemonIds: [6, 670, 903, 727, 1013, 445], pokemonNames: ["Charizard", "Floette", "Sneasler", "Incineroar", "Sinistcha", "Garchomp"], sets: [
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Draining Kiss", "Calm Mind", "Protect"] },
-    { ability: "Unburden", item: "Focus Sash", moves: ["Close Combat", "Dire Claw", "Fake Out", "Coaching"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Parting Shot", "Throat Chop", "Fake Out"] },
-    { ability: "Hospitality", item: "Occa Berry", moves: ["Matcha Gotcha", "Protect", "Rage Powder", "Trick Room"] },
-    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Iron Head", "Dragon Claw", "Stomping Tantrum", "Rock Slide"] }
-  ] },
-  { id: "ct-75", tournament: "WARTORTLE WEEK NAIC PREP REG M-A BO3 SWISS", players: 16, placement: 5, player: "TayOpkMn", wins: 3, losses: 3, pokemonIds: [130, 6, 445, 547, 903, 681], pokemonNames: ["Gyarados", "Charizard", "Garchomp", "Whimsicott", "Sneasler", "Aegislash"], sets: [
-    { ability: "Intimidate", item: "Gyaradosite", moves: ["Waterfall", "Dragon Dance", "Protect", "Crunch"] },
-    { ability: "Solar Power", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Weather Ball", "Protect"] },
-    { ability: "Rough Skin", item: "Lum Berry", moves: ["Earthquake", "Scale Shot", "Rock Slide", "Protect"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Tailwind", "Sunny Day", "Moonblast", "Encore"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Dire Claw", "Close Combat", "Protect"] },
-    { ability: "Stance Change", item: "Spell Tag", moves: ["Shadow Sneak", "Sacred Sword", "Poltergeist", "Wide Guard"] }
-  ] },
-  { id: "ct-76", tournament: "WARTORTLE WEEK NAIC PREP REG M-A BO3 SWISS", players: 16, placement: 6, player: "FireBrick", wins: 3, losses: 3, pokemonIds: [15, 981, 461, 445, 5157, 693], pokemonNames: ["Beedrill", "Farigiraf", "Weavile", "Garchomp", "Hisuian Typhlosion", "Clawitzer"], sets: [
-    { ability: "Sniper", item: "Beedrillite", moves: ["Poison Jab", "X-Scissor", "Protect", "Knock Off"] },
-    { ability: "Armor Tail", item: "Colbur Berry", moves: ["Psychic", "Trick Room", "Protect", "Helping Hand"] },
-    { ability: "Pressure", item: "Focus Sash", moves: ["Fake Out", "Icy Wind", "Triple Axel", "Knock Off"] },
-    { ability: "Rough Skin", item: "Soft Sand", moves: ["Stomping Tantrum", "Earthquake", "Protect", "Dragon Claw"] },
-    { ability: "Frisk", item: "Choice Scarf", moves: ["Eruption", "Heat Wave", "Shadow Ball", "Will-O-Wisp"] },
-    { ability: "Mega Launcher", item: "Sitrus Berry", moves: ["Protect", "Aura Sphere", "Water Pulse", "Heal Pulse"] }
-  ] },
-  { id: "ct-77", tournament: "WARTORTLE WEEK NAIC PREP REG M-A BO3 SWISS", players: 16, placement: 7, player: "damiameru", wins: 2, losses: 4, pokemonIds: [282, 130, 1013, 727, 903, 445], pokemonNames: ["Gardevoir", "Gyarados", "Sinistcha", "Incineroar", "Sneasler", "Garchomp"], sets: [
-    { ability: "Trace", item: "Gardevoirite", moves: ["Protect", "Trick Room", "Hyper Voice", "Psyshock"] },
-    { ability: "Intimidate", item: "Gyaradosite", moves: ["Protect", "Dragon Dance", "Waterfall", "Lash Out"] },
-    { ability: "Hospitality", item: "Colbur Berry", moves: ["Protect", "Trick Room", "Matcha Gotcha", "Rage Powder"] },
-    { ability: "Intimidate", item: "Shuca Berry", moves: ["Fake Out", "Flare Blitz", "Taunt", "Parting Shot"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Protect", "Fake Out", "Close Combat", "Dire Claw"] },
-    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Protect", "Earthquake", "Dragon Claw", "Rock Slide"] }
-  ] },
-  { id: "ct-78", tournament: "WARTORTLE WEEK NAIC PREP REG M-A BO3 SWISS", players: 16, placement: 8, player: "RedbamaXxXx", wins: 2, losses: 4, pokemonIds: [655, 925, 445, 902, 903, 983], pokemonNames: ["Delphox", "Maushold", "Garchomp", "Basculegion-M", "Sneasler", "Kingambit"], sets: [
-    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psychic", "Calm Mind", "Protect"] },
-    { ability: "Friend Guard", item: "Chople Berry", moves: ["Follow Me", "Protect", "Super Fang", "Helping Hand"] },
-    { ability: "Rough Skin", item: "Soft Sand", moves: ["Dragon Claw", "Earthquake", "Protect", "Rock Slide"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Aqua Jet", "Flip Turn", "Last Respects"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Dire Claw", "Close Combat", "Protect", "Fake Out"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] }
-  ] },
-  { id: "ct-79", tournament: "HeroicTitan’s VGC Battle Arena (Bo3)", players: 37, placement: 1, player: "Altkyle", wins: 8, losses: 2, pokemonIds: [149, 902, 212, 1018, 279, 727], pokemonNames: ["Dragonite", "Basculegion-M", "Scizor", "Archaludon", "Pelipper", "Incineroar"], sets: [
-    { ability: "Inner Focus", item: "Dragoninite", moves: ["Dragon Pulse", "Flamethrower", "Tailwind", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] },
-    { ability: "Technician", item: "Scizorite", moves: ["Bullet Punch", "Close Combat", "Swords Dance", "Protect"] },
-    { ability: "Stamina", item: "Chople Berry", moves: ["Electro Shot", "Dragon Pulse", "Aura Sphere", "Protect"] },
-    { ability: "Drizzle", item: "Focus Sash", moves: ["Hurricane", "Weather Ball", "Tailwind", "Protect"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Throat Chop", "Parting Shot"] }
-  ] },
-  { id: "ct-80", tournament: "HeroicTitan’s VGC Battle Arena (Bo3)", players: 37, placement: 2, player: "BrazBR", wins: 7, losses: 3, pokemonIds: [547, 983, 902, 6, 445, 670], pokemonNames: ["Whimsicott", "Kingambit", "Basculegion-M", "Charizard", "Garchomp", "Floette"], sets: [
-    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Flip Turn", "Aqua Jet"] },
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] }
-  ] },
-  { id: "ct-81", tournament: "HeroicTitan’s VGC Battle Arena (Bo3)", players: 37, placement: 3, player: "Master_800", wins: 6, losses: 3, pokemonIds: [115, 902, 983, 6, 445, 547], pokemonNames: ["Kangaskhan", "Basculegion-M", "Kingambit", "Charizard", "Garchomp", "Whimsicott"], sets: [
-    { ability: "Scrappy", item: "Kangaskhanite", moves: ["Fake Out", "Double-Edge", "Ice Punch", "Low Kick"] },
-    { ability: "Adaptability", item: "Colbur Berry", moves: ["Protect", "Last Respects", "Aqua Jet", "Wave Crash"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Earthquake", "Dragon Claw", "Rock Tomb", "Protect"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Protect", "Encore"] }
-  ] },
-  { id: "ct-82", tournament: "HeroicTitan’s VGC Battle Arena (Bo3)", players: 37, placement: 4, player: "MammothVGC", wins: 6, losses: 3, pokemonIds: [478, 903, 983, 902, 5059, 149], pokemonNames: ["Froslass", "Sneasler", "Kingambit", "Basculegion-M", "Hisuian Arcanine", "Dragonite"], sets: [
-    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Aurora Veil", "Protect"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Gunk Shot", "Fake Out", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
-    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Wave Crash", "Aqua Jet", "Last Respects", "Protect"] },
-    { ability: "Rock Head", item: "Focus Sash", moves: ["Rock Slide", "Flare Blitz", "Head Smash", "Protect"] },
-    { ability: "Multiscale", item: "Dragoninite", moves: ["Dragon Pulse", "Flamethrower", "Tailwind", "Protect"] }
-  ] },
-  { id: "ct-83", tournament: "HeroicTitan’s VGC Battle Arena (Bo3)", players: 37, placement: 5, player: "JaccVGC", wins: 6, losses: 2, pokemonIds: [445, 6, 902, 983, 547, 670], pokemonNames: ["Garchomp", "Charizard", "Basculegion-M", "Kingambit", "Whimsicott", "Floette"], sets: [
-    { ability: "Rough Skin", item: "Lum Berry", moves: ["Protect", "Outrage", "Earthquake", "Rock Slide"] },
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Protect", "Heat Wave", "Weather Ball", "Solar Beam"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Protect", "Kowtow Cleave", "Low Kick", "Sucker Punch"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Protect", "Moonblast", "Tailwind", "Encore"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Protect", "Dazzling Gleam", "Moonblast", "Light of Ruin"] }
-  ] },
-  { id: "ct-84", tournament: "HeroicTitan’s VGC Battle Arena (Bo3)", players: 37, placement: 6, player: "TingusThePingus", wins: 6, losses: 1, pokemonIds: [983, 903, 478, 142, 700, 902], pokemonNames: ["Kingambit", "Sneasler", "Froslass", "Aerodactyl", "Sylveon", "Basculegion-M"], sets: [
-    { ability: "Defiant", item: "Focus Sash", moves: ["Kowtow Cleave", "Sucker Punch", "Low Kick", "Protect"] },
+  { id: "ct-27", tournament: "Último Torneo Ranking PokéchampionsDestiny #9", players: 12, placement: 3, player: "Royal_Rebel_Prince21", wins: 3, losses: 1, pokemonIds: [547, 903, 1018, 130, 668, 604], pokemonNames: ["Whimsicott", "Sneasler", "Archaludon", "Gyarados", "Pyroar", "Eelektross"], sets: [
+    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Protect", "Encore"] },
     { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Fake Out", "Protect"] },
-    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Aurora Veil", "Protect"] },
-    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Protect"] },
-    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Quick Attack", "Hyper Beam", "Detect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Aqua Jet", "Flip Turn", "Last Respects"] }
+    { ability: "Stamina", item: "Leftovers", moves: ["Dragon Pulse", "Aura Sphere", "Flash Cannon", "Protect"] },
+    { ability: "Intimidate", item: "Gyaradosite", moves: ["Crunch", "Waterfall", "Dragon Dance", "Protect"] },
+    { ability: "Rivalry", item: "Pyroarite", moves: ["Flamethrower", "Heat Wave", "Hyper Voice", "Protect"] },
+    { ability: "Levitate", item: "Eelektrossite", moves: ["Flamethrower", "Thunderbolt", "Giga Drain", "Protect"], teraType: "Electric" }
   ] },
-  { id: "ct-85", tournament: "HeroicTitan’s VGC Battle Arena (Bo3)", players: 37, placement: 7, player: "NachoVGCs", wins: 5, losses: 1, pokemonIds: [94, 149, 10103, 983, 727, 903], pokemonNames: ["Gengar", "Dragonite", "Alolan Ninetales", "Kingambit", "Incineroar", "Sneasler"], sets: [
-    { ability: "Cursed Body", item: "Gengarite", moves: ["Shadow Ball", "Perish Song", "Disable", "Protect"] },
-    { ability: "Multiscale", item: "Dragon Fang", moves: ["Dragon Claw", "Extreme Speed", "Low Kick", "Protect"] },
-    { ability: "Snow Warning", item: "Never-Melt Ice", moves: ["Blizzard", "Encore", "Aurora Veil", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Sucker Punch", "Kowtow Cleave", "Swords Dance", "Protect"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Protect", "Fake Out", "Parting Shot"] },
+  { id: "ct-28", tournament: "Último Torneo Ranking PokéchampionsDestiny #9", players: 12, placement: 4, player: "Ismavp97", wins: 2, losses: 2, pokemonIds: [727, 983, 445, 547, 902, 6], pokemonNames: ["Incineroar", "Kingambit", "Garchomp", "Whimsicott", "Basculegion-M", "Charizard"], sets: [
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Throat Chop", "Parting Shot", "Fake Out"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Low Kick"] },
+    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Earthquake", "Rock Slide", "Stomping Tantrum", "Dragon Claw"] },
+    { ability: "Prankster", item: "Focus Sash", moves: ["Protect", "Tailwind", "Encore", "Moonblast"] },
+    { ability: "Adaptability", item: "Life Orb", moves: ["Wave Crash", "Aqua Jet", "Last Respects", "Protect"] },
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Protect", "Solar Beam", "Heat Wave", "Weather Ball"] }
+  ] },
+  { id: "ct-29", tournament: "Último Torneo Ranking PokéchampionsDestiny #9", players: 12, placement: 5, player: "Vitigoleiro", wins: 2, losses: 2, pokemonIds: [376, 861, 547, 1000, 26, 903], pokemonNames: ["Metagross", "Grimmsnarl", "Whimsicott", "Gholdengo", "Raichu", "Sneasler"], sets: [
+    { ability: "Clear Body", item: "Metagrossite", moves: ["Iron Head", "Psychic Fangs", "Body Press", "Iron Defense"] },
+    { ability: "Prankster", item: "Light Clay", moves: ["Reflect", "Light Screen", "Fake Out", "Foul Play"] },
+    { ability: "Prankster", item: "Focus Sash", moves: ["Tailwind", "Encore", "Taunt", "Moonblast"] },
+    { ability: "Good as Gold", item: "Choice Scarf", moves: ["Make It Rain", "Shadow Ball", "Power Gem", "Nasty Plot"] },
+    { ability: "Lightning Rod", item: "Raichunite Y", moves: ["Zap Cannon", "Focus Blast", "Thunderbolt", "Protect"] },
     { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Close Combat", "Dire Claw", "Protect"] }
   ] },
-  { id: "ct-86", tournament: "HeroicTitan’s VGC Battle Arena (Bo3)", players: 37, placement: 8, player: "pokepaste", wins: 5, losses: 3, pokemonIds: [983, 445, 902, 547, 970, 670], pokemonNames: ["Kingambit", "Garchomp", "Basculegion-M", "Whimsicott", "Glimmora", "Floette"], sets: [
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Low Kick", "Protect"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Stomping Tantrum", "Rock Slide", "Dragon Claw", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Flip Turn", "Aqua Jet"] },
-    { ability: "Prankster", item: "Fairy Feather", moves: ["Moonblast", "Encore", "Tailwind", "Protect"] },
-    { ability: "Toxic Debris", item: "Focus Sash", moves: ["Sludge Bomb", "Earth Power", "Spiky Shield", "Power Gem"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] }
+  { id: "ct-30", tournament: "Último Torneo Ranking PokéchampionsDestiny #9", players: 12, placement: 6, player: "PistaD", wins: 2, losses: 2, pokemonIds: [142, 6, 981, 700, 983, 445], pokemonNames: ["Aerodactyl", "Charizard", "Farigiraf", "Sylveon", "Kingambit", "Garchomp"], sets: [
+    { ability: "Pressure", item: "Aerodactylite", moves: ["Rock Slide", "Ice Fang", "Tailwind", "Dual Wingbeat"] },
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Protect", "Heat Wave", "Weather Ball", "Solar Beam"] },
+    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Twin Beam", "Thunderbolt", "Roar", "Trick Room"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Detect", "Quick Attack", "Hyper Voice", "Hyper Beam"] },
+    { ability: "Defiant", item: "Focus Sash", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Low Kick"] },
+    { ability: "Rough Skin", item: "Soft Sand", moves: ["Protect", "Dragon Claw", "Stomping Tantrum", "Earthquake"] }
   ] },
-  { id: "ct-87", tournament: "Pokemon VGC UmbreNews 09.06.2026 #18 - Champion", players: 33, placement: 1, player: "Candytrouble", wins: 6, losses: 2, pokemonIds: [6, 445, 983, 547, 902, 727], pokemonNames: ["Charizard", "Garchomp", "Kingambit", "Whimsicott", "Basculegion-M", "Incineroar"], sets: [
-    { ability: "Solar Power", item: "Charizardite Y", moves: ["Weather Ball", "Heat Wave", "Ancient Power", "Protect"] },
-    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Dragon Claw", "Poison Jab", "Earthquake", "Protect"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Low Kick", "Protect"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Aqua Jet", "Flip Turn", "Last Respects"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Darkest Lariat", "Fake Out", "Parting Shot"] }
+  { id: "ct-31", tournament: "Último Torneo Ranking PokéchampionsDestiny #9", players: 12, placement: 7, player: "Dell", wins: 2, losses: 2, pokemonIds: [666, 560, 26, 445, 663, 10103], pokemonNames: ["Vivillon", "Scrafty", "Raichu", "Garchomp", "Talonflame", "Alolan Ninetales"], sets: [
+    { ability: "Compound Eyes", item: "Choice Scarf", moves: ["Sleep Powder", "Hurricane", "Pollen Puff", "Rage Powder"] },
+    { ability: "Intimidate", item: "Scraftinite", moves: ["Fake Out", "Knock Off", "Close Combat", "Protect"] },
+    { ability: "No Guard", item: "Raichunite Y", moves: ["Zap Cannon", "Focus Blast", "Fake Out", "Protect"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Stomping Tantrum", "Dragon Claw", "Rock Slide", "Protect"] },
+    { ability: "Gale Wings", item: "Focus Sash", moves: ["Air Slash", "Heat Wave", "Tailwind", "Protect"] },
+    { ability: "Snow Warning", item: "Life Orb", moves: ["Aurora Veil", "Blizzard", "Moonblast", "Protect"] }
   ] },
-  { id: "ct-88", tournament: "Pokemon VGC UmbreNews 09.06.2026 #18 - Champion", players: 33, placement: 2, player: "blackkobra", wins: 6, losses: 2, pokemonIds: [212, 1013, 727, 248, 784, 902], pokemonNames: ["Scizor", "Sinistcha", "Incineroar", "Tyranitar", "Kommo-o", "Basculegion-M"], sets: [
-    { ability: "Technician", item: "Scizorite", moves: ["Bullet Punch", "Bug Bite", "Swords Dance", "Protect"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Trick Room"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Parting Shot", "Fake Out", "Will-O-Wisp"] },
-    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Knock Off", "Rock Slide", "Low Kick", "Protect"] },
-    { ability: "Soundproof", item: "Leftovers", moves: ["Aura Sphere", "Clanging Scales", "Clangorous Soul", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Flip Turn", "Aqua Jet", "Wave Crash", "Last Respects"] }
-  ] },
-  { id: "ct-89", tournament: "Pokemon VGC UmbreNews 09.06.2026 #18 - Champion", players: 33, placement: 3, player: "NS_Reiziger", wins: 5, losses: 2, pokemonIds: [478, 902, 547, 5059, 903, 983], pokemonNames: ["Froslass", "Basculegion-M", "Whimsicott", "Hisuian Arcanine", "Sneasler", "Kingambit"], sets: [
-    { ability: "Snow Cloak", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Aurora Veil", "Protect"] },
-    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
-    { ability: "Prankster", item: "Coba Berry", moves: ["Tailwind", "Moonblast", "Encore", "Protect"] },
-    { ability: "Rock Head", item: "Focus Sash", moves: ["Flare Blitz", "Rock Slide", "Head Smash", "Protect"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Dire Claw", "Close Combat", "Fake Out", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Swords Dance", "Protect"] }
-  ] },
-  { id: "ct-90", tournament: "Pokemon VGC UmbreNews 09.06.2026 #18 - Champion", players: 33, placement: 4, player: "QrdeMac", wins: 4, losses: 3, pokemonIds: [94, 727, 186, 1018, 1013, 902], pokemonNames: ["Gengar", "Incineroar", "Politoed", "Archaludon", "Sinistcha", "Basculegion-M"], sets: [
-    { ability: "Cursed Body", item: "Gengarite", moves: ["Shadow Ball", "Perish Song", "Disable", "Protect"] },
-    { ability: "Intimidate", item: "Passho Berry", moves: ["Throat Chop", "Parting Shot", "Fake Out", "Protect"] },
-    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Weather Ball", "Perish Song", "Encore", "Protect"] },
-    { ability: "Stamina", item: "Leftovers", moves: ["Dragon Pulse", "Electro Shot", "Flash Cannon", "Protect"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Flip Turn", "Aqua Jet"] }
-  ] },
-  { id: "ct-91", tournament: "Pokemon VGC UmbreNews 09.06.2026 #18 - Champion", players: 33, placement: 5, player: "ParmesanLugubre206", wins: 5, losses: 1, pokemonIds: [18, 186, 3, 727, 902, 983], pokemonNames: ["Pidgeot", "Politoed", "Venusaur", "Incineroar", "Basculegion-M", "Kingambit"], sets: [
-    { ability: "Keen Eye", item: "Pidgeotite", moves: ["Hurricane", "Rain Dance", "Tailwind", "Protect"] },
-    { ability: "Drizzle", item: "Choice Scarf", moves: ["Muddy Water", "Weather Ball", "Ice Beam", "Psychic"] },
-    { ability: "Chlorophyll", item: "Venusaurite", moves: ["Giga Drain", "Sludge Bomb", "Earth Power", "Protect"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Throat Chop", "Parting Shot", "Fake Out"] },
-    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Low Kick", "Sucker Punch", "Protect"] }
-  ] },
-  { id: "ct-92", tournament: "Pokemon VGC UmbreNews 09.06.2026 #18 - Champion", players: 33, placement: 6, player: "miniman", wins: 4, losses: 2, pokemonIds: [547, 670, 445, 6, 902, 727], pokemonNames: ["Whimsicott", "Floette", "Garchomp", "Charizard", "Basculegion-M", "Incineroar"], sets: [
-    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Calm Mind", "Protect"] },
-    { ability: "Rough Skin", item: "White Herb", moves: ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"] },
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
-    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Aqua Jet", "Last Respects", "Protect"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Throat Chop", "Parting Shot"] }
-  ] },
-  { id: "ct-93", tournament: "Pokemon VGC UmbreNews 09.06.2026 #18 - Champion", players: 33, placement: 7, player: "Soren G", wins: 4, losses: 2, pokemonIds: [445, 142, 981, 700, 727, 6], pokemonNames: ["Garchomp", "Aerodactyl", "Farigiraf", "Sylveon", "Incineroar", "Charizard"], sets: [
-    { ability: "Rough Skin", item: "Garchompite", moves: ["Stomping Tantrum", "Dragon Claw", "Earthquake", "Protect"] },
-    { ability: "Unnerve", item: "Focus Sash", moves: ["Rock Slide", "Tailwind", "Sunny Day", "Wide Guard"] },
-    { ability: "Armor Tail", item: "Twisted Spoon", moves: ["Hyper Voice", "Twin Beam", "Trick Room", "Helping Hand"] },
-    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Detect", "Quick Attack", "Moonblast"] },
-    { ability: "Intimidate", item: "Passho Berry", moves: ["Flare Blitz", "Darkest Lariat", "Fake Out", "Parting Shot"] },
-    { ability: "Solar Power", item: "Charizardite Y", moves: ["Weather Ball", "Heat Wave", "Solar Beam", "Protect"] }
-  ] },
-  { id: "ct-94", tournament: "Pokemon VGC UmbreNews 09.06.2026 #18 - Champion", players: 33, placement: 8, player: "GielBakker", wins: 4, losses: 2, pokemonIds: [94, 670, 727, 983, 903, 784], pokemonNames: ["Gengar", "Floette", "Incineroar", "Kingambit", "Sneasler", "Kommo-o"], sets: [
-    { ability: "Cursed Body", item: "Gengarite", moves: ["Protect", "Shadow Ball", "Perish Song", "Disable"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Moonblast", "Light of Ruin", "Protect"] },
-    { ability: "Intimidate", item: "Passho Berry", moves: ["Protect", "Flare Blitz", "Fake Out", "Parting Shot"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Sucker Punch", "Kowtow Cleave", "Swords Dance", "Protect"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Dire Claw", "Close Combat", "Protect"] },
-    { ability: "Soundproof", item: "Leftovers", moves: ["Clanging Scales", "Aura Sphere", "Clangorous Soul", "Protect"] }
-  ] },
-  { id: "ct-95", tournament: "WARTORTLE WEEK NAIC PREP REG M-A BO3 SWISS", players: 20, placement: 1, player: "Davibay", wins: 6, losses: 2, pokemonIds: [670, 3, 727, 6, 445, 1013], pokemonNames: ["Floette", "Venusaur", "Incineroar", "Charizard", "Garchomp", "Sinistcha"], sets: [
-    { ability: "Flower Veil", item: "Floettite", moves: ["Protect", "Calm Mind", "Moonblast", "Dazzling Gleam"] },
-    { ability: "Chlorophyll", item: "Focus Sash", moves: ["Earth Power", "Protect", "Sludge Bomb", "Sleep Powder"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Throat Chop", "Flare Blitz", "Parting Shot"] },
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Protect", "Weather Ball", "Heat Wave", "Solar Beam"] },
-    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Rock Tomb", "Dragon Claw", "Earthquake", "Stomping Tantrum"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Protect", "Trick Room", "Matcha Gotcha", "Rage Powder"] }
-  ] },
-  { id: "ct-96", tournament: "WARTORTLE WEEK NAIC PREP REG M-A BO3 SWISS", players: 20, placement: 2, player: "FireBrick", wins: 5, losses: 3, pokemonIds: [635, 903, 981, 5059, 730, 547], pokemonNames: ["Hydreigon", "Sneasler", "Farigiraf", "Hisuian Arcanine", "Primarina", "Whimsicott"], sets: [
-    { ability: "Levitate", item: "Scope Lens", moves: ["Draco Meteor", "Focus Energy", "Protect", "Dark Pulse"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Close Combat", "Dire Claw", "Coaching"] },
-    { ability: "Armor Tail", item: "Colbur Berry", moves: ["Psychic", "Trick Room", "Helping Hand", "Protect"] },
-    { ability: "Intimidate", item: "Choice Scarf", moves: ["Extreme Speed", "Flare Blitz", "Rock Slide", "Close Combat"] },
-    { ability: "Liquid Voice", item: "Mystic Water", moves: ["Protect", "Ice Beam", "Hyper Voice", "Moonblast"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Tailwind", "Moonblast", "Encore", "Protect"] }
-  ] },
-  { id: "ct-97", tournament: "WARTORTLE WEEK NAIC PREP REG M-A BO3 SWISS", players: 20, placement: 3, player: "TayOpkMn", wins: 5, losses: 2, pokemonIds: [130, 6, 445, 547, 903, 681], pokemonNames: ["Gyarados", "Charizard", "Garchomp", "Whimsicott", "Sneasler", "Aegislash"], sets: [
-    { ability: "Intimidate", item: "Gyaradosite", moves: ["Waterfall", "Dragon Dance", "Protect", "Crunch"] },
-    { ability: "Solar Power", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Weather Ball", "Protect"] },
-    { ability: "Rough Skin", item: "Lum Berry", moves: ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Tailwind", "Sunny Day", "Moonblast", "Encore"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Dire Claw", "Close Combat", "Protect"] },
-    { ability: "Stance Change", item: "Spell Tag", moves: ["Shadow Sneak", "Sacred Sword", "Poltergeist", "Wide Guard"] }
-  ] },
-  { id: "ct-98", tournament: "WARTORTLE WEEK NAIC PREP REG M-A BO3 SWISS", players: 20, placement: 4, player: "balancebarney", wins: 5, losses: 2, pokemonIds: [670, 248, 727, 1013, 903, 823], pokemonNames: ["Floette", "Tyranitar", "Incineroar", "Sinistcha", "Sneasler", "Corviknight"], sets: [
-    { ability: "Flower Veil", item: "Floettite", moves: ["Protect", "Moonblast", "Draining Kiss", "Calm Mind"] },
-    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Protect", "Rock Slide", "Knock Off", "Dragon Dance"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Throat Chop", "Parting Shot", "Fake Out"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Protect", "Matcha Gotcha", "Rage Powder", "Trick Room"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Protect", "Close Combat", "Dire Claw", "Fake Out"] },
-    { ability: "Mirror Armor", item: "Occa Berry", moves: ["Protect", "Brave Bird", "Iron Head", "Tailwind"] }
-  ] },
-  { id: "ct-99", tournament: "WARTORTLE WEEK NAIC PREP REG M-A BO3 SWISS", players: 20, placement: 5, player: "kaguneau", wins: 3, losses: 3, pokemonIds: [6, 142, 3, 10009, 902, 700], pokemonNames: ["Charizard", "Aerodactyl", "Venusaur", "Wash Rotom", "Basculegion-M", "Sylveon"], sets: [
-    { ability: "Solar Power", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Protect", "Solar Beam"] },
-    { ability: "Unnerve", item: "Focus Sash", moves: ["Tailwind", "Dual Wingbeat", "Rock Slide", "Protect"] },
-    { ability: "Chlorophyll", item: "Sitrus Berry", moves: ["Sleep Powder", "Sludge Bomb", "Protect", "Solar Beam"] },
-    { ability: "Levitate", item: "Leftovers", moves: ["Hydro Pump", "Volt Switch", "Thunder", "Nasty Plot"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Aqua Jet", "Wave Crash", "Last Respects", "Flip Turn"] },
-    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Hyper Beam", "Protect", "Quick Attack"] }
-  ] },
-  { id: "ct-100", tournament: "WARTORTLE WEEK NAIC PREP REG M-A BO3 SWISS", players: 20, placement: 6, player: "RedbamaXxXx", wins: 3, losses: 3, pokemonIds: [655, 925, 445, 902, 903, 983], pokemonNames: ["Delphox", "Maushold", "Garchomp", "Basculegion-M", "Sneasler", "Kingambit"], sets: [
-    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psychic", "Calm Mind", "Protect"] },
-    { ability: "Friend Guard", item: "Chople Berry", moves: ["Follow Me", "Protect", "Super Fang", "Feint"] },
-    { ability: "Rough Skin", item: "Soft Sand", moves: ["Dragon Claw", "Earthquake", "Protect", "Rock Slide"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Aqua Jet", "Flip Turn", "Last Respects"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Dire Claw", "Close Combat", "Protect", "Fake Out"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Swords Dance", "Protect"] }
-  ] },
-  { id: "ct-101", tournament: "WARTORTLE WEEK NAIC PREP REG M-A BO3 SWISS", players: 20, placement: 7, player: "FLOWER POWER ", wins: 3, losses: 3, pokemonIds: [670, 903, 727, 1013, 902, 445], pokemonNames: ["Floette", "Sneasler", "Incineroar", "Sinistcha", "Basculegion-M", "Garchomp"], sets: [
-    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Draining Kiss", "Calm Mind", "Protect"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Fake Out", "Coaching"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Parting Shot", "Throat Chop", "Fake Out"] },
-    { ability: "Hospitality", item: "Occa Berry", moves: ["Matcha Gotcha", "Life Dew", "Rage Powder", "Trick Room"] },
-    { ability: "Adaptability", item: "Focus Sash", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
-    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Earthquake", "Stomping Tantrum", "Rock Slide", "Dragon Claw"] }
-  ] },
-  { id: "ct-102", tournament: "WARTORTLE WEEK NAIC PREP REG M-A BO3 SWISS", players: 20, placement: 8, player: "pokeplayer", wins: 2, losses: 4, pokemonIds: [149, 902, 1018, 212, 727, 279], pokemonNames: ["Dragonite", "Basculegion-M", "Archaludon", "Scizor", "Incineroar", "Pelipper"], sets: [
-    { ability: "Inner Focus", item: "Dragoninite", moves: ["Draco Meteor", "Tailwind", "Hurricane", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Last Respects", "Aqua Jet", "Flip Turn", "Wave Crash"] },
-    { ability: "Stamina", item: "Chople Berry", moves: ["Aura Sphere", "Dragon Tail", "Electro Shot", "Protect"] },
-    { ability: "Technician", item: "Scizorite", moves: ["Bullet Punch", "Close Combat", "Swords Dance", "Protect"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Throat Chop", "Parting Shot"] },
-    { ability: "Drizzle", item: "Focus Sash", moves: ["Tailwind", "Hurricane", "Weather Ball", "Protect"] }
-  ] },
-  { id: "ct-103", tournament: "Pokepal Smackdown #144 (Champions) (Reg M-A)", players: 51, placement: 1, player: "Dr_Bejan", wins: 5, losses: 0, pokemonIds: [970, 547, 6, 445, 902, 983], pokemonNames: ["Glimmora", "Whimsicott", "Charizard", "Garchomp", "Basculegion-M", "Kingambit"], sets: [
-    { ability: "Toxic Debris", item: "Focus Sash", moves: ["Power Gem", "Sludge Bomb", "Earth Power", "Spiky Shield"] },
-    { ability: "Prankster", item: "Fairy Feather", moves: ["Tailwind", "Moonblast", "Encore", "Protect"] },
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
-    { ability: "Rough Skin", item: "Soft Sand", moves: ["Earthquake", "Stomping Tantrum", "Dragon Claw", "Protect"] },
-    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Low Kick", "Protect"] }
-  ] },
-  { id: "ct-104", tournament: "Pokepal Smackdown #144 (Champions) (Reg M-A)", players: 51, placement: 2, player: "GOUKI_PR", wins: 4, losses: 1, pokemonIds: [6, 903, 981, 445, 983, 142], pokemonNames: ["Charizard", "Sneasler", "Farigiraf", "Garchomp", "Kingambit", "Aerodactyl"], sets: [
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Protect", "Weather Ball"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Close Combat", "Dire Claw", "Protect"] },
-    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Trick Room", "Psychic", "Hyper Voice", "Imprison"] },
-    { ability: "Rough Skin", item: "Dragon Fang", moves: ["Scale Shot", "Earthquake", "Rock Slide", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Protect", "Sucker Punch", "Iron Head"] },
-    { ability: "Unnerve", item: "Focus Sash", moves: ["Rock Slide", "Protect", "Wide Guard", "Tailwind"] }
-  ] },
-  { id: "ct-105", tournament: "Pokepal Smackdown #144 (Champions) (Reg M-A)", players: 51, placement: 3, player: "VGCDan", wins: 4, losses: 1, pokemonIds: [609, 730, 903, 983, 584, 981], pokemonNames: ["Chandelure", "Primarina", "Sneasler", "Kingambit", "Vanilluxe", "Farigiraf"], sets: [
-    { ability: "Flash Fire", item: "Chandelurite", moves: ["Heat Wave", "Protect", "Calm Mind", "Shadow Ball"] },
-    { ability: "Liquid Voice", item: "Mystic Water", moves: ["Hyper Voice", "Protect", "Moonblast", "Dazzling Gleam"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Dire Claw", "Protect", "Fake Out", "Close Combat"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Protect", "Iron Head", "Sucker Punch"] },
-    { ability: "Snow Warning", item: "Choice Scarf", moves: ["Freeze-Dry", "Blizzard", "Weather Ball", "Chilling Water"] },
-    { ability: "Armor Tail", item: "Colbur Berry", moves: ["Psychic", "Protect", "Trick Room", "Helping Hand"] }
-  ] },
-  { id: "ct-106", tournament: "Pokepal Smackdown #144 (Champions) (Reg M-A)", players: 51, placement: 4, player: "Archeon", wins: 4, losses: 1, pokemonIds: [6, 3, 445, 903, 10009, 700], pokemonNames: ["Charizard", "Venusaur", "Garchomp", "Sneasler", "Wash Rotom", "Sylveon"], sets: [
-    { ability: "Solar Power", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Scorching Sands", "Protect"] },
-    { ability: "Chlorophyll", item: "Focus Sash", moves: ["Sleep Powder", "Leaf Storm", "Sludge Bomb", "Protect"] },
-    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Rock Slide", "Dragon Claw", "Earthquake", "Bulldoze"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Dire Claw", "Close Combat", "Rock Tomb", "Fake Out"] },
-    { ability: "Levitate", item: "Leftovers", moves: ["Hydro Pump", "Thunderbolt", "Will-O-Wisp", "Protect"] },
-    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Shadow Ball", "Reflect", "Quick Attack"] }
-  ] },
-  { id: "ct-107", tournament: "Pokepal Smackdown #144 (Champions) (Reg M-A)", players: 51, placement: 5, player: "FLOWER POWER ", wins: 4, losses: 1, pokemonIds: [670, 903, 727, 1013, 902, 445], pokemonNames: ["Floette", "Sneasler", "Incineroar", "Sinistcha", "Basculegion-M", "Garchomp"], sets: [
-    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Draining Kiss", "Calm Mind", "Protect"] },
-    { ability: "Unburden", item: "Focus Sash", moves: ["Close Combat", "Dire Claw", "Fake Out", "Coaching"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Parting Shot", "Throat Chop", "Fake Out"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Life Dew", "Rage Powder", "Trick Room"] },
-    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
-    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Earthquake", "Stomping Tantrum", "Rock Slide", "Dragon Claw"] }
-  ] },
-  { id: "ct-108", tournament: "Pokepal Smackdown #144 (Champions) (Reg M-A)", players: 51, placement: 6, player: "Piggy", wins: 4, losses: 1, pokemonIds: [149, 186, 903, 952, 956, 1018], pokemonNames: ["Dragonite", "Politoed", "Sneasler", "Scovillain", "Espathra", "Archaludon"], sets: [
-    { ability: "Multiscale", item: "Dragoninite", moves: ["Protect", "Dragon Pulse", "Hurricane", "Extreme Speed"] },
-    { ability: "Drizzle", item: "Mystic Water", moves: ["Protect", "Weather Ball", "Encore", "Muddy Water"] },
-    { ability: "Unburden", item: "Focus Sash", moves: ["Close Combat", "Dire Claw", "Fake Out", "Protect"] },
-    { ability: "Moody", item: "Scovillainite", moves: ["Protect", "Leech Seed", "Rage Powder", "Overheat"] },
-    { ability: "Speed Boost", item: "Sitrus Berry", moves: ["Protect", "Lumina Crash", "Calm Mind", "Baton Pass"] },
-    { ability: "Stamina", item: "Leftovers", moves: ["Protect", "Electro Shot", "Dragon Pulse", "Flash Cannon"] }
-  ] },
-  { id: "ct-109", tournament: "Pokepal Smackdown #144 (Champions) (Reg M-A)", players: 51, placement: 7, player: "Greyaz", wins: 4, losses: 1, pokemonIds: [925, 670, 727, 1013, 1018, 279], pokemonNames: ["Maushold", "Floette", "Incineroar", "Sinistcha", "Archaludon", "Pelipper"], sets: [
-    { ability: "Friend Guard", item: "Focus Sash", moves: ["Super Fang", "Follow Me", "Rain Dance", "Protect"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Calm Mind", "Protect"] },
-    { ability: "Intimidate", item: "Charcoal", moves: ["Flare Blitz", "Fake Out", "Parting Shot", "Taunt"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Trick Room"] },
-    { ability: "Stamina", item: "Leftovers", moves: ["Electro Shot", "Protect", "Dragon Pulse", "Flash Cannon"] },
-    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Weather Ball", "Tailwind", "Hurricane", "Rain Dance"] }
-  ] },
-  { id: "ct-110", tournament: "Pokepal Smackdown #144 (Champions) (Reg M-A)", players: 51, placement: 8, player: "Yayyboy", wins: 4, losses: 1, pokemonIds: [6, 1013, 727, 983, 10009, 282], pokemonNames: ["Charizard", "Sinistcha", "Incineroar", "Kingambit", "Wash Rotom", "Gardevoir"], sets: [
-    { ability: "blaze", item: "Charizardite X", moves: ["Flare Blitz", "Protect", "Dragon Claw", "Dragon Dance"] },
-    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Rage Powder", "Matcha Gotcha", "Trick Room", "Protect"] },
-    { ability: "Intimidate", item: "Lum Berry", moves: ["Fake Out", "Throat Chop", "Parting Shot", "Taunt"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Protect", "Low Kick"] },
-    { ability: "Levitate", item: "Leftovers", moves: ["Protect", "Will-O-Wisp", "Hydro Pump", "Thunderbolt"] },
-    { ability: "trace", item: "Gardevoirite", moves: ["Protect", "Hyper Voice", "Psychic", "Trick Room"] }
-  ] },
-  { id: "ct-111", tournament: "Intimidators Champions Challenge #16 REG M-A", players: 49, placement: 1, player: "JOAO", wins: 9, losses: 0, pokemonIds: [745, 903, 952, 902, 478, 983], pokemonNames: ["Lycanroc", "Sneasler", "Scovillain", "Basculegion-M", "Froslass", "Kingambit"], sets: [
-    { ability: "Tough Claws", item: "Focus Sash", moves: ["Rock Slide", "Close Combat", "Accelerock", "Protect"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Fake Out", "Protect"] },
-    { ability: "Moody", item: "Scovillainite", moves: ["Overheat", "Giga Drain", "Rage Powder", "Protect"] },
-    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
-    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Aurora Veil", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Swords Dance", "Protect"] }
-  ] },
-  { id: "ct-112", tournament: "Intimidators Champions Challenge #16 REG M-A", players: 49, placement: 2, player: "Brendu", wins: 7, losses: 2, pokemonIds: [6, 547, 983, 902, 445, 970], pokemonNames: ["Charizard", "Whimsicott", "Kingambit", "Basculegion-M", "Garchomp", "Glimmora"], sets: [
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
-    { ability: "Prankster", item: "Coba Berry", moves: ["Moonblast", "Encore", "Tailwind", "Protect"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Low Kick", "Protect"] },
-    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"] },
-    { ability: "Toxic Debris", item: "Focus Sash", moves: ["Power Gem", "Sludge Bomb", "Earth Power", "Spiky Shield"] }
-  ] },
-  { id: "ct-113", tournament: "Intimidators Champions Challenge #16 REG M-A", players: 49, placement: 3, player: "NMR | Kuroryu", wins: 6, losses: 2, pokemonIds: [784, 1013, 530, 130, 227, 248], pokemonNames: ["Kommo-o", "Sinistcha", "Excadrill", "Gyarados", "Skarmory", "Tyranitar"], sets: [
-    { ability: "Soundproof", item: "Leftovers", moves: ["Clanging Scales", "Aura Sphere", "Clangorous Soul", "Protect"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Trick Room"] },
+  { id: "ct-32", tournament: "Último Torneo Ranking PokéchampionsDestiny #9", players: 12, placement: 8, player: "Elike", wins: 2, losses: 2, pokemonIds: [861, 398, 26, 530, 902, 248], pokemonNames: ["Grimmsnarl", "Staraptor", "Raichu", "Excadrill", "Basculegion-M", "Tyranitar"], sets: [
+    { ability: "Prankster", item: "Light Clay", moves: ["Light Screen", "Reflect", "Spirit Break", "Parting Shot"] },
+    { ability: "Intimidate", item: "Staraptite", moves: ["Brave Bird", "Close Combat", "Tailwind", "Protect"] },
+    { ability: "Static", item: "Shuca Berry", moves: ["Volt Switch", "Fake Out", "Charm", "Encore"] },
     { ability: "Sand Rush", item: "Focus Sash", moves: ["Earthquake", "Iron Head", "Rock Slide", "Protect"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Waterfall", "Taunt", "Thunder Wave", "Helping Hand"] },
-    { ability: "Sturdy", item: "Skarmorite", moves: ["Iron Head", "Brave Bird", "Tailwind", "Protect"] },
-    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Rock Slide", "Knock Off", "Ice Punch", "Protect"] }
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Last Respects", "Flip Turn", "Wave Crash", "Aqua Jet"] },
+    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Knock Off", "Low Kick", "Rock Slide", "Protect"] }
   ] },
-  { id: "ct-114", tournament: "Intimidators Champions Challenge #16 REG M-A", players: 49, placement: 4, player: "Terryjd", wins: 5, losses: 3, pokemonIds: [547, 1013, 115, 970, 727, 784], pokemonNames: ["Whimsicott", "Sinistcha", "Kangaskhan", "Glimmora", "Incineroar", "Kommo-o"], sets: [
-    { ability: "Prankster", item: "Mental Herb", moves: ["Tailwind", "Encore", "Moonblast", "Protect"] },
-    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Trick Room", "Protect", "Rage Powder", "Matcha Gotcha"] },
-    { ability: "Scrappy", item: "Kangaskhanite", moves: ["Body Slam", "Fake Out", "Sucker Punch", "Drain Punch"] },
-    { ability: "Toxic Debris", item: "Glimmoranite", moves: ["Spiky Shield", "Sludge Bomb", "Power Gem", "Earth Power"] },
-    { ability: "Intimidate", item: "Chople Berry", moves: ["Fake Out", "Flare Blitz", "Parting Shot", "Darkest Lariat"] },
-    { ability: "Soundproof", item: "Leftovers", moves: ["Draco Meteor", "Iron Defense", "Body Press", "Protect"] }
-  ] },
-  { id: "ct-115", tournament: "Intimidators Champions Challenge #16 REG M-A", players: 49, placement: 5, player: "Altkyle", wins: 5, losses: 2, pokemonIds: [149, 902, 212, 903, 1018, 279], pokemonNames: ["Dragonite", "Basculegion-M", "Scizor", "Sneasler", "Archaludon", "Pelipper"], sets: [
-    { ability: "Inner Focus", item: "Dragoninite", moves: ["Dragon Pulse", "Flamethrower", "Tailwind", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] },
-    { ability: "Technician", item: "Scizorite", moves: ["Bullet Punch", "Close Combat", "Swords Dance", "Protect"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Dire Claw", "Close Combat", "Protect"] },
-    { ability: "Stamina", item: "Chople Berry", moves: ["Electro Shot", "Dragon Pulse", "Flash Cannon", "Protect"] },
-    { ability: "Drizzle", item: "Focus Sash", moves: ["Hurricane", "Weather Ball", "Tailwind", "Protect"] }
-  ] },
-  { id: "ct-116", tournament: "Intimidators Champions Challenge #16 REG M-A", players: 49, placement: 6, player: "Kevin B", wins: 5, losses: 2, pokemonIds: [1018, 302, 902, 279, 983, 3], pokemonNames: ["Archaludon", "Sableye", "Basculegion-M", "Pelipper", "Kingambit", "Venusaur"], sets: [
-    { ability: "Stamina", item: "Leftovers", moves: ["Dragon Pulse", "Flash Cannon", "Protect", "Electro Shot"] },
-    { ability: "Prankster", item: "Roseli Berry", moves: ["Reflect", "Rain Dance", "Light Screen", "Encore"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Flip Turn", "Aqua Jet", "Last Respects", "Wave Crash"] },
-    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Tailwind", "Soak", "Weather Ball", "Hurricane"] },
-    { ability: "Defiant", item: "Focus Sash", moves: ["Sucker Punch", "Low Kick", "Iron Head", "Protect"] },
-    { ability: "Chlorophyll", item: "Venusaurite", moves: ["Protect", "Giga Drain", "Earth Power", "Sludge Bomb"] }
-  ] },
-  { id: "ct-117", tournament: "Intimidators Champions Challenge #16 REG M-A", players: 49, placement: 7, player: "Orttega15", wins: 4, losses: 3, pokemonIds: [115, 324, 981, 858, 983, 727], pokemonNames: ["Kangaskhan", "Torkoal", "Farigiraf", "Hatterene", "Kingambit", "Incineroar"], sets: [
-    { ability: "Scrappy", item: "Kangaskhanite", moves: ["Double-Edge", "Low Kick", "Sucker Punch", "Fake Out"] },
-    { ability: "Drought", item: "Charcoal", moves: ["Eruption", "Weather Ball", "Earth Power", "Protect"] },
-    { ability: "Armor Tail", item: "Colbur Berry", moves: ["Psychic", "Hyper Voice", "Helping Hand", "Trick Room"] },
-    { ability: "Magic Bounce", item: "Focus Sash", moves: ["Dazzling Gleam", "Psychic", "Trick Room", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Low Kick"] },
-    { ability: "Intimidate", item: "White Herb", moves: ["Close Combat", "Darkest Lariat", "Fake Out", "Flare Blitz"] }
-  ] },
-  { id: "ct-118", tournament: "Intimidators Champions Challenge #16 REG M-A", players: 49, placement: 8, player: "Nick Engraçado ", wins: 4, losses: 3, pokemonIds: [6, 478, 983, 902, 547, 900], pokemonNames: ["Charizard", "Froslass", "Kingambit", "Basculegion-M", "Whimsicott", "Kleavor"], sets: [
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Protect", "Weather Ball"] },
-    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Thunderbolt", "Protect", "Shadow Ball"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Low Kick", "Sucker Punch", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] },
-    { ability: "Prankster", item: "Coba Berry", moves: ["Tailwind", "Moonblast", "Protect", "Encore"] },
-    { ability: "Sharpness", item: "Focus Sash", moves: ["Stone Axe", "Close Combat", "Night Slash", "Protect"] }
-  ] },
-  { id: "ct-119", tournament: "UK-Only! Champions Pop-Up TOUR!!! (£25 Prizepool)", players: 20, placement: 1, player: "KrystalKiwii", wins: 6, losses: 1, pokemonIds: [9, 115, 666, 981, 324, 902], pokemonNames: ["Blastoise", "Kangaskhan", "Vivillon", "Farigiraf", "Torkoal", "Basculegion-M"], sets: [
-    { ability: "Rain Dish", item: "Blastoisinite", moves: ["Fake Out", "Water Spout", "Dark Pulse", "Shell Smash"] },
-    { ability: "Scrappy", item: "Kangaskhanite", moves: ["Fake Out", "Double-Edge", "Low Kick", "Sucker Punch"] },
-    { ability: "Compound Eyes", item: "Choice Scarf", moves: ["Hurricane", "Sleep Powder", "Rage Powder", "Rain Dance"] },
-    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Psychic", "Thunderbolt", "Trick Room", "Helping Hand"] },
-    { ability: "Drought", item: "Charcoal", moves: ["Eruption", "Heat Wave", "Weather Ball", "Protect"] },
-    { ability: "Adaptability", item: "Focus Sash", moves: ["Liquidation", "Last Respects", "Aqua Jet", "Protect"] }
-  ] },
-  { id: "ct-120", tournament: "UK-Only! Champions Pop-Up TOUR!!! (£25 Prizepool)", players: 20, placement: 2, player: "bwenty", wins: 6, losses: 1, pokemonIds: [94, 727, 149, 670, 983, 902], pokemonNames: ["Gengar", "Incineroar", "Dragonite", "Floette", "Kingambit", "Basculegion-M"], sets: [
-    { ability: "Cursed Body", item: "Gengarite", moves: ["Sludge Bomb", "Shadow Ball", "Will-O-Wisp", "Protect"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Throat Chop", "Parting Shot", "Fake Out"] },
-    { ability: "Multiscale", item: "Dragon Fang", moves: ["Dragon Claw", "Low Kick", "Extreme Speed", "Tailwind"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Calm Mind", "Protect"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Low Kick", "Protect"] },
-    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] }
-  ] },
-  { id: "ct-121", tournament: "UK-Only! Champions Pop-Up TOUR!!! (£25 Prizepool)", players: 20, placement: 3, player: "PokeReplay", wins: 4, losses: 2, pokemonIds: [445, 727, 3, 1013, 6, 670], pokemonNames: ["Garchomp", "Incineroar", "Venusaur", "Sinistcha", "Charizard", "Floette"], sets: [
-    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Earthquake", "Stomping Tantrum", "Rock Slide", "Dragon Claw"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Throat Chop", "Fake Out", "Parting Shot"] },
-    { ability: "Chlorophyll", item: "Focus Sash", moves: ["Sludge Bomb", "Earth Power", "Sleep Powder", "Protect"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"] },
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Weather Ball", "Heat Wave", "Solar Beam", "Protect"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Draining Kiss", "Dazzling Gleam", "Calm Mind", "Protect"] }
-  ] },
-  { id: "ct-122", tournament: "UK-Only! Champions Pop-Up TOUR!!! (£25 Prizepool)", players: 20, placement: 4, player: "frogo", wins: 4, losses: 2, pokemonIds: [1013, 670, 903, 902, 655, 727], pokemonNames: ["Sinistcha", "Floette", "Sneasler", "Basculegion-M", "Delphox", "Incineroar"], sets: [
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Trick Room"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Protect", "Calm Mind", "Draining Kiss", "Dazzling Gleam"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Protect", "Fake Out", "Close Combat", "Dire Claw"] },
-    { ability: "Adaptability", item: "Focus Sash", moves: ["Protect", "Liquidation", "Last Respects", "Aqua Jet"] },
-    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psyshock", "Nasty Plot", "Protect"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Parting Shot", "Throat Chop", "Flare Blitz"] }
-  ] },
-  { id: "ct-123", tournament: "UK-Only! Champions Pop-Up TOUR!!! (£25 Prizepool)", players: 20, placement: 5, player: "Cecil9", wins: 3, losses: 2, pokemonIds: [609, 324, 727, 10008, 6, 952], pokemonNames: ["Chandelure", "Torkoal", "Incineroar", "Heat Rotom", "Charizard", "Scovillain"], sets: [
-    { ability: "Flash Fire", item: "Focus Sash", moves: ["Trick Room", "Shadow Ball", "Heat Wave", "Solar Beam"] },
-    { ability: "Drought", item: "Charcoal", moves: ["Protect", "Helping Hand", "Eruption", "Earth Power"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Close Combat", "Fake Out", "Parting Shot", "Darkest Lariat"] },
-    { ability: "Levitate", item: "Choice Scarf", moves: ["Volt Switch", "Overheat", "Electroweb", "Thunderbolt"] },
-    { ability: "Solar Power", item: "Charizardite Y", moves: ["Protect", "Heat Wave", "Air Slash", "Weather Ball"] },
-    { ability: "Moody", item: "Scovillainite", moves: ["Giga Drain", "Leech Seed", "Rage Powder", "Protect"] }
-  ] },
-  { id: "ct-124", tournament: "UK-Only! Champions Pop-Up TOUR!!! (£25 Prizepool)", players: 20, placement: 6, player: "Draxolotl", wins: 3, losses: 2, pokemonIds: [478, 445, 748, 5059, 903, 983], pokemonNames: ["Froslass", "Garchomp", "Toxapex", "Hisuian Arcanine", "Sneasler", "Kingambit"], sets: [
-    { ability: "Cursed Body", item: "Froslassite", moves: ["Protect", "Shadow Ball", "Blizzard", "Aurora Veil"] },
-    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Earthquake", "Stomping Tantrum", "Dragon Claw", "Rock Tomb"] },
-    { ability: "Regenerator", item: "Leftovers", moves: ["Baneful Bunker", "Infestation", "Toxic", "Wide Guard"] },
-    { ability: "Rock Head", item: "Focus Sash", moves: ["Protect", "Flare Blitz", "Extreme Speed", "Head Smash"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Protect", "Close Combat", "Gunk Shot", "Fake Out"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Protect", "Kowtow Cleave", "Sucker Punch", "Iron Head"] }
-  ] },
-  { id: "ct-125", tournament: "UK-Only! Champions Pop-Up TOUR!!! (£25 Prizepool)", players: 20, placement: 7, player: "2cake", wins: 3, losses: 2, pokemonIds: [903, 547, 6, 902, 445, 983], pokemonNames: ["Sneasler", "Whimsicott", "Charizard", "Basculegion-M", "Garchomp", "Kingambit"], sets: [
-    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Gunk Shot", "Close Combat", "Protect"] },
+  { id: "ct-33", tournament: "TARTAN TAKEDOWN #28 - [CHAMPIONS]", players: 21, placement: 1, player: "TenkiPK", wins: 6, losses: 1, pokemonIds: [6, 670, 445, 547, 902, 983], pokemonNames: ["Charizard", "Floette", "Garchomp", "Whimsicott", "Basculegion-M", "Kingambit"], sets: [
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Dragon Claw", "Earthquake", "Rock Slide", "Protect"] },
     { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Weather Ball", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Dragon Claw", "Earthquake", "Rock Tomb", "Protect"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Protect"] }
+    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
+    { ability: "Defiant", item: "Occa Berry", moves: ["Kowtow Cleave", "Protect", "Sucker Punch", "Iron Head"] }
   ] },
-  { id: "ct-126", tournament: "UK-Only! Champions Pop-Up TOUR!!! (£25 Prizepool)", players: 20, placement: 8, player: "Zio_Gelato", wins: 3, losses: 2, pokemonIds: [655, 903, 983, 727, 670, 1013], pokemonNames: ["Delphox", "Sneasler", "Kingambit", "Incineroar", "Floette", "Sinistcha"], sets: [
-    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psychic", "Nasty Plot", "Protect"] },
-    { ability: "Unburden", item: "Focus Sash", moves: ["Dire Claw", "Fake Out", "Coaching", "Close Combat"] },
-    { ability: "Defiant", item: "Occa Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
-    { ability: "Intimidate", item: "Leftovers", moves: ["Parting Shot", "Fake Out", "Flare Blitz", "Taunt"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Protect", "Calm Mind", "Dazzling Gleam", "Draining Kiss"] },
-    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Matcha Gotcha", "Life Dew", "Rage Powder", "Protect"] }
+  { id: "ct-34", tournament: "TARTAN TAKEDOWN #28 - [CHAMPIONS]", players: 21, placement: 2, player: "Emoolew", wins: 5, losses: 2, pokemonIds: [937, 727, 670, 350, 1013, 10103], pokemonNames: ["Ceruledge", "Incineroar", "Floette", "Milotic", "Sinistcha", "Alolan Ninetales"], sets: [
+    { ability: "Flash Fire", item: "Colbur Berry", moves: ["Bitter Blade", "Shadow Sneak", "Swords Dance", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Throat Chop", "Fake Out", "Parting Shot"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Draining Kiss", "Dazzling Gleam", "Calm Mind", "Protect"] },
+    { ability: "Competitive", item: "Leftovers", moves: ["Scald", "Icy Wind", "Life Dew", "Protect"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Trick Room"] },
+    { ability: "Snow Warning", item: "Focus Sash", moves: ["Blizzard", "Disable", "Encore", "Protect"] }
   ] },
-  { id: "ct-127", tournament: "Champions Tour LEPE #7", players: 17, placement: 1, player: "TheChoiceoffreedom", wins: 6, losses: 2, pokemonIds: [727, 903, 279, 212, 1018, 902], pokemonNames: ["Incineroar", "Sneasler", "Pelipper", "Scizor", "Archaludon", "Basculegion-M"], sets: [
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Throat Chop", "Parting Shot"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Fake Out", "Protect"] },
-    { ability: "Drizzle", item: "Focus Sash", moves: ["Weather Ball", "Hurricane", "Tailwind", "Protect"] },
-    { ability: "Technician", item: "Scizorite", moves: ["Bullet Punch", "Bug Bite", "Swords Dance", "Protect"] },
-    { ability: "Stamina", item: "Leftovers", moves: ["Flash Cannon", "Dragon Pulse", "Electro Shot", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Flip Turn", "Aqua Jet"] }
-  ] },
-  { id: "ct-128", tournament: "Champions Tour LEPE #7", players: 17, placement: 2, player: "Sanaito", wins: 4, losses: 4, pokemonIds: [666, 282, 983, 445, 655, 10009], pokemonNames: ["Vivillon", "Gardevoir", "Kingambit", "Garchomp", "Delphox", "Wash Rotom"], sets: [
-    { ability: "Compound Eyes", item: "Focus Sash", moves: ["Rage Powder", "Sleep Powder", "Hurricane", "Protect"] },
-    { ability: "Telepathy", item: "Choice Scarf", moves: ["Dazzling Gleam", "Moonblast", "Psychic", "Icy Wind"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
-    { ability: "Rough Skin", item: "Soft Sand", moves: ["Dragon Claw", "Rock Slide", "Earthquake", "Protect"] },
-    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psyshock", "Helping Hand", "Protect"] },
-    { ability: "Levitate", item: "Sitrus Berry", moves: ["Hydro Pump", "Thunderbolt", "Will-O-Wisp", "Protect"] }
-  ] },
-  { id: "ct-129", tournament: "Champions Tour LEPE #7", players: 17, placement: 3, player: "JuliiiHD", wins: 6, losses: 1, pokemonIds: [952, 478, 903, 983, 902, 745], pokemonNames: ["Scovillain", "Froslass", "Sneasler", "Kingambit", "Basculegion-M", "Lycanroc"], sets: [
-    { ability: "Moody", item: "Scovillainite", moves: ["Protect", "Giga Drain", "Flamethrower", "Rage Powder"] },
-    { ability: "Cursed Body", item: "Froslassite", moves: ["Protect", "Shadow Ball", "Blizzard", "Aurora Veil"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Protect", "Dire Claw", "Close Combat", "Fake Out"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Protect", "Kowtow Cleave", "Sucker Punch", "Swords Dance"] },
-    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Protect", "Wave Crash", "Last Respects", "Aqua Jet"] },
-    { ability: "Tough Claws", item: "Focus Sash", moves: ["Protect", "Accelerock", "Close Combat", "Rock Slide"] }
-  ] },
-  { id: "ct-130", tournament: "Champions Tour LEPE #7", players: 17, placement: 4, player: "Mcampbell10", wins: 4, losses: 3, pokemonIds: [823, 248, 784, 478, 445, 208], pokemonNames: ["Corviknight", "Tyranitar", "Kommo-o", "Froslass", "Garchomp", "Steelix"], sets: [
-    { ability: "Mirror Armor", item: "Occa Berry", moves: ["Brave Bird", "Protect", "Tailwind", "Iron Head"] },
-    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Rock Slide", "Knock Off", "Low Kick", "Protect"] },
-    { ability: "Soundproof", item: "Leftovers", moves: ["Aura Sphere", "Clanging Scales", "Clangorous Soul", "Protect"] },
-    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Weather Ball", "Protect"] },
-    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Dragon Claw", "Earthquake", "Rock Slide", "Poison Jab"] },
-    { ability: "Sturdy", item: "Steelixite", moves: ["Heavy Slam", "High Horsepower", "Wide Guard", "Protect"] }
-  ] },
-  { id: "ct-131", tournament: "Champions Tour LEPE #7", players: 17, placement: 5, player: "yukimoth", wins: 3, losses: 3, pokemonIds: [94, 186, 784, 727, 959, 1013], pokemonNames: ["Gengar", "Politoed", "Kommo-o", "Incineroar", "Tinkaton", "Sinistcha"], sets: [
-    { ability: "Cursed Body", item: "Gengarite", moves: ["Perish Song", "Protect", "Shadow Ball", "Disable"] },
-    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Perish Song", "Protect", "Encore", "Weather Ball"] },
-    { ability: "Soundproof", item: "Leftovers", moves: ["Clanging Scales", "Protect", "Clangorous Soul", "Aura Sphere"] },
-    { ability: "Intimidate", item: "Passho Berry", moves: ["Fake Out", "Darkest Lariat", "Protect", "Parting Shot"] },
-    { ability: "Mold Breaker", item: "Shuca Berry", moves: ["Gigaton Hammer", "Fake Out", "Protect", "Encore"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Rage Powder", "Matcha Gotcha", "Protect", "Life Dew"] }
-  ] },
-  { id: "ct-132", tournament: "Champions Tour LEPE #7", players: 17, placement: 6, player: "Darkip_8", wins: 3, losses: 3, pokemonIds: [94, 727, 1013, 132, 186, 784], pokemonNames: ["Gengar", "Incineroar", "Sinistcha", "Ditto", "Politoed", "Kommo-o"], sets: [
-    { ability: "Cursed Body", item: "Gengarite", moves: ["Shadow Ball", "Disable", "Perish Song", "Protect"] },
-    { ability: "Intimidate", item: "Passho Berry", moves: ["Fake Out", "Throat Chop", "Parting Shot", "Protect"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Protect"] },
-    { ability: "Imposter", item: "Choice Scarf", moves: ["Transform"] },
-    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Weather Ball", "Perish Song", "Protect", "Encore"] },
-    { ability: "Soundproof", item: "Leftovers", moves: ["Clanging Scales", "Aura Sphere", "Clangorous Soul", "Protect"] }
-  ] },
-  { id: "ct-133", tournament: "Champions Tour LEPE #7", players: 17, placement: 7, player: "DariusPopek", wins: 2, losses: 4, pokemonIds: [115, 700, 323, 981, 983, 752], pokemonNames: ["Kangaskhan", "Sylveon", "Camerupt", "Farigiraf", "Kingambit", "Araquanid"], sets: [
-    { ability: "Scrappy", item: "Silk Scarf", moves: ["Fake Out", "Last Resort"] },
-    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Quick Attack", "Mystical Fire", "Calm Mind"] },
-    { ability: "Solid Rock", item: "Cameruptite", moves: ["Heat Wave", "Earth Power", "Eruption", "Protect"] },
-    { ability: "Armor Tail", item: "Colbur Berry", moves: ["Trick Room", "Sunny Day", "Psychic", "Protect"] },
-    { ability: "Defiant", item: "Focus Sash", moves: ["Sucker Punch", "Kowtow Cleave", "Iron Head", "Protect"] },
-    { ability: "Water Bubble", item: "Mystic Water", moves: ["Liquidation", "Leech Life", "Wide Guard", "Skitter Smack"] }
-  ] },
-  { id: "ct-134", tournament: "Champions Tour LEPE #7", players: 17, placement: 8, player: "godey95", wins: 2, losses: 4, pokemonIds: [670, 655, 666, 1013, 925, 903], pokemonNames: ["Floette", "Delphox", "Vivillon", "Sinistcha", "Maushold", "Sneasler"], sets: [
-    { ability: "Flower Veil", item: "Floettite", moves: ["Draining Kiss", "Calm Mind", "Dazzling Gleam", "Protect"] },
-    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psyshock", "Nasty Plot", "Protect"] },
-    { ability: "Compound Eyes", item: "Choice Scarf", moves: ["Rage Powder", "Pollen Puff", "Sleep Powder", "Hurricane"] },
-    { ability: "Hospitality", item: "Colbur Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Strength Sap"] },
-    { ability: "Friend Guard", item: "Chople Berry", moves: ["Follow Me", "Protect", "Super Fang", "Encore"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Dire Claw", "Close Combat", "Rock Tomb"] }
-  ] },
-  { id: "ct-135", tournament: "Sketch Academy Pride Month x MMHM Qualifier 1", players: 58, placement: 1, player: "SuperDialga", wins: 8, losses: 1, pokemonIds: [670, 547, 983, 902, 1018, 5059], pokemonNames: ["Floette", "Whimsicott", "Kingambit", "Basculegion-M", "Archaludon", "Hisuian Arcanine"], sets: [
+  { id: "ct-35", tournament: "TARTAN TAKEDOWN #28 - [CHAMPIONS]", players: 21, placement: 3, player: "SuperDialga", wins: 4, losses: 2, pokemonIds: [670, 547, 902, 983, 1018, 5059], pokemonNames: ["Floette", "Whimsicott", "Basculegion-M", "Kingambit", "Archaludon", "Hisuian Arcanine"], sets: [
     { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] },
     { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Last Respects", "Wave Crash", "Aqua Jet", "Flip Turn"] },
     { ability: "Defiant", item: "Black Glasses", moves: ["Sucker Punch", "Kowtow Cleave", "Iron Head", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Last Respects", "Wave Crash", "Flip Turn", "Aqua Jet"] },
     { ability: "Sturdy", item: "White Herb", moves: ["Draco Meteor", "Flash Cannon", "Aura Sphere", "Protect"] },
     { ability: "Rock Head", item: "Sitrus Berry", moves: ["Flare Blitz", "Rock Slide", "Extreme Speed", "Protect"] }
   ] },
-  { id: "ct-136", tournament: "Sketch Academy Pride Month x MMHM Qualifier 1", players: 58, placement: 2, player: "Ayabe", wins: 7, losses: 2, pokemonIds: [478, 903, 983, 445, 149, 902], pokemonNames: ["Froslass", "Sneasler", "Kingambit", "Garchomp", "Dragonite", "Basculegion-M"], sets: [
+  { id: "ct-36", tournament: "TARTAN TAKEDOWN #28 - [CHAMPIONS]", players: 21, placement: 4, player: "Svenny", wins: 4, losses: 2, pokemonIds: [823, 445, 5059, 248, 10336, 478], pokemonNames: ["Corviknight", "Garchomp", "Hisuian Arcanine", "Tyranitar", "Hisuian Samurott", "Froslass"], sets: [
+    { ability: "Mirror Armor", item: "Leftovers", moves: ["Brave Bird", "Iron Head", "Protect", "Tailwind"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Dragon Claw", "Earthquake", "Protect", "Rock Slide"] },
+    { ability: "Rock Head", item: "Focus Sash", moves: ["Flare Blitz", "Head Smash", "Protect", "Extreme Speed"] },
+    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Rock Slide", "Knock Off", "Protect", "Low Kick"] },
+    { ability: "Sharpness", item: "Choice Scarf", moves: ["Aqua Cutter", "Night Slash", "Sacred Sword", "Flip Turn"] },
+    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Protect", "Aurora Veil"] }
+  ] },
+  { id: "ct-37", tournament: "TARTAN TAKEDOWN #28 - [CHAMPIONS]", players: 21, placement: 5, player: "Y0SHY", wins: 3, losses: 2, pokemonIds: [670, 655, 727, 903, 983, 1013], pokemonNames: ["Floette", "Delphox", "Incineroar", "Sneasler", "Kingambit", "Sinistcha"], sets: [
+    { ability: "Fairy Aura", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Calm Mind", "Protect"] },
+    { ability: "Levitate", item: "Delphoxite", moves: ["Heat Wave", "Psyshock", "Nasty Plot", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Darkest Lariat", "Parting Shot"] },
+    { ability: "Poison Touch", item: "Focus Sash", moves: ["Fake Out", "Dire Claw", "Close Combat", "Quick Guard"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Swords Dance", "Protect"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"] }
+  ] },
+  { id: "ct-38", tournament: "TARTAN TAKEDOWN #28 - [CHAMPIONS]", players: 21, placement: 6, player: "TypNull07", wins: 3, losses: 2, pokemonIds: [530, 248, 823, 635, 10009, 778], pokemonNames: ["Excadrill", "Tyranitar", "Corviknight", "Hydreigon", "Wash Rotom", "Mimikyu"], sets: [
+    { ability: "Sand Rush", item: "Focus Sash", moves: ["Iron Head", "Earthquake", "Rock Slide", "Protect"] },
+    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Rock Slide", "Knock Off", "Low Kick", "Protect"] },
+    { ability: "Mirror Armor", item: "Leftovers", moves: ["Brave Bird", "Body Press", "Bulk Up", "Tailwind"] },
+    { ability: "Levitate", item: "Choice Scarf", moves: ["Dark Pulse", "Draco Meteor", "Heat Wave", "Snarl"] },
+    { ability: "Levitate", item: "Sitrus Berry", moves: ["Thunderbolt", "Hydro Pump", "Will-O-Wisp", "Protect"] },
+    { ability: "Disguise", item: "Fairy Feather", moves: ["Shadow Claw", "Shadow Sneak", "Play Rough", "Protect"] }
+  ] },
+  { id: "ct-39", tournament: "TARTAN TAKEDOWN #28 - [CHAMPIONS]", players: 21, placement: 7, player: "Uscorp", wins: 3, losses: 2, pokemonIds: [6, 142, 445, 983, 700, 902], pokemonNames: ["Charizard", "Aerodactyl", "Garchomp", "Kingambit", "Sylveon", "Basculegion-M"], sets: [
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Tailwind", "Wide Guard", "Dual Wingbeat"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Earthquake", "Dragon Claw", "Rock Tomb", "Protect"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Sucker Punch", "Kowtow Cleave", "Iron Head", "Low Kick"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Yawn", "Quick Attack", "Detect"] },
+    { ability: "Adaptability", item: "Focus Sash", moves: ["Liquidation", "Aqua Jet", "Last Respects", "Protect"] }
+  ] },
+  { id: "ct-40", tournament: "TARTAN TAKEDOWN #28 - [CHAMPIONS]", players: 21, placement: 8, player: "KST | KAMPFI ", wins: 3, losses: 2, pokemonIds: [670, 903, 727, 1013, 10009, 823], pokemonNames: ["Floette", "Sneasler", "Incineroar", "Sinistcha", "Wash Rotom", "Corviknight"], sets: [
+    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Draining Kiss", "Calm Mind", "Protect"] },
+    { ability: "Unburden", item: "Focus Sash", moves: ["Dire Claw", "Close Combat", "Coaching", "Fake Out"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Throat Chop", "Flare Blitz", "Fake Out", "Parting Shot"] },
+    { ability: "Hospitality", item: "Occa Berry", moves: ["Matcha Gotcha", "Life Dew", "Rage Powder", "Trick Room"] },
+    { ability: "Levitate", item: "Choice Scarf", moves: ["Electroweb", "Volt Switch", "Hydro Pump", "Will-O-Wisp"] },
+    { ability: "Mirror Armor", item: "Leftovers", moves: ["Brave Bird", "Iron Head", "Bulk Up", "Roost"] }
+  ] },
+  { id: "ct-41", tournament: "Champions Tour LEPE #8", players: 17, placement: 1, player: "othunder21", wins: 6, losses: 2, pokemonIds: [655, 670, 727, 903, 983, 981], pokemonNames: ["Delphox", "Floette", "Incineroar", "Sneasler", "Kingambit", "Farigiraf"], sets: [
+    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psyshock", "Nasty Plot", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Calm Mind", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Darkest Lariat", "Parting Shot"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Close Combat", "Dire Claw", "Protect"] },
+    { ability: "Defiant", item: "Focus Sash", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Low Kick"] },
+    { ability: "Armor Tail", item: "Colbur Berry", moves: ["Twin Beam", "Thunderbolt", "Trick Room", "Helping Hand"] }
+  ] },
+  { id: "ct-42", tournament: "Champions Tour LEPE #8", players: 17, placement: 2, player: "LigmaSigma67", wins: 5, losses: 3, pokemonIds: [903, 5059, 478, 547, 983, 902], pokemonNames: ["Sneasler", "Hisuian Arcanine", "Froslass", "Whimsicott", "Kingambit", "Basculegion-M"], sets: [
+    { ability: "Unburden", item: "White Herb", moves: ["Dire Claw", "Close Combat", "Fake Out", "Protect"] },
+    { ability: "Rock Head", item: "Focus Sash", moves: ["Flare Blitz", "Head Smash", "Rock Slide", "Protect"] },
     { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Aurora Veil", "Protect"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Fake Out", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
-    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Earthquake", "Rock Slide", "Dragon Claw", "Protect"] },
-    { ability: "Multiscale", item: "Dragoninite", moves: ["Dragon Pulse", "Thunderbolt", "Flamethrower", "Protect"] },
-    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Wave Crash", "Protect", "Last Respects", "Aqua Jet"] }
+    { ability: "Prankster", item: "Fairy Feather", moves: ["Moonblast", "Tailwind", "Protect", "Encore"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Swords Dance", "Sucker Punch", "Protect"] },
+    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Wave Crash", "Last Respects", "Protect", "Aqua Jet"] }
   ] },
-  { id: "ct-137", tournament: "Sketch Academy Pride Month x MMHM Qualifier 1", players: 58, placement: 3, player: "KennethIsBack", wins: 7, losses: 1, pokemonIds: [778, 981, 324, 700, 740, 323], pokemonNames: ["Mimikyu", "Farigiraf", "Torkoal", "Sylveon", "Crabominable", "Camerupt"], sets: [
-    { ability: "Disguise", item: "Babiri Berry", moves: ["Play Rough", "Shadow Claw", "Curse", "Trick Room"] },
-    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Hyper Voice", "Protect", "Trick Room", "Psychic"] },
-    { ability: "Drought", item: "Charcoal", moves: ["Eruption", "Heat Wave", "Weather Ball", "Protect"] },
-    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Moonblast", "Protect", "Quick Attack"] },
-    { ability: "Hyper Cutter", item: "Crabominite", moves: ["Ice Hammer", "Drain Punch", "Protect", "Mach Punch"] },
-    { ability: "Solid Rock", item: "Cameruptite", moves: ["Eruption", "Earth Power", "Heat Wave", "Protect"] }
+  { id: "ct-43", tournament: "Champions Tour LEPE #8", players: 17, placement: 3, player: "VanilllaIce", wins: 5, losses: 2, pokemonIds: [478, 952, 902, 983, 903, 745], pokemonNames: ["Froslass", "Scovillain", "Basculegion-M", "Kingambit", "Sneasler", "Lycanroc"], sets: [
+    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Aurora Veil", "Protect"] },
+    { ability: "Moody", item: "Scovillainite", moves: ["Giga Drain", "Overheat", "Rage Powder", "Protect"] },
+    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Swords Dance", "Protect"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Gunk Shot", "Protect", "Fake Out"] },
+    { ability: "Tough Claws", item: "Focus Sash", moves: ["Close Combat", "Accelerock", "Rock Slide", "Protect"] }
   ] },
-  { id: "ct-138", tournament: "Sketch Academy Pride Month x MMHM Qualifier 1", players: 58, placement: 4, player: "KaitoKunnnnn", wins: 6, losses: 2, pokemonIds: [10103, 903, 94, 983, 727, 149], pokemonNames: ["Alolan Ninetales", "Sneasler", "Gengar", "Kingambit", "Incineroar", "Dragonite"], sets: [
-    { ability: "Snow Warning", item: "Never-Melt Ice", moves: ["Protect", "Encore", "Disable", "Blizzard"] },
-    { ability: "Unburden", item: "Focus Sash", moves: ["Protect", "Fake Out", "Close Combat", "Dire Claw"] },
-    { ability: "Cursed Body", item: "Gengarite", moves: ["Protect", "Perish Song", "Sludge Bomb", "Shadow Ball"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Protect", "Kowtow Cleave", "Sucker Punch", "Low Kick"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Protect", "Fake Out", "Flare Blitz", "Parting Shot"] },
-    { ability: "Multiscale", item: "Dragon Fang", moves: ["Protect", "Extreme Speed", "Dragon Claw", "Low Kick"] }
+  { id: "ct-44", tournament: "Champions Tour LEPE #8", players: 17, placement: 4, player: "xhooorxhi", wins: 5, losses: 2, pokemonIds: [279, 1013, 9, 212, 26, 282], pokemonNames: ["Pelipper", "Sinistcha", "Blastoise", "Scizor", "Raichu", "Gardevoir"], sets: [
+    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Hurricane", "Weather Ball", "Tailwind", "Protect"] },
+    { ability: "Hospitality", item: "Colbur Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Life Dew"] },
+    { ability: "Rain Dish", item: "Blastoisinite", moves: ["Water Spout", "Aura Sphere", "Dark Pulse", "Fake Out"] },
+    { ability: "Technician", item: "Scizorite", moves: ["Bullet Punch", "Bug Bite", "Swords Dance", "Protect"] },
+    { ability: "Lightning Rod", item: "Magnet", moves: ["Thunder", "Volt Switch", "Light Screen", "Fake Out"] },
+    { ability: "Synchronize", item: "Choice Scarf", moves: ["Moonblast", "Psychic", "Dazzling Gleam", "Aura Sphere"] }
   ] },
-  { id: "ct-139", tournament: "Sketch Academy Pride Month x MMHM Qualifier 1", players: 58, placement: 5, player: "Evelyn K", wins: 5, losses: 2, pokemonIds: [670, 666, 727, 445, 1013, 655], pokemonNames: ["Floette", "Vivillon", "Incineroar", "Garchomp", "Sinistcha", "Delphox"], sets: [
-    { ability: "Flower Veil", item: "Floettite", moves: ["Protect", "Dazzling Gleam", "Draining Kiss", "Calm Mind"] },
-    { ability: "Compound Eyes", item: "Focus Sash", moves: ["Protect", "Pollen Puff", "Sleep Powder", "Rage Powder"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Parting Shot", "Flare Blitz", "Throat Chop", "Fake Out"] },
-    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Stomping Tantrum", "Earthquake", "Dragon Claw", "Rock Slide"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Protect", "Matcha Gotcha", "Rage Powder", "Trick Room"] },
-    { ability: "Blaze", item: "Delphoxite", moves: ["Protect", "Heat Wave", "Psyshock", "Nasty Plot"] }
+  { id: "ct-45", tournament: "Champions Tour LEPE #8", players: 17, placement: 5, player: "godey95", wins: 3, losses: 3, pokemonIds: [279, 1018, 902, 3, 302, 473], pokemonNames: ["Pelipper", "Archaludon", "Basculegion-M", "Venusaur", "Sableye", "Mamoswine"], sets: [
+    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Hurricane", "Weather Ball", "Tailwind", "Wide Guard"], teraType: "Water" },
+    { ability: "Stamina", item: "Leftovers", moves: ["Protect", "Electro Shot", "Dragon Pulse", "Flash Cannon"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Aqua Jet", "Last Respects", "Flip Turn", "Wave Crash"] },
+    { ability: "Chlorophyll", item: "Venusaurite", moves: ["Giga Drain", "Earth Power", "Sludge Bomb", "Protect"] },
+    { ability: "Prankster", item: "Roseli Berry", moves: ["Rain Dance", "Will-O-Wisp", "Reflect", "Light Screen"] },
+    { ability: "Oblivious", item: "Focus Sash", moves: ["Protect", "Icicle Spear", "Ice Shard", "High Horsepower"] }
   ] },
-  { id: "ct-140", tournament: "Sketch Academy Pride Month x MMHM Qualifier 1", players: 58, placement: 6, player: "Flaneurx", wins: 5, losses: 2, pokemonIds: [6, 902, 445, 666, 700, 663], pokemonNames: ["Charizard", "Basculegion-M", "Garchomp", "Vivillon", "Sylveon", "Talonflame"], sets: [
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Weather Ball", "Protect"] },
-    { ability: "Adaptability", item: "Focus Sash", moves: ["Liquidation", "Last Respects", "Aqua Jet", "Protect"] },
-    { ability: "Rough Skin", item: "Soft Sand", moves: ["Earthquake", "Dragon Claw", "Protect", "Rock Slide"] },
-    { ability: "Compound Eyes", item: "Choice Scarf", moves: ["Sleep Powder", "Hurricane", "Tailwind", "Stun Spore"] },
-    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Hyper Beam", "Protect", "Calm Mind"] },
-    { ability: "Gale Wings", item: "Sharp Beak", moves: ["Tailwind", "Brave Bird", "Protect", "Flare Blitz"] }
+  { id: "ct-46", tournament: "Champions Tour LEPE #8", players: 17, placement: 6, player: "NightX", wins: 3, losses: 3, pokemonIds: [745, 350, 887, 823, 6, 670], pokemonNames: ["Lycanroc", "Milotic", "Dragapult", "Corviknight", "Charizard", "Floette"], sets: [
+    { ability: "Tough Claws", item: "Focus Sash", moves: ["Accelerock", "Close Combat", "Protect", "Rock Slide"] },
+    { ability: "Competitive", item: "Leftovers", moves: ["Protect", "Icy Wind", "Scald", "Life Dew"] },
+    { ability: "Clear Body", item: "Choice Scarf", moves: ["Dragon Darts", "U-turn", "Sucker Punch", "Phantom Force"] },
+    { ability: "Mirror Armor", item: "Wacan Berry", moves: ["Roost", "Iron Head", "Body Press", "Tailwind"] },
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Protect", "Scorching Sands"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Calm Mind", "Protect", "Light of Ruin", "Draining Kiss"] }
   ] },
-  { id: "ct-141", tournament: "Sketch Academy Pride Month x MMHM Qualifier 1", players: 58, placement: 7, player: "Mlgreen", wins: 4, losses: 3, pokemonIds: [902, 279, 1018, 212, 727, 149], pokemonNames: ["Basculegion-M", "Pelipper", "Archaludon", "Scizor", "Incineroar", "Dragonite"], sets: [
-    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Protect", "Last Respects", "Aqua Jet", "Wave Crash"] },
-    { ability: "Drizzle", item: "Focus Sash", moves: ["Hurricane", "Tailwind", "Weather Ball", "Wide Guard"] },
-    { ability: "Stamina", item: "Leftovers", moves: ["Electro Shot", "Protect", "Flash Cannon", "Dragon Pulse"] },
-    { ability: "Technician", item: "Scizorite", moves: ["Bullet Punch", "Protect", "Swords Dance", "Close Combat"] },
-    { ability: "Intimidate", item: "Chople Berry", moves: ["Fake Out", "Parting Shot", "Darkest Lariat", "Flare Blitz"] },
-    { ability: "Multiscale", item: "Dragoninite", moves: ["Dragon Pulse", "Protect", "Hurricane", "Weather Ball"] }
+  { id: "ct-47", tournament: "Champions Tour LEPE #8", players: 17, placement: 7, player: "Aaroncito_4", wins: 2, losses: 4, pokemonIds: [6, 670, 547, 445, 902, 983], pokemonNames: ["Charizard", "Floette", "Whimsicott", "Garchomp", "Basculegion-M", "Kingambit"], sets: [
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Light of Ruin", "Moonblast", "Protect"] },
+    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Protect", "Encore"] },
+    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Dragon Claw", "Poison Jab", "Rock Slide", "Stomping Tantrum"] },
+    { ability: "Adaptability", item: "Mystic Water", moves: ["Aqua Jet", "Liquidation", "Last Respects", "Protect"] },
+    { ability: "Defiant", item: "Occa Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Protect", "Iron Head"] }
   ] },
-  { id: "ct-142", tournament: "Sketch Academy Pride Month x MMHM Qualifier 1", players: 58, placement: 8, player: "CorreiazinhoW", wins: 4, losses: 3, pokemonIds: [902, 279, 1018, 302, 3, 59], pokemonNames: ["Basculegion-M", "Pelipper", "Archaludon", "Sableye", "Venusaur", "Arcanine"], sets: [
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Aqua Jet", "Last Respects", "Flip Turn"] },
-    { ability: "Drizzle", item: "Focus Sash", moves: ["Weather Ball", "Hurricane", "Tailwind", "Protect"] },
+  { id: "ct-48", tournament: "Champions Tour LEPE #8", players: 17, placement: 8, player: "DaniSama98", wins: 1, losses: 5, pokemonIds: [902, 279, 135, 454, 9, 302], pokemonNames: ["Basculegion-M", "Pelipper", "Jolteon", "Toxicroak", "Blastoise", "Sableye"], sets: [
+    { ability: "Swift Swim", item: "Mystic Water", moves: ["Last Respects", "Liquidation", "Flip Turn", "Protect"] },
+    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Roost", "Hurricane", "Water Pulse", "Wide Guard"] },
+    { ability: "Volt Absorb", item: "Choice Scarf", moves: ["Alluring Voice", "Electroweb", "Thunder", "Volt Switch"] },
+    { ability: "Dry Skin", item: "Leftovers", moves: ["Poison Jab", "Drain Punch", "Fake Out", "Protect"] },
+    { ability: "Rain Dish", item: "Blastoisinite", moves: ["Ice Beam", "Water Spout", "Submission", "Protect"] },
+    { ability: "Prankster", item: "Focus Sash", moves: ["Rain Dance", "Fake Out", "Pain Split", "Will-O-Wisp"] }
+  ] },
+  { id: "ct-49", tournament: "[❄️lanakila.vg] Mobile Dawn", players: 21, placement: 1, player: "Fardeen_003X", wins: 7, losses: 1, pokemonIds: [142, 700, 784, 727, 902, 952], pokemonNames: ["Aerodactyl", "Sylveon", "Kommo-o", "Incineroar", "Basculegion-M", "Scovillain"], sets: [
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Protect", "Tailwind", "Rock Slide", "Dual Wingbeat"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Protect", "Quick Attack", "Hyper Beam", "Hyper Voice"] },
+    { ability: "Soundproof", item: "Leftovers", moves: ["Protect", "Clangorous Soul", "Clanging Scales", "Aura Sphere"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Parting Shot", "Throat Chop", "Flare Blitz"] },
+    { ability: "Adaptability", item: "Focus Sash", moves: ["Protect", "Aqua Jet", "Liquidation", "Last Respects"] },
+    { ability: "Moody", item: "Scovillainite", moves: ["Flare Blitz", "Giga Drain", "Rage Powder", "Protect"] }
+  ] },
+  { id: "ct-50", tournament: "[❄️lanakila.vg] Mobile Dawn", players: 21, placement: 2, player: "SpikeShock", wins: 6, losses: 2, pokemonIds: [956, 1018, 186, 952, 670, 727], pokemonNames: ["Espathra", "Archaludon", "Politoed", "Scovillain", "Floette", "Incineroar"], sets: [
+    { ability: "Speed Boost", item: "Colbur Berry", moves: ["Lumina Crash", "Calm Mind", "Baton Pass", "Protect"] },
+    { ability: "Stamina", item: "Leftovers", moves: ["Electro Shot", "Dragon Pulse", "Flash Cannon", "Protect"] },
+    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Muddy Water", "Psych Up", "Rain Dance", "Weather Ball"] },
+    { ability: "Chlorophyll", item: "Scovillainite", moves: ["Overheat", "Leech Seed", "Rage Powder", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Light of Ruin", "Draining Kiss", "Calm Mind", "Protect"] },
+    { ability: "Intimidate", item: "Passho Berry", moves: ["Fake Out", "Taunt", "Darkest Lariat", "Parting Shot"] }
+  ] },
+  { id: "ct-51", tournament: "[❄️lanakila.vg] Mobile Dawn", players: 21, placement: 3, player: "BobElephant", wins: 4, losses: 3, pokemonIds: [9, 1018, 94, 445, 663, 902], pokemonNames: ["Blastoise", "Archaludon", "Gengar", "Garchomp", "Talonflame", "Basculegion-M"], sets: [
+    { ability: "Rain Dish", item: "Blastoisinite", moves: ["Water Spout", "Dark Pulse", "Aura Sphere", "Protect"] },
     { ability: "Stamina", item: "Leftovers", moves: ["Dragon Pulse", "Flash Cannon", "Electro Shot", "Protect"] },
-    { ability: "Prankster", item: "Roseli Berry", moves: ["Rain Dance", "Encore", "Light Screen", "Reflect"] },
-    { ability: "Chlorophyll", item: "Venusaurite", moves: ["Leaf Storm", "Sludge Bomb", "Earth Power", "Protect"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Extreme Speed", "Snarl", "Will-O-Wisp"] }
+    { ability: "Cursed Body", item: "Focus Sash", moves: ["Sludge Bomb", "Icy Wind", "Rain Dance", "Taunt"] },
+    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Dragon Claw", "Earthquake", "Rock Slide", "Protect"] },
+    { ability: "Gale Wings", item: "Mental Herb", moves: ["Brave Bird", "Tailwind", "Rain Dance", "Quick Guard"] },
+    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Liquidation", "Last Respects", "Aqua Jet", "Protect"] }
   ] },
-  { id: "ct-143", tournament: "MMHM X CHAOS LEAGUE QUALIFIER #1", players: 27, placement: 1, player: "UsagiFoo", wins: 8, losses: 0, pokemonIds: [94, 1013, 1018, 186, 727, 478], pokemonNames: ["Gengar", "Sinistcha", "Archaludon", "Politoed", "Incineroar", "Froslass"], sets: [
+  { id: "ct-52", tournament: "[❄️lanakila.vg] Mobile Dawn", players: 21, placement: 4, player: "Zekkrose", wins: 5, losses: 1, pokemonIds: [763, 142, 983, 6, 670, 445], pokemonNames: ["Tsareena", "Aerodactyl", "Kingambit", "Charizard", "Floette", "Garchomp"], sets: [
+    { ability: "Queenly Majesty", item: "Sitrus Berry", moves: ["Power Whip", "Triple Axel", "Low Kick", "Protect"] },
+    { ability: "Unnerve", item: "Focus Sash", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Protect"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Protect"] },
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Weather Ball", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Moonblast", "Light of Ruin", "Protect"] },
+    { ability: "Rough Skin", item: "White Herb", moves: ["Earthquake", "Stomping Tantrum", "Scale Shot", "Protect"] }
+  ] },
+  { id: "ct-53", tournament: "[❄️lanakila.vg] Mobile Dawn", players: 21, placement: 5, player: "sowmen13", wins: 3, losses: 3, pokemonIds: [936, 36, 637, 763, 142, 115], pokemonNames: ["Armarouge", "Clefable", "Volcarona", "Tsareena", "Aerodactyl", "Kangaskhan"], sets: [
+    { ability: "Flash Fire", item: "Colbur Berry", moves: ["Wide Guard", "Armor Cannon", "Will-O-Wisp", "Psychic"] },
+    { ability: "Unaware", item: "Sitrus Berry", moves: ["Moonblast", "Follow Me", "Life Dew", "Protect"] },
+    { ability: "Flame Body", item: "Focus Sash", moves: ["Quiver Dance", "Giga Drain", "Bug Buzz", "Fiery Dance"] },
+    { ability: "Queenly Majesty", item: "Choice Scarf", moves: ["Triple Axel", "Trop Kick", "Low Kick", "U-turn"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Tailwind", "Protect", "Rock Slide", "Dual Wingbeat"] },
+    { ability: "Scrappy", item: "Silk Scarf", moves: ["Fake Out", "Last Resort"] }
+  ] },
+  { id: "ct-54", tournament: "[❄️lanakila.vg] Mobile Dawn", players: 21, placement: 6, player: "LMOXl", wins: 3, losses: 3, pokemonIds: [142, 6, 445, 903, 983, 670], pokemonNames: ["Aerodactyl", "Charizard", "Garchomp", "Sneasler", "Kingambit", "Floette"], sets: [
+    { ability: "Unnerve", item: "Focus Sash", moves: ["Rock Slide", "Wide Guard", "Tailwind", "Protect"] },
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Weather Ball", "Heat Wave", "Solar Beam", "Protect"] },
+    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Earthquake", "Stomping Tantrum", "Dragon Claw", "Rock Slide"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Dire Claw", "Close Combat", "Feint", "Fake Out"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] }
+  ] },
+  { id: "ct-55", tournament: "[❄️lanakila.vg] Mobile Dawn", players: 21, placement: 7, player: "dark_minds", wins: 3, losses: 3, pokemonIds: [1018, 186, 952, 903, 149, 902], pokemonNames: ["Archaludon", "Politoed", "Scovillain", "Sneasler", "Dragonite", "Basculegion-M"], sets: [
+    { ability: "Stamina", item: "Leftovers", moves: ["Protect", "Electro Shot", "Dragon Pulse", "Steel Beam"] },
+    { ability: "Drizzle", item: "Mystic Water", moves: ["Protect", "Muddy Water", "Weather Ball", "Ice Beam"] },
+    { ability: "Moody", item: "Scovillainite", moves: ["Protect", "Leech Seed", "Rage Powder", "Overheat"] },
+    { ability: "Poison Touch", item: "Focus Sash", moves: ["Protect", "Fake Out", "Close Combat", "Dire Claw"] },
+    { ability: "Inner Focus", item: "Dragoninite", moves: ["Protect", "Dragon Pulse", "Hurricane", "Tailwind"] },
+    { ability: "Swift Swim", item: "Choice Scarf", moves: ["Aqua Jet", "Wave Crash", "Last Respects", "Flip Turn"] }
+  ] },
+  { id: "ct-56", tournament: "Pokemon VGC UmbreNews 16.06.2026 #19 - Champion", players: 9, placement: 1, player: "TitanoPigro3", wins: 4, losses: 1, pokemonIds: [94, 1013, 1018, 186, 727, 478], pokemonNames: ["Gengar", "Sinistcha", "Archaludon", "Politoed", "Incineroar", "Froslass"], sets: [
     { ability: "Cursed Body", item: "Gengarite", moves: ["Shadow Ball", "Sludge Bomb", "Perish Song", "Protect"] },
     { ability: "Hospitality", item: "Colbur Berry", moves: ["Matcha Gotcha", "Trick Room", "Rage Powder", "Protect"] },
     { ability: "Stamina", item: "Leftovers", moves: ["Electro Shot", "Dragon Pulse", "Flash Cannon", "Protect"] },
@@ -13207,357 +12535,1109 @@ export const CHAMPIONS_TOURNAMENT_TEAMS: ChampionsTournamentTeam[] = [
     { ability: "Intimidate", item: "Chople Berry", moves: ["Flare Blitz", "Fake Out", "Parting Shot", "Protect"] },
     { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Aurora Veil", "Rain Dance", "Protect"] }
   ] },
-  { id: "ct-144", tournament: "MMHM X CHAOS LEAGUE QUALIFIER #1", players: 27, placement: 2, player: "KST|KAMPFI ", wins: 6, losses: 2, pokemonIds: [655, 670, 903, 727, 1013, 445], pokemonNames: ["Delphox", "Floette", "Sneasler", "Incineroar", "Sinistcha", "Garchomp"], sets: [
-    { ability: "Blaze", item: "Delphoxite", moves: ["Protect", "Heat Wave", "Psyshock", "Nasty Plot"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Draining Kiss", "Calm Mind", "Protect"] },
-    { ability: "Unburden", item: "Focus Sash", moves: ["Close Combat", "Dire Claw", "Fake Out", "Coaching"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Parting Shot", "Throat Chop", "Fake Out"] },
-    { ability: "Hospitality", item: "Occa Berry", moves: ["Matcha Gotcha", "Life Dew", "Rage Powder", "Trick Room"] },
-    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Earthquake", "Stomping Tantrum", "Rock Slide", "Dragon Claw"] }
+  { id: "ct-57", tournament: "Pokemon VGC UmbreNews 16.06.2026 #19 - Champion", players: 9, placement: 2, player: "yuirs_gsbx", wins: 4, losses: 1, pokemonIds: [94, 727, 1013, 1018, 478, 186], pokemonNames: ["Gengar", "Incineroar", "Sinistcha", "Archaludon", "Froslass", "Politoed"], sets: [
+    { ability: "Cursed Body", item: "Gengarite", moves: ["Perish Song", "Sludge Bomb", "Shadow Ball", "Protect"] },
+    { ability: "Intimidate", item: "Chople Berry", moves: ["Parting Shot", "Protect", "Flare Blitz", "Fake Out"] },
+    { ability: "Hospitality", item: "Colbur Berry", moves: ["Matcha Gotcha", "Trick Room", "Rage Powder", "Protect"] },
+    { ability: "Stamina", item: "Leftovers", moves: ["Electro Shot", "Flash Cannon", "Dragon Pulse", "Protect"] },
+    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Aurora Veil", "Protect", "Rain Dance"] },
+    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Perish Song", "Weather Ball", "Protect", "Encore"] }
   ] },
-  { id: "ct-145", tournament: "MMHM X CHAOS LEAGUE QUALIFIER #1", players: 27, placement: 3, player: "aberen", wins: 5, losses: 2, pokemonIds: [666, 670, 925, 1013, 655, 727], pokemonNames: ["Vivillon", "Floette", "Maushold", "Sinistcha", "Delphox", "Incineroar"], sets: [
-    { ability: "Compound Eyes", item: "Choice Scarf", moves: ["Rage Powder", "Hurricane", "Sleep Powder", "Pollen Puff"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Draining Kiss", "Dazzling Gleam", "Calm Mind", "Protect"] },
-    { ability: "Friend Guard", item: "Chople Berry", moves: ["Follow Me", "Super Fang", "Feint", "Protect"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Rage Powder", "Matcha Gotcha", "Life Dew", "Protect"] },
-    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psyshock", "Nasty Plot", "Protect"] },
-    { ability: "Intimidate", item: "Passho Berry", moves: ["Parting Shot", "Throat Chop", "Flare Blitz", "Fake Out"] }
+  { id: "ct-58", tournament: "Pokemon VGC UmbreNews 16.06.2026 #19 - Champion", players: 9, placement: 3, player: "NostriX", wins: 2, losses: 2, pokemonIds: [6, 547, 248, 727, 700, 135], pokemonNames: ["Charizard", "Whimsicott", "Tyranitar", "Incineroar", "Sylveon", "Jolteon"], sets: [
+    { ability: "Solar Power", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Protect", "Weather Ball"] },
+    { ability: "Prankster", item: "Focus Sash", moves: ["Tailwind", "Encore", "Fake Tears", "Moonblast"] },
+    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Rock Slide", "Knock Off", "Dragon Dance", "Earthquake"] },
+    { ability: "Intimidate", item: "Charcoal", moves: ["Throat Chop", "Parting Shot", "Flare Blitz", "Fake Out"] },
+    { ability: "Pixilate", item: "Sitrus Berry", moves: ["Hyper Voice", "Hyper Beam", "Quick Attack", "Mystical Fire"] },
+    { ability: "Volt Absorb", item: "Scope Lens", moves: ["Thunderbolt", "Protect", "Volt Switch", "Focus Energy"] }
   ] },
-  { id: "ct-146", tournament: "MMHM X CHAOS LEAGUE QUALIFIER #1", players: 27, placement: 4, player: "Orttega15", wins: 4, losses: 3, pokemonIds: [115, 324, 981, 858, 983, 727], pokemonNames: ["Kangaskhan", "Torkoal", "Farigiraf", "Hatterene", "Kingambit", "Incineroar"], sets: [
-    { ability: "Scrappy", item: "Kangaskhanite", moves: ["Double-Edge", "Low Kick", "Sucker Punch", "Fake Out"] },
-    { ability: "Drought", item: "Charcoal", moves: ["Eruption", "Weather Ball", "Earth Power", "Protect"] },
-    { ability: "Armor Tail", item: "Colbur Berry", moves: ["Psychic", "Hyper Voice", "Helping Hand", "Trick Room"] },
-    { ability: "Magic Bounce", item: "Focus Sash", moves: ["Dazzling Gleam", "Psychic", "Trick Room", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Low Kick"] },
-    { ability: "Intimidate", item: "White Herb", moves: ["Close Combat", "Darkest Lariat", "Fake Out", "Flare Blitz"] }
+  { id: "ct-59", tournament: "Pokemon VGC UmbreNews 16.06.2026 #19 - Champion", players: 9, placement: 4, player: "Karim Ediel Bustillos Juárez", wins: 2, losses: 2, pokemonIds: [903, 983, 36, 655, 184, 130], pokemonNames: ["Sneasler", "Kingambit", "Clefable", "Delphox", "Azumarill", "Gyarados"], sets: [
+    { ability: "Unburden", item: "Focus Sash", moves: ["Close Combat", "Dire Claw", "Fake Out", "Protect"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Swords Dance", "Kowtow Cleave", "Sucker Punch", "Protect"] },
+    { ability: "Unaware", item: "Bright Powder", moves: ["Protect", "Follow Me", "Helping Hand", "Life Dew"] },
+    { ability: "Blaze", item: "Delphoxite", moves: ["Protect", "Substitute", "Heat Wave", "Psychic"] },
+    { ability: "Huge Power", item: "Sitrus Berry", moves: ["Protect", "Aqua Jet", "Play Rough", "Belly Drum"] },
+    { ability: "Intimidate", item: "Quick Claw", moves: ["Waterfall", "Thunder Wave", "Taunt", "Helping Hand"] }
   ] },
-  { id: "ct-147", tournament: "MMHM X CHAOS LEAGUE QUALIFIER #1", players: 27, placement: 5, player: "Shnipe", wins: 4, losses: 2, pokemonIds: [547, 5059, 983, 282, 902, 903], pokemonNames: ["Whimsicott", "Hisuian Arcanine", "Kingambit", "Gardevoir", "Basculegion-M", "Sneasler"], sets: [
-    { ability: "Prankster", item: "Fairy Feather", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
-    { ability: "Rock Head", item: "Focus Sash", moves: ["Flare Blitz", "Rock Slide", "Extreme Speed", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Swords Dance", "Protect"] },
-    { ability: "Trace", item: "Gardevoirite", moves: ["Hyper Voice", "Psychic", "Taunt", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Aqua Jet", "Last Respects", "Flip Turn"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Fake Out", "Protect"] }
+  { id: "ct-60", tournament: "Pokemon VGC UmbreNews 16.06.2026 #19 - Champion", players: 9, placement: 5, player: "Marcko123", wins: 2, losses: 2, pokemonIds: [937, 547, 925, 475, 227, 350], pokemonNames: ["Ceruledge", "Whimsicott", "Maushold", "Gallade", "Skarmory", "Milotic"], sets: [
+    { ability: "Flash Fire", item: "Choice Scarf", moves: ["Shadow Sneak", "Poltergeist", "Night Slash", "Bitter Blade"] },
+    { ability: "Prankster", item: "Kebia Berry", moves: ["Tailwind", "Protect", "Moonblast", "Encore"] },
+    { ability: "Friend Guard", item: "Chople Berry", moves: ["Protect", "Population Bomb", "Beat Up", "Follow Me"] },
+    { ability: "Justified", item: "Galladite", moves: ["Psycho Cut", "Close Combat", "Wide Guard", "Protect"] },
+    { ability: "Sturdy", item: "Skarmorite", moves: ["Brave Bird", "Protect", "Rock Tomb", "Iron Head"] },
+    { ability: "Competitive", item: "Leftovers", moves: ["Scald", "Ice Beam", "Protect", "Recover"] }
   ] },
-  { id: "ct-148", tournament: "MMHM X CHAOS LEAGUE QUALIFIER #1", players: 27, placement: 6, player: "Skyfire", wins: 4, losses: 2, pokemonIds: [670, 1013, 666, 727, 655, 925], pokemonNames: ["Floette", "Sinistcha", "Vivillon", "Incineroar", "Delphox", "Maushold"], sets: [
+  { id: "ct-61", tournament: "Pokemon VGC UmbreNews 16.06.2026 #19 - Champion", players: 9, placement: 6, player: "ReshyramVGC", wins: 2, losses: 2, pokemonIds: [697, 302, 655, 752, 823, 310], pokemonNames: ["Tyrantrum", "Sableye", "Delphox", "Araquanid", "Corviknight", "Manectric"], sets: [
+    { ability: "Strong Jaw", item: "Choice Scarf", moves: ["Rock Slide", "Psychic Fangs", "Crunch", "Close Combat"] },
+    { ability: "Prankster", item: "Roseli Berry", moves: ["Fake Out", "Will-O-Wisp", "Light Screen", "Sunny Day"] },
+    { ability: "Levitate", item: "Delphoxite", moves: ["Protect", "Heat Wave", "Psychic", "Encore"] },
+    { ability: "Water Bubble", item: "Leftovers", moves: ["Wide Guard", "Lunge", "Protect", "Liquidation"] },
+    { ability: "Mirror Armor", item: "Sitrus Berry", moves: ["Roost", "Tailwind", "Bulk Up", "Brave Bird"] },
+    { ability: "Lightning Rod", item: "Manectite", moves: ["Protect", "Thunderbolt", "Overheat", "Snarl"] }
+  ] },
+  { id: "ct-62", tournament: "MMHM x Stellar Novas Tour #1", players: 18, placement: 1, player: "EchoShadow", wins: 6, losses: 1, pokemonIds: [279, 1018, 902, 302, 3, 983], pokemonNames: ["Pelipper", "Archaludon", "Basculegion-M", "Sableye", "Venusaur", "Kingambit"], sets: [
+    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Tailwind", "Weather Ball", "Hurricane", "Wide Guard"], teraType: "Water" },
+    { ability: "Stamina", item: "Leftovers", moves: ["Electro Shot", "Dragon Pulse", "Flash Cannon", "Protect"], teraType: "Steel" },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Aqua Jet", "Flip Turn", "Last Respects"], teraType: "Water" },
+    { ability: "Prankster", item: "Roseli Berry", moves: ["Will-O-Wisp", "Rain Dance", "Encore", "Disable"], teraType: "Dark" },
+    { ability: "Chlorophyll", item: "Venusaurite", moves: ["Sludge Bomb", "Earth Power", "Giga Drain", "Protect"], teraType: "Grass" },
+    { ability: "Defiant", item: "Focus Sash", moves: ["Iron Head", "Sucker Punch", "Low Kick", "Protect"], teraType: "Dark" }
+  ] },
+  { id: "ct-63", tournament: "MMHM x Stellar Novas Tour #1", players: 18, placement: 2, player: "Piedrer", wins: 5, losses: 2, pokemonIds: [700, 142, 902, 983, 445, 6], pokemonNames: ["Sylveon", "Aerodactyl", "Basculegion-M", "Kingambit", "Garchomp", "Charizard"], sets: [
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Hyper Beam", "Quick Attack", "Detect"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Wide Guard"] },
+    { ability: "Adaptability", item: "Focus Sash", moves: ["Liquidation", "Last Respects", "Aqua Jet", "Protect"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Low Kick"] },
+    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Earthquake", "Stomping Tantrum", "Dragon Claw", "Rock Tomb"] },
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] }
+  ] },
+  { id: "ct-64", tournament: "MMHM x Stellar Novas Tour #1", players: 18, placement: 3, player: "NiloVGC", wins: 5, losses: 1, pokemonIds: [142, 445, 700, 6, 983, 902], pokemonNames: ["Aerodactyl", "Garchomp", "Sylveon", "Charizard", "Kingambit", "Basculegion-M"], sets: [
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Wide Guard"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Earthquake", "Rock Tomb", "Dragon Claw", "Protect"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Quick Attack", "Yawn", "Detect"] },
+    { ability: "Drought", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Low Kick"] },
+    { ability: "Swift Swim", item: "Focus Sash", moves: ["Liquidation", "Aqua Jet", "Last Respects", "Protect"] }
+  ] },
+  { id: "ct-65", tournament: "MMHM x Stellar Novas Tour #1", players: 18, placement: 4, player: "DTLink", wins: 4, losses: 2, pokemonIds: [142, 903, 3, 350, 727, 1018], pokemonNames: ["Aerodactyl", "Sneasler", "Venusaur", "Milotic", "Incineroar", "Archaludon"], sets: [
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Ice Fang"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Dire Claw", "Protect", "Close Combat"] },
+    { ability: "Chlorophyll", item: "Venusaurite", moves: ["Earth Power", "Leaf Storm", "Sludge Bomb", "Protect"] },
+    { ability: "Competitive", item: "Leftovers", moves: ["Scald", "Icy Wind", "Protect", "Life Dew"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Darkest Lariat", "Flare Blitz", "Parting Shot"] },
+    { ability: "Sturdy", item: "Choice Scarf", moves: ["Thunderbolt", "Flash Cannon", "Dragon Pulse", "Aura Sphere"] }
+  ] },
+  { id: "ct-66", tournament: "MMHM x Stellar Novas Tour #1", players: 18, placement: 5, player: "Lycopoky", wins: 3, losses: 2, pokemonIds: [530, 248, 903, 823, 10009, 1013], pokemonNames: ["Excadrill", "Tyranitar", "Sneasler", "Corviknight", "Wash Rotom", "Sinistcha"], sets: [
+    { ability: "Sand Rush", item: "Focus Sash", moves: ["Rock Slide", "High Horsepower", "Iron Head", "Protect"] },
+    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Dragon Dance", "Rock Slide", "Knock Off", "Protect"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Coaching", "Fake Out", "Close Combat", "Dire Claw"] },
+    { ability: "Mirror Armor", item: "Leftovers", moves: ["Bulk Up", "Iron Head", "Brave Bird", "Roost"] },
+    { ability: "Levitate", item: "Choice Scarf", moves: ["Will-O-Wisp", "Hydro Pump", "Thunderbolt", "Trick"] },
+    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"] }
+  ] },
+  { id: "ct-67", tournament: "MMHM x Stellar Novas Tour #1", players: 18, placement: 6, player: "carlos_012", wins: 2, losses: 2, pokemonIds: [6, 445, 981, 142, 983, 700], pokemonNames: ["Charizard", "Garchomp", "Farigiraf", "Aerodactyl", "Kingambit", "Sylveon"], sets: [
+    { ability: "Drought", item: "Charizardite Y", moves: ["Protect", "Heat Wave", "Solar Beam", "Weather Ball"] },
+    { ability: "Rough Skin", item: "Soft Sand", moves: ["Protect", "Dragon Claw", "Earthquake", "Stomping Tantrum"] },
+    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Thunderbolt", "Roar", "Trick Room", "Psychic"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Tailwind", "Rock Slide", "Dual Wingbeat", "Ice Fang"] },
+    { ability: "Defiant", item: "Focus Sash", moves: ["Sucker Punch", "Kowtow Cleave", "Iron Head", "Low Kick"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Detect", "Quick Attack", "Hyper Beam", "Hyper Voice"] }
+  ] },
+  { id: "ct-68", tournament: "MMHM x Stellar Novas Tour #1", players: 18, placement: 7, player: "Soren G", wins: 2, losses: 2, pokemonIds: [6, 727, 700, 981, 983, 142], pokemonNames: ["Charizard", "Incineroar", "Sylveon", "Farigiraf", "Kingambit", "Aerodactyl"], sets: [
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Protect", "Heat Wave", "Weather Ball", "Solar Beam"] },
+    { ability: "Intimidate", item: "Passho Berry", moves: ["Flare Blitz", "Darkest Lariat", "Fake Out", "Parting Shot"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Detect", "Quick Attack", "Hyper Voice", "Hyper Beam"] },
+    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Twin Beam", "Thunderbolt", "Roar", "Trick Room"] },
+    { ability: "Defiant", item: "Focus Sash", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Low Kick"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Ice Fang", "Tailwind"] }
+  ] },
+  { id: "ct-69", tournament: "MMHM x Stellar Novas Tour #1", players: 18, placement: 8, player: "puffyzero", wins: 2, losses: 2, pokemonIds: [937, 310, 448, 10103, 547, 130], pokemonNames: ["Ceruledge", "Manectric", "Lucario", "Alolan Ninetales", "Whimsicott", "Gyarados"], sets: [
+    { ability: "Flash Fire", item: "Sitrus Berry", moves: ["Bitter Blade", "Shadow Sneak", "Psycho Cut", "Protect"] },
+    { ability: "Lightning Rod", item: "Manectite", moves: ["Thunderbolt", "Volt Switch", "Flamethrower", "Protect"] },
+    { ability: "Inner Focus", item: "Lucarionite", moves: ["Close Combat", "Meteor Mash", "Extreme Speed", "Detect"] },
+    { ability: "Snow Warning", item: "Focus Sash", moves: ["Blizzard", "Moonblast", "Aurora Veil", "Protect"] },
+    { ability: "Prankster", item: "Mental Herb", moves: ["Moonblast", "Protect", "Tailwind", "Encore"] },
+    { ability: "Intimidate", item: "Leftovers", moves: ["Protect", "Waterfall", "Power Whip", "Dragon Dance"] }
+  ] },
+  { id: "ct-70", tournament: "Pokepal Smackdown #145 (Champions) (Reg M-A)", players: 25, placement: 1, player: "samurpo", wins: 4, losses: 1, pokemonIds: [670, 964, 903, 142, 983, 727], pokemonNames: ["Floette", "Palafin", "Sneasler", "Aerodactyl", "Kingambit", "Incineroar"], sets: [
     { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Draining Kiss", "Calm Mind", "Protect"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Protect"] },
-    { ability: "Compound Eyes", item: "Choice Scarf", moves: ["Sleep Powder", "Hurricane", "Rage Powder", "Tailwind"] },
-    { ability: "Intimidate", item: "Passho Berry", moves: ["Fake Out", "Flare Blitz", "Throat Chop", "Parting Shot"] },
-    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psychic", "Nasty Plot", "Protect"] },
-    { ability: "Friend Guard", item: "Chople Berry", moves: ["Follow Me", "Super Fang", "Feint", "Protect"] }
+    { ability: "Zero to Hero", item: "Leftovers", moves: ["Bulk Up", "Wave Crash", "Jet Punch", "Protect"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Protect", "Fake Out", "Dire Claw", "Close Combat"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Protect", "Rock Slide", "Ice Fang", "Dual Wingbeat"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Protect", "Swords Dance"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Parting Shot", "Throat Chop"] }
   ] },
-  { id: "ct-149", tournament: "MMHM X CHAOS LEAGUE QUALIFIER #1", players: 27, placement: 7, player: "MarvVGC", wins: 3, losses: 3, pokemonIds: [478, 5059, 983, 903, 142, 902], pokemonNames: ["Froslass", "Hisuian Arcanine", "Kingambit", "Sneasler", "Aerodactyl", "Basculegion-M"], sets: [
-    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Aurora Veil", "Protect"] },
-    { ability: "Rock Head", item: "Focus Sash", moves: ["Protect", "Head Smash", "Extreme Speed", "Flare Blitz"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Low Kick", "Sucker Punch", "Iron Head", "Protect"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Protect", "Fake Out"] },
-    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Protect"] },
+  { id: "ct-71", tournament: "Pokepal Smackdown #145 (Champions) (Reg M-A)", players: 25, placement: 2, player: "OhHeyItsAJ", wins: 4, losses: 1, pokemonIds: [9, 983, 248, 1013, 981, 902], pokemonNames: ["Blastoise", "Kingambit", "Tyranitar", "Sinistcha", "Farigiraf", "Basculegion-M"], sets: [
+    { ability: "Rain Dish", item: "Blastoisinite", moves: ["Water Spout", "Aura Sphere", "Dark Pulse", "Fake Out"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Low Kick"] },
+    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Rock Slide", "Knock Off", "Superpower", "Protect"] },
+    { ability: "Hospitality", item: "Occa Berry", moves: ["Life Dew", "Rage Powder", "Trick Room", "Matcha Gotcha"] },
+    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Psychic", "Low Kick", "Trick Room", "Rain Dance"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Flip Turn", "Aqua Jet", "Last Respects"] }
+  ] },
+  { id: "ct-72", tournament: "Pokepal Smackdown #145 (Champions) (Reg M-A)", players: 25, placement: 3, player: "Rahzar", wins: 4, losses: 1, pokemonIds: [149, 6, 547, 445, 983, 902], pokemonNames: ["Dragonite", "Charizard", "Whimsicott", "Garchomp", "Kingambit", "Basculegion-M"], sets: [
+    { ability: "Multiscale", item: "Dragoninite", moves: ["Extreme Speed", "Dragon Pulse", "Thunderbolt", "Flamethrower"] },
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Weather Ball", "Solar Beam", "Heat Wave", "Protect"] },
+    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
+    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Earthquake", "Poison Jab", "Rock Slide", "Protect"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Protect"] },
     { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] }
   ] },
-  { id: "ct-150", tournament: "MMHM X CHAOS LEAGUE QUALIFIER #1", players: 27, placement: 8, player: "DoctorDragapult", wins: 3, losses: 3, pokemonIds: [478, 10336, 5059, 1013, 115, 823], pokemonNames: ["Froslass", "Hisuian Samurott", "Hisuian Arcanine", "Sinistcha", "Kangaskhan", "Corviknight"], sets: [
-    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Protect", "Nasty Plot"] },
-    { ability: "Sharpness", item: "Choice Scarf", moves: ["Ceaseless Edge", "Razor Shell", "Flip Turn", "Sacred Sword"] },
-    { ability: "Rock Head", item: "Focus Sash", moves: ["Head Smash", "Flare Blitz", "Protect", "Flame Charge"] },
-    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Matcha Gotcha", "Trick Room", "Imprison", "Rage Powder"] },
-    { ability: "Scrappy", item: "Kangaskhanite", moves: ["Fake Out", "Double-Edge", "Sucker Punch", "Drain Punch"] },
-    { ability: "Mirror Armor", item: "Leftovers", moves: ["Brave Bird", "Iron Head", "Taunt", "Tailwind"] }
+  { id: "ct-73", tournament: "Pokepal Smackdown #145 (Champions) (Reg M-A)", players: 25, placement: 4, player: "Codename_Unown", wins: 4, losses: 1, pokemonIds: [395, 3, 6, 445, 727, 670], pokemonNames: ["Empoleon", "Venusaur", "Charizard", "Garchomp", "Incineroar", "Floette"], sets: [
+    { ability: "Competitive", item: "Leftovers", moves: ["Protect", "Flash Cannon", "Vacuum Wave", "Hydro Pump"] },
+    { ability: "Chlorophyll", item: "Focus Sash", moves: ["Protect", "Solar Beam", "Earth Power", "Sleep Powder"] },
+    { ability: "Solar Power", item: "Charizardite Y", moves: ["Heat Wave", "Protect", "Ancient Power", "Air Slash"] },
+    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Rock Slide", "Iron Head", "Dragon Claw", "Bulldoze"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Darkest Lariat", "Parting Shot", "Flare Blitz"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Protect", "Moonblast", "Draining Kiss", "Calm Mind"] }
   ] },
-  { id: "ct-151", tournament: "Pokemon Champions Torneo De Baneos", players: 8, placement: 1, player: "Losandy", wins: 5, losses: 1, pokemonIds: [707, 666, 68, 157, 497, 130], pokemonNames: ["Klefki", "Vivillon", "Machamp", "Typhlosion", "Serperior", "Gyarados"], sets: [
-    { ability: "Prankster", item: "Sitrus Berry", moves: ["Reflect", "Light Screen", "Dazzling Gleam", "Thunder Wave"] },
-    { ability: "Compound Eyes", item: "Focus Sash", moves: ["Sleep Powder", "Hurricane", "Pollen Puff", "Protect"] },
-    { ability: "No Guard", item: "Quick Claw", moves: ["Dynamic Punch", "Stone Edge", "Protect", "Bulldoze"] },
-    { ability: "Blaze", item: "Choice Scarf", moves: ["Eruption", "Heat Wave", "Fire Spin", "Overheat"] },
-    { ability: "Contrary", item: "Leftovers", moves: ["Leech Seed", "Leaf Storm", "Protect", "Breaking Swipe"] },
-    { ability: "Intimidate", item: "Gyaradosite", moves: ["Waterfall", "Crunch", "Dragon Dance", "Protect"] }
+  { id: "ct-74", tournament: "Pokepal Smackdown #145 (Champions) (Reg M-A)", players: 25, placement: 5, player: "ZKing", wins: 4, losses: 1, pokemonIds: [473, 748, 903, 635, 6, 727], pokemonNames: ["Mamoswine", "Toxapex", "Sneasler", "Hydreigon", "Charizard", "Incineroar"], sets: [
+    { ability: "Oblivious", item: "Focus Sash", moves: ["Protect", "Icicle Crash", "Earthquake", "Ice Shard"] },
+    { ability: "Regenerator", item: "Leftovers", moves: ["Baneful Bunker", "Infestation", "Toxic", "Wide Guard"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Protect", "Close Combat", "Fake Out", "Dire Claw"] },
+    { ability: "Levitate", item: "Choice Scarf", moves: ["Dark Pulse", "Earth Power", "Snarl", "Draco Meteor"] },
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Protect", "Heat Wave", "Solar Beam", "Weather Ball"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Parting Shot", "Flare Blitz", "Throat Chop"] }
   ] },
-  { id: "ct-152", tournament: "Pokemon Champions Torneo De Baneos", players: 8, placement: 2, player: "RonaldxT7", wins: 4, losses: 2, pokemonIds: [678, 65, 197, 763, 500, 752], pokemonNames: ["Meowstic-M", "Alakazam", "Umbreon", "Tsareena", "Emboar", "Araquanid"], sets: [
-    { ability: "Prankster", item: "Focus Sash", moves: ["Expanding Force", "Trick Room", "Psychic Terrain", "Fake Out"] },
-    { ability: "Magic Guard", item: "Alakazite", moves: ["Expanding Force", "Shadow Ball", "Dazzling Gleam", "Protect"] },
-    { ability: "Synchronize", item: "Leftovers", moves: ["Toxic", "Moonlight", "Snarl", "Protect"] },
-    { ability: "Queenly Majesty", item: "Miracle Seed", moves: ["Trop Kick", "Protect", "Low Kick", "Helping Hand"] },
-    { ability: "Blaze", item: "Emboarite", moves: ["Bulk Up", "Drain Punch", "Heat Crash", "Protect"] },
-    { ability: "Water Bubble", item: "Mystic Water", moves: ["Liquidation", "Leech Life", "Wide Guard", "Protect"] }
+  { id: "ct-75", tournament: "Pokepal Smackdown #145 (Champions) (Reg M-A)", players: 25, placement: 6, player: "2playakyle", wins: 3, losses: 2, pokemonIds: [623, 765, 903, 727, 1013, 983], pokemonNames: ["Golurk", "Oranguru", "Sneasler", "Incineroar", "Sinistcha", "Kingambit"], sets: [
+    { ability: "Unseen Fist", item: "Golurkite", moves: ["Headlong Rush", "Poltergeist", "Ice Punch", "Protect"] },
+    { ability: "Inner Focus", item: "Colbur Berry", moves: ["Psychic", "Instruct", "Trick Room", "Protect"] },
+    { ability: "Unburden", item: "Focus Sash", moves: ["Close Combat", "Dire Claw", "Fake Out", "Coaching"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Throat Chop", "Flare Blitz", "Parting Shot", "Fake Out"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Life Dew", "Rage Powder", "Trick Room"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] }
   ] },
-  { id: "ct-153", tournament: "Pokemon Champions Torneo De Baneos", players: 8, placement: 3, player: "SlytherisGaming", wins: 3, losses: 2, pokemonIds: [392, 135, 475, 748, 497, 319], pokemonNames: ["Infernape", "Jolteon", "Gallade", "Toxapex", "Serperior", "Sharpedo"], sets: [
-    { ability: "Iron Fist", item: "Black Belt", moves: ["Fake Out", "Drain Punch", "Taunt", "Fire Punch"] },
-    { ability: "Volt Absorb", item: "Focus Sash", moves: ["Protect", "Alluring Voice", "Thunderbolt", "Helping Hand"] },
-    { ability: "Sharpness", item: "Galladite", moves: ["Protect", "Psycho Cut", "Sacred Sword", "Swords Dance"] },
-    { ability: "Regenerator", item: "Leftovers", moves: ["Baneful Bunker", "Infestation", "Toxic", "Liquidation"] },
-    { ability: "Contrary", item: "Sitrus Berry", moves: ["Protect", "Leaf Storm", "Glare", "Giga Drain"] },
-    { ability: "Speed Boost", item: "Sharpedonite", moves: ["Protect", "Liquidation", "Ice Fang", "Crunch"] }
-  ] },
-  { id: "ct-154", tournament: "Pokemon Champions Torneo De Baneos", players: 8, placement: 4, player: "jeanlopez25", wins: 2, losses: 3, pokemonIds: [707, 184, 740, 778, 323, 858], pokemonNames: ["Klefki", "Azumarill", "Crabominable", "Mimikyu", "Camerupt", "Hatterene"], sets: [
-    { ability: "Prankster", item: "Sitrus Berry", moves: ["Reflect", "Misty Terrain", "Light Screen", "Dazzling Gleam"] },
-    { ability: "Huge Power", item: "Mystic Water", moves: ["Liquidation", "Play Rough", "Aqua Jet", "Protect"] },
-    { ability: "Iron Fist", item: "Crabominite", moves: ["Drain Punch", "Ice Hammer", "Thunder Punch", "Protect"] },
-    { ability: "Disguise", item: "Mental Herb", moves: ["Play Rough", "Trick Room", "Shadow Claw", "Protect"] },
-    { ability: "Solid Rock", item: "Cameruptite", moves: ["Heat Wave", "Earth Power", "Ancient Power", "Protect"] },
-    { ability: "Magic Bounce", item: "Fairy Feather", moves: ["Dazzling Gleam", "Psychic", "Life Dew", "Protect"] }
-  ] },
-  { id: "ct-155", tournament: "Pokemon Champions Torneo De Baneos", players: 8, placement: 5, player: "Humi", wins: 1, losses: 3, pokemonIds: [186, 181, 130, 858, 461, 614], pokemonNames: ["Politoed", "Ampharos", "Gyarados", "Hatterene", "Weavile", "Beartic"], sets: [
-    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Protect", "Weather Ball", "Perish Song", "Encore"] },
-    { ability: "Static", item: "Ampharosite", moves: ["Dragon Pulse", "Protect", "Thunder", "Volt Switch"] },
-    { ability: "Intimidate", item: "Gyaradosite", moves: ["Waterfall", "Protect", "Crunch", "Dragon Dance"] },
-    { ability: "Magic Bounce", item: "Fairy Feather", moves: ["Dazzling Gleam", "Protect", "Psychic", "Trick Room"] },
-    { ability: "Pressure", item: "Focus Sash", moves: ["Fake Out", "Knock Off", "Triple Axel", "Protect"] },
-    { ability: "Swift Swim", item: "Never-Melt Ice", moves: ["Icicle Crash", "Protect", "Close Combat", "Liquidation"] }
-  ] },
-  { id: "ct-156", tournament: "VGC Trainer school x MMHM x Pride month event! #1", players: 52, placement: 1, player: "GielBakker", wins: 10, losses: 0, pokemonIds: [94, 670, 727, 983, 903, 784], pokemonNames: ["Gengar", "Floette", "Incineroar", "Kingambit", "Sneasler", "Kommo-o"], sets: [
-    { ability: "Cursed Body", item: "Gengarite", moves: ["Protect", "Shadow Ball", "Perish Song", "Disable"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Moonblast", "Light of Ruin", "Protect"] },
-    { ability: "Intimidate", item: "Passho Berry", moves: ["Protect", "Flare Blitz", "Fake Out", "Parting Shot"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Sucker Punch", "Kowtow Cleave", "Swords Dance", "Protect"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Dire Claw", "Close Combat", "Protect"] },
-    { ability: "Soundproof", item: "Leftovers", moves: ["Clanging Scales", "Aura Sphere", "Clangorous Soul", "Protect"] }
-  ] },
-  { id: "ct-157", tournament: "VGC Trainer school x MMHM x Pride month event! #1", players: 52, placement: 2, player: "darxzy", wins: 8, losses: 2, pokemonIds: [655, 903, 1013, 902, 727, 670], pokemonNames: ["Delphox", "Sneasler", "Sinistcha", "Basculegion-M", "Incineroar", "Floette"], sets: [
-    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psyshock", "Nasty Plot", "Protect"] },
+  { id: "ct-76", tournament: "Pokepal Smackdown #145 (Champions) (Reg M-A)", players: 25, placement: 7, player: "Nate_5776", wins: 3, losses: 2, pokemonIds: [478, 983, 903, 936, 908, 745], pokemonNames: ["Froslass", "Kingambit", "Sneasler", "Armarouge", "Meowscarada", "Lycanroc"], sets: [
+    { ability: "Snow Cloak", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Protect", "Aurora Veil"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Low Kick", "Sucker Punch", "Kowtow Cleave", "Protect"] },
     { ability: "Unburden", item: "White Herb", moves: ["Dire Claw", "Close Combat", "Fake Out", "Protect"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Trick Room"] },
-    { ability: "Adaptability", item: "Focus Sash", moves: ["Liquidation", "Last Respects", "Aqua Jet", "Protect"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Throat Chop", "Parting Shot", "Fake Out"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Draining Kiss", "Calm Mind", "Protect"] }
+    { ability: "Flash Fire", item: "Kasib Berry", moves: ["Flamethrower", "Psychic", "Wide Guard", "Will-O-Wisp"] },
+    { ability: "Protean", item: "Choice Scarf", moves: ["Flower Trick", "Throat Chop", "Triple Axel", "U-turn"] },
+    { ability: "Tough Claws", item: "Focus Sash", moves: ["Accelerock", "Close Combat", "Sucker Punch", "Protect"] }
   ] },
-  { id: "ct-158", tournament: "VGC Trainer school x MMHM x Pride month event! #1", players: 52, placement: 3, player: "GOUKI_PR", wins: 7, losses: 2, pokemonIds: [6, 903, 981, 445, 983, 142], pokemonNames: ["Charizard", "Sneasler", "Farigiraf", "Garchomp", "Kingambit", "Aerodactyl"], sets: [
-    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Protect", "Weather Ball"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Close Combat", "Dire Claw", "Protect"] },
-    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Trick Room", "Psychic", "Hyper Voice", "Imprison"] },
-    { ability: "Rough Skin", item: "Dragon Fang", moves: ["Scale Shot", "Earthquake", "Rock Slide", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Protect", "Sucker Punch", "Iron Head"] },
-    { ability: "Unnerve", item: "Focus Sash", moves: ["Rock Slide", "Protect", "Wide Guard", "Tailwind"] }
+  { id: "ct-77", tournament: "Pokepal Smackdown #145 (Champions) (Reg M-A)", players: 25, placement: 8, player: "VGCDan", wins: 3, losses: 2, pokemonIds: [6, 142, 700, 445, 983, 902], pokemonNames: ["Charizard", "Aerodactyl", "Sylveon", "Garchomp", "Kingambit", "Basculegion-M"], sets: [
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Protect", "Solar Beam", "Weather Ball"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Dual Wingbeat", "Protect", "Tailwind", "Rock Slide"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Protect", "Hyper Beam", "Quick Attack"] },
+    { ability: "Rough Skin", item: "Soft Sand", moves: ["Dragon Claw", "Protect", "Earthquake", "Stomping Tantrum"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Protect", "Iron Head", "Sucker Punch"] },
+    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Wave Crash", "Protect", "Aqua Jet", "Last Respects"] }
   ] },
-  { id: "ct-159", tournament: "VGC Trainer school x MMHM x Pride month event! #1", players: 52, placement: 4, player: "charpie", wins: 6, losses: 3, pokemonIds: [445, 6, 983, 902, 547, 727], pokemonNames: ["Garchomp", "Charizard", "Kingambit", "Basculegion-M", "Whimsicott", "Incineroar"], sets: [
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Dragon Claw", "Rock Slide", "Earthquake", "Protect"] },
+  { id: "ct-78", tournament: "Intimidators Champions Challenge #18 REG M-A", players: 52, placement: 1, player: "Puxcci", wins: 8, losses: 1, pokemonIds: [6, 445, 142, 700, 902, 983], pokemonNames: ["Charizard", "Garchomp", "Aerodactyl", "Sylveon", "Basculegion-M", "Kingambit"], sets: [
     { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Low Kick", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] },
-    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Encore", "Tailwind", "Protect"] },
-    { ability: "Intimidate", item: "Chople Berry", moves: ["Flare Blitz", "Throat Chop", "Fake Out", "Parting Shot"] }
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Earthquake", "Rock Tomb", "Dragon Claw", "Protect"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Wide Guard"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Quick Attack", "Yawn", "Detect"] },
+    { ability: "Adaptability", item: "Focus Sash", moves: ["Liquidation", "Aqua Jet", "Last Respects", "Protect"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Low Kick", "Kowtow Cleave", "Sucker Punch", "Iron Head"] }
   ] },
-  { id: "ct-160", tournament: "VGC Trainer school x MMHM x Pride month event! #1", players: 52, placement: 5, player: "Katiclus", wins: 6, losses: 2, pokemonIds: [94, 959, 186, 784, 547, 5059], pokemonNames: ["Gengar", "Tinkaton", "Politoed", "Kommo-o", "Whimsicott", "Hisuian Arcanine"], sets: [
-    { ability: "Cursed Body", item: "Gengarite", moves: ["Shadow Ball", "Sludge Bomb", "Perish Song", "Protect"] },
-    { ability: "Mold Breaker", item: "Shuca Berry", moves: ["Fake Out", "Gigaton Hammer", "Encore", "Protect"] },
-    { ability: "Drizzle", item: "Mystic Water", moves: ["Weather Ball", "Ice Beam", "Perish Song", "Protect"] },
-    { ability: "Soundproof", item: "Dragon Fang", moves: ["Clanging Scales", "Aura Sphere", "Clangorous Soul", "Protect"] },
-    { ability: "Prankster", item: "Kebia Berry", moves: ["Moonblast", "Tailwind", "Light Screen", "Protect"] },
-    { ability: "Rock Head", item: "Focus Sash", moves: ["Flare Blitz", "Head Smash", "Rock Slide", "Protect"] }
-  ] },
-  { id: "ct-161", tournament: "VGC Trainer school x MMHM x Pride month event! #1", players: 52, placement: 6, player: "Smogolem", wins: 5, losses: 3, pokemonIds: [623, 981, 324, 983, 765, 3], pokemonNames: ["Golurk", "Farigiraf", "Torkoal", "Kingambit", "Oranguru", "Venusaur"], sets: [
-    { ability: "No Guard", item: "Golurkite", moves: ["Poltergeist", "Headlong Rush", "Rock Slide", "Protect"] },
-    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Trick Room", "Twin Beam", "Hyper Voice", "Helping Hand"] },
-    { ability: "Drought", item: "Charcoal", moves: ["Eruption", "Heat Wave", "Protect", "Body Press"] },
+  { id: "ct-79", tournament: "Intimidators Champions Challenge #18 REG M-A", players: 52, placement: 2, player: "BrazBR", wins: 7, losses: 2, pokemonIds: [547, 983, 902, 6, 445, 670], pokemonNames: ["Whimsicott", "Kingambit", "Basculegion-M", "Charizard", "Garchomp", "Floette"], sets: [
+    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
     { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
-    { ability: "Inner Focus", item: "Colbur Berry", moves: ["Trick Room", "Skill Swap", "Instruct", "Protect"] },
-    { ability: "Chlorophyll", item: "Venusaurite", moves: ["Giga Drain", "Sleep Powder", "Sludge Bomb", "Earth Power"] }
-  ] },
-  { id: "ct-162", tournament: "VGC Trainer school x MMHM x Pride month event! #1", players: 52, placement: 7, player: "Jurrasic_z", wins: 5, losses: 3, pokemonIds: [6, 547, 983, 902, 445, 970], pokemonNames: ["Charizard", "Whimsicott", "Kingambit", "Basculegion-M", "Garchomp", "Glimmora"], sets: [
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Flip Turn", "Aqua Jet"] },
     { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
-    { ability: "Prankster", item: "Fairy Feather", moves: ["Protect", "Encore", "Tailwind", "Moonblast"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] }
+  ] },
+  { id: "ct-80", tournament: "Intimidators Champions Challenge #18 REG M-A", players: 52, placement: 3, player: "NMR | Gostzin Igor Salino", wins: 7, losses: 1, pokemonIds: [748, 6, 727, 635, 473, 681], pokemonNames: ["Toxapex", "Charizard", "Incineroar", "Hydreigon", "Mamoswine", "Aegislash"], sets: [
+    { ability: "Regenerator", item: "Leftovers", moves: ["Toxic", "Infestation", "Baneful Bunker", "Wide Guard"] },
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Solar Beam", "Weather Ball", "Heat Wave", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Parting Shot", "Flare Blitz", "Throat Chop"] },
+    { ability: "Levitate", item: "Choice Scarf", moves: ["Snarl", "Draco Meteor", "Dark Pulse", "Heat Wave"] },
+    { ability: "Oblivious", item: "Focus Sash", moves: ["Earthquake", "Icicle Crash", "Protect", "Ice Shard"] },
+    { ability: "Stance Change", item: "Spell Tag", moves: ["Close Combat", "Shadow Sneak", "King's Shield", "Poltergeist"] }
+  ] },
+  { id: "ct-81", tournament: "Intimidators Champions Challenge #18 REG M-A", players: 52, placement: 4, player: "NMR | Tom Baldwin", wins: 6, losses: 2, pokemonIds: [478, 952, 902, 983, 903, 745], pokemonNames: ["Froslass", "Scovillain", "Basculegion-M", "Kingambit", "Sneasler", "Lycanroc"], sets: [
+    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Aurora Veil", "Protect"] },
+    { ability: "Moody", item: "Scovillainite", moves: ["Overheat", "Giga Drain", "Rage Powder", "Protect"] },
+    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Swords Dance", "Protect"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Dire Claw", "Close Combat", "Protect"] },
+    { ability: "Tough Claws", item: "Focus Sash", moves: ["Rock Slide", "Close Combat", "Accelerock", "Protect"] }
+  ] },
+  { id: "ct-82", tournament: "Intimidators Champions Challenge #18 REG M-A", players: 52, placement: 5, player: "JohnIgor69", wins: 5, losses: 2, pokemonIds: [248, 445, 478, 823, 635, 5059], pokemonNames: ["Tyranitar", "Garchomp", "Froslass", "Corviknight", "Hydreigon", "Hisuian Arcanine"], sets: [
+    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Rock Slide", "Knock Off", "Low Kick", "Protect"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Rock Slide", "Dragon Claw", "Earthquake", "Protect"] },
+    { ability: "Snow Cloak", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Weather Ball", "Protect"] },
+    { ability: "Mirror Armor", item: "Occa Berry", moves: ["Brave Bird", "Iron Head", "Tailwind", "Protect"] },
+    { ability: "Levitate", item: "Choice Scarf", moves: ["Snarl", "Dark Pulse", "Earth Power", "Draco Meteor"] },
+    { ability: "Intimidate", item: "Focus Sash", moves: ["Head Smash", "Flare Blitz", "Extreme Speed", "Protect"] }
+  ] },
+  { id: "ct-83", tournament: "Intimidators Champions Challenge #18 REG M-A", players: 52, placement: 6, player: "Eduardo_Leite", wins: 5, losses: 2, pokemonIds: [310, 279, 1018, 212, 964, 1013], pokemonNames: ["Manectric", "Pelipper", "Archaludon", "Scizor", "Palafin", "Sinistcha"], sets: [
+    { ability: "Lightning Rod", item: "Manectite", moves: ["Snarl", "Protect", "Thunderbolt", "Volt Switch"] },
+    { ability: "Drizzle", item: "Focus Sash", moves: ["Hurricane", "Weather Ball", "Protect", "Tailwind"] },
+    { ability: "Stamina", item: "Leftovers", moves: ["Electro Shot", "Snarl", "Flash Cannon", "Dragon Pulse"] },
+    { ability: "Technician", item: "Scizorite", moves: ["Bullet Punch", "Protect", "Dual Wingbeat", "Bug Bite"] },
+    { ability: "Zero to Hero", item: "Mystic Water", moves: ["Protect", "Wave Crash", "Flip Turn", "Jet Punch"] },
+    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Rage Powder", "Trick Room", "Matcha Gotcha", "Life Dew"] }
+  ] },
+  { id: "ct-84", tournament: "Intimidators Champions Challenge #18 REG M-A", players: 52, placement: 7, player: "Bonis", wins: 4, losses: 3, pokemonIds: [6, 902, 445, 547, 981, 3], pokemonNames: ["Charizard", "Basculegion-M", "Garchomp", "Whimsicott", "Farigiraf", "Venusaur"], sets: [
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Weather Ball", "Protect"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Flip Turn", "Ice Fang"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Dragon Claw", "Stomping Tantrum", "Rock Slide", "Poison Jab"] },
+    { ability: "Prankster", item: "Focus Sash", moves: ["Tailwind", "Sunny Day", "Moonblast", "Protect"] },
+    { ability: "Armor Tail", item: "Quick Claw", moves: ["Trick Room", "Imprison", "Protect", "Psychic"] },
+    { ability: "Chlorophyll", item: "Occa Berry", moves: ["Earth Power", "Giga Drain", "Sludge Bomb", "Protect"] }
+  ] },
+  { id: "ct-85", tournament: "Intimidators Champions Challenge #18 REG M-A", players: 52, placement: 8, player: "lucardrgs", wins: 4, losses: 3, pokemonIds: [903, 983, 6, 670, 727, 1013], pokemonNames: ["Sneasler", "Kingambit", "Charizard", "Floette", "Incineroar", "Sinistcha"], sets: [
+    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Coaching", "Fake Out"] },
     { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Protect"] },
-    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Protect", "Last Respects", "Aqua Jet"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Protect", "Rock Slide", "Earthquake", "Dragon Claw"] },
-    { ability: "Toxic Debris", item: "Focus Sash", moves: ["Spiky Shield", "Power Gem", "Sludge Bomb", "Earth Power"] }
+    { ability: "Blaze", item: "Charizardite X", moves: ["Flare Blitz", "Dragon Claw", "Dragon Dance", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Draining Kiss", "Calm Mind", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Fake Out", "Parting Shot", "Will-O-Wisp"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Trick Room", "Rage Powder", "Protect"] }
   ] },
-  { id: "ct-163", tournament: "VGC Trainer school x MMHM x Pride month event! #1", players: 52, placement: 8, player: "AthenaStriveVGC", wins: 5, losses: 3, pokemonIds: [670, 652, 902, 1013, 279, 445], pokemonNames: ["Floette", "Chesnaught", "Basculegion-M", "Sinistcha", "Pelipper", "Garchomp"], sets: [
-    { ability: "Flower Veil", item: "Floettite", moves: ["Protect", "Moonblast", "Dazzling Gleam", "Light of Ruin"] },
-    { ability: "Bulletproof", item: "Chesnaughtite", moves: ["Spiky Shield", "Wood Hammer", "Body Press", "Iron Defense"] },
+  { id: "ct-86", tournament: "FlorTour Vol. 69 - $69 cash prize!!", players: 51, placement: 1, player: "Fluffy_m1n", wins: 8, losses: 1, pokemonIds: [154, 142, 981, 902, 983, 903], pokemonNames: ["Meganium", "Aerodactyl", "Farigiraf", "Basculegion-M", "Kingambit", "Sneasler"], sets: [
+    { ability: "Leaf Guard", item: "Meganiumite", moves: ["Solar Beam", "Dazzling Gleam", "Weather Ball", "Protect"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Wide Guard"] },
+    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Twin Beam", "Helping Hand", "Trick Room", "Protect"] },
     { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Rage Powder", "Matcha Gotcha", "Life Dew", "Trick Room"] },
-    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Weather Ball", "Hurricane", "Tailwind", "Wide Guard"] },
-    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Protect", "Earthquake", "Poison Jab", "Rock Slide"] }
+    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Dire Claw", "Close Combat", "Fake Out", "Protect"] }
   ] },
-  { id: "ct-164", tournament: "VGC FACTORY #2", players: 15, placement: 1, player: "Tabook", wins: 6, losses: 0, pokemonIds: [903, 186, 10009, 952, 956, 1018], pokemonNames: ["Sneasler", "Politoed", "Wash Rotom", "Scovillain", "Espathra", "Archaludon"], sets: [
-    { ability: "Unburden", item: "Focus Sash", moves: ["Protect", "Close Combat", "Fake Out", "Dire Claw"] },
-    { ability: "Drizzle", item: "Mystic Water", moves: ["Protect", "Muddy Water", "Weather Ball", "Ice Beam"] },
-    { ability: "Levitate", item: "Sitrus Berry", moves: ["Hydro Pump", "Thunderbolt", "Will-O-Wisp", "Protect"] },
-    { ability: "Moody", item: "Scovillainite", moves: ["Protect", "Leech Seed", "Rage Powder", "Overheat"] },
-    { ability: "Speed Boost", item: "Colbur Berry", moves: ["Protect", "Lumina Crash", "Calm Mind", "Baton Pass"] },
-    { ability: "Stamina", item: "Leftovers", moves: ["Protect", "Electro Shot", "Flash Cannon", "Dragon Pulse"] }
+  { id: "ct-87", tournament: "FlorTour Vol. 69 - $69 cash prize!!", players: 51, placement: 2, player: "KST | KAMPFI ", wins: 7, losses: 2, pokemonIds: [670, 142, 445, 903, 727, 1013], pokemonNames: ["Floette", "Aerodactyl", "Garchomp", "Sneasler", "Incineroar", "Sinistcha"], sets: [
+    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Draining Kiss", "Calm Mind", "Protect"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Wide Guard"] },
+    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Dragon Claw", "Stomping Tantrum", "Protect", "Rock Slide"] },
+    { ability: "Unburden", item: "Focus Sash", moves: ["Dire Claw", "Close Combat", "Coaching", "Fake Out"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Throat Chop", "Flare Blitz", "Fake Out", "Parting Shot"] },
+    { ability: "Hospitality", item: "Occa Berry", moves: ["Matcha Gotcha", "Life Dew", "Rage Powder", "Trick Room"] }
   ] },
-  { id: "ct-165", tournament: "VGC FACTORY #2", players: 15, placement: 2, player: "Bebot", wins: 4, losses: 2, pokemonIds: [925, 823, 902, 445, 655, 670], pokemonNames: ["Maushold", "Corviknight", "Basculegion-M", "Garchomp", "Delphox", "Floette"], sets: [
-    { ability: "Friend Guard", item: "Chople Berry", moves: ["Protect", "Follow Me", "Feint", "Super Fang"] },
-    { ability: "Mirror Armor", item: "Leftovers", moves: ["Roost", "Tailwind", "Brave Bird", "Bulk Up"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Aqua Jet", "Flip Turn", "Wave Crash", "Last Respects"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Protect", "Dragon Claw", "Earthquake", "Rock Slide"] },
-    { ability: "Blaze", item: "Delphoxite", moves: ["Protect", "Nasty Plot", "Psychic", "Heat Wave"] },
+  { id: "ct-88", tournament: "FlorTour Vol. 69 - $69 cash prize!!", players: 51, placement: 3, player: "jiholee32", wins: 7, losses: 1, pokemonIds: [6, 142, 700, 902, 983, 445], pokemonNames: ["Charizard", "Aerodactyl", "Sylveon", "Basculegion-M", "Kingambit", "Garchomp"], sets: [
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Weather Ball", "Protect"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Wide Guard"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Quick Attack", "Detect", "Hyper Beam"] },
+    { ability: "Adaptability", item: "Focus Sash", moves: ["Liquidation", "Last Respects", "Aqua Jet", "Protect"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Low Kick"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Stomping Tantrum", "Rock Slide", "Dragon Claw", "Protect"] }
+  ] },
+  { id: "ct-89", tournament: "FlorTour Vol. 69 - $69 cash prize!!", players: 51, placement: 4, player: "Altkyle", wins: 6, losses: 2, pokemonIds: [149, 902, 212, 1018, 279, 727], pokemonNames: ["Dragonite", "Basculegion-M", "Scizor", "Archaludon", "Pelipper", "Incineroar"], sets: [
+    { ability: "Inner Focus", item: "Dragoninite", moves: ["Dragon Pulse", "Flamethrower", "Tailwind", "Protect"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] },
+    { ability: "Technician", item: "Scizorite", moves: ["Bullet Punch", "Close Combat", "Swords Dance", "Protect"] },
+    { ability: "Stamina", item: "Chople Berry", moves: ["Electro Shot", "Dragon Pulse", "Aura Sphere", "Protect"] },
+    { ability: "Drizzle", item: "Focus Sash", moves: ["Hurricane", "Weather Ball", "Tailwind", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Throat Chop", "Parting Shot"] }
+  ] },
+  { id: "ct-90", tournament: "FlorTour Vol. 69 - $69 cash prize!!", players: 51, placement: 5, player: "almondspy", wins: 5, losses: 2, pokemonIds: [149, 727, 748, 1013, 670, 903], pokemonNames: ["Dragonite", "Incineroar", "Toxapex", "Sinistcha", "Floette", "Sneasler"], sets: [
+    { ability: "Multiscale", item: "Dragoninite", moves: ["Dragon Pulse", "Thunderbolt", "Heat Wave", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Throat Chop", "Fake Out", "Parting Shot"] },
+    { ability: "Regenerator", item: "Leftovers", moves: ["Toxic", "Infestation", "Recover", "Baneful Bunker"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Draining Kiss", "Calm Mind", "Protect"] },
+    { ability: "Poison Touch", item: "Focus Sash", moves: ["Close Combat", "Poison Jab", "Fake Out", "Throat Chop"] }
+  ] },
+  { id: "ct-91", tournament: "FlorTour Vol. 69 - $69 cash prize!!", players: 51, placement: 6, player: "TheGameDex", wins: 5, losses: 2, pokemonIds: [6, 700, 983, 902, 445, 142], pokemonNames: ["Charizard", "Sylveon", "Kingambit", "Basculegion-M", "Garchomp", "Aerodactyl"], sets: [
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Weather Ball", "Protect"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Detect", "Hyper Voice", "Yawn", "Quick Attack"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Sucker Punch", "Kowtow Cleave", "Low Kick", "Iron Head"] },
+    { ability: "Adaptability", item: "Focus Sash", moves: ["Protect", "Last Respects", "Aqua Jet", "Liquidation"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Rock Tomb", "Earthquake", "Dragon Claw", "Protect"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Tailwind", "Dual Wingbeat", "Rock Slide", "Wide Guard"] }
+  ] },
+  { id: "ct-92", tournament: "FlorTour Vol. 69 - $69 cash prize!!", players: 51, placement: 7, player: "Z2R Queiroz", wins: 5, losses: 2, pokemonIds: [142, 1018, 902, 279, 952, 903], pokemonNames: ["Aerodactyl", "Archaludon", "Basculegion-M", "Pelipper", "Scovillain", "Sneasler"], sets: [
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Protect", "Dual Wingbeat", "Wide Guard", "Rock Slide"] },
+    { ability: "Stamina", item: "Leftovers", moves: ["Protect", "Dragon Pulse", "Flash Cannon", "Electro Shot"] },
+    { ability: "Swift Swim", item: "Mystic Water", moves: ["Protect", "Last Respects", "Aqua Jet", "Wave Crash"] },
+    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Protect", "Tailwind", "Weather Ball", "Hurricane"] },
+    { ability: "Chlorophyll", item: "Scovillainite", moves: ["Protect", "Leech Seed", "Rage Powder", "Overheat"] },
+    { ability: "Unburden", item: "Focus Sash", moves: ["Close Combat", "Fake Out", "U-turn", "Dire Claw"] }
+  ] },
+  { id: "ct-93", tournament: "FlorTour Vol. 69 - $69 cash prize!!", players: 51, placement: 8, player: "Gabuu", wins: 5, losses: 2, pokemonIds: [9, 1013, 727, 666, 445, 670], pokemonNames: ["Blastoise", "Sinistcha", "Incineroar", "Vivillon", "Garchomp", "Floette"], sets: [
+    { ability: "Torrent", item: "Blastoisinite", moves: ["Protect", "Water Spout", "Dark Pulse", "Shell Smash"] },
+    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Protect", "Matcha Gotcha", "Rage Powder", "Life Dew"] },
+    { ability: "Intimidate", item: "Leftovers", moves: ["Flare Blitz", "Throat Chop", "Parting Shot", "Fake Out"] },
+    { ability: "Compound Eyes", item: "Focus Sash", moves: ["Protect", "Hurricane", "Sleep Powder", "Tailwind"] },
+    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Scale Shot", "Stomping Tantrum", "Rock Slide", "Poison Jab"] },
     { ability: "Flower Veil", item: "Floettite", moves: ["Protect", "Moonblast", "Dazzling Gleam", "Calm Mind"] }
   ] },
-  { id: "ct-166", tournament: "VGC FACTORY #2", players: 15, placement: 3, player: "MapacheWT", wins: 3, losses: 2, pokemonIds: [780, 681, 475, 324, 1013, 765], pokemonNames: ["Drampa", "Aegislash", "Gallade", "Torkoal", "Sinistcha", "Oranguru"], sets: [
-    { ability: "Berserk", item: "Drampanite", moves: ["Protect", "Dragon Pulse", "Hyper Voice", "Earth Power"] },
-    { ability: "Stance Change", item: "Spell Tag", moves: ["King's Shield", "Poltergeist", "Shadow Sneak", "Iron Head"] },
-    { ability: "Sharpness", item: "White Herb", moves: ["Wide Guard", "Sacred Sword", "Psycho Cut", "Trick Room"] },
-    { ability: "Drought", item: "Charcoal", moves: ["Protect", "Eruption", "Heat Wave", "Weather Ball"] },
-    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Trick Room", "Rage Powder", "Life Dew", "Matcha Gotcha"] },
-    { ability: "Inner Focus", item: "Mental Herb", moves: ["Protect", "Trick Room", "Psychic", "Instruct"] }
+  { id: "ct-94", tournament: "Palafin Pals Jet Punch Series Champions M-A", players: 12, placement: 1, player: "PokeReplay", wins: 6, losses: 0, pokemonIds: [1013, 727, 350, 903, 670, 937], pokemonNames: ["Sinistcha", "Incineroar", "Milotic", "Sneasler", "Floette", "Ceruledge"], sets: [
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Protect", "Rage Powder", "Matcha Gotcha", "Life Dew"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Throat Chop", "Flare Blitz", "Parting Shot"] },
+    { ability: "Competitive", item: "Leftovers", moves: ["Coil", "Muddy Water", "Hypnosis", "Protect"] },
+    { ability: "Poison Touch", item: "Focus Sash", moves: ["Close Combat", "Dire Claw", "Fake Out", "Throat Chop"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Protect", "Draining Kiss", "Calm Mind", "Dazzling Gleam"] },
+    { ability: "Flash Fire", item: "Colbur Berry", moves: ["Bulk Up", "Protect", "Shadow Sneak", "Bitter Blade"] }
   ] },
-  { id: "ct-167", tournament: "VGC FACTORY #2", players: 15, placement: 4, player: "Deyfran24", wins: 3, losses: 2, pokemonIds: [9, 981, 324, 780, 983, 534], pokemonNames: ["Blastoise", "Farigiraf", "Torkoal", "Drampa", "Kingambit", "Conkeldurr"], sets: [
-    { ability: "Torrent", item: "Blastoisinite", moves: ["Water Spout", "Dark Pulse", "Aura Sphere", "Fake Out"] },
-    { ability: "Armor Tail", item: "Focus Sash", moves: ["Hyper Voice", "Psychic", "Helping Hand", "Trick Room"] },
-    { ability: "Drought", item: "Charcoal", moves: ["Eruption", "Solar Beam", "Heat Wave", "Protect"] },
-    { ability: "Cloud Nine", item: "White Herb", moves: ["Hyper Voice", "Draco Meteor", "Earth Power", "Protect"] },
+  { id: "ct-95", tournament: "Palafin Pals Jet Punch Series Champions M-A", players: 12, placement: 2, player: "othunder21", wins: 4, losses: 2, pokemonIds: [655, 670, 727, 903, 983, 981], pokemonNames: ["Delphox", "Floette", "Incineroar", "Sneasler", "Kingambit", "Farigiraf"], sets: [
+    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psyshock", "Nasty Plot", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Calm Mind", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Darkest Lariat", "Parting Shot"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Close Combat", "Dire Claw", "Protect"] },
+    { ability: "Defiant", item: "Focus Sash", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Low Kick"] },
+    { ability: "Armor Tail", item: "Colbur Berry", moves: ["Twin Beam", "Thunderbolt", "Trick Room", "Helping Hand"] }
+  ] },
+  { id: "ct-96", tournament: "Palafin Pals Jet Punch Series Champions M-A", players: 12, placement: 3, player: "rJord", wins: 3, losses: 2, pokemonIds: [6, 445, 670, 1013, 3, 727], pokemonNames: ["Charizard", "Garchomp", "Floette", "Sinistcha", "Venusaur", "Incineroar"], sets: [
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Protect", "Heat Wave", "Solar Beam", "Weather Ball"] },
+    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Stomping Tantrum", "Dragon Claw", "Earthquake", "Rock Slide"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Protect", "Calm Mind", "Draining Kiss", "Moonblast"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Protect", "Trick Room", "Matcha Gotcha", "Rage Powder"] },
+    { ability: "Chlorophyll", item: "Focus Sash", moves: ["Protect", "Sludge Bomb", "Earth Power", "Sleep Powder"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Parting Shot", "Throat Chop", "Flare Blitz"] }
+  ] },
+  { id: "ct-97", tournament: "Palafin Pals Jet Punch Series Champions M-A", players: 12, placement: 4, player: "fazztr", wins: 3, losses: 2, pokemonIds: [3, 1018, 186, 902, 142, 635], pokemonNames: ["Venusaur", "Archaludon", "Politoed", "Basculegion-M", "Aerodactyl", "Hydreigon"], sets: [
+    { ability: "Chlorophyll", item: "Venusaurite", moves: ["Sludge Bomb", "Giga Drain", "Earth Power", "Protect"] },
+    { ability: "Stamina", item: "Leftovers", moves: ["Electro Shot", "Draco Meteor", "Flash Cannon", "Protect"] },
+    { ability: "Drizzle", item: "Choice Scarf", moves: ["Weather Ball", "Surf", "Ice Beam", "Icy Wind"] },
+    { ability: "Adaptability", item: "Focus Sash", moves: ["Liquidation", "Protect", "Aqua Jet", "Last Respects"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Dual Wingbeat", "Rock Slide", "Tailwind", "Protect"] },
+    { ability: "Levitate", item: "Haban Berry", moves: ["Dark Pulse", "Draco Meteor", "Flamethrower", "Protect"] }
+  ] },
+  { id: "ct-98", tournament: "Palafin Pals Jet Punch Series Champions M-A", players: 12, placement: 5, player: "thenightsnexus", wins: 2, losses: 2, pokemonIds: [745, 902, 983, 903, 478, 655], pokemonNames: ["Lycanroc", "Basculegion-M", "Kingambit", "Sneasler", "Froslass", "Delphox"], sets: [
+    { ability: "Tough Claws", item: "Focus Sash", moves: ["Close Combat", "Accelerock", "Psychic Fangs", "Protect"] },
+    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
     { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
-    { ability: "Iron Fist", item: "Black Belt", moves: ["Drain Punch", "Mach Punch", "Thunder Punch", "Protect"] }
+    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Gunk Shot", "Coaching", "Fake Out"] },
+    { ability: "Snow Cloak", item: "Froslassite", moves: ["Blizzard", "Aurora Veil", "Shadow Ball", "Protect"] },
+    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Protect", "Psychic", "Nasty Plot"] }
   ] },
-  { id: "ct-168", tournament: "VGC FACTORY #2", players: 15, placement: 5, player: "Zddz", wins: 3, losses: 1, pokemonIds: [547, 445, 10008, 478, 752, 823], pokemonNames: ["Whimsicott", "Garchomp", "Heat Rotom", "Froslass", "Araquanid", "Corviknight"], sets: [
-    { ability: "Prankster", item: "Focus Sash", moves: ["Tailwind", "Encore", "Dazzling Gleam", "Taunt"] },
-    { ability: "Rough Skin", item: "White Herb", moves: ["Rock Slide", "Earthquake", "Protect", "Dragon Claw"] },
-    { ability: "Levitate", item: "Sitrus Berry", moves: ["Overheat", "Protect", "Will-O-Wisp", "Thunderbolt"] },
+  { id: "ct-99", tournament: "Palafin Pals Jet Punch Series Champions M-A", players: 12, placement: 6, player: "Josecovi", wins: 2, losses: 2, pokemonIds: [670, 903, 727, 6, 956, 902], pokemonNames: ["Floette", "Sneasler", "Incineroar", "Charizard", "Espathra", "Basculegion-M"], sets: [
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Calm Mind", "Protect", "Dazzling Gleam"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Protect", "Close Combat", "Dire Claw", "Fake Out"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Parting Shot", "Fake Out", "Flare Blitz", "Throat Chop"] },
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Protect", "Heat Wave", "Weather Ball", "Solar Beam"] },
+    { ability: "Speed Boost", item: "Colbur Berry", moves: ["Protect", "Dazzling Gleam", "Lumina Crash", "Skill Swap"] },
+    { ability: "Adaptability", item: "Focus Sash", moves: ["Protect", "Aqua Jet", "Last Respects", "Liquidation"] }
+  ] },
+  { id: "ct-100", tournament: "Palafin Pals Jet Punch Series Champions M-A", players: 12, placement: 7, player: "Caselastic", wins: 2, losses: 2, pokemonIds: [1013, 248, 981, 740, 700, 727], pokemonNames: ["Sinistcha", "Tyranitar", "Farigiraf", "Crabominable", "Sylveon", "Incineroar"], sets: [
+    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Rage Powder", "Shadow Ball", "Matcha Gotcha", "Trick Room"] },
+    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Rock Slide", "Knock Off", "Protect", "Low Kick"] },
+    { ability: "Armor Tail", item: "Colbur Berry", moves: ["Trick Room", "Protect", "Helping Hand", "Twin Beam"] },
+    { ability: "Hyper Cutter", item: "Crabominite", moves: ["Drain Punch", "Protect", "Mach Punch", "Ice Hammer"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Protect", "Calm Mind", "Mystical Fire"] },
+    { ability: "Intimidate", item: "Chople Berry", moves: ["Parting Shot", "Fake Out", "Throat Chop", "Flare Blitz"] }
+  ] },
+  { id: "ct-101", tournament: "Palafin Pals Jet Punch Series Champions M-A", players: 12, placement: 8, player: "J4MBLERVGC", wins: 1, losses: 3, pokemonIds: [478, 5059, 445, 142, 983, 350], pokemonNames: ["Froslass", "Hisuian Arcanine", "Garchomp", "Aerodactyl", "Kingambit", "Milotic"], sets: [
+    { ability: "Snow Warning", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Aurora Veil", "Protect"] },
+    { ability: "Rock Head", item: "Focus Sash", moves: ["Head Smash", "Flare Blitz", "Protect", "Extreme Speed"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Dragon Claw", "Earthquake", "Rock Slide", "Protect"] },
+    { ability: "Tough Claws", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Protect", "Tailwind"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Protect", "Sucker Punch", "Kowtow Cleave", "Iron Head"] },
+    { ability: "Competitive", item: "Leftovers", moves: ["Icy Wind", "Scald", "Life Dew", "Protect"] }
+  ] },
+  { id: "ct-102", tournament: "Sketch Academy Pride Month x MMHM Qualifier 2", players: 46, placement: 1, player: "joniaco", wins: 7, losses: 2, pokemonIds: [478, 952, 902, 983, 903, 745], pokemonNames: ["Froslass", "Scovillain", "Basculegion-M", "Kingambit", "Sneasler", "Lycanroc"], sets: [
     { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Aurora Veil", "Protect"] },
-    { ability: "Water Bubble", item: "Mystic Water", moves: ["Liquidation", "Protect", "Leech Life", "Poison Jab"] },
-    { ability: "Mirror Armor", item: "Leftovers", moves: ["Iron Head", "Body Press", "Iron Defense", "Roost"] }
+    { ability: "Moody", item: "Scovillainite", moves: ["Giga Drain", "Overheat", "Rage Powder", "Protect"] },
+    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Swords Dance", "Protect"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Gunk Shot", "Protect", "Fake Out"] },
+    { ability: "Tough Claws", item: "Focus Sash", moves: ["Close Combat", "Accelerock", "Rock Slide", "Protect"] }
   ] },
-  { id: "ct-169", tournament: "VGC FACTORY #2", players: 15, placement: 6, player: "dSbarbara", wins: 2, losses: 2, pokemonIds: [663, 970, 445, 10103, 681, 10009], pokemonNames: ["Talonflame", "Glimmora", "Garchomp", "Alolan Ninetales", "Aegislash", "Wash Rotom"], sets: [
-    { ability: "Flame Body", item: "Sharp Beak", moves: ["Protect", "Flare Blitz", "Dual Wingbeat", "Tailwind"] },
-    { ability: "Toxic Debris", item: "Glimmoranite", moves: ["Spiky Shield", "Power Gem", "Sludge Bomb", "Earth Power"] },
-    { ability: "Rough Skin", item: "Lum Berry", moves: ["Protect", "Earthquake", "Dragon Claw", "Swords Dance"] },
-    { ability: "Snow Warning", item: "Choice Scarf", moves: ["Blizzard", "Icy Wind", "Freeze-Dry", "Moonblast"] },
-    { ability: "Stance Change", item: "Focus Sash", moves: ["King's Shield", "Poltergeist", "Shadow Sneak", "Close Combat"] },
-    { ability: "Levitate", item: "Magnet", moves: ["Protect", "Hydro Pump", "Thunderbolt", "Will-O-Wisp"] }
+  { id: "ct-103", tournament: "Sketch Academy Pride Month x MMHM Qualifier 2", players: 46, placement: 2, player: "PapaRott", wins: 6, losses: 3, pokemonIds: [149, 925, 279, 1018, 212, 902], pokemonNames: ["Dragonite", "Maushold", "Pelipper", "Archaludon", "Scizor", "Basculegion-M"], sets: [
+    { ability: "Inner Focus", item: "Dragoninite", moves: ["Hurricane", "Weather Ball", "Dragon Pulse", "Protect"] },
+    { ability: "Friend Guard", item: "Focus Sash", moves: ["Protect", "Super Fang", "Rain Dance", "Follow Me"] },
+    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Wide Guard", "Weather Ball", "Hurricane", "Tailwind"] },
+    { ability: "Stamina", item: "Leftovers", moves: ["Dragon Pulse", "Electro Shot", "Flash Cannon", "Protect"] },
+    { ability: "Technician", item: "Scizorite", moves: ["Protect", "Bullet Punch", "Close Combat", "Swords Dance"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Aqua Jet", "Wave Crash", "Flip Turn", "Last Respects"] }
   ] },
-  { id: "ct-170", tournament: "VGC FACTORY #2", players: 15, placement: 7, player: "Maves", wins: 2, losses: 2, pokemonIds: [6, 547, 983, 902, 445, 970], pokemonNames: ["Charizard", "Whimsicott", "Kingambit", "Basculegion-M", "Garchomp", "Glimmora"], sets: [
+  { id: "ct-104", tournament: "Sketch Academy Pride Month x MMHM Qualifier 2", players: 46, placement: 3, player: "N8_dawgg", wins: 6, losses: 2, pokemonIds: [478, 964, 903, 983, 10009, 142], pokemonNames: ["Froslass", "Palafin", "Sneasler", "Kingambit", "Wash Rotom", "Aerodactyl"], sets: [
+    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Nasty Plot", "Protect"] },
+    { ability: "Zero to Hero", item: "Mystic Water", moves: ["Wave Crash", "Jet Punch", "Bulk Up", "Protect"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Close Combat", "Gunk Shot", "Coaching"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
+    { ability: "Levitate", item: "Leftovers", moves: ["Electroweb", "Thunderbolt", "Will-O-Wisp", "Protect"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Protect"] }
+  ] },
+  { id: "ct-105", tournament: "Sketch Academy Pride Month x MMHM Qualifier 2", players: 46, placement: 4, player: "QueerCrocodile", wins: 5, losses: 3, pokemonIds: [670, 547, 5059, 902, 983, 1018], pokemonNames: ["Floette", "Whimsicott", "Hisuian Arcanine", "Basculegion-M", "Kingambit", "Archaludon"], sets: [
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] },
+    { ability: "Prankster", item: "Focus Sash", moves: ["Tailwind", "Moonblast", "Encore", "Protect"] },
+    { ability: "Rock Head", item: "Sitrus Berry", moves: ["Rock Slide", "Flare Blitz", "Extreme Speed", "Protect"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
+    { ability: "Sturdy", item: "White Herb", moves: ["Aura Sphere", "Draco Meteor", "Flash Cannon", "Protect"] }
+  ] },
+  { id: "ct-106", tournament: "Sketch Academy Pride Month x MMHM Qualifier 2", players: 46, placement: 5, player: "SuperDialga", wins: 6, losses: 1, pokemonIds: [670, 547, 902, 983, 1018, 5059], pokemonNames: ["Floette", "Whimsicott", "Basculegion-M", "Kingambit", "Archaludon", "Hisuian Arcanine"], sets: [
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] },
+    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Last Respects", "Wave Crash", "Aqua Jet", "Flip Turn"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Sucker Punch", "Kowtow Cleave", "Iron Head", "Protect"] },
+    { ability: "Sturdy", item: "White Herb", moves: ["Draco Meteor", "Flash Cannon", "Aura Sphere", "Protect"] },
+    { ability: "Rock Head", item: "Sitrus Berry", moves: ["Flare Blitz", "Rock Slide", "Extreme Speed", "Protect"] }
+  ] },
+  { id: "ct-107", tournament: "Sketch Academy Pride Month x MMHM Qualifier 2", players: 46, placement: 6, player: "BrazBR", wins: 5, losses: 2, pokemonIds: [547, 983, 902, 6, 445, 670], pokemonNames: ["Whimsicott", "Kingambit", "Basculegion-M", "Charizard", "Garchomp", "Floette"], sets: [
+    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Flip Turn", "Aqua Jet"] },
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] }
+  ] },
+  { id: "ct-108", tournament: "Sketch Academy Pride Month x MMHM Qualifier 2", players: 46, placement: 7, player: "jiholee32", wins: 5, losses: 2, pokemonIds: [6, 142, 700, 902, 983, 445], pokemonNames: ["Charizard", "Aerodactyl", "Sylveon", "Basculegion-M", "Kingambit", "Garchomp"], sets: [
     { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Weather Ball", "Protect"] },
-    { ability: "Prankster", item: "Fairy Feather", moves: ["Tailwind", "Moonblast", "Encore", "Protect"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Sucker Punch", "Kowtow Cleave", "Low Kick", "Protect"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Wide Guard"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Quick Attack", "Detect", "Hyper Beam"] },
+    { ability: "Adaptability", item: "Focus Sash", moves: ["Liquidation", "Last Respects", "Aqua Jet", "Protect"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Low Kick"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Stomping Tantrum", "Rock Slide", "Dragon Claw", "Protect"] }
+  ] },
+  { id: "ct-109", tournament: "Sketch Academy Pride Month x MMHM Qualifier 2", players: 46, placement: 8, player: "Master_800", wins: 4, losses: 3, pokemonIds: [115, 547, 6, 983, 445, 902], pokemonNames: ["Kangaskhan", "Whimsicott", "Charizard", "Kingambit", "Garchomp", "Basculegion-M"], sets: [
+    { ability: "Scrappy", item: "Kangaskhanite", moves: ["Fake Out", "Double-Edge", "Ice Punch", "Low Kick"] },
+    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Protect", "Encore"] },
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Earthquake", "Dragon Claw", "Rock Tomb", "Protect"] },
+    { ability: "Adaptability", item: "Mystic Water", moves: ["Protect", "Last Respects", "Aqua Jet", "Wave Crash"] }
+  ] },
+  { id: "ct-110", tournament: "MMHM X CHAOS LEAGUE QUALIFIER #2", players: 34, placement: 1, player: "Pro4tomico", wins: 7, losses: 1, pokemonIds: [903, 902, 983, 478, 952, 745], pokemonNames: ["Sneasler", "Basculegion-M", "Kingambit", "Froslass", "Scovillain", "Lycanroc"], sets: [
+    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Dire Claw", "Close Combat", "Protect"] },
+    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Last Respects", "Wave Crash", "Aqua Jet", "Protect"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Sucker Punch", "Kowtow Cleave", "Swords Dance", "Protect"] },
+    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Aurora Veil", "Shadow Ball", "Protect"] },
+    { ability: "Moody", item: "Scovillainite", moves: ["Giga Drain", "Overheat", "Protect", "Rage Powder"] },
+    { ability: "Tough Claws", item: "Focus Sash", moves: ["Accelerock", "Close Combat", "Rock Slide", "Protect"] }
+  ] },
+  { id: "ct-111", tournament: "MMHM X CHAOS LEAGUE QUALIFIER #2", players: 34, placement: 2, player: "almondspy", wins: 7, losses: 1, pokemonIds: [149, 727, 748, 1013, 670, 903], pokemonNames: ["Dragonite", "Incineroar", "Toxapex", "Sinistcha", "Floette", "Sneasler"], sets: [
+    { ability: "Multiscale", item: "Dragoninite", moves: ["Dragon Pulse", "Thunderbolt", "Heat Wave", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Throat Chop", "Fake Out", "Parting Shot"] },
+    { ability: "Regenerator", item: "Leftovers", moves: ["Toxic", "Infestation", "Recover", "Baneful Bunker"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Draining Kiss", "Calm Mind", "Protect"] },
+    { ability: "Poison Touch", item: "Focus Sash", moves: ["Close Combat", "Poison Jab", "Fake Out", "Throat Chop"] }
+  ] },
+  { id: "ct-112", tournament: "MMHM X CHAOS LEAGUE QUALIFIER #2", players: 34, placement: 3, player: "jay49", wins: 5, losses: 2, pokemonIds: [248, 635, 530, 823, 10009, 778], pokemonNames: ["Tyranitar", "Hydreigon", "Excadrill", "Corviknight", "Wash Rotom", "Mimikyu"], sets: [
+    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Protect", "Knock Off", "Rock Slide", "Low Kick"] },
+    { ability: "Levitate", item: "Choice Scarf", moves: ["Draco Meteor", "Dark Pulse", "Snarl", "Flamethrower"] },
+    { ability: "Sand Rush", item: "Focus Sash", moves: ["Iron Head", "High Horsepower", "Earthquake", "Protect"] },
+    { ability: "Mirror Armor", item: "Leftovers", moves: ["Brave Bird", "Bulk Up", "Tailwind", "Roost"] },
+    { ability: "Levitate", item: "Sitrus Berry", moves: ["Thunderbolt", "Hydro Pump", "Will-O-Wisp", "Protect"] },
+    { ability: "Disguise", item: "White Herb", moves: ["Play Rough", "Shadow Claw", "Shadow Sneak", "Protect"] }
+  ] },
+  { id: "ct-113", tournament: "MMHM X CHAOS LEAGUE QUALIFIER #2", players: 34, placement: 4, player: "JohnStarr", wins: 5, losses: 2, pokemonIds: [1018, 186, 952, 903, 149, 956], pokemonNames: ["Archaludon", "Politoed", "Scovillain", "Sneasler", "Dragonite", "Espathra"], sets: [
+    { ability: "Stamina", item: "Leftovers", moves: ["Protect", "Electro Shot", "Dragon Pulse", "Flash Cannon"] },
+    { ability: "Drizzle", item: "Mystic Water", moves: ["Protect", "Muddy Water", "Weather Ball", "Ice Beam"] },
+    { ability: "Moody", item: "Scovillainite", moves: ["Protect", "Leech Seed", "Rage Powder", "Overheat"] },
+    { ability: "Unburden", item: "Focus Sash", moves: ["Protect", "Close Combat", "Fake Out", "Dire Claw"] },
+    { ability: "Multiscale", item: "Dragoninite", moves: ["Protect", "Dragon Pulse", "Hurricane", "Extreme Speed"] },
+    { ability: "Speed Boost", item: "Sitrus Berry", moves: ["Protect", "Lumina Crash", "Calm Mind", "Baton Pass"] }
+  ] },
+  { id: "ct-114", tournament: "MMHM X CHAOS LEAGUE QUALIFIER #2", players: 34, placement: 5, player: "MaxxUpgrade", wins: 4, losses: 2, pokemonIds: [6, 981, 983, 727, 3, 445], pokemonNames: ["Charizard", "Farigiraf", "Kingambit", "Incineroar", "Venusaur", "Garchomp"], sets: [
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Weather Ball", "Heat Wave", "Solar Beam", "Protect"] },
+    { ability: "Armor Tail", item: "Colbur Berry", moves: ["Twin Beam", "Thunderbolt", "Trick Room", "Helping Hand"] },
+    { ability: "Defiant", item: "Focus Sash", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Low Kick"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Throat Chop", "Flare Blitz", "Fake Out", "Parting Shot"] },
+    { ability: "Chlorophyll", item: "Venusaurite", moves: ["Sludge Bomb", "Earth Power", "Sleep Powder", "Protect"] },
+    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Dragon Claw", "Earthquake", "Rock Slide", "Rock Tomb"] }
+  ] },
+  { id: "ct-115", tournament: "MMHM X CHAOS LEAGUE QUALIFIER #2", players: 34, placement: 6, player: "DaveyOnAddy", wins: 3, losses: 3, pokemonIds: [279, 1018, 212, 903, 902, 149], pokemonNames: ["Pelipper", "Archaludon", "Scizor", "Sneasler", "Basculegion-M", "Dragonite"], sets: [
+    { ability: "Drizzle", item: "Focus Sash", moves: ["Hurricane", "Tailwind", "Weather Ball", "Soak"] },
+    { ability: "Stamina", item: "Leftovers", moves: ["Protect", "Electro Shot", "Dragon Pulse", "Flash Cannon"] },
+    { ability: "Technician", item: "Scizorite", moves: ["Bullet Punch", "Protect", "Swords Dance", "Bug Bite"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Rock Slide", "Dire Claw", "Close Combat", "Fake Out"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] },
+    { ability: "Multiscale", item: "Dragoninite", moves: ["Protect", "Dragon Pulse", "Thunderbolt", "Tailwind"] }
+  ] },
+  { id: "ct-116", tournament: "MMHM X CHAOS LEAGUE QUALIFIER #2", players: 34, placement: 7, player: "MuBu", wins: 3, losses: 3, pokemonIds: [778, 248, 823, 530, 10009, 635], pokemonNames: ["Mimikyu", "Tyranitar", "Corviknight", "Excadrill", "Wash Rotom", "Hydreigon"], sets: [
+    { ability: "Disguise", item: "Spell Tag", moves: ["Play Rough", "Protect", "Shadow Claw", "Shadow Sneak"] },
+    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Rock Slide", "Low Kick", "Dragon Dance", "Protect"] },
+    { ability: "Mirror Armor", item: "Leftovers", moves: ["Brave Bird", "Taunt", "U-turn", "Roost"] },
+    { ability: "Sand Rush", item: "Focus Sash", moves: ["Earthquake", "Rock Slide", "Iron Head", "Protect"] },
+    { ability: "Levitate", item: "Sitrus Berry", moves: ["Volt Switch", "Will-O-Wisp", "Hydro Pump", "Protect"] },
+    { ability: "Levitate", item: "Choice Scarf", moves: ["Draco Meteor", "Flamethrower", "Earth Power", "Dark Pulse"] }
+  ] },
+  { id: "ct-117", tournament: "MMHM X CHAOS LEAGUE QUALIFIER #2", players: 34, placement: 8, player: "Ryuzaki26", wins: 3, losses: 3, pokemonIds: [324, 1013, 765, 780, 475, 959], pokemonNames: ["Torkoal", "Sinistcha", "Oranguru", "Drampa", "Gallade", "Tinkaton"], sets: [
+    { ability: "Drought", item: "Charcoal", moves: ["Protect", "Eruption", "Heat Wave", "Solar Beam"] },
+    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Matcha Gotcha", "Life Dew", "Rage Powder", "Trick Room"] },
+    { ability: "Inner Focus", item: "Colbur Berry", moves: ["Foul Play", "Trick Room", "Psychic", "Instruct"] },
+    { ability: "Cloud Nine", item: "Drampanite", moves: ["Protect", "Hyper Voice", "Earth Power", "Calm Mind"] },
+    { ability: "Sharpness", item: "Scope Lens", moves: ["Psycho Cut", "Sacred Sword", "Wide Guard", "Leaf Blade"] },
+    { ability: "Mold Breaker", item: "Metal Coat", moves: ["Fake Out", "Play Rough", "Gigaton Hammer", "Protect"] }
+  ] },
+  { id: "ct-118", tournament: "★ Need PKPs? Champions Tournament ★", players: 11, placement: 1, player: "DarkTacoVGC", wins: 4, losses: 2, pokemonIds: [445, 130, 983, 903, 547, 227], pokemonNames: ["Garchomp", "Gyarados", "Kingambit", "Sneasler", "Whimsicott", "Skarmory"], sets: [
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Protect", "Dragon Claw", "Earthquake", "Rock Slide"] },
+    { ability: "Intimidate", item: "Gyaradosite", moves: ["Protect", "Dragon Dance", "Waterfall", "Lash Out"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Protect", "Sucker Punch", "Kowtow Cleave", "Swords Dance"] },
+    { ability: "Unburden", item: "Focus Sash", moves: ["Fake Out", "Coaching", "Close Combat", "Dire Claw"] },
+    { ability: "Prankster", item: "Coba Berry", moves: ["Protect", "Tailwind", "Encore", "Moonblast"] },
+    { ability: "Sturdy", item: "Skarmorite", moves: ["Protect", "Rock Tomb", "Iron Head", "Brave Bird"] }
+  ] },
+  { id: "ct-119", tournament: "★ Need PKPs? Champions Tournament ★", players: 11, placement: 2, player: "RobinKaos", wins: 5, losses: 1, pokemonIds: [745, 478, 902, 952, 903, 983], pokemonNames: ["Lycanroc", "Froslass", "Basculegion-M", "Scovillain", "Sneasler", "Kingambit"], sets: [
+    { ability: "Tough Claws", item: "Focus Sash", moves: ["Protect", "Rock Slide", "Close Combat", "Accelerock"] },
+    { ability: "Cursed Body", item: "Froslassite", moves: ["Protect", "Blizzard", "Shadow Ball", "Aurora Veil"] },
+    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Protect", "Wave Crash", "Last Respects", "Aqua Jet"] },
+    { ability: "Moody", item: "Scovillainite", moves: ["Protect", "Overheat", "Giga Drain", "Rage Powder"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Protect", "Close Combat", "Gunk Shot", "Fake Out"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Protect", "Kowtow Cleave", "Sucker Punch", "Swords Dance"] }
+  ] },
+  { id: "ct-120", tournament: "★ Need PKPs? Champions Tournament ★", players: 11, placement: 3, player: "Spinarak167", wins: 3, losses: 2, pokemonIds: [142, 6, 445, 700, 902, 168], pokemonNames: ["Aerodactyl", "Charizard", "Garchomp", "Sylveon", "Basculegion-M", "Ariados"], sets: [
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Protect"] },
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Weather Ball", "Protect"] },
+    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Earthquake", "Stomping Tantrum", "Dragon Claw", "Rock Slide"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Quick Attack", "Hyper Beam", "Detect"] },
+    { ability: "Adaptability", item: "Focus Sash", moves: ["Liquidation", "Last Respects", "Aqua Jet", "Protect"] },
+    { ability: "Insomnia", item: "Sitrus Berry", moves: ["Knock Off", "String Shot", "Rage Powder", "Protect"] }
+  ] },
+  { id: "ct-121", tournament: "★ Need PKPs? Champions Tournament ★", players: 11, placement: 4, player: "Charmoffense", wins: 2, losses: 3, pokemonIds: [142, 902, 1018, 279, 727, 212], pokemonNames: ["Aerodactyl", "Basculegion-M", "Archaludon", "Pelipper", "Incineroar", "Scizor"], sets: [
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Tailwind", "Aerial Ace", "Protect"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Flip Turn", "Wave Crash", "Aqua Jet", "Last Respects"] },
+    { ability: "Stamina", item: "Chople Berry", moves: ["Protect", "Electro Shot", "Aura Sphere", "Dragon Pulse"] },
+    { ability: "Drizzle", item: "Focus Sash", moves: ["Weather Ball", "Tailwind", "Protect", "Hurricane"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Parting Shot", "Throat Chop"] },
+    { ability: "Technician", item: "Scizorite", moves: ["Bullet Punch", "Close Combat", "Protect", "Swords Dance"] }
+  ] },
+  { id: "ct-122", tournament: "★ Need PKPs? Champions Tournament ★", players: 11, placement: 5, player: "pontusvgc", wins: 2, losses: 2, pokemonIds: [6, 670, 445, 983, 902, 547], pokemonNames: ["Charizard", "Floette", "Garchomp", "Kingambit", "Basculegion-M", "Whimsicott"], sets: [
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] },
+    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Earthquake", "Dragon Claw", "Rock Slide", "Protect"] },
+    { ability: "Defiant", item: "Occa Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
+    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
+    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] }
+  ] },
+  { id: "ct-123", tournament: "★ Need PKPs? Champions Tournament ★", players: 11, placement: 6, player: "PokeReplay", wins: 2, losses: 2, pokemonIds: [1013, 727, 350, 903, 670, 937], pokemonNames: ["Sinistcha", "Incineroar", "Milotic", "Sneasler", "Floette", "Ceruledge"], sets: [
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Protect", "Rage Powder", "Matcha Gotcha", "Life Dew"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Throat Chop", "Flare Blitz", "Parting Shot"] },
+    { ability: "Competitive", item: "Leftovers", moves: ["Coil", "Muddy Water", "Hypnosis", "Protect"] },
+    { ability: "Poison Touch", item: "Focus Sash", moves: ["Close Combat", "Dire Claw", "Fake Out", "Throat Chop"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Protect", "Draining Kiss", "Calm Mind", "Dazzling Gleam"] },
+    { ability: "Flash Fire", item: "Colbur Berry", moves: ["Bulk Up", "Protect", "Shadow Sneak", "Bitter Blade"] }
+  ] },
+  { id: "ct-124", tournament: "★ Need PKPs? Champions Tournament ★", players: 11, placement: 7, player: "thepostmanp", wins: 1, losses: 3, pokemonIds: [727, 670, 1013, 6, 983, 903], pokemonNames: ["Incineroar", "Floette", "Sinistcha", "Charizard", "Kingambit", "Sneasler"], sets: [
+    { ability: "Intimidate", item: "Leftovers", moves: ["Throat Chop", "Fake Out", "Flare Blitz", "Parting Shot"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Draining Kiss", "Dazzling Gleam", "Calm Mind", "Protect"] },
+    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Trick Room"] },
+    { ability: "Blaze", item: "Charizardite X", moves: ["Breaking Swipe", "Flare Blitz", "Dragon Dance", "Protect"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Protect", "Iron Head"] },
+    { ability: "Unburden", item: "Focus Sash", moves: ["Close Combat", "Dire Claw", "Fake Out", "Coaching"] }
+  ] },
+  { id: "ct-125", tournament: "★ Need PKPs? Champions Tournament ★", players: 11, placement: 8, player: "emanuele12340", wins: 1, losses: 3, pokemonIds: [902, 445, 983, 700, 142, 6], pokemonNames: ["Basculegion-M", "Garchomp", "Kingambit", "Sylveon", "Aerodactyl", "Charizard"], sets: [
+    { ability: "Adaptability", item: "Focus Sash", moves: ["Protect", "Last Respects", "Aqua Jet", "Liquidation"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Rock Tomb", "Earthquake", "Dragon Claw", "Protect"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Sucker Punch", "Kowtow Cleave", "Low Kick", "Iron Head"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Detect", "Yawn", "Hyper Voice", "Quick Attack"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Tailwind", "Dual Wingbeat", "Rock Slide", "Wide Guard"] },
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Protect", "Weather Ball", "Heat Wave", "Solar Beam"] }
+  ] },
+  { id: "ct-126", tournament: "VGCA Battle Hall: Academy Ace Edition #3", players: 11, placement: 1, player: "rickinch", wins: 5, losses: 1, pokemonIds: [478, 952, 745, 983, 903, 902], pokemonNames: ["Froslass", "Scovillain", "Lycanroc", "Kingambit", "Sneasler", "Basculegion-M"], sets: [
+    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Substitute", "Protect"] },
+    { ability: "Insomnia", item: "Scovillainite", moves: ["Overheat", "Leech Seed", "Rage Powder", "Protect"] },
+    { ability: "Tough Claws", item: "Focus Sash", moves: ["Rock Slide", "Close Combat", "Accelerock", "Protect"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Swords Dance", "Protect"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Fake Out", "Protect"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Flip Turn", "Wave Crash", "Aqua Jet", "Last Respects"] }
+  ] },
+  { id: "ct-127", tournament: "VGCA Battle Hall: Academy Ace Edition #3", players: 11, placement: 2, player: "BHelixB", wins: 4, losses: 2, pokemonIds: [5059, 547, 903, 445, 983, 478], pokemonNames: ["Hisuian Arcanine", "Whimsicott", "Sneasler", "Garchomp", "Kingambit", "Froslass"], sets: [
+    { ability: "Rock Head", item: "Focus Sash", moves: ["Flare Blitz", "Rock Slide", "Extreme Speed", "Protect"] },
+    { ability: "Prankster", item: "Occa Berry", moves: ["Protect", "Encore", "Tailwind", "Moonblast"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Dire Claw", "Close Combat", "Protect"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Dragon Claw", "Earthquake", "Rock Slide", "Protect"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Protect"] },
+    { ability: "Snow Cloak", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Aurora Veil", "Protect"] }
+  ] },
+  { id: "ct-128", tournament: "VGCA Battle Hall: Academy Ace Edition #3", players: 11, placement: 3, player: "ethnol1816", wins: 4, losses: 1, pokemonIds: [445, 655, 903, 983, 10103, 1013], pokemonNames: ["Garchomp", "Delphox", "Sneasler", "Kingambit", "Alolan Ninetales", "Sinistcha"], sets: [
+    { ability: "Rough Skin", item: "Garchompite", moves: ["Earthquake", "Rock Tomb", "Breaking Swipe", "Protect"] },
+    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psyshock", "Calm Mind", "Protect"] },
+    { ability: "Unburden", item: "Focus Sash", moves: ["Close Combat", "Dire Claw", "Coaching", "Fake Out"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Sucker Punch", "Kowtow Cleave", "Iron Head", "Protect"] },
+    { ability: "Snow Warning", item: "Never-Melt Ice", moves: ["Blizzard", "Freeze-Dry", "Encore", "Protect"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Protect", "Trick Room"] }
+  ] },
+  { id: "ct-129", tournament: "VGCA Battle Hall: Academy Ace Edition #3", players: 11, placement: 4, player: "Royal_Rebel_Prince21", wins: 3, losses: 2, pokemonIds: [547, 142, 903, 695, 1018, 130], pokemonNames: ["Whimsicott", "Aerodactyl", "Sneasler", "Heliolisk", "Archaludon", "Gyarados"], sets: [
+    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Protect", "Encore"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Dual Wingbeat", "Ice Fang", "Rock Slide", "Protect"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Fake Out", "Protect"] },
+    { ability: "Solar Power", item: "Magnet", moves: ["Thunderbolt", "Hyper Voice", "Eerie Impulse", "Protect"] },
+    { ability: "Stamina", item: "Leftovers", moves: ["Dragon Pulse", "Aura Sphere", "Electro Shot", "Flash Cannon"] },
+    { ability: "Intimidate", item: "Gyaradosite", moves: ["Lash Out", "Waterfall", "Dragon Dance", "Protect"] }
+  ] },
+  { id: "ct-130", tournament: "VGCA Battle Hall: Academy Ace Edition #3", players: 11, placement: 5, player: "Jakobtc505", wins: 2, losses: 2, pokemonIds: [6, 473, 778, 727, 903, 142], pokemonNames: ["Charizard", "Mamoswine", "Mimikyu", "Incineroar", "Sneasler", "Aerodactyl"], sets: [
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Weather Ball", "Protect"] },
+    { ability: "Oblivious", item: "Focus Sash", moves: ["Icicle Crash", "Earthquake", "Ice Shard", "Protect"] },
+    { ability: "Disguise", item: "Fairy Feather", moves: ["Play Rough", "Shadow Sneak", "Swords Dance", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Darkest Lariat", "Parting Shot"] },
+    { ability: "Unburden", item: "Mental Herb", moves: ["Fake Out", "Close Combat", "Dire Claw", "Protect"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Blast", "Dual Wingbeat", "Wide Guard", "Protect"] }
+  ] },
+  { id: "ct-131", tournament: "VGCA Battle Hall: Academy Ace Edition #3", players: 11, placement: 6, player: "HyperRuns", wins: 1, losses: 3, pokemonIds: [6, 547, 983, 902, 445, 970], pokemonNames: ["Charizard", "Whimsicott", "Kingambit", "Basculegion-M", "Garchomp", "Glimmora"], sets: [
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Weather Ball", "Protect"] },
+    { ability: "Prankster", item: "Fairy Feather", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Low Kick", "Sucker Punch", "Swords Dance"] },
+    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
+    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Dragon Claw", "Earthquake", "Rock Slide", "Poison Jab"] },
+    { ability: "Toxic Debris", item: "Focus Sash", moves: ["Power Gem", "Sludge Bomb", "Earth Power", "Spiky Shield"] }
+  ] },
+  { id: "ct-132", tournament: "VGCA Battle Hall: Academy Ace Edition #3", players: 11, placement: 7, player: "risered28", wins: 1, losses: 3, pokemonIds: [655, 784, 10009, 727, 248, 681], pokemonNames: ["Delphox", "Kommo-o", "Wash Rotom", "Incineroar", "Tyranitar", "Aegislash"], sets: [
+    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psychic", "Protect", "Encore"] },
+    { ability: "Soundproof", item: "Leftovers", moves: ["Clanging Scales", "Aura Sphere", "Clangorous Soul", "Protect"] },
+    { ability: "Levitate", item: "Choice Scarf", moves: ["Hydro Pump", "Volt Switch", "Will-O-Wisp", "Thunderbolt"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Parting Shot", "Darkest Lariat", "Fake Out", "Flare Blitz"] },
+    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Rock Slide", "Protect", "Knock Off", "Low Kick"] },
+    { ability: "Stance Change", item: "Spell Tag", moves: ["Iron Head", "King's Shield", "Poltergeist", "Shadow Sneak"] }
+  ] },
+  { id: "ct-133", tournament: "VGC Trainer school x MMHM x Pride month event!  #2", players: 46, placement: 1, player: "138mysx", wins: 9, losses: 1, pokemonIds: [6, 142, 445, 700, 983, 902], pokemonNames: ["Charizard", "Aerodactyl", "Garchomp", "Sylveon", "Kingambit", "Basculegion-M"], sets: [
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Solar Beam", "Weather Ball", "Heat Wave", "Protect"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Tailwind", "Wide Guard", "Protect"] },
+    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Dragon Claw", "Earthquake", "Poison Jab", "Protect"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Beam", "Hyper Voice", "Quick Attack", "Detect"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
+    { ability: "Adaptability", item: "Focus Sash", moves: ["Aqua Jet", "Liquidation", "Last Respects", "Protect"] }
+  ] },
+  { id: "ct-134", tournament: "VGC Trainer school x MMHM x Pride month event!  #2", players: 46, placement: 2, player: "mcclint_50", wins: 8, losses: 2, pokemonIds: [248, 1013, 445, 823, 903, 670], pokemonNames: ["Tyranitar", "Sinistcha", "Garchomp", "Corviknight", "Sneasler", "Floette"], sets: [
+    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Rock Slide", "Knock Off", "Dragon Dance", "Protect"] },
+    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"] },
+    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Stomping Tantrum", "Dragon Claw", "Earthquake", "Rock Slide"] },
+    { ability: "Mirror Armor", item: "Leftovers", moves: ["Bulk Up", "Brave Bird", "Iron Head", "Tailwind"] },
+    { ability: "Poison Touch", item: "White Herb", moves: ["Fake Out", "Close Combat", "Dire Claw", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Calm Mind", "Protect"] }
+  ] },
+  { id: "ct-135", tournament: "VGC Trainer school x MMHM x Pride month event!  #2", players: 46, placement: 3, player: "JoeGanier", wins: 7, losses: 2, pokemonIds: [970, 445, 10009, 663, 10103, 983], pokemonNames: ["Glimmora", "Garchomp", "Wash Rotom", "Talonflame", "Alolan Ninetales", "Kingambit"], sets: [
+    { ability: "Toxic Debris", item: "Glimmoranite", moves: ["Spiky Shield", "Power Gem", "Sludge Bomb", "Earth Power"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Protect", "Earthquake", "Dragon Claw", "Rock Tomb"] },
+    { ability: "Levitate", item: "Choice Scarf", moves: ["Volt Switch", "Electroweb", "Will-O-Wisp", "Hydro Pump"] },
+    { ability: "Gale Wings", item: "Sharp Beak", moves: ["Protect", "Dual Wingbeat", "Flare Blitz", "Tailwind"] },
+    { ability: "Snow Warning", item: "Never-Melt Ice", moves: ["Protect", "Blizzard", "Freeze-Dry", "Encore"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Protect", "Kowtow Cleave", "Iron Head", "Sucker Punch"] }
+  ] },
+  { id: "ct-136", tournament: "VGC Trainer school x MMHM x Pride month event!  #2", players: 46, placement: 4, player: "KST | KAMPFI ", wins: 6, losses: 3, pokemonIds: [670, 142, 445, 903, 727, 1013], pokemonNames: ["Floette", "Aerodactyl", "Garchomp", "Sneasler", "Incineroar", "Sinistcha"], sets: [
+    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Draining Kiss", "Calm Mind", "Protect"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Protect", "Tailwind", "Wide Guard"] },
+    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Dragon Claw", "Stomping Tantrum", "Protect", "Rock Slide"] },
+    { ability: "Unburden", item: "Focus Sash", moves: ["Dire Claw", "Close Combat", "Coaching", "Fake Out"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Throat Chop", "Flare Blitz", "Fake Out", "Parting Shot"] },
+    { ability: "Hospitality", item: "Occa Berry", moves: ["Matcha Gotcha", "Life Dew", "Rage Powder", "Trick Room"] }
+  ] },
+  { id: "ct-137", tournament: "VGC Trainer school x MMHM x Pride month event!  #2", players: 46, placement: 5, player: "NacDuBourgPalette", wins: 6, losses: 2, pokemonIds: [6, 445, 670, 902, 983, 547], pokemonNames: ["Charizard", "Garchomp", "Floette", "Basculegion-M", "Kingambit", "Whimsicott"], sets: [
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Solar Beam", "Heat Wave", "Dragon Pulse", "Protect"] },
+    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Poison Jab", "Earthquake", "Rock Slide", "Dragon Claw"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Moonblast", "Light of Ruin", "Protect"] },
     { ability: "Adaptability", item: "Mystic Water", moves: ["Last Respects", "Wave Crash", "Aqua Jet", "Protect"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Earthquake", "Dragon Claw", "Rock Slide", "Poison Jab"] },
-    { ability: "Toxic Debris", item: "Focus Sash", moves: ["Earth Power", "Power Gem", "Sludge Bomb", "Spiky Shield"] }
+    { ability: "Defiant", item: "Chople Berry", moves: ["Low Kick", "Sucker Punch", "Iron Head", "Protect"] },
+    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Fake Tears", "Tailwind", "Encore"] }
   ] },
-  { id: "ct-171", tournament: "VGC FACTORY #2", players: 15, placement: 8, player: "PatrickSuzuki777", wins: 2, losses: 2, pokemonIds: [475, 186, 1018, 663, 983, 763], pokemonNames: ["Gallade", "Politoed", "Archaludon", "Talonflame", "Kingambit", "Tsareena"], sets: [
-    { ability: "Steadfast", item: "Galladite", moves: ["Protect", "Psycho Cut", "Sacred Sword", "Rock Slide"] },
-    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Protect", "Weather Ball", "Ice Beam", "Rain Dance"] },
-    { ability: "Stamina", item: "Leftovers", moves: ["Protect", "Dragon Pulse", "Flash Cannon", "Electro Shot"] },
-    { ability: "Gale Wings", item: "Focus Sash", moves: ["Protect", "Tailwind", "Brave Bird", "Taunt"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Protect", "Iron Head", "Sucker Punch", "Kowtow Cleave"] },
-    { ability: "Queenly Majesty", item: "Choice Scarf", moves: ["U-turn", "Knock Off", "Triple Axel", "Trop Kick"] }
+  { id: "ct-138", tournament: "VGC Trainer school x MMHM x Pride month event!  #2", players: 46, placement: 6, player: "othunder21", wins: 6, losses: 2, pokemonIds: [655, 670, 727, 903, 983, 981], pokemonNames: ["Delphox", "Floette", "Incineroar", "Sneasler", "Kingambit", "Farigiraf"], sets: [
+    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psyshock", "Nasty Plot", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Calm Mind", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Darkest Lariat", "Parting Shot"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Close Combat", "Dire Claw", "Protect"] },
+    { ability: "Defiant", item: "Focus Sash", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Low Kick"] },
+    { ability: "Armor Tail", item: "Colbur Berry", moves: ["Twin Beam", "Thunderbolt", "Trick Room", "Helping Hand"] }
   ] },
-  { id: "ct-172", tournament: "Game Corner Showdown 2025 - Split 3 | Torneio #7", players: 9, placement: 1, player: "Rosha Volari", wins: 5, losses: 1, pokemonIds: [6, 727, 981, 700, 142, 445], pokemonNames: ["Charizard", "Incineroar", "Farigiraf", "Sylveon", "Aerodactyl", "Garchomp"], sets: [
-    { ability: "Solar Power", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Protect", "Solar Beam"] },
-    { ability: "Intimidate", item: "White Herb", moves: ["Flare Blitz", "Throat Chop", "Fake Out", "Close Combat"] },
-    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Hyper Voice", "Twin Beam", "Trick Room", "Protect"] },
-    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Moonblast", "Quick Attack", "Detect"] },
-    { ability: "Unnerve", item: "Focus Sash", moves: ["Rock Slide", "Tailwind", "Protect", "Sunny Day"] },
-    { ability: "Rough Skin", item: "Garchompite", moves: ["Stomping Tantrum", "Dragon Claw", "Earthquake", "Rock Slide"] }
+  { id: "ct-139", tournament: "VGC Trainer school x MMHM x Pride month event!  #2", players: 46, placement: 7, player: "Emoolew", wins: 5, losses: 3, pokemonIds: [937, 727, 670, 350, 1013, 10103], pokemonNames: ["Ceruledge", "Incineroar", "Floette", "Milotic", "Sinistcha", "Alolan Ninetales"], sets: [
+    { ability: "Flash Fire", item: "Colbur Berry", moves: ["Bitter Blade", "Shadow Sneak", "Swords Dance", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Throat Chop", "Fake Out", "Parting Shot"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Draining Kiss", "Dazzling Gleam", "Calm Mind", "Protect"] },
+    { ability: "Marvel Scale", item: "Leftovers", moves: ["Scald", "Icy Wind", "Life Dew", "Protect"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Trick Room"] },
+    { ability: "Snow Warning", item: "Focus Sash", moves: ["Blizzard", "Disable", "Encore", "Protect"] }
   ] },
-  { id: "ct-173", tournament: "Game Corner Showdown 2025 - Split 3 | Torneio #7", players: 9, placement: 2, player: "Miguel Rebelo", wins: 4, losses: 2, pokemonIds: [6, 670, 445, 547, 902, 983], pokemonNames: ["Charizard", "Floette", "Garchomp", "Whimsicott", "Basculegion-M", "Kingambit"], sets: [
+  { id: "ct-140", tournament: "VGC Trainer school x MMHM x Pride month event!  #2", players: 46, placement: 8, player: "TenkiPK", wins: 5, losses: 3, pokemonIds: [6, 670, 445, 547, 902, 983], pokemonNames: ["Charizard", "Floette", "Garchomp", "Whimsicott", "Basculegion-M", "Kingambit"], sets: [
     { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
     { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] },
     { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Dragon Claw", "Earthquake", "Rock Slide", "Protect"] },
     { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
     { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Protect"] }
+    { ability: "Defiant", item: "Occa Berry", moves: ["Kowtow Cleave", "Protect", "Sucker Punch", "Iron Head"] }
   ] },
-  { id: "ct-174", tournament: "Game Corner Showdown 2025 - Split 3 | Torneio #7", players: 9, placement: 3, player: "Bruno Silveira", wins: 3, losses: 2, pokemonIds: [6, 149, 970, 983, 902, 547], pokemonNames: ["Charizard", "Dragonite", "Glimmora", "Kingambit", "Basculegion-M", "Whimsicott"], sets: [
-    { ability: "Blaze", item: "Charizardite X", moves: ["Protect", "Thunder Punch", "Dragon Claw", "Flare Blitz"] },
-    { ability: "Multiscale", item: "Dragoninite", moves: ["Protect", "Air Slash", "Dragon Pulse", "Flamethrower"] },
-    { ability: "Toxic Debris", item: "Focus Sash", moves: ["Spiky Shield", "Power Gem", "Earth Power", "Sludge Bomb"] },
-    { ability: "Defiant", item: "Chople Berry", moves: ["Low Kick", "Sucker Punch", "Iron Head", "Kowtow Cleave"] },
-    { ability: "Adaptability", item: "Mystic Water", moves: ["Protect", "Aqua Jet", "Last Respects", "Wave Crash"] },
-    { ability: "Prankster", item: "Kebia Berry", moves: ["Protect", "Tailwind", "Encore", "Moonblast"] }
-  ] },
-  { id: "ct-175", tournament: "Game Corner Showdown 2025 - Split 3 | Torneio #7", players: 9, placement: 4, player: "Fernando Albuquerque", wins: 2, losses: 3, pokemonIds: [248, 530, 887, 36, 350, 1013], pokemonNames: ["Tyranitar", "Excadrill", "Dragapult", "Clefable", "Milotic", "Sinistcha"], sets: [
-    { ability: "Sand Stream", item: "Passho Berry", moves: ["Rock Slide", "Knock Off", "Superpower", "Protect"] },
-    { ability: "Sand Rush", item: "Focus Sash", moves: ["High Horsepower", "Rock Slide", "Swords Dance", "Protect"] },
-    { ability: "Cursed Body", item: "Dragon Fang", moves: ["Draco Meteor", "Will-O-Wisp", "Light Screen", "U-turn"] },
-    { ability: "Magic Guard", item: "Clefablite", moves: ["Air Slash", "Ice Beam", "Follow Me", "Protect"] },
-    { ability: "Competitive", item: "Leftovers", moves: ["Muddy Water", "Coil", "Hypnosis", "Recover"] },
-    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Matcha Gotcha", "Rage Powder", "Imprison", "Trick Room"] }
-  ] },
-  { id: "ct-176", tournament: "Game Corner Showdown 2025 - Split 3 | Torneio #7", players: 9, placement: 5, player: "Diogo Henriques", wins: 2, losses: 2, pokemonIds: [655, 36, 983, 903, 445, 902], pokemonNames: ["Delphox", "Clefable", "Kingambit", "Sneasler", "Garchomp", "Basculegion-M"], sets: [
-    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psyshock", "Encore", "Protect"] },
-    { ability: "Unaware", item: "Sitrus Berry", moves: ["Moonblast", "Helping Hand", "Follow Me", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Sucker Punch", "Kowtow Cleave", "Low Kick", "Protect"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Fake Out", "Protect"] },
-    { ability: "Rough Skin", item: "Soft Sand", moves: ["Earthquake", "Dragon Claw", "Rock Tomb", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Aqua Jet", "Flip Turn", "Wave Crash", "Last Respects"] }
-  ] },
-  { id: "ct-177", tournament: "Game Corner Showdown 2025 - Split 3 | Torneio #7", players: 9, placement: 6, player: "Pedro Miguel", wins: 2, losses: 2, pokemonIds: [952, 142, 445, 902, 983, 700], pokemonNames: ["Scovillain", "Aerodactyl", "Garchomp", "Basculegion-M", "Kingambit", "Sylveon"], sets: [
-    { ability: "Moody", item: "Scovillainite", moves: ["Overheat", "Rage Powder", "Leech Seed", "Protect"] },
-    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Protect"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Earthquake", "Dragon Claw", "Poison Jab", "Protect"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Flip Turn", "Aqua Jet"] },
-    { ability: "Defiant", item: "Focus Sash", moves: ["Kowtow Cleave", "Iron Head", "Low Kick", "Sucker Punch"] },
-    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Quick Attack", "Calm Mind", "Detect"] }
-  ] },
-  { id: "ct-178", tournament: "Game Corner Showdown 2025 - Split 3 | Torneio #7", players: 9, placement: 7, player: "Bruno Alfacinha", wins: 2, losses: 2, pokemonIds: [130, 445, 670, 727, 903, 1013], pokemonNames: ["Gyarados", "Garchomp", "Floette", "Incineroar", "Sneasler", "Sinistcha"], sets: [
-    { ability: "Intimidate", item: "Gyaradosite", moves: ["Waterfall", "Lash Out", "Dragon Dance", "Protect"] },
-    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Dragon Claw", "Earthquake", "Rock Slide", "Poison Jab"] },
-    { ability: "Flower Veil", item: "Floettite", moves: ["Draining Kiss", "Dazzling Gleam", "Calm Mind", "Protect"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Taunt", "Parting Shot", "Fake Out"] },
-    { ability: "Unburden", item: "Focus Sash", moves: ["Fake Out", "Close Combat", "Dire Claw", "Coaching"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Protect"] }
-  ] },
-  { id: "ct-179", tournament: "Game Corner Showdown 2025 - Split 3 | Torneio #7", players: 9, placement: 8, player: "Micael Ramos", wins: 0, losses: 4, pokemonIds: [983, 903, 655, 981, 350, 3], pokemonNames: ["Kingambit", "Sneasler", "Delphox", "Farigiraf", "Milotic", "Venusaur"], sets: [
-    { ability: "Defiant", item: "Black Glasses", moves: ["Protect", "Kowtow Cleave", "Sucker Punch", "Swords Dance"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Protect", "Close Combat", "Dire Claw"] },
-    { ability: "Blaze", item: "Delphoxite", moves: ["Protect", "Heat Wave", "Psyshock", "Nasty Plot"] },
-    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Trick Room", "Foul Play", "Psychic", "Helping Hand"] },
-    { ability: "Competitive", item: "Leftovers", moves: ["Life Dew", "Coil", "Hypnosis", "Hydro Pump"] },
-    { ability: "Chlorophyll", item: "Quick Claw", moves: ["Protect", "Leech Seed", "Acid Spray", "Helping Hand"] }
-  ] },
-  { id: "ct-180", tournament: "Mudkip's Marsh Pit #0", players: 27, placement: 1, player: "Hrishi", wins: 8, losses: 0, pokemonIds: [952, 142, 445, 902, 983, 700], pokemonNames: ["Scovillain", "Aerodactyl", "Garchomp", "Basculegion-M", "Kingambit", "Sylveon"], sets: [
-    { ability: "Moody", item: "Scovillainite", moves: ["Overheat", "Protect", "Leech Seed", "Rage Powder"] },
-    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Protect", "Dual Wingbeat", "Tailwind"] },
-    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Dragon Claw", "Earthquake", "Protect", "Poison Jab"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Last Respects", "Wave Crash", "Aqua Jet", "Flip Turn"] },
-    { ability: "Defiant", item: "Focus Sash", moves: ["Kowtow Cleave", "Iron Head", "Low Kick", "Sucker Punch"] },
-    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Quick Attack", "Calm Mind", "Detect"] }
-  ] },
-  { id: "ct-181", tournament: "Mudkip's Marsh Pit #0", players: 27, placement: 2, player: "LegKickSpammer", wins: 6, losses: 2, pokemonIds: [784, 212, 727, 1013, 902, 248], pokemonNames: ["Kommo-o", "Scizor", "Incineroar", "Sinistcha", "Basculegion-M", "Tyranitar"], sets: [
-    { ability: "Soundproof", item: "Leftovers", moves: ["Clanging Scales", "Aura Sphere", "Clangorous Soul", "Protect"] },
-    { ability: "Technician", item: "Scizorite", moves: ["Bullet Punch", "Bug Bite", "Swords Dance", "Protect"] },
-    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Fake Out", "Helping Hand", "Parting Shot"] },
-    { ability: "Hospitality", item: "Kasib Berry", moves: ["Trick Room", "Matcha Gotcha", "Rage Powder", "Life Dew"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Flip Turn", "Last Respects", "Aqua Jet"] },
-    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Rock Slide", "Knock Off", "Low Kick", "Protect"] }
-  ] },
-  { id: "ct-182", tournament: "Mudkip's Marsh Pit #0", players: 27, placement: 3, player: "Tenex", wins: 5, losses: 2, pokemonIds: [903, 983, 902, 981, 952, 142], pokemonNames: ["Sneasler", "Kingambit", "Basculegion-M", "Farigiraf", "Scovillain", "Aerodactyl"], sets: [
-    { ability: "Unburden", item: "White Herb", moves: ["Dire Claw", "Close Combat", "Fake Out", "Protect"] },
+  { id: "ct-141", tournament: "NOVA's SUPER LEAGUE", players: 82, placement: 1, player: "vedantff12345", wins: 9, losses: 0, pokemonIds: [149, 902, 983, 727, 903, 1013], pokemonNames: ["Dragonite", "Basculegion-M", "Kingambit", "Incineroar", "Sneasler", "Sinistcha"], sets: [
+    { ability: "Multiscale", item: "Dragoninite", moves: ["Dragon Pulse", "Heat Wave", "Tailwind", "Protect"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Flip Turn", "Aqua Jet", "Last Respects"] },
     { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Swords Dance", "Protect"] },
-    { ability: "Adaptability", item: "Focus Sash", moves: ["Last Respects", "Liquidation", "Aqua Jet", "Protect"] },
-    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Trick Room", "Psychic", "Protect", "Hyper Voice"] },
-    { ability: "Chlorophyll", item: "Scovillainite", moves: ["Flamethrower", "Leech Seed", "Protect", "Rage Powder"] },
-    { ability: "Unnerve", item: "Aerodactylite", moves: ["Tailwind", "Rock Slide", "Protect", "Dual Wingbeat"] }
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Throat Chop", "Parting Shot"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Close Combat", "Dire Claw", "Protect"] },
+    { ability: "Hospitality", item: "Leftovers", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"] }
   ] },
-  { id: "ct-183", tournament: "Mudkip's Marsh Pit #0", players: 27, placement: 4, player: "Duckoooo", wins: 4, losses: 3, pokemonIds: [663, 903, 208, 248, 10009, 1013], pokemonNames: ["Talonflame", "Sneasler", "Steelix", "Tyranitar", "Wash Rotom", "Sinistcha"], sets: [
-    { ability: "Gale Wings", item: "Sharp Beak", moves: ["Protect", "Swords Dance", "Flare Blitz", "Brave Bird"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Dire Claw", "Close Combat", "Protect"] },
-    { ability: "Sturdy", item: "Steelixite", moves: ["Wide Guard", "High Horsepower", "Heavy Slam", "Protect"] },
-    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Dragon Dance", "Protect", "Rock Slide", "Knock Off"] },
-    { ability: "Levitate", item: "Leftovers", moves: ["Will-O-Wisp", "Hydro Pump", "Thunderbolt", "Light Screen"] },
-    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Trick Room", "Matcha Gotcha", "Rage Powder", "Protect"] }
+  { id: "ct-142", tournament: "NOVA's SUPER LEAGUE", players: 82, placement: 2, player: "Altkyle", wins: 8, losses: 2, pokemonIds: [149, 902, 212, 1018, 279, 727], pokemonNames: ["Dragonite", "Basculegion-M", "Scizor", "Archaludon", "Pelipper", "Incineroar"], sets: [
+    { ability: "Inner Focus", item: "Dragoninite", moves: ["Dragon Pulse", "Flamethrower", "Tailwind", "Protect"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] },
+    { ability: "Technician", item: "Scizorite", moves: ["Bullet Punch", "Close Combat", "Swords Dance", "Protect"] },
+    { ability: "Stamina", item: "Chople Berry", moves: ["Electro Shot", "Dragon Pulse", "Aura Sphere", "Protect"] },
+    { ability: "Drizzle", item: "Focus Sash", moves: ["Hurricane", "Weather Ball", "Tailwind", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Throat Chop", "Parting Shot"] }
   ] },
-  { id: "ct-184", tournament: "Mudkip's Marsh Pit #0", players: 27, placement: 5, player: "Shrey", wins: 4, losses: 2, pokemonIds: [248, 212, 1013, 10009, 700, 727], pokemonNames: ["Tyranitar", "Scizor", "Sinistcha", "Wash Rotom", "Sylveon", "Incineroar"], sets: [
-    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Dragon Dance", "Rock Slide", "Knock Off", "Protect"] },
-    { ability: "Technician", item: "Scizorite", moves: ["Swords Dance", "Bullet Punch", "Bug Bite", "Protect"] },
-    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Matcha Gotcha", "Life Dew", "Rage Powder", "Trick Room"] },
-    { ability: "Levitate", item: "Choice Scarf", moves: ["Hydro Pump", "Volt Switch", "Trick", "Will-O-Wisp"] },
-    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Hyper Beam", "Protect", "Quick Attack"] },
-    { ability: "Intimidate", item: "Chople Berry", moves: ["Fake Out", "Parting Shot", "Flare Blitz", "Throat Chop"] }
-  ] },
-  { id: "ct-185", tournament: "Mudkip's Marsh Pit #0", players: 27, placement: 6, player: "Unknown_X", wins: 4, losses: 2, pokemonIds: [547, 6, 445, 908, 350, 970], pokemonNames: ["Whimsicott", "Charizard", "Garchomp", "Meowscarada", "Milotic", "Glimmora"], sets: [
+  { id: "ct-143", tournament: "NOVA's SUPER LEAGUE", players: 82, placement: 3, player: "Jasmithchiyu", wins: 7, losses: 2, pokemonIds: [6, 547, 983, 902, 445, 970], pokemonNames: ["Charizard", "Whimsicott", "Kingambit", "Basculegion-M", "Garchomp", "Glimmora"], sets: [
+    { ability: "Solar Power", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Weather Ball", "Protect"] },
     { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Protect"] },
+    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
+    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Dragon Claw", "Earthquake", "Rock Slide", "Stomping Tantrum"] },
+    { ability: "Toxic Debris", item: "Glimmoranite", moves: ["Power Gem", "Sludge Bomb", "Earth Power", "Spiky Shield"] }
+  ] },
+  { id: "ct-144", tournament: "NOVA's SUPER LEAGUE", players: 82, placement: 4, player: "PR1NCIP3", wins: 6, losses: 3, pokemonIds: [130, 1013, 903, 727, 670, 445], pokemonNames: ["Gyarados", "Sinistcha", "Sneasler", "Incineroar", "Floette", "Garchomp"], sets: [
+    { ability: "Intimidate", item: "Gyaradosite", moves: ["Waterfall", "Lash Out", "Dragon Dance", "Protect"] },
+    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Protect"] },
+    { ability: "Unburden", item: "Focus Sash", moves: ["Fake Out", "Dire Claw", "Close Combat", "Coaching"] },
+    { ability: "Intimidate", item: "Shuca Berry", moves: ["Flare Blitz", "Fake Out", "Parting Shot", "Taunt"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Draining Kiss", "Dazzling Gleam", "Calm Mind", "Protect"] },
+    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Dragon Claw", "Earthquake", "Rock Slide", "Poison Jab"] }
+  ] },
+  { id: "ct-145", tournament: "NOVA's SUPER LEAGUE", players: 82, placement: 5, player: "Vardanc8", wins: 6, losses: 2, pokemonIds: [9, 142, 903, 1013, 445, 981], pokemonNames: ["Blastoise", "Aerodactyl", "Sneasler", "Sinistcha", "Garchomp", "Farigiraf"], sets: [
+    { ability: "Rain Dish", item: "Blastoisinite", moves: ["Aura Sphere", "Dark Pulse", "Water Spout", "Protect"] },
+    { ability: "Unnerve", item: "Focus Sash", moves: ["Dual Wingbeat", "Rock Slide", "Protect", "Tailwind"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Close Combat", "Dire Claw", "Protect"] },
+    { ability: "Hospitality", item: "Leftovers", moves: ["Matcha Gotcha", "Shadow Ball", "Rage Powder", "Trick Room"] },
+    { ability: "Rough Skin", item: "Choice Scarf", moves: ["Earthquake", "Stomping Tantrum", "Dragon Claw", "Rock Slide"] },
+    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Trick Room", "Rain Dance", "Psychic Noise", "Light Screen"] }
+  ] },
+  { id: "ct-146", tournament: "NOVA's SUPER LEAGUE", players: 82, placement: 6, player: "SpikeShock", wins: 5, losses: 2, pokemonIds: [956, 1018, 186, 952, 670, 727], pokemonNames: ["Espathra", "Archaludon", "Politoed", "Scovillain", "Floette", "Incineroar"], sets: [
+    { ability: "Speed Boost", item: "Colbur Berry", moves: ["Lumina Crash", "Calm Mind", "Baton Pass", "Protect"] },
+    { ability: "Stamina", item: "Leftovers", moves: ["Electro Shot", "Dragon Pulse", "Flash Cannon", "Protect"] },
+    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Muddy Water", "Psych Up", "Rain Dance", "Weather Ball"] },
+    { ability: "Chlorophyll", item: "Scovillainite", moves: ["Fire Blast", "Leech Seed", "Rage Powder", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Light of Ruin", "Draining Kiss", "Calm Mind", "Protect"] },
+    { ability: "Intimidate", item: "Passho Berry", moves: ["Fake Out", "Taunt", "Darkest Lariat", "Parting Shot"] }
+  ] },
+  { id: "ct-147", tournament: "NOVA's SUPER LEAGUE", players: 82, placement: 7, player: "Shivashankar", wins: 5, losses: 3, pokemonIds: [970, 478, 445, 547, 727, 823], pokemonNames: ["Glimmora", "Froslass", "Garchomp", "Whimsicott", "Incineroar", "Corviknight"], sets: [
+    { ability: "Toxic Debris", item: "Focus Sash", moves: ["Spiky Shield", "Power Gem", "Earth Power", "Sludge Bomb"] },
+    { ability: "Snow Cloak", item: "Froslassite", moves: ["Aurora Veil", "Protect", "Blizzard", "Shadow Ball"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Earthquake", "Rock Slide", "Protect", "Dragon Claw"] },
+    { ability: "Prankster", item: "Fairy Feather", moves: ["Light Screen", "Tailwind", "Encore", "Moonblast"] },
+    { ability: "Intimidate", item: "Chople Berry", moves: ["Flare Blitz", "Parting Shot", "Fake Out", "Taunt"] },
+    { ability: "Mirror Armor", item: "Leftovers", moves: ["Bulk Up", "Body Press", "Brave Bird", "Roost"] }
+  ] },
+  { id: "ct-148", tournament: "NOVA's SUPER LEAGUE", players: 82, placement: 8, player: "Yegorushhka", wins: 5, losses: 3, pokemonIds: [670, 142, 1013, 727, 903, 350], pokemonNames: ["Floette", "Aerodactyl", "Sinistcha", "Incineroar", "Sneasler", "Milotic"], sets: [
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Calm Mind", "Protect"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Ice Fang", "Protect"] },
+    { ability: "Hospitality", item: "Occa Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Parting Shot", "Flare Blitz", "Throat Chop"] },
+    { ability: "Unburden", item: "Focus Sash", moves: ["Close Combat", "Gunk Shot", "Fake Out", "Protect"] },
+    { ability: "Competitive", item: "Leftovers", moves: ["Muddy Water", "Coil", "Hypnosis", "Life Dew"] }
+  ] },
+  { id: "ct-149", tournament: "King's Gambit #5 - M-A Farewell | Reg M-A", players: 16, placement: 1, player: "Florens44", wins: 5, losses: 1, pokemonIds: [727, 937, 903, 350, 670, 1013], pokemonNames: ["Incineroar", "Ceruledge", "Sneasler", "Milotic", "Floette", "Sinistcha"], sets: [
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Throat Chop", "Flare Blitz", "Parting Shot"] },
+    { ability: "Flash Fire", item: "Colbur Berry", moves: ["Protect", "Shadow Sneak", "Bitter Blade", "Bulk Up"] },
+    { ability: "Poison Touch", item: "Focus Sash", moves: ["Fake Out", "Dire Claw", "Throat Chop", "Close Combat"] },
+    { ability: "Competitive", item: "Leftovers", moves: ["Hypnosis", "Coil", "Protect", "Muddy Water"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Protect", "Dazzling Gleam", "Calm Mind", "Draining Kiss"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Protect", "Matcha Gotcha", "Rage Powder", "Life Dew"] }
+  ] },
+  { id: "ct-150", tournament: "King's Gambit #5 - M-A Farewell | Reg M-A", players: 16, placement: 2, player: "FeLBros", wins: 4, losses: 2, pokemonIds: [902, 670, 547, 727, 445, 6], pokemonNames: ["Basculegion-M", "Floette", "Whimsicott", "Incineroar", "Garchomp", "Charizard"], sets: [
+    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Calm Mind", "Protect"] },
+    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Throat Chop", "Fake Out", "Parting Shot"] },
+    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Earthquake", "Dragon Claw", "Poison Jab", "Rock Slide"] },
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Weather Ball", "Protect"] }
+  ] },
+  { id: "ct-151", tournament: "King's Gambit #5 - M-A Farewell | Reg M-A", players: 16, placement: 3, player: "OriioN", wins: 4, losses: 1, pokemonIds: [670, 6, 547, 445, 902, 983], pokemonNames: ["Floette", "Charizard", "Whimsicott", "Garchomp", "Basculegion-M", "Kingambit"], sets: [
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] },
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
+    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Encore", "Tailwind", "Protect"] },
+    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Dragon Claw", "Stomping Tantrum", "Poison Jab", "Rock Slide"] },
+    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
+    { ability: "Defiant", item: "Occa Berry", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Protect"] }
+  ] },
+  { id: "ct-152", tournament: "King's Gambit #5 - M-A Farewell | Reg M-A", players: 16, placement: 4, player: "giac28", wins: 3, losses: 2, pokemonIds: [655, 1013, 902, 727, 670, 903], pokemonNames: ["Delphox", "Sinistcha", "Basculegion-M", "Incineroar", "Floette", "Sneasler"], sets: [
+    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psychic", "Nasty Plot", "Protect"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Trick Room"] },
+    { ability: "Adaptability", item: "Focus Sash", moves: ["Liquidation", "Last Respects", "Aqua Jet", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Throat Chop", "Parting Shot", "Fake Out"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Draining Kiss", "Calm Mind", "Protect"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Protect", "Fake Out", "Dire Claw", "Close Combat"] }
+  ] },
+  { id: "ct-153", tournament: "King's Gambit #5 - M-A Farewell | Reg M-A", players: 16, placement: 5, player: "20gian04", wins: 2, losses: 2, pokemonIds: [530, 707, 983, 823, 5706, 1018], pokemonNames: ["Excadrill", "Klefki", "Kingambit", "Corviknight", "Hisuian Goodra", "Archaludon"], sets: [
+    { ability: "Mold breaker", item: "Excadrite", moves: ["Rock Slide", "Iron Head", "High Horsepower", "Protect"] },
+    { ability: "Prankster", item: "Shuca Berry", moves: ["Dazzling Gleam", "Rain Dance", "Thunder Wave", "Foul Play"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Low Kick", "Protect"] },
+    { ability: "Mirror Armor", item: "Sitrus Berry", moves: ["Tailwind", "Brave Bird", "Protect", "Iron Head"] },
+    { ability: "Gooey", item: "Leftovers", moves: ["Body Press", "Shelter", "Rain Dance", "Ice Beam"] },
+    { ability: "Sturdy", item: "Choice Scarf", moves: ["Electro Shot", "Draco Meteor", "Flash Cannon", "Dark Pulse"] }
+  ] },
+  { id: "ct-154", tournament: "King's Gambit #5 - M-A Farewell | Reg M-A", players: 16, placement: 6, player: "Pandapazzo", wins: 2, losses: 2, pokemonIds: [279, 1018, 903, 142, 1013, 212], pokemonNames: ["Pelipper", "Archaludon", "Sneasler", "Aerodactyl", "Sinistcha", "Scizor"], sets: [
+    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Tailwind", "Wide Guard", "Hurricane", "Weather Ball"] },
+    { ability: "Stamina", item: "Leftovers", moves: ["Dragon Pulse", "Electro Shot", "Flash Cannon", "Protect"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Fake Out", "Protect"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Ice Fang", "Rock Slide", "Dual Wingbeat", "Protect"] },
+    { ability: "Hospitality", item: "Colbur Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Imprison"] },
+    { ability: "Technician", item: "Scizorite", moves: ["Bullet Punch", "Bug Bite", "Protect", "Swords Dance"] }
+  ] },
+  { id: "ct-155", tournament: "King's Gambit #5 - M-A Farewell | Reg M-A", players: 16, placement: 7, player: "TitanoPigro3", wins: 2, losses: 2, pokemonIds: [547, 970, 6, 445, 983, 902], pokemonNames: ["Whimsicott", "Glimmora", "Charizard", "Garchomp", "Kingambit", "Basculegion-M"], sets: [
+    { ability: "Prankster", item: "Fairy Feather", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
+    { ability: "Toxic Debris", item: "Focus Sash", moves: ["Power Gem", "Sludge Bomb", "Earth Power", "Spiky Shield"] },
     { ability: "Solar Power", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
-    { ability: "Rough Skin", item: "Lum Berry", moves: ["Dragon Claw", "Rock Slide", "Stomping Tantrum", "Protect"] },
-    { ability: "Protean", item: "Choice Scarf", moves: ["Flower Trick", "U-turn", "Low Kick", "Triple Axel"] },
-    { ability: "Competitive", item: "Leftovers", moves: ["Scald", "Ice Beam", "Life Dew", "Protect"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Earthquake", "Dragon Claw", "Poison Jab", "Protect"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Low Kick"] },
+    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] }
+  ] },
+  { id: "ct-156", tournament: "King's Gambit #5 - M-A Farewell | Reg M-A", players: 16, placement: 8, player: "Mattpode3", wins: 2, losses: 2, pokemonIds: [1013, 248, 655, 902, 903, 727], pokemonNames: ["Sinistcha", "Tyranitar", "Delphox", "Basculegion-M", "Sneasler", "Incineroar"], sets: [
+    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Protect"] },
+    { ability: "Sand Stream", item: "Tyranitarite", moves: ["Rock Slide", "Knock Off", "Dragon Dance", "Protect"] },
+    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psyshock", "Nasty Plot", "Protect"] },
+    { ability: "Adaptability", item: "Focus Sash", moves: ["Liquidation", "Protect", "Aqua Jet", "Last Respects"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Dire Claw", "Close Combat", "Fake Out", "Protect"] },
+    { ability: "Intimidate", item: "Chople Berry", moves: ["Will-O-Wisp", "Darkest Lariat", "Parting Shot", "Fake Out"] }
+  ] },
+  { id: "ct-157", tournament: "Cebulowy Krążek 🇵🇱 #1", players: 32, placement: 1, player: "Idczaq", wins: 7, losses: 1, pokemonIds: [745, 902, 983, 903, 478, 952], pokemonNames: ["Lycanroc", "Basculegion-M", "Kingambit", "Sneasler", "Froslass", "Scovillain"], sets: [
+    { ability: "Tough Claws", item: "Focus Sash", moves: ["Rock Slide", "Close Combat", "Accelerock", "Protect"] },
+    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Swords Dance", "Protect"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Fake Out", "Protect"] },
+    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Aurora Veil", "Protect"] },
+    { ability: "Moody", item: "Scovillainite", moves: ["Overheat", "Giga Drain", "Rage Powder", "Protect"] }
+  ] },
+  { id: "ct-158", tournament: "Cebulowy Krążek 🇵🇱 #1", players: 32, placement: 2, player: "maciek415", wins: 6, losses: 2, pokemonIds: [952, 478, 745, 983, 903, 902], pokemonNames: ["Scovillain", "Froslass", "Lycanroc", "Kingambit", "Sneasler", "Basculegion-M"], sets: [
+    { ability: "Moody", item: "Scovillainite", moves: ["Protect", "Rage Powder", "Giga Drain", "Overheat"] },
+    { ability: "Cursed Body", item: "Froslassite", moves: ["Protect", "Aurora Veil", "Blizzard", "Shadow Ball"] },
+    { ability: "Tough Claws", item: "Focus Sash", moves: ["Protect", "Accelerock", "Rock Slide", "Close Combat"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Protect", "Swords Dance", "Kowtow Cleave", "Sucker Punch"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Protect", "Fake Out", "Dire Claw", "Close Combat"] },
+    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Protect", "Aqua Jet", "Wave Crash", "Last Respects"] }
+  ] },
+  { id: "ct-159", tournament: "Cebulowy Krążek 🇵🇱 #1", players: 32, placement: 3, player: "Narret", wins: 6, losses: 1, pokemonIds: [952, 748, 964, 968, 681, 635], pokemonNames: ["Scovillain", "Toxapex", "Palafin", "Orthworm", "Aegislash", "Hydreigon"], sets: [
+    { ability: "Moody", item: "Scovillainite", moves: ["Rage Powder", "Leech Seed", "Overheat", "Protect"] },
+    { ability: "Regenerator", item: "Leftovers", moves: ["Infestation", "Recover", "Toxic", "Baneful Bunker"] },
+    { ability: "Zero to Hero", item: "Mystic Water", moves: ["Jet Punch", "Drain Punch", "Bulk Up", "Protect"] },
+    { ability: "Earth Eater", item: "Sitrus Berry", moves: ["Shed Tail", "Sand Tomb", "Heavy Slam", "Protect"] },
+    { ability: "Stance Change", item: "Focus Sash", moves: ["Sacred Sword", "Iron Head", "Shadow Sneak", "King's Shield"] },
+    { ability: "Levitate", item: "Haban Berry", moves: ["Draco Meteor", "Head Smash", "Snarl", "Protect"] }
+  ] },
+  { id: "ct-160", tournament: "Cebulowy Krążek 🇵🇱 #1", players: 32, placement: 4, player: "Ikarcc", wins: 5, losses: 2, pokemonIds: [142, 983, 6, 445, 902, 700], pokemonNames: ["Aerodactyl", "Kingambit", "Charizard", "Garchomp", "Basculegion-M", "Sylveon"], sets: [
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Wide Guard"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Low Kick"] },
+    { ability: "Solar Power", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Dragon Claw", "Earthquake", "Protect", "Rock Slide"] },
+    { ability: "Adaptability", item: "Focus Sash", moves: ["Wave Crash", "Aqua Jet", "Last Respects", "Protect"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Moonblast", "Quick Attack", "Detect"] }
+  ] },
+  { id: "ct-161", tournament: "Cebulowy Krążek 🇵🇱 #1", players: 32, placement: 5, player: "Kartofelek", wins: 4, losses: 2, pokemonIds: [478, 547, 445, 727, 902, 670], pokemonNames: ["Froslass", "Whimsicott", "Garchomp", "Incineroar", "Basculegion-M", "Floette"], sets: [
+    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Aurora Veil", "Protect", "Shadow Ball"] },
+    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Encore", "Tailwind", "Helping Hand"] },
+    { ability: "Rough Skin", item: "Yache Berry", moves: ["Stomping Tantrum", "Breaking Swipe", "Iron Head", "Thunder Fang"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Will-O-Wisp", "Parting Shot", "Fake Out"] },
+    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Aqua Jet", "Last Respects", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Protect", "Psychic"] }
+  ] },
+  { id: "ct-162", tournament: "Cebulowy Krążek 🇵🇱 #1", players: 32, placement: 6, player: "Jahim64", wins: 4, losses: 2, pokemonIds: [983, 1013, 655, 727, 903, 670], pokemonNames: ["Kingambit", "Sinistcha", "Delphox", "Incineroar", "Sneasler", "Floette"], sets: [
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Swords Dance", "Sucker Punch", "Protect"] },
+    { ability: "Hospitality", item: "Colbur Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"] },
+    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psyshock", "Nasty Plot", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Darkest Lariat", "Parting Shot"] },
+    { ability: "Poison Touch", item: "Focus Sash", moves: ["Close Combat", "Dire Claw", "Fake Out", "Quick Guard"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Calm Mind", "Protect"] }
+  ] },
+  { id: "ct-163", tournament: "Cebulowy Krążek 🇵🇱 #1", players: 32, placement: 7, player: "Vuultur", wins: 3, losses: 2, pokemonIds: [655, 903, 1013, 902, 727, 670], pokemonNames: ["Delphox", "Sneasler", "Sinistcha", "Basculegion-M", "Incineroar", "Floette"], sets: [
+    { ability: "Blaze", item: "Delphoxite", moves: ["Heat Wave", "Psychic", "Nasty Plot", "Protect"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Close Combat", "Gunk Shot", "Protect"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Trick Room"] },
+    { ability: "Adaptability", item: "Focus Sash", moves: ["Liquidation", "Aqua Jet", "Last Respects", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Throat Chop", "Parting Shot"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Draining Kiss", "Dazzling Gleam", "Calm Mind", "Protect"] }
+  ] },
+  { id: "ct-164", tournament: "Cebulowy Krążek 🇵🇱 #1", players: 32, placement: 8, player: "QrdeMac", wins: 3, losses: 2, pokemonIds: [94, 727, 186, 1018, 1013, 902], pokemonNames: ["Gengar", "Incineroar", "Politoed", "Archaludon", "Sinistcha", "Basculegion-M"], sets: [
+    { ability: "Cursed Body", item: "Gengarite", moves: ["Shadow Ball", "Perish Song", "Disable", "Protect"] },
+    { ability: "Intimidate", item: "Passho Berry", moves: ["Throat Chop", "Parting Shot", "Fake Out", "Protect"] },
+    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Weather Ball", "Perish Song", "Encore", "Protect"] },
+    { ability: "Stamina", item: "Leftovers", moves: ["Dragon Pulse", "Electro Shot", "Flash Cannon", "Protect"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Protect"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Flip Turn", "Aqua Jet"] }
+  ] },
+  { id: "ct-165", tournament: "Desvelados Mundialeros", players: 10, placement: 1, player: "TitanoPigro3", wins: 4, losses: 0, pokemonIds: [547, 970, 6, 445, 983, 902], pokemonNames: ["Whimsicott", "Glimmora", "Charizard", "Garchomp", "Kingambit", "Basculegion-M"], sets: [
+    { ability: "Prankster", item: "Fairy Feather", moves: ["Moonblast", "Tailwind", "Encore", "Protect"] },
+    { ability: "Toxic Debris", item: "Focus Sash", moves: ["Power Gem", "Sludge Bomb", "Earth Power", "Spiky Shield"] },
+    { ability: "Solar Power", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Earthquake", "Dragon Claw", "Poison Jab", "Protect"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Low Kick"] },
+    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] }
+  ] },
+  { id: "ct-166", tournament: "Desvelados Mundialeros", players: 10, placement: 2, player: "DaXis", wins: 3, losses: 1, pokemonIds: [445, 727, 670, 6, 1013, 142], pokemonNames: ["Garchomp", "Incineroar", "Floette", "Charizard", "Sinistcha", "Aerodactyl"], sets: [
+    { ability: "Rough Skin", item: "Bright Powder", moves: ["Dragon Claw", "Earthquake", "Stomping Tantrum", "Protect"] },
+    { ability: "Intimidate", item: "Passho Berry", moves: ["Throat Chop", "Flare Blitz", "Parting Shot", "Fake Out"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Draining Kiss", "Calm Mind", "Protect"] },
+    { ability: "Solar Power", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"] },
+    { ability: "Unnerve", item: "Focus Sash", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Wide Guard"] }
+  ] },
+  { id: "ct-167", tournament: "Desvelados Mundialeros", players: 10, placement: 3, player: "GunbladeVIII ", wins: 3, losses: 1, pokemonIds: [6, 903, 1013, 727, 900, 212], pokemonNames: ["Charizard", "Sneasler", "Sinistcha", "Incineroar", "Kleavor", "Scizor"], sets: [
+    { ability: "Blaze", item: "Charizardite X", moves: ["Flare Blitz", "Breaking Swipe", "Dragon Dance", "Protect"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Close Combat", "Coaching", "Dire Claw"] },
+    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"] },
+    { ability: "Intimidate", item: "Chople Berry", moves: ["Fake Out", "Flare Blitz", "Throat Chop", "Parting Shot"] },
+    { ability: "Sharpness", item: "Choice Scarf", moves: ["Stone Axe", "Close Combat", "Feint", "X-Scissor"] },
+    { ability: "Technician", item: "Scizorite", moves: ["Bullet Punch", "Bug Bite", "Swords Dance", "Protect"] }
+  ] },
+  { id: "ct-168", tournament: "Desvelados Mundialeros", players: 10, placement: 4, player: "FrostyDog69", wins: 2, losses: 2, pokemonIds: [609, 902, 983, 142, 534, 36], pokemonNames: ["Chandelure", "Basculegion-M", "Kingambit", "Aerodactyl", "Conkeldurr", "Clefable"], sets: [
+    { ability: "Flash Fire", item: "Focus Sash", moves: ["Shadow Ball", "Heat Wave", "Trick Room", "Protect"] },
+    { ability: "Adaptability", item: "White Herb", moves: ["Last Respects", "Aqua Jet", "Wave Crash", "Protect"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Swords Dance", "Sucker Punch", "Kowtow Cleave", "Protect"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Protect"] },
+    { ability: "Iron Fist", item: "Black Belt", moves: ["Mach Punch", "Drain Punch", "Thunder Punch", "Protect"] },
+    { ability: "Unaware", item: "Sitrus Berry", moves: ["Follow Me", "Helping Hand", "Moonblast", "Protect"] }
+  ] },
+  { id: "ct-169", tournament: "Desvelados Mundialeros", players: 10, placement: 5, player: "David H", wins: 2, losses: 2, pokemonIds: [478, 900, 547, 983, 903, 902], pokemonNames: ["Froslass", "Kleavor", "Whimsicott", "Kingambit", "Sneasler", "Basculegion-M"], sets: [
+    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Aurora Veil", "Protect"] },
+    { ability: "Sharpness", item: "Focus Sash", moves: ["Stone Axe", "Close Combat", "Feint", "Protect"] },
+    { ability: "Prankster", item: "Kebia Berry", moves: ["Moonblast", "Encore", "Tailwind", "Protect"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Swords Dance", "Protect"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Fake Out", "Protect"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Flip Turn", "Aqua Jet"] }
+  ] },
+  { id: "ct-170", tournament: "Desvelados Mundialeros", players: 10, placement: 6, player: "GRIFF", wins: 2, losses: 2, pokemonIds: [670, 903, 727, 350, 1013, 6], pokemonNames: ["Floette", "Sneasler", "Incineroar", "Milotic", "Sinistcha", "Charizard"], sets: [
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Dazzling Gleam", "Calm Mind", "Protect"] },
+    { ability: "Poison Touch", item: "Focus Sash", moves: ["Dire Claw", "Close Combat", "Coaching", "Fake Out"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Darkest Lariat", "Parting Shot", "Fake Out"] },
+    { ability: "Competitive", item: "Leftovers", moves: ["Muddy Water", "Icy Wind", "Coil", "Protect"] },
+    { ability: "Hospitality", item: "Occa Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Protect"] },
+    { ability: "Blaze", item: "Charizardite X", moves: ["Flare Blitz", "Dragon Claw", "Dragon Dance", "Protect"] }
+  ] },
+  { id: "ct-171", tournament: "Desvelados Mundialeros", players: 10, placement: 7, player: "Riubyx", wins: 1, losses: 1, pokemonIds: [142, 6, 981, 983, 445, 700], pokemonNames: ["Aerodactyl", "Charizard", "Farigiraf", "Kingambit", "Garchomp", "Sylveon"], sets: [
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Ice Fang", "Tailwind", "Dual Wingbeat"] },
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Protect", "Heat Wave", "Weather Ball", "Solar Beam"] },
+    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Trick Room", "Twin Beam", "Roar", "Thunderbolt"] },
+    { ability: "Defiant", item: "Focus Sash", moves: ["Kowtow Cleave", "Iron Head", "Low Kick", "Sucker Punch"] },
+    { ability: "Rough Skin", item: "Soft Sand", moves: ["Protect", "Earthquake", "Dragon Claw", "Stomping Tantrum"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Protect", "Hyper Voice", "Quick Attack", "Hyper Beam"] }
+  ] },
+  { id: "ct-172", tournament: "Desvelados Mundialeros", players: 10, placement: 8, player: "TSN_Scott", wins: 1, losses: 2, pokemonIds: [6, 670, 903, 350, 727, 1013], pokemonNames: ["Charizard", "Floette", "Sneasler", "Milotic", "Incineroar", "Sinistcha"], sets: [
+    { ability: "Blaze", item: "Charizardite X", moves: ["Flare Blitz", "Dragon Claw", "Dragon Dance", "Protect"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Calm Mind", "Dazzling Gleam", "Protect"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Dire Claw", "Close Combat", "Fake Out", "Protect"] },
+    { ability: "Competitive", item: "Leftovers", moves: ["Scald", "Icy Wind", "Recover", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Throat Chop", "Parting Shot", "Fake Out"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Strength Sap", "Trick Room"] }
+  ] },
+  { id: "ct-173", tournament: "King of Champions II", players: 53, placement: 1, player: "John Cornelio Bandilla", wins: 9, losses: 0, pokemonIds: [670, 6, 142, 903, 983, 727], pokemonNames: ["Floette", "Charizard", "Aerodactyl", "Sneasler", "Kingambit", "Incineroar"], sets: [
+    { ability: "Flower Veil", item: "Floettite", moves: ["Draining Kiss", "Dazzling Gleam", "Calm Mind", "Protect"] },
+    { ability: "Solar Power", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
+    { ability: "Unnerve", item: "Focus Sash", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Protect"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Dire Claw", "Close Combat", "Protect"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Protect"] },
+    { ability: "Intimidate", item: "Shuca Berry", moves: ["Fake Out", "Flare Blitz", "Throat Chop", "Parting Shot"] }
+  ] },
+  { id: "ct-174", tournament: "King of Champions II", players: 53, placement: 2, player: "Niel Arveen Serrato", wins: 6, losses: 3, pokemonIds: [6, 670, 445, 547, 983, 902], pokemonNames: ["Charizard", "Floette", "Garchomp", "Whimsicott", "Kingambit", "Basculegion-M"], sets: [
+    { ability: "Solar Power", item: "Charizardite Y", moves: ["Heat Wave", "Solar Beam", "Protect", "Weather Ball"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Moonblast", "Protect", "Light of Ruin"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Dragon Claw", "Protect", "Rock Slide", "Earthquake"] },
+    { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Encore", "Tailwind", "Protect"] },
+    { ability: "Defiant", item: "Chople Berry", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Low Kick"] },
+    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] }
+  ] },
+  { id: "ct-175", tournament: "King of Champions II", players: 53, placement: 3, player: "Ryan Pareja", wins: 6, losses: 2, pokemonIds: [130, 1013, 903, 727, 670, 445], pokemonNames: ["Gyarados", "Sinistcha", "Sneasler", "Incineroar", "Floette", "Garchomp"], sets: [
+    { ability: "Intimidate", item: "Gyaradosite", moves: ["Waterfall", "Lash Out", "Dragon Dance", "Protect"] },
+    { ability: "Hospitality", item: "Colbur Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Protect"] },
+    { ability: "Unburden", item: "Focus Sash", moves: ["Fake Out", "Dire Claw", "Close Combat", "Coaching"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Fake Out", "Parting Shot", "Throat Chop"] },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Draining Kiss", "Dazzling Gleam", "Calm Mind", "Protect"] },
+    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Dragon Claw", "Earthquake", "Rock Slide", "Poison Jab"] }
+  ] },
+  { id: "ct-176", tournament: "King of Champions II", players: 53, placement: 4, player: "Jani An Descalzo", wins: 6, losses: 2, pokemonIds: [758, 478, 184, 983, 142, 1013], pokemonNames: ["Salazzle", "Froslass", "Azumarill", "Kingambit", "Aerodactyl", "Sinistcha"], sets: [
+    { ability: "Oblivious", item: "Focus Sash", moves: ["Overheat", "Sludge Bomb", "Encore", "Fake Out"] },
+    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Aurora Veil", "Protect"] },
+    { ability: "Huge Power", item: "Sitrus Berry", moves: ["Play Rough", "Aqua Jet", "Belly Drum", "Protect"] },
+    { ability: "Defiant", item: "Occa Berry", moves: ["Kowtow Cleave", "Sucker Punch", "Iron Head", "Protect"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Tailwind", "Protect"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Matcha Gotcha", "Rage Powder", "Trick Room", "Protect"] }
+  ] },
+  { id: "ct-177", tournament: "King of Champions II", players: 53, placement: 5, player: "John Tan", wins: 5, losses: 2, pokemonIds: [6, 142, 981, 445, 983, 700], pokemonNames: ["Charizard", "Aerodactyl", "Farigiraf", "Garchomp", "Kingambit", "Sylveon"], sets: [
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Heat Wave", "Weather Ball", "Solar Beam", "Protect"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Dual Wingbeat", "Ice Fang", "Tailwind"] },
+    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Twin Beam", "Trick Room", "Roar", "Thunderbolt"] },
+    { ability: "Rough Skin", item: "Soft Sand", moves: ["Dragon Claw", "Stomping Tantrum", "Earthquake", "Protect"] },
+    { ability: "Defiant", item: "Focus Sash", moves: ["Kowtow Cleave", "Iron Head", "Sucker Punch", "Low Kick"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Beam", "Hyper Voice", "Quick Attack", "Protect"] }
+  ] },
+  { id: "ct-178", tournament: "King of Champions II", players: 53, placement: 6, player: "ALVIN Rambano", wins: 5, losses: 2, pokemonIds: [670, 1013, 115, 666, 784, 6], pokemonNames: ["Floette", "Sinistcha", "Kangaskhan", "Vivillon", "Kommo-o", "Charizard"], sets: [
+    { ability: "Flower Veil", item: "Floettite", moves: ["Moonblast", "Calm Mind", "Dazzling Gleam", "Protect"] },
+    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Matcha Gotcha", "Rage Powder", "Life Dew", "Trick Room"] },
+    { ability: "Scrappy", item: "Silk Scarf", moves: ["Fake Out", "Last Resort"] },
+    { ability: "Compound Eyes", item: "Choice Scarf", moves: ["Sleep Powder", "Hurricane", "String Shot", "Struggle Bug"] },
+    { ability: "Overcoat", item: "Leftovers", moves: ["Clanging Scales", "Aura Sphere", "Clangorous Soul", "Protect"] },
+    { ability: "Blaze", item: "Charizardite X", moves: ["Flare Blitz", "Dragon Claw", "Protect", "Dragon Dance"] }
+  ] },
+  { id: "ct-179", tournament: "King of Champions II", players: 53, placement: 7, player: "Hans Pabros", wins: 5, losses: 2, pokemonIds: [478, 94, 727, 1013, 186, 1018], pokemonNames: ["Froslass", "Gengar", "Incineroar", "Sinistcha", "Politoed", "Archaludon"], sets: [
+    { ability: "Snow Cloak", item: "Froslassite", moves: ["Blizzard", "Rain Dance", "Aurora Veil", "Protect"] },
+    { ability: "Cursed Body", item: "Gengarite", moves: ["Protect", "Shadow Ball", "Disable", "Perish Song"] },
+    { ability: "Intimidate", item: "Passho Berry", moves: ["Protect", "Throat Chop", "Fake Out", "Parting Shot"] },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Protect", "Matcha Gotcha", "Rage Powder", "Shadow Ball"] },
+    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Protect", "Weather Ball", "Encore", "Perish Song"] },
+    { ability: "Stamina", item: "Leftovers", moves: ["Electro Shot", "Draco Meteor", "Flash Cannon", "Protect"] }
+  ] },
+  { id: "ct-180", tournament: "King of Champions II", players: 53, placement: 8, player: "Rodrigo Javier", wins: 4, losses: 3, pokemonIds: [306, 670, 142, 445, 1013, 727], pokemonNames: ["Aggron", "Floette", "Aerodactyl", "Garchomp", "Sinistcha", "Incineroar"], sets: [
+    { ability: "Sturdy", item: "Aggronite", moves: ["Protect", "Body Press", "Heavy Slam", "Iron Defense"], teraType: "Steel" },
+    { ability: "Flower Veil", item: "Floettite", moves: ["Protect", "Dazzling Gleam", "Moonblast", "Light of Ruin"], teraType: "Fairy" },
+    { ability: "Unnerve", item: "Focus Sash", moves: ["Protect", "Rock Slide", "Dual Wingbeat", "Tailwind"], teraType: "None" },
+    { ability: "Rough Skin", item: "Lum Berry", moves: ["Protect", "Dragon Claw", "Rock Slide", "Earthquake"], teraType: "None" },
+    { ability: "Hospitality", item: "Kasib Berry", moves: ["Protect", "Matcha Gotcha", "Shadow Ball", "Rage Powder"], teraType: "None" },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Fake Out", "Flare Blitz", "Darkest Lariat", "Parting Shot"], teraType: "None" }
+  ] },
+  { id: "ct-181", tournament: "PWC - Battle in the Colosseum #15 - Pride Month", players: 12, placement: 1, player: "KST | KAMPFI ", wins: 6, losses: 1, pokemonIds: [670, 142, 445, 903, 727, 1013], pokemonNames: ["Floette", "Aerodactyl", "Garchomp", "Sneasler", "Incineroar", "Sinistcha"], sets: [
+    { ability: "Flower Veil", item: "Floettite", moves: ["Dazzling Gleam", "Draining Kiss", "Calm Mind", "Protect"] },
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Protect", "Tailwind", "Wide Guard"] },
+    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Dragon Claw", "Stomping Tantrum", "Protect", "Rock Slide"] },
+    { ability: "Unburden", item: "Focus Sash", moves: ["Dire Claw", "Close Combat", "Coaching", "Fake Out"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Throat Chop", "Flare Blitz", "Fake Out", "Parting Shot"] },
+    { ability: "Hospitality", item: "Occa Berry", moves: ["Matcha Gotcha", "Life Dew", "Rage Powder", "Trick Room"] }
+  ] },
+  { id: "ct-182", tournament: "PWC - Battle in the Colosseum #15 - Pride Month", players: 12, placement: 2, player: "lykemafiaa", wins: 4, losses: 3, pokemonIds: [983, 547, 445, 6, 902, 149], pokemonNames: ["Kingambit", "Whimsicott", "Garchomp", "Charizard", "Basculegion-M", "Dragonite"], sets: [
+    { ability: "Defiant", item: "Chople Berry", moves: ["Protect", "Kowtow Cleave", "Iron Head", "Sucker Punch"] },
+    { ability: "Prankster", item: "Focus Sash", moves: ["Protect", "Moonblast", "Encore", "Tailwind"] },
+    { ability: "Rough Skin", item: "Roseli Berry", moves: ["Protect", "Poison Jab", "Dragon Claw", "Earthquake"] },
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Protect", "Weather Ball", "Heat Wave", "Solar Beam"] },
+    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Protect", "Wave Crash", "Aqua Jet", "Last Respects"] },
+    { ability: "Multiscale", item: "Dragoninite", moves: ["Protect", "Heat Wave", "Thunderbolt", "Dragon Pulse"] }
+  ] },
+  { id: "ct-183", tournament: "PWC - Battle in the Colosseum #15 - Pride Month", players: 12, placement: 3, player: "Kobraspike", wins: 5, losses: 1, pokemonIds: [9, 956, 1018, 186, 903, 952], pokemonNames: ["Blastoise", "Espathra", "Archaludon", "Politoed", "Sneasler", "Scovillain"], sets: [
+    { ability: "Rain Dish", item: "Blastoisinite", moves: ["Protect", "Water Spout", "Dark Pulse", "Aura Sphere"] },
+    { ability: "Speed Boost", item: "Sitrus Berry", moves: ["Calm Mind", "Protect", "Lumina Crash", "Baton Pass"] },
+    { ability: "Stamina", item: "Leftovers", moves: ["Protect", "Electro Shot", "Dragon Pulse", "Flash Cannon"] },
+    { ability: "Drizzle", item: "Mystic Water", moves: ["Protect", "Muddy Water", "Ice Beam", "Weather Ball"] },
+    { ability: "Unburden", item: "Focus Sash", moves: ["Protect", "Fake Out", "Close Combat", "Dire Claw"] },
+    { ability: "Moody", item: "Scovillainite", moves: ["Protect", "Leech Seed", "Rage Powder", "Overheat"] }
+  ] },
+  { id: "ct-184", tournament: "PWC - Battle in the Colosseum #15 - Pride Month", players: 12, placement: 4, player: "Peekachu", wins: 4, losses: 2, pokemonIds: [745, 903, 952, 902, 478, 983], pokemonNames: ["Lycanroc", "Sneasler", "Scovillain", "Basculegion-M", "Froslass", "Kingambit"], sets: [
+    { ability: "Tough Claws", item: "Focus Sash", moves: ["Rock Slide", "Close Combat", "Accelerock", "Protect"] },
+    { ability: "Unburden", item: "White Herb", moves: ["Close Combat", "Dire Claw", "Fake Out", "Protect"] },
+    { ability: "Moody", item: "Scovillainite", moves: ["Overheat", "Giga Drain", "Rage Powder", "Protect"] },
+    { ability: "Adaptability", item: "Sitrus Berry", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
+    { ability: "Cursed Body", item: "Froslassite", moves: ["Blizzard", "Shadow Ball", "Aurora Veil", "Protect"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Swords Dance", "Protect"] }
+  ] },
+  { id: "ct-185", tournament: "PWC - Battle in the Colosseum #15 - Pride Month", players: 12, placement: 5, player: "I___Lightning___I", wins: 2, losses: 3, pokemonIds: [6, 902, 445, 3, 983, 700], pokemonNames: ["Charizard", "Basculegion-M", "Garchomp", "Venusaur", "Kingambit", "Sylveon"], sets: [
+    { ability: "Solar Power", item: "Charizardite Y", moves: ["Weather Ball", "Heat Wave", "Protect", "Solar Beam"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Last Respects", "Aqua Jet", "Wave Crash", "Flip Turn"] },
+    { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Dragon Claw", "Earthquake", "Rock Tomb", "Protect"] },
+    { ability: "Chlorophyll", item: "Focus Sash", moves: ["Leaf Storm", "Sludge Bomb", "Sleep Powder", "Protect"] },
+    { ability: "Defiant", item: "Black Glasses", moves: ["Sucker Punch", "Kowtow Cleave", "Iron Head", "Protect"] },
+    { ability: "Cute Charm", item: "Fairy Feather", moves: ["Quick Attak", "Hyper Voice", "Psychic", "Protect"] }
+  ] },
+  { id: "ct-186", tournament: "PWC - Battle in the Colosseum #15 - Pride Month", players: 12, placement: 6, player: "Riubyx", wins: 2, losses: 3, pokemonIds: [142, 6, 981, 983, 445, 700], pokemonNames: ["Aerodactyl", "Charizard", "Farigiraf", "Kingambit", "Garchomp", "Sylveon"], sets: [
+    { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Ice Fang", "Tailwind", "Dual Wingbeat"] },
+    { ability: "Blaze", item: "Charizardite Y", moves: ["Protect", "Heat Wave", "Weather Ball", "Solar Beam"] },
+    { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Trick Room", "Twin Beam", "Roar", "Thunderbolt"] },
+    { ability: "Defiant", item: "Focus Sash", moves: ["Kowtow Cleave", "Iron Head", "Low Kick", "Sucker Punch"] },
+    { ability: "Rough Skin", item: "Soft Sand", moves: ["Protect", "Earthquake", "Dragon Claw", "Stomping Tantrum"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Protect", "Hyper Voice", "Quick Attack", "Moonblast"] }
+  ] },
+  { id: "ct-187", tournament: "VGC UU Champions (Regulation M-A) Weekly #6", players: 11, placement: 1, player: "AndruApple", wins: 5, losses: 1, pokemonIds: [130, 637, 970, 908, 700, 959], pokemonNames: ["Gyarados", "Volcarona", "Glimmora", "Meowscarada", "Sylveon", "Tinkaton"], sets: [
+    { ability: "Intimidate", item: "Gyaradosite", moves: ["Waterfall", "Crunch", "Dragon Dance", "Protect"] },
+    { ability: "Flame Body", item: "Charti Berry", moves: ["Overheat", "Struggle Bug", "Rage Powder", "Protect"] },
+    { ability: "Toxic Debris", item: "Focus Sash", moves: ["Power Gem", "Sludge Bomb", "Earth Power", "Spiky Shield"] },
+    { ability: "Protean", item: "Choice Scarf", moves: ["Flower Trick", "Knock Off", "Triple Axel", "Low Kick"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Hyper Beam", "Quick Attack", "Detect"] },
+    { ability: "Own Tempo", item: "Sitrus Berry", moves: ["Gigaton Hammer", "Fake Out", "Thunder Wave", "Protect"] }
+  ] },
+  { id: "ct-188", tournament: "VGC UU Champions (Regulation M-A) Weekly #6", players: 11, placement: 2, player: "SeaWolfMikes", wins: 4, losses: 2, pokemonIds: [908, 964, 59, 149, 700, 970], pokemonNames: ["Meowscarada", "Palafin", "Arcanine", "Dragonite", "Sylveon", "Glimmora"], sets: [
+    { ability: "Overgrow", item: "Focus Sash", moves: ["Flower Trick", "Knock Off", "Sucker Punch", "Protect"] },
+    { ability: "Zero to Hero", item: "Mystic Water", moves: ["Wave Crash", "Jet Punch", "Bulk Up", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Extreme Speed", "Will-O-Wisp", "Protect"] },
+    { ability: "Multiscale", item: "Dragon Fang", moves: ["Dragon Claw", "Extreme Speed", "Tailwind", "Protect"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Draining Kiss", "Quick Attack", "Detect"] },
+    { ability: "Toxic Debris", item: "Glimmoranite", moves: ["Power Gem", "Sludge Bomb", "Earth Power", "Spiky Shield"] }
+  ] },
+  { id: "ct-189", tournament: "VGC UU Champions (Regulation M-A) Weekly #6", players: 11, placement: 3, player: "Sinnoy", wins: 3, losses: 2, pokemonIds: [358, 186, 10902, 700, 454, 908], pokemonNames: ["Chimecho", "Politoed", "Basculegion-F", "Sylveon", "Toxicroak", "Meowscarada"], sets: [
+    { ability: "Levitate", item: "Chimechite", moves: ["Psychic", "Flash Cannon", "Recover", "Trick Room"] },
+    { ability: "Drizzle", item: "Sitrus Berry", moves: ["Muddy Water", "Weather Ball", "Perish Song", "Protect"] },
+    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Weather Ball", "Hyper Beam", "Protect"] },
+    { ability: "Dry Skin", item: "White Herb", moves: ["Gunk Shot", "Close Combat", "Knock Off", "Fake Out"] },
+    { ability: "Overgrow", item: "Focus Sash", moves: ["Flower Trick", "Knock Off", "Triple Axel", "Protect"] }
+  ] },
+  { id: "ct-190", tournament: "VGC UU Champions (Regulation M-A) Weekly #6", players: 11, placement: 4, player: "Gabeeel", wins: 3, losses: 2, pokemonIds: [9, 666, 36, 937, 908, 959], pokemonNames: ["Blastoise", "Vivillon", "Clefable", "Ceruledge", "Meowscarada", "Tinkaton"], sets: [
+    { ability: "Rain Dish", item: "Blastoisinite", moves: ["Water Spout", "Ice Beam", "Shell Smash", "Protect"] },
+    { ability: "Friend Guard", item: "Focus Sash", moves: ["Pollen Puff", "Rage Powder", "Tailwind", "Protect"] },
+    { ability: "Unaware", item: "Leftovers", moves: ["Moonblast", "Follow Me", "Life Dew", "Protect"] },
+    { ability: "Flash Fire", item: "Passho Berry", moves: ["Bitter Blade", "Shadow Sneak", "Swords Dance", "Protect"] },
+    { ability: "Protean", item: "Choice Scarf", moves: ["Flower Trick", "Knock Off", "Sucker Punch", "U-turn"] },
+    { ability: "Own Tempo", item: "Occa Berry", moves: ["Fake Out", "Gigaton Hammer", "Feint", "Encore"] }
+  ] },
+  { id: "ct-191", tournament: "VGC UU Champions (Regulation M-A) Weekly #6", players: 11, placement: 5, player: "LancentVGC", wins: 2, losses: 2, pokemonIds: [448, 59, 964, 302, 10012, 700], pokemonNames: ["Lucario", "Arcanine", "Palafin", "Sableye", "Mow Rotom", "Sylveon"], sets: [
+    { ability: "Inner Focus", item: "Lucarionite", moves: ["Bullet Punch", "Meteor Mash", "Close Combat", "Protect"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Extreme Speed", "Protect", "Snarl"] },
+    { ability: "Zero to Hero", item: "Mystic Water", moves: ["Close Combat", "Wave Crash", "Protect", "Jet Punch"] },
+    { ability: "Prankster", item: "Roseli Berry", moves: ["Quash", "Fake Out", "Light Screen", "Will-O-Wisp"] },
+    { ability: "Levitate", item: "Choice Scarf", moves: ["Electroweb", "Volt Switch", "Leaf Storm", "Thunderbolt"] },
+    { ability: "Pixilate", item: "Fairy Feather", moves: ["Hyper Voice", "Hyper Beam", "Quick Attack", "Detect"] }
+  ] },
+  { id: "ct-192", tournament: "VGC UU Champions (Regulation M-A) Weekly #6", players: 11, placement: 6, player: "swaggervgc", wins: 1, losses: 3, pokemonIds: [10340, 36, 10012, 10902, 635, 970], pokemonNames: ["Hisuian Zoroark", "Clefable", "Mow Rotom", "Basculegion-F", "Hydreigon", "Glimmora"], sets: [
+    { ability: "Illusion", item: "Focus Sash", moves: ["Bitter Malice", "Icy Wind", "Taunt", "Protect"] },
+    { ability: "Unaware", item: "Kebia Berry", moves: ["Moonblast", "Life Dew", "Follow Me", "Protect"] },
+    { ability: "Levitate", item: "Choice Scarf", moves: ["Leaf Storm", "Electroweb", "Volt Switch", "Trick"] },
+    { ability: "Adaptability", item: "Mystic Water", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Protect"] },
+    { ability: "Levitate", item: "Chople Berry", moves: ["Snarl", "Draco Meteor", "Tailwind", "Protect"] },
     { ability: "Toxic Debris", item: "Glimmoranite", moves: ["Sludge Bomb", "Earth Power", "Power Gem", "Spiky Shield"] }
   ] },
-  { id: "ct-186", tournament: "Mudkip's Marsh Pit #0", players: 27, placement: 7, player: "vedantff12345", wins: 3, losses: 3, pokemonIds: [937, 149, 983, 903, 1013, 36], pokemonNames: ["Ceruledge", "Dragonite", "Kingambit", "Sneasler", "Sinistcha", "Clefable"], sets: [
-    { ability: "Flash Fire", item: "Leftovers", moves: ["Bulk Up", "Bitter Blade", "Shadow Sneak", "Protect"] },
-    { ability: "Multiscale", item: "Dragoninite", moves: ["Dragon Pulse", "Thunderbolt", "Flamethrower", "Protect"] },
-    { ability: "Defiant", item: "Black Glasses", moves: ["Swords Dance", "Kowtow Cleave", "Sucker Punch", "Protect"] },
-    { ability: "Unburden", item: "White Herb", moves: ["Fake Out", "Close Combat", "Dire Claw", "Protect"] },
-    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Matcha Gotcha", "Trick Room", "Rage Powder", "Protect"] },
-    { ability: "Magic Guard", item: "Clefablite", moves: ["Moonblast", "Follow Me", "Helping Hand", "Protect"] }
+  { id: "ct-193", tournament: "VGC UU Champions (Regulation M-A) Weekly #6", players: 11, placement: 7, player: "merrypasta", wins: 1, losses: 1, pokemonIds: [428, 149, 186, 908, 212, 36], pokemonNames: ["Lopunny", "Dragonite", "Politoed", "Meowscarada", "Scizor", "Clefable"], sets: [
+    { ability: "Limber", item: "Lopunnite", moves: ["Close Combat", "Triple Axel", "Fake Out", "Encore"] },
+    { ability: "Inner Focus", item: "Dragoninite", moves: ["Draco Meteor", "Hurricane", "Protect", "Tailwind"] },
+    { ability: "Drizzle", item: "Mystic Water", moves: ["Weather Ball", "Muddy Water", "Protect", "Icy Wind"] },
+    { ability: "Overgrow", item: "Focus Sash", moves: ["Flower Trick", "Knock Off", "Protect", "Sucker Punch"] },
+    { ability: "Technician", item: "Metal Coat", moves: ["Bullet Punch", "Bug Bite", "Protect", "Swords Dance"] },
+    { ability: "Unaware", item: "Sitrus Berry", moves: ["Moonblast", "Follow Me", "Protect", "Life Dew"] }
   ] },
-  { id: "ct-187", tournament: "Mudkip's Marsh Pit #0", players: 27, placement: 8, player: "Light_Kaganou", wins: 3, losses: 3, pokemonIds: [160, 302, 902, 94, 1018, 1013], pokemonNames: ["Feraligatr", "Sableye", "Basculegion-M", "Gengar", "Archaludon", "Sinistcha"], sets: [
-    { ability: "Torrent", item: "Feraligite", moves: ["Double-Edge", "Liquidation", "Protect", "Dragon Dance"] },
-    { ability: "Prankster", item: "Roseli Berry", moves: ["Taunt", "Encore", "Disable", "Rain Dance"] },
-    { ability: "Adaptability", item: "Choice Scarf", moves: ["Last Respects", "Wave Crash", "Aqua Jet", "Flip Turn"] },
-    { ability: "Cursed Body", item: "Gengarite", moves: ["Sludge Bomb", "Shadow Ball", "Protect", "Destiny Bond"] },
-    { ability: "Stamina", item: "Leftovers", moves: ["Electro Shot", "Flash Cannon", "Protect", "Dragon Pulse"] },
-    { ability: "Hospitality", item: "Sitrus Berry", moves: ["Rage Powder", "Matcha Gotcha", "Shadow Ball", "Trick Room"] }
+  { id: "ct-194", tournament: "VGC UU Champions (Regulation M-A) Weekly #6", players: 11, placement: 8, player: "PuffyWhy89", wins: 1, losses: 2, pokemonIds: [658, 763, 10902, 59, 26, 670], pokemonNames: ["Greninja", "Tsareena", "Basculegion-F", "Arcanine", "Raichu", "Floette"], sets: [
+    { ability: "Protean", item: "Greninjite", moves: ["Hydro Pump", "Gunk Shot", "Icy Wind", "Protect"] },
+    { ability: "Queenly Majesty", item: "White Herb", moves: ["Trop Kick", "Triple Axel", "Knock Off", "Protect"] },
+    { ability: "Adaptability", item: "Choice Scarf", moves: ["Wave Crash", "Last Respects", "Aqua Jet", "Flip Turn"] },
+    { ability: "Intimidate", item: "Sitrus Berry", moves: ["Flare Blitz", "Extreme Speed", "Howl", "Protect"] },
+    { ability: "Lightning Rod", item: "Focus Sash", moves: ["Thunderbolt", "Nuzzle", "Encore", "Fake Out"] },
+    { ability: "Flower Veil", item: "Fairy Feather", moves: ["Moonblast", "Dazzling Gleam", "Light of Ruin", "Protect"] }
   ] }
 ];
 

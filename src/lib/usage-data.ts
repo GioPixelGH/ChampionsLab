@@ -259,6 +259,13 @@ export const USAGE_DATA: Record<number, CommonSet[]> = {
     { name: "Wide Guard", nature: "Calm", ability: "Drizzle", item: "Sitrus Berry", moves: ["Surf", "Wide Guard", "Tailwind", "Protect"], sp: { hp: 32, attack: 0, defense: 2, spAtk: 0, spDef: 32, speed: 0 } },
   ],
 
+  // Swampert (id: 260)
+  260: [
+    { name: "Physical Attacker", nature: "Adamant", ability: "Torrent", item: "Assault Vest", moves: ["Earthquake", "Ice Punch", "Liquidation", "Protect"], sp: { hp: 4, attack: 32, defense: 0, spAtk: 0, spDef: 30, speed: 0 } },
+    { name: "Mega Swift Swim", nature: "Adamant", ability: "Swift Swim", item: "Swampertite", moves: ["Earthquake", "Ice Punch", "Liquidation", "Protect"], sp: { hp: 4, attack: 32, defense: 0, spAtk: 0, spDef: 30, speed: 0 } },
+    { name: "Trick Room Attacker", nature: "Brave", ability: "Torrent", item: "Assault Vest", moves: ["Earthquake", "Ice Punch", "Liquidation", "High Horsepower"], sp: { hp: 32, attack: 32, defense: 0, spAtk: 0, spDef: 2, speed: 0 } },
+  ],
+
   // Gardevoir (id: 282)
   282: [
     { name: "Mega Pixilate", nature: "Modest", ability: "Pixilate", item: "Gardevoirite", moves: ["Hyper Voice", "Psyshock", "Focus Blast", "Protect"], sp: { hp: 4, attack: 0, defense: 0, spAtk: 32, spDef: 0, speed: 30 } },
@@ -1021,6 +1028,13 @@ export const USAGE_DATA: Record<number, CommonSet[]> = {
     { name: "Trick Room Setter", nature: "Quiet", ability: "Regenerator", item: "Sitrus Berry", moves: ["Psychic","Scald","Trick Room","Protect"], sp: { hp: 32, attack: 0, defense: 2, spAtk: 32, spDef: 0, speed: 0 } },
     { name: "Assault Vest Tank", nature: "Quiet", ability: "Regenerator", item: "Assault Vest", moves: ["Psychic","Scald","Ice Beam","Flamethrower"], sp: { hp: 32, attack: 0, defense: 2, spAtk: 32, spDef: 0, speed: 0 } },
     { name: "Bulky Support", nature: "Bold", ability: "Regenerator", item: "Leftovers", moves: ["Scald","Psychic","Thunder Wave","Protect"], sp: { hp: 32, attack: 0, defense: 20, spAtk: 0, spDef: 14, speed: 0 } },
+  ],
+
+  // Mawile (id: 303)
+  303: [
+    { name: "Mega Intimidate", nature: "Adamant", ability: "Huge Power", item: "Mawilite", moves: ["Play Rough", "Iron Head", "Sucker Punch", "Protect"], sp: { hp: 4, attack: 32, defense: 0, spAtk: 0, spDef: 20, speed: 10 } },
+    { name: "Non-Mega Support", nature: "Adamant", ability: "Intimidate", item: "Life Orb", moves: ["Play Rough", "Iron Head", "Fake Tears", "Protect"], sp: { hp: 4, attack: 32, defense: 0, spAtk: 0, spDef: 20, speed: 10 } },
+    { name: "Trick Room Mega", nature: "Brave", ability: "Huge Power", item: "Mawilite", moves: ["Play Rough", "Iron Head", "Sucker Punch", "Protect"], sp: { hp: 32, attack: 32, defense: 2, spAtk: 0, spDef: 0, speed: 0 } },
   ],
 
   // Sableye (id: 302)

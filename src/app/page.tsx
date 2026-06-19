@@ -5,7 +5,7 @@ import { motion } from "@/lib/motion";
 import Image from "next/image";
 import { LastUpdated } from "@/components/last-updated";
 import { Search, SlidersHorizontal, Sparkles, ChevronDown, PackageOpen, RotateCcw, ChevronRight } from "lucide-react";
-import { getPokemonByRegulation, getActiveRegulation, SEASONS } from "@/lib/pokemon-data";
+import { getPokemonByRegulation, getActiveRegulation, SEASONS, getRegulationById } from "@/lib/pokemon-data";
 import { PokemonType, ChampionsPokemon, TYPE_COLORS } from "@/lib/types";
 import { PokemonCard } from "@/components/pokemon-card";
 import { PokemonDetailModal } from "@/components/pokemon-detail-modal";
@@ -17,16 +17,22 @@ import { trackEvent } from "@/lib/analytics";
 import { useI18n } from "@/lib/i18n";
 import { useIsNative } from "@/hooks/useIsNative";
 import { getSettings } from "@/lib/storage";
+import { computeTierMap } from "@/lib/usage-rankings-cache";
 
 // ── Mobile-only compact Pokemon card ────────────────────────────────────────
-function MobilePokemonCard({ pokemon, onClick }: { pokemon: ChampionsPokemon; onClick: (p: ChampionsPokemon) => void }) {
+function MobilePokemonCard({ pokemon, onClick, isNew }: { pokemon: ChampionsPokemon; onClick: (p: ChampionsPokemon) => void; isNew?: boolean }) {
   const primaryType = pokemon.types[0];
   const { tp, t } = useI18n();
   return (
     <button
       type="button"
       onClick={() => onClick(pokemon)}
-      className="flex flex-col items-center rounded-2xl bg-white/5 border border-white/10 p-2 active:scale-95 transition-transform w-full"
+      className={cn(
+        "flex flex-col items-center rounded-2xl p-2 active:scale-95 transition-transform w-full border",
+        isNew
+          ? "bg-emerald-950/30 border-emerald-500/30"
+          : "bg-white/5 border-white/10"
+      )}
     >
       <div className={cn("relative w-full aspect-square flex items-center justify-center rounded-xl overflow-hidden mb-1", `radial-type-${primaryType}`)}>
         <Image
@@ -41,6 +47,7 @@ function MobilePokemonCard({ pokemon, onClick }: { pokemon: ChampionsPokemon; on
         {pokemon.tier && (
           <span className={cn(
             "absolute top-1 right-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md backdrop-blur-sm",
+            pokemon.tier === "Z" && "bg-rose-500/20 text-rose-400 ring-1 ring-rose-500/30",
             pokemon.tier === "S" && "bg-amber-500/20 text-amber-400 ring-1 ring-amber-500/30",
             pokemon.tier === "A" && "bg-violet-500/20 text-violet-400 ring-1 ring-violet-500/30",
             pokemon.tier === "B" && "bg-blue-500/20 text-blue-400 ring-1 ring-blue-500/30",
@@ -49,9 +56,14 @@ function MobilePokemonCard({ pokemon, onClick }: { pokemon: ChampionsPokemon; on
             {pokemon.tier}
           </span>
         )}
-        {pokemon.hasMega && (
-          <span className="absolute top-1 left-1 text-[8px] font-bold px-1 py-0.5 rounded bg-gradient-to-r from-pink-500/30 to-violet-500/30 text-pink-300 ring-1 ring-pink-500/30 backdrop-blur-sm">M</span>
-        )}
+        <div className="absolute top-1 left-1 flex flex-col gap-0.5">
+          {isNew && (
+            <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-emerald-500/30 text-emerald-300 ring-1 ring-emerald-500/40 backdrop-blur-sm leading-none">✦</span>
+          )}
+          {pokemon.hasMega && (
+            <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-gradient-to-r from-pink-500/30 to-violet-500/30 text-pink-300 ring-1 ring-pink-500/30 backdrop-blur-sm">M</span>
+          )}
+        </div>
       </div>
       <p className="text-[11px] font-semibold text-white text-center leading-tight w-full truncate px-0.5">
         {tp(pokemon.name)}
@@ -97,14 +109,49 @@ export default function HomePage() {
   const [selectedTypes, setSelectedTypes] = useState<PokemonType[]>([]);
   const [selectedGens, setSelectedGens] = useState<number[]>([]);
   const [showMegaOnly, setShowMegaOnly] = useState(false);
+  const [showNewOnly, setShowNewOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("dex");
   const [statFilters, setStatFilters] = useState<StatFilters>({ ...EMPTY_STAT_FILTERS });
   const [selectedPokemon, setSelectedPokemon] = useState<ChampionsPokemon | null>(null);
   const [liveMeta, setLiveMeta] = useState<Map<number, MetaEntry>>(new Map());
   const [metaLoading, setMetaLoading] = useState(false);
+  const [tierMap, setTierMap] = useState<Map<number, string>>(() => computeTierMap(defaultRegulation));
   const { t, ts, tp, tm, ta } = useI18n();
   const isNative = useIsNative();
+
+  // All regulations in chronological order — used to detect "new" Pokémon
+  const allRegsOrdered = useMemo(() => SEASONS.flatMap((s) => s.regulations), []);
+
+  // True only from the 2nd regulation onwards (M-B, not M-A)
+  const hasPreviousRegulation = useMemo(() => {
+    const idx = allRegsOrdered.findIndex((r) => r.id === activeRegulation);
+    return idx > 0;
+  }, [activeRegulation, allRegsOrdered]);
+
+  // IDs of Pokémon introduced exactly in the selected regulation
+  const newPokemonIds = useMemo((): Set<number> => {
+    if (!hasPreviousRegulation) return new Set();
+    return new Set(
+      getPokemonByRegulation(activeRegulation)
+        .filter((p) => p.regulation === activeRegulation)
+        .map((p) => p.id)
+    );
+  }, [activeRegulation, hasPreviousRegulation]);
+
+  // Reset showNewOnly when switching to a regulation without a previous one
+  useEffect(() => {
+    if (!hasPreviousRegulation) setShowNewOnly(false);
+  }, [hasPreviousRegulation]);
+
+  useEffect(() => {
+    setTierMap(computeTierMap(activeRegulation));
+  }, [activeRegulation]);
+
+  const activeRegulationLabel = useMemo(
+    () => getRegulationById(activeRegulation)?.label ?? activeRegulation,
+    [activeRegulation]
+  );
 
   // Live meta from Limitless
   useEffect(() => {
@@ -153,6 +200,10 @@ export default function HomePage() {
       results = results.filter((p) => p.hasMega);
     }
 
+    if (showNewOnly && hasPreviousRegulation) {
+      results = results.filter((p) => newPokemonIds.has(p.id));
+    }
+
     // Stat filters
     for (const sk of STAT_KEYS) {
       if (statFilters[sk.key] > 0) {
@@ -163,13 +214,21 @@ export default function HomePage() {
       results = results.filter((p) => getBST(p) >= statFilters.bst);
     }
 
+    // Apply dynamic tiers from usage-rankings cache (if available)
+    if (tierMap.size > 0) {
+      results = results.map((p) => {
+        const t = tierMap.get(p.id) ?? "D";
+        return t === p.tier ? p : { ...p, tier: t } as typeof p;
+      });
+    }
+
+    const tierOrder: Record<string, number> = { Z: 0, S: 1, A: 2, B: 3, C: 4, D: 5 };
     results = [...results].sort((a, b) => {
       switch (sortBy) {
         case "name": return a.name.localeCompare(b.name);
         case "dex": return a.dexNumber - b.dexNumber;
         case "tier": {
-          const tierOrder = { S: 0, A: 1, B: 2, C: 3, D: 4 };
-          return (tierOrder[a.tier ?? "D"] ?? 5) - (tierOrder[b.tier ?? "D"] ?? 5);
+          return (tierOrder[a.tier ?? "D"] ?? 6) - (tierOrder[b.tier ?? "D"] ?? 6);
         }
         case "usage": {
           const ua = liveMeta.get(a.id)?.usageRate ?? (a.usageRate ?? -1);
@@ -188,7 +247,7 @@ export default function HomePage() {
     });
 
     return results;
-  }, [activeRegulation, searchQuery, selectedTypes, selectedGens, showMegaOnly, sortBy, statFilters, liveMeta, tp, tm, ta, t]);
+  }, [activeRegulation, searchQuery, selectedTypes, selectedGens, showMegaOnly, showNewOnly, sortBy, statFilters, liveMeta, newPokemonIds, hasPreviousRegulation, tierMap, tp, tm, ta, t]);
 
   const toggleType = (type: PokemonType) => {
     trackEvent("filter_type", "pokedex", type);
@@ -206,7 +265,7 @@ export default function HomePage() {
 
   // ── MOBILE LAYOUT ──────────────────────────────────────────────────────────
   if (isNative) {
-    const hasActiveFilters = selectedTypes.length > 0 || searchQuery || showMegaOnly || selectedGens.length > 0 || Object.values(statFilters).some(v => v > 0);
+    const hasActiveFilters = selectedTypes.length > 0 || searchQuery || showMegaOnly || showNewOnly || selectedGens.length > 0 || Object.values(statFilters).some(v => v > 0);
 
     return (
       <div className="pb-24">
@@ -309,6 +368,20 @@ export default function HomePage() {
             <Sparkles className="w-3 h-3" />
             Mega
           </button>
+          {hasPreviousRegulation && (
+            <button
+              type="button"
+              onClick={() => setShowNewOnly(!showNewOnly)}
+              className={cn(
+                "flex-shrink-0 px-2.5 py-1 text-[10px] font-bold rounded-lg border transition-all",
+                showNewOnly
+                  ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300"
+                  : "bg-white/5 border-white/10 text-gray-500"
+              )}
+            >
+              ✦ Nuovi
+            </button>
+          )}
         </div>
 
         {/* Stat filters */}
@@ -371,6 +444,7 @@ export default function HomePage() {
                 setSelectedTypes([]);
                 setSelectedGens([]);
                 setShowMegaOnly(false);
+                setShowNewOnly(false);
                 setStatFilters({ ...EMPTY_STAT_FILTERS });
               }}
               className="flex items-center gap-1 text-xs text-emerald-400 font-medium"
@@ -388,6 +462,7 @@ export default function HomePage() {
               <MobilePokemonCard
                 key={pokemon.id}
                 pokemon={pokemon}
+                isNew={newPokemonIds.has(pokemon.id)}
                 onClick={(p) => {
                   trackEvent("pokemon_click", "pokedex", p.name);
                   setSelectedPokemon(p);
@@ -409,6 +484,7 @@ export default function HomePage() {
                 setSelectedTypes([]);
                 setSelectedGens([]);
                 setShowMegaOnly(false);
+                setShowNewOnly(false);
                 setStatFilters({ ...EMPTY_STAT_FILTERS });
               }}
               className="text-sm font-semibold text-emerald-400"
@@ -602,7 +678,7 @@ export default function HomePage() {
             </div>
 
             {/* Special filters */}
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <button
                 onClick={() => setShowMegaOnly(!showMegaOnly)}
                 className={cn(
@@ -615,6 +691,30 @@ export default function HomePage() {
                 <Sparkles className="w-3.5 h-3.5" />
                 {t("pokedex.filters.megaOnly")}
               </button>
+              {hasPreviousRegulation && (
+                <button
+                  onClick={() => setShowNewOnly(!showNewOnly)}
+                  className={cn(
+                    "px-4 py-2 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5",
+                    showNewOnly
+                      ? "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40"
+                      : "glass glass-hover text-muted-foreground"
+                  )}
+                >
+                  <span className="text-[11px]">✦</span>
+                  Nuovi in {activeRegulationLabel}
+                  {newPokemonIds.size > 0 && (
+                    <span className={cn(
+                      "text-[9px] font-bold px-1.5 py-0.5 rounded-full",
+                      showNewOnly
+                        ? "bg-emerald-200 dark:bg-emerald-500/30 text-emerald-700 dark:text-emerald-300"
+                        : "bg-white/10 dark:bg-white/10 text-gray-500"
+                    )}>
+                      {newPokemonIds.size}
+                    </span>
+                  )}
+                </button>
+              )}
             </div>
 
             {/* Base Stat Filters */}
@@ -709,6 +809,7 @@ export default function HomePage() {
             pokemon={pokemon}
             onClick={(p) => { trackEvent("pokemon_click", "pokedex", p.name); setSelectedPokemon(p); }}
             index={i}
+            isNew={newPokemonIds.has(pokemon.id)}
           />
         ))}
       </motion.div>
@@ -735,6 +836,7 @@ export default function HomePage() {
               setSelectedTypes([]);
               setSelectedGens([]);
               setShowMegaOnly(false);
+              setShowNewOnly(false);
               setStatFilters({ ...EMPTY_STAT_FILTERS });
             }}
             className="text-xs font-semibold text-violet-500 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300 transition-colors"

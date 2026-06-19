@@ -8,6 +8,9 @@ const MIN_TEAMS = 1;   // skip tournaments with no team decklists
 const MAX_TOURNAMENTS = 25;
 const RATE_MS = 800; // faster than the offline script; user-triggered
 
+// M-B shares the Limitless format with M-A; date boundary distinguishes them.
+const MB_CUTOFF = new Date("2026-06-17");
+
 // ── Slug resolution (mirrors scripts/sync-limitless-tournaments.ts) ───────────
 
 const pokemonByName = new Map<string, { id: number; name: string }>();
@@ -75,7 +78,7 @@ interface LimitlessStanding {
   name: string;
   placing: number | null;
   record: { wins: number; losses: number; ties: number };
-  decklist: Array<{ id: string; name: string; item: string; ability: string; attacks: string[]; tera: string | null }> | null;
+  decklist: Array<{ id: string; name: string; item: string; ability: string; attacks: string[]; tera: string | null; nature?: string }> | null;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -124,17 +127,24 @@ export async function POST(req: NextRequest) {
         //    no usable data — newer valid ones may still exist above them).
         send({ type: "progress", msg: `Recupero lista tornei ${regulationId}…` });
 
+        // M-B doesn't have its own Limitless format — reuse M-A and filter by date.
+        const limitlessFormat = regulationId === "M-B" ? "M-A" : regulationId;
+
         const newCandidates: LimitlessTournament[] = [];
         let page = 1;
         let hitBoundary = false;
 
         while (!hitBoundary && newCandidates.length < MAX_TOURNAMENTS) {
           const batch = await fetchLimitless<LimitlessTournament[]>(
-            `${API_BASE}/tournaments?game=${GAME}&format=${regulationId}&limit=50&page=${page}`
+            `${API_BASE}/tournaments?game=${GAME}&format=${limitlessFormat}&limit=50&page=${page}`
           );
           if (batch.length === 0) break;
           for (const t of batch) {
             if (t.players < MIN_PLAYERS) continue;
+            // Date-based regulation boundary: skip tournaments outside this regulation's window.
+            const tournDate = new Date(t.date);
+            if (regulationId === "M-A" && tournDate >= MB_CUTOFF) continue;
+            if (regulationId === "M-B" && tournDate < MB_CUTOFF) continue;
             if (validKnownSet.has(t.id)) { hitBoundary = true; break; }
             if (skipSet.has(t.id)) continue; // known empty — skip, keep going
             newCandidates.push(t);
@@ -172,19 +182,32 @@ export async function POST(req: NextRequest) {
           const teams = standings
             .filter(s => s.decklist && s.decklist.length >= 4 && s.placing != null)
             .map(s => {
-              const resolved = (s.decklist ?? []).map(pk => resolveSlug(pk.id)).filter(Boolean) as { id: number; name: string }[];
-              if (resolved.length < 4) return null;
+              // Pair each decklist entry with its resolved ID before filtering, so
+              // pokemonIds and sets stay aligned even when some slugs fail to resolve.
+              const paired = (s.decklist ?? [])
+                .map(pk => {
+                  const r = resolveSlug(pk.id);
+                  if (!r) return null;
+                  return {
+                    id: r.id,
+                    name: r.name,
+                    set: {
+                      ability: pk.ability ?? "",
+                      item: pk.item ?? "",
+                      moves: pk.attacks ?? [],
+                      teraType: pk.tera ?? undefined,
+                      nature: pk.nature ?? undefined,
+                    },
+                  };
+                })
+                .filter((x): x is NonNullable<typeof x> => x !== null);
+              if (paired.length < 4) return null;
               return {
                 placement: s.placing!,
                 player: s.name ?? "Unknown",
-                pokemonIds: resolved.map(p => p.id),
-                pokemonNames: resolved.map(p => p.name),
-                sets: (s.decklist ?? []).slice(0, resolved.length).map(pk => ({
-                  ability: pk.ability ?? "",
-                  item: pk.item ?? "",
-                  moves: pk.attacks ?? [],
-                  teraType: pk.tera ?? undefined,
-                })),
+                pokemonIds: paired.map(p => p.id),
+                pokemonNames: paired.map(p => p.name),
+                sets: paired.map(p => p.set),
               };
             })
             .filter((t): t is NonNullable<typeof t> => t !== null);

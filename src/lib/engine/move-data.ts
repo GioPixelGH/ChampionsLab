@@ -235,7 +235,7 @@ export const MOVE_DATA: Record<string, EngineMove> = {
     name: "No Retreat", type: "fighting", category: "status", basePower: 0,
     accuracy: 0, pp: 8, priority: 0, target: "self",
     flags: {},
-    effect: "Boosts the user's Attack, Defense, Sp. Atk, Sp. Def, and Speed stats by 1 stage. The user gains the Can't Escape status. This move can only be used once per time the user enters battleâ otherwise it will fail.",
+    effect: "Boosts the user's Attack, Defense, Sp. Atk, Sp. Def, and Speed stats by 1 stage. The user gains the Can't Escape status. This move can only be used once per time the user enters battle— otherwise it will fail.",
   },
   "Reversal": {
     name: "Reversal", type: "fighting", category: "physical", basePower: 0,

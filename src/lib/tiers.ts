@@ -6,9 +6,9 @@
 import { SIM_POKEMON, type SimPokemonData } from './simulation-data';
 import { TOURNAMENT_USAGE } from './engine/vgc-data';
 
-export type TierLabel = "S" | "A" | "B" | "C" | "D";
+export type TierLabel = "Z" | "S" | "A" | "B" | "C" | "D";
 
-export const TIER_ORDER = { S: 0, A: 1, B: 2, C: 3, D: 4 } as const;
+export const TIER_ORDER = { Z: 0, S: 1, A: 2, B: 3, C: 4, D: 5 } as const;
 
 const _tournamentMap = new Map(TOURNAMENT_USAGE.map(u => [u.pokemonId, u]));
 

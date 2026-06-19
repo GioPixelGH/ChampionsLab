@@ -69,7 +69,7 @@ export interface ChampionsPokemon {
   homeSource?: string[];
   season: number; // Season when first available
   regulation: string; // Regulation when first available (e.g. "M-A")
-  tier?: "S" | "A" | "B" | "C" | "D";
+  tier?: "Z" | "S" | "A" | "B" | "C" | "D";
   usageRate?: number | null; // Meta usage percentage
   hidden?: boolean; // Hide from all UI/engine (not available in game)
 }
