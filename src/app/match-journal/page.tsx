@@ -2344,9 +2344,16 @@ export default function MatchJournalPage() {
                         </span>
                         <ResultBadge result={m.result} />
                         <span className="text-foreground truncate flex-1 text-xs">{m.oppName}</span>
-                        <div className="flex items-center gap-0.5 flex-shrink-0">
-                          <span className="text-[9px] text-muted-foreground mr-1">vs</span>
-                          {m.oppTeam.slice(0, 6).map((id) => <PSprite key={id} id={id} size={22} />)}
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          {m.myTeam.length > 0 && (
+                            <div className="flex items-center gap-0.5">
+                              {m.myTeam.slice(0, 6).map((id) => <PSprite key={id} id={id} size={22} />)}
+                            </div>
+                          )}
+                          <span className="text-[9px] text-muted-foreground mx-0.5">vs</span>
+                          <div className="flex items-center gap-0.5">
+                            {m.oppTeam.slice(0, 6).map((id) => <PSprite key={id} id={id} size={22} />)}
+                          </div>
                         </div>
                         {m.isDuplicate && <span className="text-[9px] text-muted-foreground flex-shrink-0 ml-1">già importato</span>}
                       </div>
