@@ -4,9 +4,9 @@ import { useState, useMemo, useEffect } from "react";
 import { motion } from "@/lib/motion";
 import Image from "next/image";
 import { LastUpdated } from "@/components/last-updated";
-import { Search, SlidersHorizontal, Sparkles, ChevronDown, PackageOpen, RotateCcw, ChevronRight } from "lucide-react";
+import { Search, SlidersHorizontal, Sparkles, PackageOpen, RotateCcw } from "lucide-react";
 import { getPokemonByRegulation, getActiveRegulation, SEASONS, getRegulationById } from "@/lib/pokemon-data";
-import { PokemonType, ChampionsPokemon, TYPE_COLORS } from "@/lib/types";
+import { PokemonType, ChampionsPokemon } from "@/lib/types";
 import { PokemonCard } from "@/components/pokemon-card";
 import { PokemonDetailModal } from "@/components/pokemon-detail-modal";
 import { SeasonTabs, SeasonInfo, SeasonRulesSection } from "@/components/season-tabs";
@@ -742,7 +742,7 @@ export default function HomePage() {
                 </button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-3">
-                {STAT_KEYS.map(({ key, label, color }) => (
+                {STAT_KEYS.map(({ key, label, color: _color }) => (
                   <div key={key} className="flex items-center gap-2.5">
                     <span className={cn("text-[11px] font-bold w-8 text-right", `stat-color-${key}`)}>{ts(key)}</span>
                     <input

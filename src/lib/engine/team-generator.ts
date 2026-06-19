@@ -3,11 +3,10 @@
 // Generates competitive teams using synergy analysis, usage data, and archetype templates
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import type { ChampionsPokemon, CommonSet, PokemonType } from "@/lib/types";
+import type { ChampionsPokemon, CommonSet } from "@/lib/types";
 import { POKEMON_SEED } from "@/lib/pokemon-data";
 import { USAGE_DATA } from "@/lib/usage-data";
-import { analyzeTeamSynergy, scorePokemonFit, identifyRoles, type TeamSynergy } from "./synergy";
-import { getWeaknesses, getResistances, getImmunities } from "./type-chart";
+import { analyzeTeamSynergy, scorePokemonFit, type TeamSynergy } from "./synergy";
 
 // ── ARCHETYPE TEMPLATES ──────────────────────────────────────────────────────
 
@@ -192,7 +191,7 @@ function isMegaStoneItem(item: string): boolean {
   return item.endsWith("ite") || item.endsWith("ite X") || item.endsWith("ite Y") || item.endsWith("ite Z");
 }
 
-function getBestSet(pokemonId: number, teamContext?: ChampionsPokemon[], existingSets?: CommonSet[]): CommonSet | null {
+function getBestSet(pokemonId: number, teamContext?: ChampionsPokemon[], _existingSets?: CommonSet[]): CommonSet | null {
   const sets = USAGE_DATA[pokemonId];
   if (!sets || sets.length === 0) return null;
 

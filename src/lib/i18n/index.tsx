@@ -173,6 +173,7 @@ export function I18nProvider({ children, initialLocale = "en" }: { children: Rea
   useEffect(() => {
     const stored = localStorage.getItem("championslab-lang") as Locale | null;
     if (stored && stored !== locale) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocaleState(stored);
       document.cookie = `cl-lang=${stored};path=/;max-age=31536000;SameSite=Lax`;
       document.documentElement.lang = stored.split("-")[0];
@@ -243,6 +244,7 @@ export function I18nProvider({ children, initialLocale = "en" }: { children: Rea
   const ts = useCallback(
     (statKey: string): string => {
       const dict = UI_TRANSLATIONS[locale] ?? UI_TRANSLATIONS.en;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (dict as any).common?.stats?.[statKey] ?? (en as any).common?.stats?.[statKey] ?? statKey;
     },
     [locale]
@@ -252,6 +254,7 @@ export function I18nProvider({ children, initialLocale = "en" }: { children: Rea
     (typeName: string): string => {
       const key = typeName.toLowerCase();
       const dict = UI_TRANSLATIONS[locale] ?? UI_TRANSLATIONS.en;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (dict as any).common?.typeShort?.[key] ?? (en as any).common?.typeShort?.[key] ?? typeName.slice(0, 3).toUpperCase();
     },
     [locale]
@@ -261,6 +264,7 @@ export function I18nProvider({ children, initialLocale = "en" }: { children: Rea
     (typeName: string): string => {
       const key = typeName.toLowerCase();
       const dict = UI_TRANSLATIONS[locale] ?? UI_TRANSLATIONS.en;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (dict as any).common?.typeFull?.[key] ?? (en as any).common?.typeFull?.[key] ?? typeName;
     },
     [locale]

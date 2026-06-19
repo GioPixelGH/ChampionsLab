@@ -13,9 +13,7 @@ import {
   analyzeTeamSynergy, scorePokemonFit, identifyRoles,
   type TeamSynergy, type PokemonRole
 } from "./synergy";
-import { getWeaknesses, getResistances, getImmunities, offensiveCoverage } from "./type-chart";
-import { calculateStats } from "./stat-calc";
-import type { NatureName } from "./natures";
+import { getWeaknesses } from "./type-chart";
 import { suggestNature } from "./natures";
 
 // ── TEAMMATE SUGGESTIONS ────────────────────────────────────────────────────
@@ -69,7 +67,7 @@ export function suggestSets(
   if (!sets || sets.length === 0) return [];
   
   // Analyze team context
-  const teamHasWeather = teamContext.some(p =>
+  const _teamHasWeather = teamContext.some(p =>
     p.abilities.some(a =>
       ["Drought", "Drizzle", "Sand Stream", "Snow Warning"].includes(a.name)
     )
@@ -77,7 +75,7 @@ export function suggestSets(
   const teamHasTrickRoom = teamContext.some(p =>
     p.moves.some(m => m.name === "Trick Room")
   );
-  const teamHasTailwind = teamContext.some(p =>
+  const _teamHasTailwind = teamContext.some(p =>
     p.moves.some(m => m.name === "Tailwind")
   );
   const teamHasFakeOut = teamContext.some(p =>
@@ -354,7 +352,7 @@ export interface SPSuggestion {
 /** Suggest the best nature for a Pokémon */
 export function suggestBestNature(
   pokemon: ChampionsPokemon,
-  teamContext: ChampionsPokemon[]
+  _teamContext: ChampionsPokemon[]
 ): NatureSuggestion {
   // Most common nature from usage data
   const sets = USAGE_DATA[pokemon.id] || [];
@@ -388,7 +386,7 @@ export function suggestBestNature(
 /** Suggest the best SP distribution */
 export function suggestSPDistribution(
   pokemon: ChampionsPokemon,
-  teamContext: ChampionsPokemon[]
+  _teamContext: ChampionsPokemon[]
 ): SPSuggestion {
   // Most common SP from usage data
   const sets = USAGE_DATA[pokemon.id] || [];

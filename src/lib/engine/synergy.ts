@@ -4,14 +4,14 @@
 // role classification, speed tier analysis, threat coverage
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import type { PokemonType, ChampionsPokemon, BaseStats } from "@/lib/types";
+import type { PokemonType, ChampionsPokemon } from "@/lib/types";
 import {
   getWeaknesses, getResistances, getImmunities,
   defensiveSynergy, offensiveCoverage, getMatchup, getAllTypes,
 } from "./type-chart";
-import { getBST, classifyStatProfile, calculateStats, getEffectiveSpeed } from "./stat-calc";
-import { getAbilityEffect, isWeatherSetter, isIntimidateImmune, getTypeImmunity } from "./ability-data";
-import { MOVE_DATA, getMoveRole } from "./move-data";
+import { getBST, classifyStatProfile } from "./stat-calc";
+import { isWeatherSetter, getTypeImmunity } from "./ability-data";
+import { MOVE_DATA } from "./move-data";
 import type { NatureName } from "./natures";
 
 // ── TEAM ARCHETYPES ──────────────────────────────────────────────────────────
@@ -213,7 +213,7 @@ export function detectArchetypes(pokemon: ChampionsPokemon[]): ArchetypeProfile[
   const archetypes: ArchetypeProfile[] = [];
   const allAbilities = pokemon.flatMap(p => p.abilities.map(a => a.name));
   const allMoves = pokemon.flatMap(p => p.moves.map(m => m.name));
-  const avgSpeed = pokemon.reduce((s, p) => s + p.baseStats.speed, 0) / pokemon.length;
+  const _avgSpeed = pokemon.reduce((s, p) => s + p.baseStats.speed, 0) / pokemon.length;
   const slowCount = pokemon.filter(p => p.baseStats.speed <= 60).length;
 
   // ── Weather (setter presence IS the archetype — VGC standard) ─────────
@@ -731,7 +731,7 @@ export function scorePokemonFit(
 /** Get speed comparison for a team, showing who outspeeds whom on the roster */
 export function getSpeedTierReport(
   pokemon: ChampionsPokemon[],
-  nature: NatureName = "Jolly",
+  _nature: NatureName = "Jolly",
   maxSP: number = 32
 ): {
   name: string;

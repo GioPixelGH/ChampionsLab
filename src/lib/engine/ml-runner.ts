@@ -8,9 +8,9 @@ import type { ChampionsPokemon, CommonSet } from "@/lib/types";
 import { POKEMON_SEED } from "@/lib/pokemon-data";
 import { USAGE_DATA } from "@/lib/usage-data";
 import { simulateBattle } from "./battle-sim";
-import { analyzeTeamSynergy, scorePokemonFit } from "./synergy";
+import { scorePokemonFit } from "./synergy";
 import { PREBUILT_TEAMS } from "./generated-teams";
-import { generateTeams, type GeneratedTeam } from "./team-generator";
+import { generateTeams } from "./team-generator";
 import { TOURNAMENT_TEAMS } from "./vgc-data";
 
 // ── ELO RATING SYSTEM ───────────────────────────────────────────────────────
@@ -264,14 +264,14 @@ function megaKey(id: number, formName: string): string {
 }
 
 /** Build a competitive set for a Pokémon using USAGE_DATA */
-function autoSet(pokemon: ChampionsPokemon, existingSets: CommonSet[]): CommonSet | null {
+function autoSet(pokemon: ChampionsPokemon, _existingSets: CommonSet[]): CommonSet | null {
   const sets = USAGE_DATA[pokemon.id];
   if (!sets || sets.length === 0) return null;
   return sets[0];
 }
 
 /** Get a non-mega set for a Pokémon, avoiding mega stones if team already has one */
-function getNonMegaSet(pokemonId: number, existingSets: CommonSet[]): CommonSet | null {
+function getNonMegaSet(pokemonId: number, _existingSets: CommonSet[]): CommonSet | null {
   const sets = USAGE_DATA[pokemonId];
   if (!sets || sets.length === 0) return null;
   const nonMega = sets.filter(s => !isMegaItem(s.item));

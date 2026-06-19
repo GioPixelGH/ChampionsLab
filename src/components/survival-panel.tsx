@@ -2,19 +2,17 @@
 
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import Image from "next/image";
-import { Shield, Swords, Skull, HeartPulse, TrendingUp, TrendingDown } from "lucide-react";
+import { Shield, Swords, Skull, HeartPulse, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { spriteUrl } from "@/lib/sprite-url";
-import type { ChampionsPokemon, BaseStats, StatPoints, PokemonType } from "@/lib/types";
+import type { ChampionsPokemon, BaseStats, StatPoints } from "@/lib/types";
 import type { NatureName } from "@/lib/engine/natures";
 import {
   calcSurvivalScenario,
   suggestSurvivalInvestments,
   optimizeSPForSurvival,
   loadThreat,
-  getThreatDamagingMoves,
   getBestOffensiveMove,
-  type ThreatSet,
   type SurvivalSuggestion,
 } from "@/lib/engine/survival-calc";
 import { calculateStats } from "@/lib/engine/stat-calc";
@@ -78,6 +76,7 @@ export function SurvivalPanel({
   // Auto-select first move when threat changes
   useEffect(() => {
     if (allDamagingMoves.length > 0 && (!selectedMove || !allDamagingMoves.includes(selectedMove))) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedMove(allDamagingMoves[0]);
     }
   }, [allDamagingMoves, selectedMove]);

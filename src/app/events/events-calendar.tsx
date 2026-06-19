@@ -67,7 +67,7 @@ function safeUrl(url: string): string {
 
 // ── Event card ────────────────────────────────────────────────────────────────
 
-function EventCard({ event, todayISO, index }: { event: VGCEvent; todayISO: string; index: number }) {
+function EventCard({ event, todayISO, index: _index }: { event: VGCEvent; todayISO: string; index: number }) {
   const { t } = useI18n();
   const color   = TIER_COLOR[event.tier];
   const past    = isPast(event, todayISO);

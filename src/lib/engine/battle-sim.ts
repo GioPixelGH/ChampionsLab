@@ -5,18 +5,18 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import type { ChampionsPokemon, CommonSet, BaseStats, StatPoints, PokemonType } from "@/lib/types";
-import { calculateStats, getEffectiveSpeed, applyStatStage } from "./stat-calc";
+import { calculateStats, applyStatStage } from "./stat-calc";
 import { calculateDamage, type DamageCalcPokemon, type DamageCalcTarget, type DamageCalcOptions } from "./damage-calc";
 import { getMatchup } from "./type-chart";
-import { getMove, isSpreadMove, type EngineMove, MOVE_DATA } from "./move-data";
-import { getAbilityEffect, isWeatherSetter, getTypeImmunity } from "./ability-data";
+import { getMove, isSpreadMove } from "./move-data";
+import { getAbilityEffect, getTypeImmunity } from "./ability-data";
 import type { NatureName } from "./natures";
 
 // ── PALAFIN HERO FORM STATS ─────────────────────────────────────────────────
 const PALAFIN_HERO_STATS: BaseStats = {
   hp: 100, attack: 160, defense: 97, spAtk: 106, spDef: 87, speed: 100
 };
-const PALAFIN_ZERO_STATS: BaseStats = {
+const _PALAFIN_ZERO_STATS: BaseStats = {
   hp: 100, attack: 70, defense: 72, spAtk: 53, spDef: 62, speed: 100
 };
 
@@ -1286,7 +1286,7 @@ function applySwitch(state: BattleState, sideIndex: 1 | 2, slot: 0 | 1, excludeF
   const team = sideIndex === 1 ? state.team1 : state.team2;
   const active = sideIndex === 1 ? state.active1 : state.active2;
   const opponents = sideIndex === 1 ? state.active2 : state.active1;
-  const oppSide: 1 | 2 = sideIndex === 1 ? 2 : 1;
+  const _oppSide: 1 | 2 = sideIndex === 1 ? 2 : 1;
   
   // Handle Regenerator on switch-out (heal the mon leaving)
   const leaving = active[slot];
@@ -2181,7 +2181,7 @@ function executeMove(
 }
 
 /** Randomly pick 4 indices from a team of up to 6 */
-function pick4(teamLen: number): number[] {
+function _pick4(teamLen: number): number[] {
   const indices = Array.from({ length: teamLen }, (_, i) => i);
   for (let i = indices.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -2363,9 +2363,9 @@ export function simulateBattle(
   const idx2 = smartPick4(team2Pokemon, team2Sets, team1Pokemon);
   const team1Picked = idx1.map(j => ({ pokemon: team1Pokemon[j], set: team1Sets[j] }));
   const team2Picked = idx2.map(j => ({ pokemon: team2Pokemon[j], set: team2Sets[j] }));
-  const bt1 = idx1.map((i, k) => createBattlePokemon(team1Pokemon[i], team1Sets[i], team1Picked));
-  const bt2 = idx2.map((i, k) => createBattlePokemon(team2Pokemon[i], team2Sets[i], team2Picked));
-  
+  const bt1 = idx1.map((i, _k) => createBattlePokemon(team1Pokemon[i], team1Sets[i], team1Picked));
+  const bt2 = idx2.map((i, _k) => createBattlePokemon(team2Pokemon[i], team2Sets[i], team2Picked));
+
   const state: BattleState = {
     team1: bt1,
     team2: bt2,
@@ -2800,8 +2800,8 @@ export function simulateBattleWithLog(
   const idx2 = smartPick4(team2Pokemon, team2Sets, team1Pokemon);
   const team1Picked = idx1.map(j => ({ pokemon: team1Pokemon[j], set: team1Sets[j] }));
   const team2Picked = idx2.map(j => ({ pokemon: team2Pokemon[j], set: team2Sets[j] }));
-  const bt1 = idx1.map((i, k) => createBattlePokemon(team1Pokemon[i], team1Sets[i], team1Picked));
-  const bt2 = idx2.map((i, k) => createBattlePokemon(team2Pokemon[i], team2Sets[i], team2Picked));
+  const bt1 = idx1.map((i, _k) => createBattlePokemon(team1Pokemon[i], team1Sets[i], team1Picked));
+  const bt2 = idx2.map((i, _k) => createBattlePokemon(team2Pokemon[i], team2Sets[i], team2Picked));
 
   const state: BattleState = {
     team1: bt1, team2: bt2,

@@ -6,11 +6,11 @@
 
 import type { ChampionsPokemon, CommonSet, PokemonType, BaseStats } from "@/lib/types";
 import { getMatchup } from "./type-chart";
-import { calculateStats, getEffectiveSpeed } from "./stat-calc";
+import { calculateStats } from "./stat-calc";
 import { getMove, getMoveRole, isSpreadMove, type EngineMove } from "./move-data";
 import { getAbilityEffect } from "./ability-data";
 import { identifyRoles, detectArchetypes } from "./synergy";
-import { calculateDamage, type DamageResult } from "./damage-calc";
+import { calculateDamage } from "./damage-calc";
 import type { NatureName } from "./natures";
 import type { LeadComboResult } from "./battle-sim";
 import { getTournamentMovesForPokemon, type MetaMoveEntry } from "@/lib/usage-data";
@@ -589,7 +589,7 @@ function pickFakeOutTarget(
 }
 
 /** Get the speed tier label */
-function speedTierLabel(speed: number): string {
+function _speedTierLabel(speed: number): string {
   if (speed >= 150) return "blazing";
   if (speed >= 120) return "fast";
   if (speed >= 90) return "moderate";
@@ -648,10 +648,10 @@ function nextId(): string {
 }
 
 /** Recursively check if any node in a tree contains a string in its label */
-function treeContains(nodes: StrategyNode[], text: string): boolean {
+function _treeContains(nodes: StrategyNode[], text: string): boolean {
   for (const n of nodes) {
     if (n.label.includes(text)) return true;
-    if (n.children.length > 0 && treeContains(n.children, text)) return true;
+    if (n.children.length > 0 && _treeContains(n.children, text)) return true;
   }
   return false;
 }
@@ -684,7 +684,7 @@ export function generateStrategyTree(
   const myArchetypes = detectArchetypes(team1Pokemon);
   const oppArchetypes = detectArchetypes(team2Pokemon);
   const myArchetype = myArchetypes[0]?.archetype ?? "goodstuffs";
-  const oppArchetype = oppArchetypes[0]?.archetype ?? "goodstuffs";
+  const _oppArchetype = oppArchetypes[0]?.archetype ?? "goodstuffs";
 
   // Determine field state on entry (mega evolution abilities override entry abilities)
   const effectiveWeather = lead1.weatherOnMega || lead2.weatherOnMega || lead1.weatherOnEntry || lead2.weatherOnEntry || null;
@@ -957,7 +957,7 @@ function buildScenarioBranch(
 
   // Intimidate on entry
   if (lead1.isIntimidateUser || lead2.isIntimidateUser) {
-    const intimidator = lead1.isIntimidateUser ? lead1 : lead2;
+    const _intimidator = lead1.isIntimidateUser ? lead1 : lead2;
     // Check if opponent has Intimidate-immune abilities
     const opp1Immune = isAbilityAntiIntimidate(opp1.set.ability);
     const opp2Immune = isAbilityAntiIntimidate(opp2.set.ability);
@@ -1922,7 +1922,7 @@ function buildEndgameActions(
   winRate: number,
   archetype: string,
   weather?: import("./damage-calc").DamageCalcOptions["weather"],
-  oppFullTeam: AnalyzedMon[] = [],
+  _oppFullTeam: AnalyzedMon[] = [],
 ): StrategyNode[] {
   const actions: StrategyNode[] = [];
   const backMons = fullTeam.filter(m => m !== lead1 && m !== lead2);
@@ -2200,8 +2200,8 @@ function generateBackupPlan(
   lead1: AnalyzedMon,
   lead2: AnalyzedMon,
   fullTeam: AnalyzedMon[],
-  oppTeam: AnalyzedMon[],
-  winRate: number,
+  _oppTeam: AnalyzedMon[],
+  _winRate: number,
 ): string {
   const backMons = fullTeam.filter(m => m !== lead1 && m !== lead2);
 
@@ -2695,7 +2695,7 @@ export function computeBattleBoard(
       const hasHH = atkOv?.helpingHand ?? false;
       const sharedOpts = {
         isDoubles: true,
-        computeKOChance: true as true,
+        computeKOChance: true as const,
         weather: weatherOpt,
         terrain: terrainOpt,
         helpingHand: hasHH,

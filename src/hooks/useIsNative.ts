@@ -19,6 +19,7 @@ function checkIsNative(): boolean {
 export function useIsNative(): boolean {
   const [isNative, setIsNative] = useState(false);
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsNative(checkIsNative());
   }, []);
   return isNative;

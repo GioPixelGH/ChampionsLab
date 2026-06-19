@@ -189,7 +189,7 @@ export default function SettingsPage() {
             </div>
             <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Aspetto</h2>
           </div>
-          <p className="text-[11px] text-muted-foreground mb-3">Scegli il tema dell'interfaccia.</p>
+          <p className="text-[11px] text-muted-foreground mb-3">Scegli il tema dell&apos;interfaccia.</p>
           <div className="grid grid-cols-3 gap-2">
             {([
               { value: "light", label: "Chiaro", icon: Sun, desc: "Sempre chiaro" },

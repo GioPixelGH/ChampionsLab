@@ -5,11 +5,10 @@ import Image from "next/image";
 import { spriteUrl } from "@/lib/sprite-url";
 import {
   Swords, Search, Sun, CloudRain, Snowflake, Wind,
-  Zap, Shield, ChevronDown, Flame, Droplets, ArrowRightLeft,
-  HelpCircle, Sparkles, X, ChevronRight,
+  ChevronDown, ArrowRightLeft, X,
 } from "lucide-react";
 import { POKEMON_SEED } from "@/lib/pokemon-data";
-import type { ChampionsPokemon, CommonSet, StatPoints, PokemonType } from "@/lib/types";
+import type { ChampionsPokemon, CommonSet, PokemonType } from "@/lib/types";
 import { TYPE_COLORS } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
@@ -27,7 +26,7 @@ import {
 } from "@/lib/engine";
 import { USAGE_DATA } from "@/lib/usage-data";
 import { getAllItems, ITEMS } from "@/lib/engine/items";
-import { SearchSelect, type SearchSelectOption } from "@/components/search-select";
+import { SearchSelect } from "@/components/search-select";
 import { useI18n } from "@/lib/i18n";
 
 // ── Types ────────────────────────────────────────────────────────────────
@@ -63,7 +62,7 @@ const TERRAIN_OPTIONS = [
 ] as const;
 
 const STAT_KEYS = ["hp", "attack", "defense", "spAtk", "spDef", "speed"] as const;
-const STAT_LABELS: Record<string, string> = {
+const _STAT_LABELS: Record<string, string> = {
   hp: "HP", attack: "Atk", defense: "Def", spAtk: "SpA", spDef: "SpD", speed: "Spe",
 };
 
@@ -197,7 +196,7 @@ function getKOChanceText(result: DamageResult, L: DamageCalcL): string {
   return `${L.chanceTo(pctStr)} ${label}`;
 }
 
-function getKOChanceShort(result: DamageResult, L: DamageCalcL): string {
+function _getKOChanceShort(result: DamageResult, L: DamageCalcL): string {
   if (result.damage[1] === 0) return "--";
   if (!result.koChance || result.koChance.n === Infinity) {
     if (result.percentHP[0] + result.percentHP[1] === 0) return "--";
@@ -264,7 +263,7 @@ function getNatureDisplay(nature: string): { plus: string | null; minus: string 
 // ── Component ────────────────────────────────────────────────────────────
 
 export default function DamageCalculator() {
-  const { t, tp, tm, ta, ti, ts, tt } = useI18n();
+  const { t, tp, tm, ta, ti, ts: _ts, tt: _tt } = useI18n();
   const L: DamageCalcL = useMemo(() => ({
     ohko: t('damageCalc.ohko'),
     nHko: (n: number) => t('damageCalc.nHko', { n }),
@@ -654,7 +653,7 @@ export default function DamageCalculator() {
             </button>
           )}
           <div className="space-y-1.5">
-            {allMoveResults.map((r, i) => {
+            {allMoveResults.map((r, _i) => {
               const move = getMove(r.moveName);
               const isSelected = (selectedMove ?? attacker.set!.moves[0]) === r.moveName;
               const koText = (() => {

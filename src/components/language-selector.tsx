@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "@/lib/motion";
-import { Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n, type Locale } from "@/lib/i18n";
 
@@ -15,6 +14,7 @@ function Flag({ code, size = 20 }: { code: string; size?: number }) {
       className="inline-block rounded-[3px] overflow-hidden shadow-sm ring-1 ring-black/10 dark:ring-white/20 bg-gray-100 dark:bg-gray-700"
       style={{ width: w, height: h }}
     >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={`https://flagcdn.com/w40/${code}.png`}
         srcSet={`https://flagcdn.com/w80/${code}.png 2x`}

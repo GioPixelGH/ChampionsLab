@@ -37,7 +37,7 @@ export function useAppUpdater(): UseAppUpdaterResult {
   useEffect(() => {
     if (!isNative()) return;
     checkForUpdate();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   async function checkForUpdate() {
     setIsChecking(true);

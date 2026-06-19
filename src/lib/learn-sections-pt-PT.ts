@@ -388,9 +388,10 @@ export const SECTIONS_PT_PT = [
   },
 ];
 
-type Section = {
+type _Section = {
   id: string;
   title: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   icon: any;
   color: string;
   subsections: {
@@ -398,6 +399,7 @@ type Section = {
     content: {
       text?: string;
       tip?: { type: string; text: string };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       table?: any;
     }[];
   }[];

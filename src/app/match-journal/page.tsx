@@ -1075,7 +1075,7 @@ export default function MatchJournalPage() {
                 <BookOpen className="w-12 h-12 text-gray-600" />
                 <div>
                   <p className="font-semibold text-white">No matches yet</p>
-                  <p className="text-sm text-gray-500 mt-1">Tap "New" to log your first match</p>
+                  <p className="text-sm text-gray-500 mt-1">Tap &quot;New&quot; to log your first match</p>
                 </div>
               </div>
             ) : (
@@ -2467,7 +2467,7 @@ export default function MatchJournalPage() {
         <div className="text-center py-20 space-y-3">
           <BookOpen size={40} className="mx-auto text-muted-foreground/40" />
           <p className="font-medium text-muted-foreground">No games logged yet</p>
-          <p className="text-sm text-muted-foreground/60">Click "Log New Game" to record your first match.</p>
+          <p className="text-sm text-muted-foreground/60">Click &quot;Log New Game&quot; to record your first match.</p>
         </div>
       )}
 

@@ -39,7 +39,7 @@ export function SpeedTierPanel({
   userItem,
   userAbility,
   userMoves,
-  onSpeedChange,
+  onSpeedChange: _onSpeedChange,
 }: SpeedTierPanelProps) {
   const { t } = useI18n();
   const [weatherActive, setWeatherActive] = useState(false);
@@ -86,7 +86,7 @@ export function SpeedTierPanel({
   const visibleList = useMemo(() => {
     const all = buildSpeedTiers();
     const userSpeed = comparison.userSpeed;
-    const userRank = comparison.userRank;
+    const _userRank = comparison.userRank;
 
     // Insert user into sorted list
     const merged: {

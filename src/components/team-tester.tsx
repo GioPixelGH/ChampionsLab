@@ -743,7 +743,6 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
 
     const hasAnyData = insights.some(i => i.journalGames > 0);
     return { insights, isTeamSpecific, totalRecords, hasAnyData };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result, team1Pokemon]);
 
   const filteredPokemon = useMemo(() => {
@@ -2680,7 +2679,7 @@ function MoveCell({
   /** Open the move picker pre-focused on this move's slot. */
   onMoveNameClick?: () => void;
 }) {
-  const typeColor = TYPE_COLORS[move.moveType] ?? "#888"; // kept for potential non-type moves
+  const _typeColor = TYPE_COLORS[move.moveType] ?? "#888"; // kept for potential non-type moves
   // use type-bg-* CSS class where possible (all 18 known types)
   const isStatus = move.category === "status";
   const isOpp = side === "opp";
@@ -3780,6 +3779,13 @@ const PROTECT_MOVES = new Set([
   "Max Guard", "Silk Trap", "Burning Bulwark", "Obstruct",
 ]);
 
+// Two-turn charge moves that skip the charge turn under a specific weather.
+const CHARGE_MOVE_BYPASS: Record<string, string> = {
+  "Solar Beam": "sun",
+  "Solar Blade": "sun",
+  "Electro Shot": "rain",
+};
+
 type SlotAdvice = {
   action: "protect" | "switch" | "attack" | "support";
   urgency: "high" | "medium" | "low";
@@ -3994,6 +4000,7 @@ function StrategyFlowchart({
         : (notInLeads.find(i => i !== b0) ?? null);
       return [b0, b1];
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [myFieldIdx[0], myFieldIdx[1], team1Pokemon.length]);
 
   // Clear oppBackIdx slots that conflict with changed leads
@@ -4002,6 +4009,7 @@ function StrategyFlowchart({
       prev[0] !== null && !oppFieldIdx.includes(prev[0]) ? prev[0] : null,
       prev[1] !== null && !oppFieldIdx.includes(prev[1]) ? prev[1] : null,
     ]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [oppFieldIdx[0], oppFieldIdx[1]]);
 
   // Field state overrides

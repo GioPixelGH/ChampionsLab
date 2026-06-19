@@ -93,7 +93,7 @@ function evsToStatPoints(evs: StatPoints): StatPoints {
   return sp;
 }
 
-function statPointsToEVs(sp: StatPoints): StatPoints {
+function _statPointsToEVs(sp: StatPoints): StatPoints {
   const evs: StatPoints = { ...EMPTY_STAT_POINTS };
   STAT_KEYS.forEach(k => {
     evs[k] = Math.min(252, Math.round(sp[k] * 252 / MAX_PER_STAT / 4) * 4);
@@ -134,7 +134,7 @@ const ALL_TYPES: PokemonType[] = [
 ];
 
 export default function TeamBuilderPage() {
-  const { locale, t, tp, tm, ta, ti, tn, ts, tt, tad, tid, tmd } = useI18n();
+  const { locale: _locale, t, tp, tm, ta, ti, tn, ts, tt, tad, tid, tmd } = useI18n();
   const isNative = useIsNative();
 
   // ── Analysis text translators ──
@@ -411,6 +411,7 @@ export default function TeamBuilderPage() {
       setTeamName(last.name);
       if (last.teamId) setCurrentTeamId(last.teamId);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Reload roster when the active season changes
@@ -448,6 +449,7 @@ export default function TeamBuilderPage() {
     });
 
     return errors;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slots]);
 
   // Auto-save last worked team
@@ -629,8 +631,8 @@ export default function TeamBuilderPage() {
 
     results.sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score;
-      const ta = TIER_ORDER[(tierMap.size > 0 ? tierMap.get(a.pokemon.id) ?? "D" : a.pokemon.tier) ?? "D"] ?? 5;
-      const tb = TIER_ORDER[(tierMap.size > 0 ? tierMap.get(b.pokemon.id) ?? "D" : b.pokemon.tier) ?? "D"] ?? 5;
+      const ta = (TIER_ORDER as Record<string, number>)[(tierMap.size > 0 ? tierMap.get(a.pokemon.id) ?? "D" : a.pokemon.tier) ?? "D"] ?? 5;
+      const tb = (TIER_ORDER as Record<string, number>)[(tierMap.size > 0 ? tierMap.get(b.pokemon.id) ?? "D" : b.pokemon.tier) ?? "D"] ?? 5;
       return ta - tb;
     });
     // Auto-apply the best pick into searchBestTeam
@@ -972,6 +974,7 @@ export default function TeamBuilderPage() {
     if (!shareUrl) { setPasteUrl(""); return; }
     setPasteGenerating(true);
     buildPasteUrl().then(url => { setPasteUrl(url); setPasteGenerating(false); });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pasteHideNature, pasteHideStatPoints, pasteHideItem, pasteHideAbility, shareUrl]);
 
   const copyPasteUrl = async () => {
@@ -989,6 +992,7 @@ export default function TeamBuilderPage() {
   // Engine-powered analysis
   const teamAnalysis = useMemo<TeamAnalysis>(() => {
     return analyzePartialTeam(teamPokemon);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teamPokemon.map(p => p.id).join(",")]);
 
   // Scores for all saved teams (to identify the best one)
@@ -1000,6 +1004,7 @@ export default function TeamBuilderPage() {
       scores[st.id] = analyzePartialTeam(pokemon).synergy.overallScore;
     }
     return scores;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [savedTeams.map(s => s.id).join(",")]);
 
   // Teams visible in the current season (legacy teams without regulation default to M-A)
@@ -1018,6 +1023,7 @@ export default function TeamBuilderPage() {
   const teammates = useMemo<TeammateSuggestion[]>(() => {
     if (teamPokemon.length >= 6) return [];
     return suggestTeammates(teamPokemon, 8);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teamPokemon.map(p => p.id).join(",")]);
 
   const slotSuggestion = useMemo<SlotSuggestion | null>(() => {
@@ -1026,6 +1032,7 @@ export default function TeamBuilderPage() {
     if (!slot?.pokemon) return null;
     const otherPokemon = teamPokemon.filter(p => p.id !== slot.pokemon!.id);
     return getSlotSuggestions(slot.pokemon, otherPokemon);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSlotIndex, teamPokemon.map(p => p.id).join(",")]);
 
   const addPokemon = (pokemon: ChampionsPokemon) => {
@@ -1307,7 +1314,7 @@ export default function TeamBuilderPage() {
     }
     return s.pokemon!.abilities[0]?.name ?? "";
   };
-  const teamTypes = filledSlots.flatMap((s) => resolveSlotTypes(s));
+  const _teamTypes = filledSlots.flatMap((s) => resolveSlotTypes(s));
 
   // Infer active weather from team abilities (first setter wins)
   const WEATHER_SETTERS: Record<string, string> = {
@@ -1544,7 +1551,7 @@ export default function TeamBuilderPage() {
 
   // Export to Pokepaste format
   const exportPokepaste = () => {
-    const isMegaItem = (item: string) => item.endsWith("ite") || item.endsWith("ite X") || item.endsWith("ite Y") || item.endsWith("ite Z");
+    const _isMegaItem = (item: string) => item.endsWith("ite") || item.endsWith("ite X") || item.endsWith("ite Y") || item.endsWith("ite Z");
     return filledSlots
       .map((s) => {
         const p = s.pokemon!;
@@ -2788,8 +2795,8 @@ export default function TeamBuilderPage() {
               <div className="grid grid-cols-6 gap-1.5">
                 {ALL_TYPES.map((type) => {
                   const se = offensiveCoverage[type] ?? 0;
-                  const weak = defensiveWeaknesses[type] ?? 0;
-                  const resist = defensiveResists[type] ?? 0;
+                  const _weak = defensiveWeaknesses[type] ?? 0;
+                  const _resist = defensiveResists[type] ?? 0;
                   return (
                     <div key={type} className="text-center space-y-0.5">
                       <span className={cn("block w-full py-0.5 text-[7px] font-bold uppercase rounded text-white/90", `type-bg-aa-${type}`)}>{tt(type)}</span>
@@ -3911,6 +3918,7 @@ export default function TeamBuilderPage() {
                 </button>
               </div>
               <div className="rounded-xl overflow-hidden border border-gray-200/60 mb-4">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={shareImageUrl} alt="Team card" className="w-full" />
               </div>
               {shareUrl && (
@@ -4177,7 +4185,7 @@ export default function TeamBuilderPage() {
                           { key: "spDef" as const, stat: "spDef", color: "#a7db8d", max: 255 },
                           { key: "speed" as const, stat: "speed", color: "#fa92b2", max: 255 },
                           { key: "bst" as const, stat: "bst", color: "#888", max: 800 },
-                        ]).map(({ key, stat, color, max }) => (
+                        ]).map(({ key, stat, color: _color, max }) => (
                           <div key={key} className="flex items-center gap-1.5">
                             <span className={cn("text-[10px] font-bold w-7 text-right shrink-0", `stat-color-${key}`)}>{ts(stat)}</span>
                             <input

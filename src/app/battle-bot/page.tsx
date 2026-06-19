@@ -7,9 +7,9 @@ import { spriteUrl } from "@/lib/sprite-url";
 import { LastUpdated } from "@/components/last-updated";
 import {
   Swords, Play, BarChart3, Target, AlertTriangle,
-  Zap, Loader2, Trophy, Shield, ChevronRight, Save, FolderOpen, Trash2,
-  Eye, Crosshair, TrendingUp, Clock, Users, Flame, ChevronDown,
-  SkipForward, Pause, RotateCcw, Award, Skull, Heart, Wind,
+  Zap, Loader2, Trophy, ChevronRight, Save, FolderOpen, Trash2,
+  Eye, Clock, Flame,
+  SkipForward, Pause, RotateCcw, Award, Skull,
   Calculator, FlaskConical, Settings2, Minus, Plus, Sparkles, X, Check, Download, Search,
 } from "lucide-react";
 import { exportBattleBotPDF, PDF_LABELS_FR, PDF_LABELS_DE } from "@/lib/export-pdf";
@@ -25,7 +25,6 @@ import { useIsNative } from "@/hooks/useIsNative";
 import {
   runSimulation as engineRunSimulation,
   PREBUILT_TEAMS,
-  analyzeTeamSynergy,
   getWeaknesses,
   detectArchetypes,
   NATURES,
@@ -34,15 +33,12 @@ import {
   getAllItems,
   isItemAvailable,
   type PrebuiltTeam,
-  type NatureName,
 } from "@/lib/engine";
 import { SearchSelect, type SearchSelectOption } from "@/components/search-select";
 import {
   simulateBattleWithLog,
   generateRandomPool,
-  type BattleLogEntry,
   type DetailedBattleResult,
-  type RandomTeam,
 } from "@/lib/engine/battle-sim";
 import {
   getSavedTeams, deserializeTeam, saveSimResult, getSavedSimResults,
@@ -56,7 +52,7 @@ import { CHAMPIONS_TOURNAMENT_TEAMS } from "@/lib/simulation-data";
 const MAX_TOTAL_POINTS = 66;
 const MAX_PER_STAT = 32;
 const STAT_KEYS: (keyof StatPoints)[] = ["hp", "attack", "defense", "spAtk", "spDef", "speed"];
-const STAT_LABELS: Record<string, string> = { hp: "HP", attack: "Atk", defense: "Def", spAtk: "SpA", spDef: "SpD", speed: "Spe" };
+const _STAT_LABELS: Record<string, string> = { hp: "HP", attack: "Atk", defense: "Def", spAtk: "SpA", spDef: "SpD", speed: "Spe" };
 const allNatureNames = getAllNatures();
 const allItemNames = getAllItems();
 
@@ -559,7 +555,7 @@ export default function BattleBotPage() {
     return s;
   };
 
-  const translateAnalysis = (s: string): string => {
+  const _translateAnalysis = (s: string): string => {
     let m;
     if ((m = s.match(/^Best leads: (.+) \+ (.+) \((\d+(?:\.\d+)?)% win rate over (\d+) battles\)$/))) return t("battleBot.analysis.bestLeads", { lead1: tp(m[1]), lead2: tp(m[2]), winRate: m[3], games: m[4] });
     if ((m = s.match(/^Avoid leading (.+) \+ (.+) \(only (\d+(?:\.\d+)?)%\)$/))) return t("battleBot.analysis.avoidLeading", { lead1: tp(m[1]), lead2: tp(m[2]), winRate: m[3] });
@@ -695,7 +691,7 @@ export default function BattleBotPage() {
     }));
   };
 
-  const replacePokemon = (slotIndex: number, pokemon: ChampionsPokemon) => {
+  const _replacePokemon = (slotIndex: number, pokemon: ChampionsPokemon) => {
     setSelectedPokemon(prev => prev.map((p, i) => i === slotIndex ? pokemon : p));
     setSelectedSets(prev => prev.map((s, i) => i === slotIndex ? bestAvailableSet(pokemon) : s));
   };
@@ -771,6 +767,7 @@ export default function BattleBotPage() {
       matchups: res.matchupBreakdown.map(m => ({ opponent: m.opponent, winRate: m.winRate })),
     });
     setSimHistory(getSavedSimResults());
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPokemon, iterations, opponentPool]);
 
   const filtered = POKEMON_SEED.filter(
@@ -2711,7 +2708,7 @@ export default function BattleBotPage() {
                                   <p className={cn("text-[8px] mt-0.5 line-clamp-1", editSet.ability === ab.name ? "text-violet-600 dark:text-violet-300" : "text-muted-foreground")}>{tad(ab.name, ab.description)}</p>
                                 </button>
                               ))}
-                              {megaForms.map((form, fi) => {
+                              {megaForms.map((form, _fi) => {
                                 const megaAb = form.abilities?.[0];
                                 if (!megaAb || editPkm.abilities.some(a => a.name === megaAb.name)) return null;
                                 const getMegaStone = () => {

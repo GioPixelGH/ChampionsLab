@@ -247,7 +247,7 @@ export default function MetaPage() {
   };
 
   const metaTeams = useMemo(() => predictMetaTeams(), []);
-  const topUsage = useMemo(() => getTopUsagePokemon(40), []);
+  const _topUsage = useMemo(() => getTopUsagePokemon(40), []);
   const trends = useMemo(() => getMetaTrends(), []);
 
   // ── Official Usage "Show More" state ──────────────────────────
@@ -564,6 +564,7 @@ export default function MetaPage() {
       const inRoster = team.pokemonIds.every((id: number) => myRoster.has(id));
       return findTeamsRosterFilter === "roster" ? inRoster : !inRoster;
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teamFilterMatches, findTeamsRosterFilter]);
 
   const teamFilterSearchResults = useMemo(() => {
@@ -1772,7 +1773,7 @@ export default function MetaPage() {
                           <TrendingUp className="w-6 h-6 text-emerald-300" />
                         </div>
                         <p className="text-sm font-semibold text-muted-foreground">Nessun trend in salita</p>
-                        <p className="text-[10px] text-muted-foreground mt-1">Il meta è stabile nell'ultimo torneo</p>
+                        <p className="text-[10px] text-muted-foreground mt-1">Il meta è stabile nell&apos;ultimo torneo</p>
                       </div>
                     )}
                   </div>
@@ -3146,7 +3147,7 @@ export default function MetaPage() {
                   </div>
 
                   {/* Table Rows */}
-                  {bracketEntries.map((entry, i) => {
+                  {bracketEntries.map((entry, _i) => {
                     const globalRank = speedOriginalRank.get(entry.key) ?? (filteredSpeedEntries.indexOf(entry) + 1);
                     const tw = speedTailwind ? 2 : 1;
                     const displayMaxPos = entry.maxPositive * tw;
@@ -4351,8 +4352,9 @@ export default function MetaPage() {
 // ══════════════════════════════════════════════════════════════════════════
 // COMPONENT: Meta Team Card (clickable with expanded details)
 // ══════════════════════════════════════════════════════════════════════════
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function MetaTeamCard({ meta, expanded, onToggle }: { meta: MetaTeamPrediction; expanded: boolean; onToggle: () => void }) {
-  const { t, tp, tm, ta, ti, tn, ts, tt } = useI18n();
+  const { t, tp, tm: _tm, ta: _ta, ti: _ti, tn: _tn, ts: _ts, tt: _tt } = useI18n();
   return (
     <motion.div layout className={cn("rounded-xl border transition-all overflow-hidden", expanded ? "bg-emerald-50/30 border-emerald-300 col-span-full" : "glass border-gray-200/60 hover:border-emerald-300")}>
       <button onClick={onToggle} className="w-full text-left p-4">
@@ -4450,8 +4452,9 @@ function MetaTeamCard({ meta, expanded, onToggle }: { meta: MetaTeamPrediction; 
 // ══════════════════════════════════════════════════════════════════════════
 // COMPONENT: Tournament Team Card (clickable with advanced details)
 // ══════════════════════════════════════════════════════════════════════════
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function TournamentTeamCard({ team, expanded, onToggle }: { team: TournamentTeam; expanded: boolean; onToggle: () => void }) {
-  const { t, tp, tm, ta, ti, tn, ts, tt } = useI18n();
+  const { t, tp, tm: _tm, ta: _ta, ti: _ti, tn: _tn, ts, tt } = useI18n();
   const megaId = getMegaIdFromArchetype(team.archetype);
   const teamPokemon = team.pokemonIds.map((id: number) => POKEMON_SEED.find(p => p.id === id)).filter((p): p is NonNullable<typeof p> => !!p);
   const allTypes: PokemonType[] = [...new Set(teamPokemon.flatMap(p => p.types))];

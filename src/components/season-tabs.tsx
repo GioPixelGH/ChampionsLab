@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "@/lib/motion";
-import { SEASONS, POKEMON_SEED, getPokemonByRegulation } from "@/lib/pokemon-data";
+import { SEASONS, getPokemonByRegulation } from "@/lib/pokemon-data";
 import { cn } from "@/lib/utils";
 import { Shield, Scroll, Swords, Users, Timer, Sparkles, Ban, Gauge, ListChecks, Calendar, Dna, ChevronDown, Check } from "lucide-react";
 import { useI18n } from "@/lib/i18n";

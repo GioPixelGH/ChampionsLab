@@ -36,7 +36,7 @@ const WEATHER_OPTIONS = [
 export function CompactDamageCalc({
   userPokemon, userBaseStats, userSP, userNature, userItem, userAbility, userMoves,
 }: CompactDamageCalcProps) {
-  const { t, tp, tm } = useI18n();
+  const { t, tp, tm: _tm } = useI18n();
   const [oppId, setOppId] = useState("");
   const [weather, setWeather] = useState<DamageCalcOptions["weather"]>("none");
   const [isCrit, setIsCrit] = useState(false);
@@ -81,6 +81,7 @@ export function CompactDamageCalc({
   const [oppMoves, setOppMoves] = useState<string[]>([]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!opp) { setOppMoves([]); return; }
     const usage = USAGE_DATA[opp.pokemon.id];
     const set = usage?.[0];
@@ -97,6 +98,7 @@ export function CompactDamageCalc({
     setMoveB(final[0] ?? "");
   }, [opp]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { if (userAtkMoves.length && !moveA) setMoveA(userAtkMoves[0]); }, [userAtkMoves, moveA]);
 
   // All enemy damaging moves for the change selector
@@ -176,6 +178,7 @@ export function CompactDamageCalc({
 
           <div className="px-3 py-2 border-b flex items-center gap-1.5 flex-wrap">
             {WEATHER_OPTIONS.map(w => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const WIcon = (w as any).Icon;
               return (
                 <button key={w.value} onClick={() => setWeather(w.value as typeof weather)} className={cn("px-1.5 py-0.5 rounded text-[9px] font-medium transition-colors flex items-center gap-0.5", weather === w.value ? "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300" : "bg-gray-100 text-muted-foreground dark:bg-white/5")}>

@@ -15,7 +15,7 @@ interface PokemonCardProps {
   isNew?: boolean;
 }
 
-export function PokemonCard({ pokemon, onClick, index, isNew }: PokemonCardProps) {
+export function PokemonCard({ pokemon, onClick, index: _index, isNew }: PokemonCardProps) {
   const primaryType = pokemon.types[0];
   const { tp, t } = useI18n();
 

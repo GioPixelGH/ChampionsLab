@@ -150,6 +150,7 @@ export function SearchSelect({
   useEffect(() => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), 0);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSearch("");
       setHighlightIdx(0);
     }

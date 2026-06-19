@@ -1538,7 +1538,7 @@ export async function exportTeamTesterPDF(data: TeamTesterReport, L: PDFLabels =
 
     // Cross-team coaching
     const t1Weak = data.typeProfile.team1.weaknesses;
-    const t2Coverage = data.typeProfile.team2.uncovered;
+    const _t2Coverage = data.typeProfile.team2.uncovered;
     const dangerTypes = t1Weak.filter(w => w.count >= 3).map(w => w.type);
     if (dangerTypes.length > 0) {
       y = para(doc, y, fmt(L.ttTypeWeakness, dangerTypes.length, dangerTypes.length > 1 ? "s" : "", dangerTypes.join(", "), dangerTypes.length > 1 ? dangerTypes.join(", ") : dangerTypes[0]), 0, pn);

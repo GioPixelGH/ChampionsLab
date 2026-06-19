@@ -1,6 +1,5 @@
 import type { ChampionsPokemon, CommonSet } from "@/lib/types";
 import {
-  runSimulation,
   runTeamTestSimulation,
   scorePokemonForBring,
   simulateBattleWithLog,

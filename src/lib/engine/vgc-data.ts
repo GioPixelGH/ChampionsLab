@@ -4,7 +4,6 @@
 // Sources: Pikalytics Champions Tournaments, Limitless VGC, VGCPastes, Twitter
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import type { PokemonType } from "@/lib/types";
 // NOTE: do NOT import pokemon-data.ts here — it imports tiers.ts which imports this file,
 // creating a circular dependency. Callers that need roster filtering do it themselves.
 

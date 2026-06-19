@@ -3,7 +3,6 @@
 import { motion, AnimatePresence } from "@/lib/motion";
 import Image from "next/image";
 import { spriteUrl } from "@/lib/sprite-url";
-import { useRouter } from "next/navigation";
 import { ChampionsPokemon, TYPE_COLORS, CommonSet, WinningTeam, WinningTeamMember, type PokemonType } from "@/lib/types";
 import type { MetaEntry } from "@/app/api/meta/route";
 import { USAGE_DATA } from "@/lib/usage-data";
@@ -12,8 +11,8 @@ import { POKEMON_SEED } from "@/lib/pokemon-data";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
 import { getDefensiveProfile, getMatchup, getAllTypes } from "@/lib/engine/type-chart";
-import { X, Sparkles, Zap, Trophy, Star, Shield, Sword, Target, Gauge, Timer, TrendingUp, Users, Wrench, BarChart3 } from "lucide-react";
-import { useState, useMemo, useCallback } from "react";
+import { X, Sparkles, Zap, Trophy, Star, Shield, Sword, Target, Gauge, Timer, TrendingUp, Wrench, BarChart3 } from "lucide-react";
+import { useState, useMemo } from "react";
 import { deflateRaw } from "pako";
 import { useI18n } from "@/lib/i18n";
 import { SIM_POKEMON, SIM_TOTAL_BATTLES } from "@/lib/simulation-data";
@@ -101,7 +100,7 @@ function buildTeamBuilderUrl(team: WinningTeam): string {
   return `/team-builder?t=${b64}`;
 }
 
-const STAT_NAMES = ["HP", "Attack", "Defense", "Sp. Atk", "Sp. Def", "Speed"];
+const _STAT_NAMES = ["HP", "Attack", "Defense", "Sp. Atk", "Sp. Def", "Speed"];
 const STAT_KEYS = ["hp", "attack", "defense", "spAtk", "spDef", "speed"] as const;
 const STAT_COLORS = ["#ef4444", "#f97316", "#eab308", "#3b82f6", "#22c55e", "#e879f9"];
 const MAX_STAT = 255;
@@ -170,7 +169,7 @@ function PresetPill({ set, index }: { set: CommonSet; index: number }) {
             </div>
             <p className="text-xs text-gray-500 leading-relaxed mb-3">{tn(set.nature)} · {ta(set.ability)} · {ti(set.item)}</p>
             <div className="grid grid-cols-3 gap-1.5">
-              {STAT_KEYS.map((key, i) => (
+              {STAT_KEYS.map((key, _i) => (
                 <div key={key} className="flex items-center justify-between px-2 py-1 rounded-md bg-gray-50 dark:bg-gray-200/5">
                   <span className="text-[10px] text-gray-400">{ts(key)}</span>
                   <span className={cn("text-[10px] font-bold", set.sp[key] > 0 ? "text-gray-800 dark:text-gray-200" : "text-gray-300 dark:text-gray-600")}>
@@ -212,13 +211,15 @@ export function PokemonDetailModal({ pokemon, onClose, liveMetaEntry }: PokemonD
 
   const visibleForms = pokemon?.forms?.filter(f => !f.hidden) ?? [];
   const currentForm = pokemon && activeForm > 0 ? visibleForms[activeForm - 1] ?? null : null;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const displayTypes = currentForm ? currentForm.types : (pokemon?.types ?? []);
   const displayStats = currentForm ? currentForm.baseStats : (pokemon?.baseStats ?? { hp: 0, attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const displayAbilities = currentForm ? currentForm.abilities : (pokemon?.abilities ?? []);
   const primaryColor = TYPE_COLORS[displayTypes[0]];
   const bst = Object.values(displayStats).reduce((a, b) => a + b, 0);
 
-  const defensiveProfile = useMemo(() => getDefensiveProfile(displayTypes), [displayTypes]);
+  const _defensiveProfile = useMemo(() => getDefensiveProfile(displayTypes), [displayTypes]);
 
   // Ability-aware type matchup adjustments for the defensive chart
   const abilityTypeAdjustments = useMemo(() => {
@@ -257,6 +258,7 @@ export function PokemonDetailModal({ pokemon, onClose, liveMetaEntry }: PokemonD
       result.push({ type: def as PokemonType, best });
     }
     return result;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pokemon?.moves]);
 
   if (!pokemon) return null;

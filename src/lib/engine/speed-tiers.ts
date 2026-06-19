@@ -5,7 +5,7 @@
 
 import type { ChampionsPokemon, BaseStats, StatPoints } from "@/lib/types";
 import { POKEMON_SEED } from "@/lib/pokemon-data";
-import { calculateStats, getEffectiveSpeed } from "./stat-calc";
+import { getEffectiveSpeed } from "./stat-calc";
 import { getNatureModifier, type NatureName } from "./natures";
 import { getItemSpeedMultiplier } from "./items";
 import { ABILITY_DATA } from "./ability-data";
@@ -100,8 +100,8 @@ export function calcThreatSpeed(
   let nature: NatureName = options.nature ?? "Jolly";
   if (!options.nature) {
     // Try to find a +speed nature from the Pokémon's common sets, else default Jolly
-    const hasSpeedNature = ["Timid", "Hasty", "Jolly", "Naive"].some((n) =>
-      pokemon.abilities.some((a) => true) // just keeping structure
+    const hasSpeedNature = ["Timid", "Hasty", "Jolly", "Naive"].some((_n) =>
+      pokemon.abilities.some((_a) => true) // just keeping structure
     );
     nature = hasSpeedNature ? "Jolly" : "Jolly";
   }

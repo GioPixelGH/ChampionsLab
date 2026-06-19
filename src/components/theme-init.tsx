@@ -12,7 +12,7 @@ export function ThemeInit() {
         document.documentElement.style.colorScheme = isDark ? "dark" : "light";
         document.cookie = `cl-theme=${stored};path=/;max-age=31536000;SameSite=Lax`;
       }
-    } catch (e) {
+    } catch (_e) {
       // ignore
     }
   }, []);

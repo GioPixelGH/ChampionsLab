@@ -8,7 +8,7 @@ import type { PokemonType, BaseStats, StatPoints } from "@/lib/types";
 import { getMatchup } from "./type-chart";
 import { calculateStats, applyStatStage, type CalculatedStats } from "./stat-calc";
 import { getItemDamageMultiplier, getDefenderItemMultiplier, ITEMS } from "./items";
-import { getMove, isSpreadMove, type EngineMove } from "./move-data";
+import { getMove, isSpreadMove } from "./move-data";
 import { getAbilityEffect } from "./ability-data";
 import type { NatureName } from "./natures";
 
@@ -620,7 +620,7 @@ export function calculateDamage(
 
   // Healing berry support for KO chance
   const defenderItem = ITEMS[defender.item];
-  const hasHealingBerry = defenderItem?.berryHealThreshold && defenderItem?.berryHealAmount;
+  const _hasHealingBerry = defenderItem?.berryHealThreshold && defenderItem?.berryHealAmount;
 
   // Calculate precise KO probability (expensive - only for UI)
   const koChance = options.computeKOChance

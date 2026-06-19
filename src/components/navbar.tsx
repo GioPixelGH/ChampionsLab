@@ -34,7 +34,7 @@ const NAV_ITEMS = [
 
 // First 3 items shown in the bar at tablet widths (800–1139px)
 const PRIMARY_NAV = NAV_ITEMS.slice(0, 3);
-const SECONDARY_NAV = NAV_ITEMS.slice(3);
+const _SECONDARY_NAV = NAV_ITEMS.slice(3);
 
 export function Navbar() {
   const pathname = usePathname();

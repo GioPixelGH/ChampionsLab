@@ -562,7 +562,7 @@ export function optimizeSPForSurvival(
   };
 
   // ── Step 3: Respect total SP cap ──
-  let total = Object.values(optimized).reduce((sum, v) => sum + v, 0);
+  const total = Object.values(optimized).reduce((sum, v) => sum + v, 0);
 
   if (total > MAX_TOTAL_SP) {
     // Over cap — reduce offense proportionally (Speed last to protect it)

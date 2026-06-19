@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "@/lib/motion";
 import {
-  GraduationCap, BookOpen, Swords, Shield, Zap, Target,
-  ChevronDown, ChevronRight, Brain, TrendingUp, Users,
-  Award, Sparkles, Flame, Droplets, Wind, Star, Monitor,
+  GraduationCap, BookOpen, Shield, Zap, Target,
+  ChevronDown, ChevronRight, Brain, Users,
+  Award, Sparkles, Monitor,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
