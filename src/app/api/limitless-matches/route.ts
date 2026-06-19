@@ -12,10 +12,15 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    // If playerId is not numeric (e.g. Limitless username from play.limitlesstcg.com),
+    // fetch all tournament matches — the client filters by player name client-side.
+    const playerIdNum = parseInt(playerId, 10);
+    const matchesUrl = isNaN(playerIdNum)
+      ? `${VGC_API}/matches?tournamentId=${tournamentId}`
+      : `${VGC_API}/matches?tournamentId=${tournamentId}&playerId=${playerId}`;
+
     const [matchesRes, tournamentRes] = await Promise.all([
-      fetch(`${VGC_API}/matches?tournamentId=${tournamentId}&playerId=${playerId}`, {
-        next: { revalidate: 60 },
-      }),
+      fetch(matchesUrl, { next: { revalidate: 60 } }),
       fetch(`${VGC_API}/tournament?id=${tournamentId}&division=MA`, {
         next: { revalidate: 3600 },
       }),

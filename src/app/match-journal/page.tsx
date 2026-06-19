@@ -775,19 +775,28 @@ export default function MatchJournalPage() {
         ].filter(Boolean);
         setImportTournamentName(parts.join(" · "));
       }
-      const myId = parseInt(parsed.playerId, 10);
+      const myIdNum = parseInt(parsed.playerId, 10);
+      const myIdIsNum = !isNaN(myIdNum);
+      // For username-based IDs (play.limitlesstcg.com format), match by player name
+      const myUsername = myIdIsNum ? null : parsed.playerId.toLowerCase();
       const existingFormats = new Set(records.map((r) => r.format).filter(Boolean));
       const preview: ImportMatch[] = matches
-        .filter((m) => m.completed && (m.p1_id === myId || m.p2_id === myId) && m.p2_id != null)
+        .filter((m) => {
+          if (!m.completed || m.p2_id == null) return false;
+          if (myIdIsNum) return m.p1_id === myIdNum || m.p2_id === myIdNum;
+          return m.p1_name?.toLowerCase() === myUsername || m.p2_name?.toLowerCase() === myUsername;
+        })
         .sort((a, b) => a.round - b.round)
         .map((m) => {
-          const iP1 = m.p1_id === myId;
+          const iP1 = myIdIsNum ? m.p1_id === myIdNum : m.p1_name?.toLowerCase() === myUsername;
+          // Resolve the numeric ID of the current player for winner comparison
+          const myActualId = iP1 ? m.p1_id : (m.p2_id ?? -1);
           const myTeamStr = iP1 ? m.p1_team : (m.p2_team ?? "");
           const oppTeamStr = iP1 ? (m.p2_team ?? "") : m.p1_team;
           const oppName = iP1 ? (m.p2_name ?? "???") : m.p1_name;
           const myTeam = myTeamStr.split(",").map((s) => resolveSlug(s.trim())).filter((id): id is number => id !== null);
           const oppTeam = oppTeamStr.split(",").map((s) => resolveSlug(s.trim())).filter((id): id is number => id !== null);
-          const result: "win" | "loss" | "tie" = m.winner === null ? "tie" : m.winner === myId ? "win" : "loss";
+          const result: "win" | "loss" | "tie" = m.winner === null ? "tie" : m.winner === myActualId ? "win" : "loss";
           const phaseLabel = m.phase >= 3 ? "Top Cut" : "Swiss";
           const fmt = `Limitless #${parsed.tournamentId} ${phaseLabel} R${m.round}`;
           return { round: m.round, phase: phaseLabel, result, myTeam, oppTeam, oppName, format: fmt, isDuplicate: existingFormats.has(fmt) };
