@@ -83,7 +83,10 @@ function parseLimitlessUrl(raw: string): { tournamentId: string; playerId: strin
   try {
     const url = raw.trim().startsWith("http") ? raw.trim() : `https://${raw.trim()}`;
     const parts = new URL(url).pathname.split("/").filter(Boolean);
+    // Format: standings.limitlessvgc.com/{id}/player/{playerId}
     if (parts.length >= 3 && parts[1] === "player") return { tournamentId: parts[0], playerId: parts[2] };
+    // Format: play.limitlesstcg.com/tournament/{id}/player/{playerId}
+    if (parts.length >= 4 && parts[0] === "tournament" && parts[2] === "player") return { tournamentId: parts[1], playerId: parts[3] };
     return null;
   } catch { return null; }
 }
@@ -752,7 +755,7 @@ export default function MatchJournalPage() {
   async function fetchImportData() {
     const parsed = parseLimitlessUrl(importUrl);
     if (!parsed) {
-      setImportError("URL non valido. Formato atteso: standings.limitlessvgc.com/{torneoId}/player/{playerId}");
+      setImportError("URL non valido. Formato atteso: standings.limitlessvgc.com/{id}/player/{name} oppure play.limitlesstcg.com/tournament/{id}/player/{name}");
       return;
     }
     setImportLoading(true);
@@ -1419,7 +1422,7 @@ export default function MatchJournalPage() {
                     type="url"
                     value={importUrl}
                     onChange={(e) => setImportUrl(e.target.value)}
-                    placeholder="standings.limitlessvgc.com/0035/player/0154"
+                    placeholder="play.limitlesstcg.com/tournament/.../player/..."
                     className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-blue-500/50 focus:outline-none text-sm text-white placeholder:text-gray-600"
                   />
                   <button
@@ -2267,7 +2270,7 @@ export default function MatchJournalPage() {
                   value={importUrl}
                   onChange={(e) => setImportUrl(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && !importLoading && fetchImportData()}
-                  placeholder="https://standings.limitlessvgc.com/0035/player/0154"
+                  placeholder="https://play.limitlesstcg.com/tournament/.../player/..."
                   className="flex-1 px-3 py-1.5 text-sm rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/40 transition-colors"
                 />
                 <button
