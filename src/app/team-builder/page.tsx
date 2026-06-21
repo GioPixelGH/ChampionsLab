@@ -232,6 +232,18 @@ export default function TeamBuilderPage() {
   const [showImport, setShowImport] = useState(false);
   const [importText, setImportText] = useState("");
   const [importError, setImportError] = useState("");
+  // Export field toggles
+  const [exportIncludeItem, setExportIncludeItem] = useState(true);
+  const [exportIncludeAbility, setExportIncludeAbility] = useState(true);
+  const [exportIncludeNature, setExportIncludeNature] = useState(true);
+  const [exportIncludeStats, setExportIncludeStats] = useState(true);
+  const [exportIncludeMoves, setExportIncludeMoves] = useState(true);
+  // Import field toggles
+  const [importApplyItem, setImportApplyItem] = useState(true);
+  const [importApplyAbility, setImportApplyAbility] = useState(true);
+  const [importApplyNature, setImportApplyNature] = useState(true);
+  const [importApplyStats, setImportApplyStats] = useState(true);
+  const [importApplyMoves, setImportApplyMoves] = useState(true);
   const [selectedPokemonDetail, setSelectedPokemonDetail] = useState<ChampionsPokemon | null>(null);
   const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(null);
   const editPanelRef = useRef<HTMLDivElement>(null);
@@ -252,6 +264,15 @@ export default function TeamBuilderPage() {
   const [activeRegulation, setActiveRegulation] = useState(defaultRegulation);
   const [tierMap, setTierMap] = useState<Map<number, string>>(() => computeTierMap(defaultRegulation));
   useEffect(() => { setTierMap(computeTierMap(activeRegulation)); }, [activeRegulation]);
+
+  // Cancel pending timers and abort optimizer on unmount
+  useEffect(() => () => {
+    clearTimeout(saveConfirmTimerRef.current ?? undefined);
+    clearTimeout(urlCopiedTimerRef.current ?? undefined);
+    clearTimeout(pasteLinkCopiedTimerRef.current ?? undefined);
+    clearTimeout(spToastTimerRef.current ?? undefined);
+    searchAbortRef.current = true;
+  }, []);
   const activeSeasonId = useMemo(
     () => SEASONS.find(s => s.regulations.some(r => r.id === activeRegulation))?.id ?? 1,
     [activeRegulation]
@@ -274,6 +295,10 @@ export default function TeamBuilderPage() {
   const [showOptimizerPanel, setShowOptimizerPanel] = useState(false);
   const [lockedSlots, setLockedSlots] = useState<boolean[]>(Array(6).fill(false));
   const searchAbortRef = useRef(false);
+  const saveConfirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const urlCopiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pasteLinkCopiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const spToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ── My Roster ──
   const [myRosterIds, setMyRosterIds] = useState<Set<number>>(() => new Set());
@@ -374,14 +399,15 @@ export default function TeamBuilderPage() {
 
     // Short link: fetch from API
     if (shortId) {
-      fetch(`/api/share/${encodeURIComponent(shortId)}`)
+      const controller = new AbortController();
+      fetch(`/api/share/${encodeURIComponent(shortId)}`, { signal: controller.signal })
         .then(r => {
           if (!r.ok) { setShareLinkError(t('teamBuilder.sharedExpired')); window.history.replaceState({}, "", "/team-builder"); return null; }
           return r.json();
         })
         .then(data => { if (data?.s) restoreTeam(data); })
-        .catch(() => { setShareLinkError(t('teamBuilder.sharedFailed')); window.history.replaceState({}, "", "/team-builder"); });
-      return;
+        .catch(err => { if (err.name !== 'AbortError') { setShareLinkError(t('teamBuilder.sharedFailed')); window.history.replaceState({}, "", "/team-builder"); } });
+      return () => controller.abort();
     }
 
     if (teamParam) {
@@ -467,7 +493,8 @@ export default function TeamBuilderPage() {
     setCurrentTeamId(team.id);
     setSavedTeams(getSavedTeams());
     setSaveConfirm(true);
-    setTimeout(() => setSaveConfirm(false), 2000);
+    clearTimeout(saveConfirmTimerRef.current ?? undefined);
+    saveConfirmTimerRef.current = setTimeout(() => setSaveConfirm(false), 2000);
   };
 
   const handleLoadSavedTeam = (team: SavedTeam) => {
@@ -931,7 +958,8 @@ export default function TeamBuilderPage() {
     if (!shareUrl) return;
     await navigator.clipboard.writeText(shareUrl);
     setUrlCopied(true);
-    setTimeout(() => setUrlCopied(false), 2000);
+    clearTimeout(urlCopiedTimerRef.current ?? undefined);
+    urlCopiedTimerRef.current = setTimeout(() => setUrlCopied(false), 2000);
   };
 
   // Build a secure paste URL: creates a NEW share entry with hidden fields stripped
@@ -972,8 +1000,12 @@ export default function TeamBuilderPage() {
   // Regenerate paste URL when hide options change
   useEffect(() => {
     if (!shareUrl) { setPasteUrl(""); return; }
+    let cancelled = false;
     setPasteGenerating(true);
-    buildPasteUrl().then(url => { setPasteUrl(url); setPasteGenerating(false); });
+    buildPasteUrl().then(url => {
+      if (!cancelled) { setPasteUrl(url ?? ""); setPasteGenerating(false); }
+    });
+    return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pasteHideNature, pasteHideStatPoints, pasteHideItem, pasteHideAbility, shareUrl]);
 
@@ -982,7 +1014,8 @@ export default function TeamBuilderPage() {
     if (!pasteUrl) return;
     await navigator.clipboard.writeText(pasteUrl);
     setPasteLinkCopied(true);
-    setTimeout(() => setPasteLinkCopied(false), 2000);
+    clearTimeout(pasteLinkCopiedTimerRef.current ?? undefined);
+    pasteLinkCopiedTimerRef.current = setTimeout(() => setPasteLinkCopied(false), 2000);
   };
 
   const filledSlots = slots.filter((s) => s.pokemon !== null);
@@ -1258,7 +1291,8 @@ export default function TeamBuilderPage() {
     const newTotal = total - current + newValue;
     if (newTotal > MAX_TOTAL_POINTS) {
       setSpToast(t("teamBuilder.spLimitReached"));
-      setTimeout(() => setSpToast(null), 2000);
+      clearTimeout(spToastTimerRef.current ?? undefined);
+      spToastTimerRef.current = setTimeout(() => setSpToast(null), 2000);
       return;
     }
     sp[stat] = newValue;
@@ -1271,7 +1305,8 @@ export default function TeamBuilderPage() {
     const remaining = MAX_TOTAL_POINTS - (total - sp[stat]);
     if (value > remaining && remaining < MAX_PER_STAT) {
       setSpToast(t("teamBuilder.spLimitReached"));
-      setTimeout(() => setSpToast(null), 2000);
+      clearTimeout(spToastTimerRef.current ?? undefined);
+      spToastTimerRef.current = setTimeout(() => setSpToast(null), 2000);
     }
     const clamped = Math.max(0, Math.min(MAX_PER_STAT, remaining, value));
     sp[stat] = clamped;
@@ -1528,13 +1563,23 @@ export default function TeamBuilderPage() {
           }
         }
       }
+      // For un-toggled fields: reuse the existing slot for this Pokémon, then fall back to defaults
+      const existingSlot = slots.find(s => s.pokemon?.id === pokemon.id);
       newSlots.push({
         pokemon,
-        ability: ability ?? pokemon.abilities[0]?.name,
-        nature: nature ?? "Adamant",
-        moves: moves.length > 0 ? moves.slice(0, 4) : pokemon.moves.slice(0, 4).map(m => m.name),
-        statPoints: converted,
-        item,
+        ability: importApplyAbility
+          ? (ability ?? pokemon.abilities[0]?.name)
+          : (existingSlot?.ability ?? pokemon.abilities[0]?.name),
+        nature: importApplyNature
+          ? (nature ?? "Adamant")
+          : (existingSlot?.nature ?? "Adamant"),
+        moves: importApplyMoves
+          ? (moves.length > 0 ? moves.slice(0, 4) : pokemon.moves.slice(0, 4).map(m => m.name))
+          : (existingSlot?.moves?.length ? existingSlot.moves : pokemon.moves.slice(0, 4).map(m => m.name)),
+        statPoints: importApplyStats
+          ? converted
+          : (existingSlot?.statPoints ?? { hp: 0, attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 }),
+        item: importApplyItem ? item : existingSlot?.item,
         isMega,
         megaFormIndex,
       });
@@ -1578,19 +1623,19 @@ export default function TeamBuilderPage() {
             exportName = `${p.name}-Mega`;
           }
         }
-        const nameLine = s.item ? `${exportName} @ ${s.item}` : exportName;
+        const nameLine = (exportIncludeItem && s.item) ? `${exportName} @ ${s.item}` : exportName;
         const lines = [nameLine];
-        if (s.ability) lines.push(`Ability: ${s.ability}`);
-        if (s.nature) lines.push(`${s.nature} Nature`);
-
+        if (exportIncludeAbility && s.ability) lines.push(`Ability: ${s.ability}`);
+        if (exportIncludeNature && s.nature) lines.push(`${s.nature} Nature`);
         lines.push(`Level: 50`);
-        // Export Stat Points directly as EVs (Showdown now uses the same SP system)
-        const spParts = STAT_KEYS
-          .map(k => ({ val: s.statPoints[k], label: STAT_LABELS[k] }))
-          .filter(e => e.val > 0)
-          .map(e => `${e.val} ${e.label}`);
-        if (spParts.length > 0) lines.push(`EVs: ${spParts.join(" / ")}`);
-        s.moves.forEach((m) => lines.push(`- ${m}`));
+        if (exportIncludeStats) {
+          const spParts = STAT_KEYS
+            .map(k => ({ val: s.statPoints[k], label: STAT_LABELS[k] }))
+            .filter(e => e.val > 0)
+            .map(e => `${e.val} ${e.label}`);
+          if (spParts.length > 0) lines.push(`EVs: ${spParts.join(" / ")}`);
+        }
+        if (exportIncludeMoves) s.moves.forEach((m) => lines.push(`- ${m}`));
         return lines.join("\n");
       })
       .join("\n\n");
@@ -1911,6 +1956,32 @@ export default function TeamBuilderPage() {
                   className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500/50 resize-none font-mono"
                 />
                 {importError && <p className="text-xs text-red-400 mt-1">{importError}</p>}
+                <div className="mt-2 mb-1">
+                  <p className="text-xs text-gray-400 mb-1.5">Campi da applicare:</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {([
+                      ["Item", importApplyItem, setImportApplyItem],
+                      ["Ability", importApplyAbility, setImportApplyAbility],
+                      ["Nature", importApplyNature, setImportApplyNature],
+                      ["Stats", importApplyStats, setImportApplyStats],
+                      ["Moves", importApplyMoves, setImportApplyMoves],
+                    ] as [string, boolean, (v: boolean) => void][]).map(([label, active, toggle]) => (
+                      <button
+                        key={label}
+                        type="button"
+                        onClick={() => toggle(!active)}
+                        className={cn(
+                          "px-2.5 py-1 rounded-full text-xs font-medium border transition-colors",
+                          active
+                            ? "bg-emerald-900/40 text-emerald-300 border-emerald-700"
+                            : "bg-white/5 text-gray-500 border-white/10 line-through"
+                        )}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <button type="button"
                   onClick={() => { importPokepaste(importText); setShowImport(false); }}
                   disabled={!importText.trim()}
@@ -3815,7 +3886,33 @@ export default function TeamBuilderPage() {
                 className="w-full h-64 rounded-xl p-4 bg-gray-50 border border-gray-200 text-xs font-mono resize-none focus:outline-none focus:ring-2 focus:ring-emerald-400"
               />
               {importError && <p className="text-xs text-red-500 mt-2">{importError}</p>}
-              <div className="flex gap-2 mt-4">
+              <div className="mt-3 mb-1">
+                <p className="text-xs text-muted-foreground mb-1.5">Campi da applicare:</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {([
+                    ["Item", importApplyItem, setImportApplyItem],
+                    ["Ability", importApplyAbility, setImportApplyAbility],
+                    ["Nature", importApplyNature, setImportApplyNature],
+                    ["Stats", importApplyStats, setImportApplyStats],
+                    ["Moves", importApplyMoves, setImportApplyMoves],
+                  ] as [string, boolean, (v: boolean) => void][]).map(([label, active, toggle]) => (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => toggle(!active)}
+                      className={cn(
+                        "px-2.5 py-1 rounded-full text-xs font-medium border transition-colors",
+                        active
+                          ? "bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-900/40 dark:text-emerald-300 dark:border-emerald-700"
+                          : "bg-gray-100 text-gray-400 border-gray-200 line-through dark:bg-white/5 dark:text-gray-500 dark:border-white/10"
+                      )}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-2 mt-3">
                 <button
                   onClick={() => importPokepaste(importText)}
                   disabled={!importText.trim()}
@@ -3853,17 +3950,40 @@ export default function TeamBuilderPage() {
               exit={{ opacity: 0, scale: 0.9 }}
               className="fixed inset-4 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 z-50 sm:w-full sm:max-w-lg glass rounded-2xl border border-gray-200/60 p-6"
             >
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-3">
                 <h3 className="text-lg font-semibold">{t('teamBuilder.exportTitle')}</h3>
                 <button onClick={() => setShowExport(false)} aria-label={t('common.close') || 'Close'} className="p-1 rounded-lg hover:bg-gray-100">
                   <X className="w-5 h-5" />
                 </button>
               </div>
+              <div className="flex flex-wrap gap-1.5 mb-3">
+                {([
+                  ["Item", exportIncludeItem, setExportIncludeItem],
+                  ["Ability", exportIncludeAbility, setExportIncludeAbility],
+                  ["Nature", exportIncludeNature, setExportIncludeNature],
+                  ["Stats", exportIncludeStats, setExportIncludeStats],
+                  ["Moves", exportIncludeMoves, setExportIncludeMoves],
+                ] as [string, boolean, (v: boolean) => void][]).map(([label, active, toggle]) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => toggle(!active)}
+                    className={cn(
+                      "px-2.5 py-1 rounded-full text-xs font-medium border transition-colors",
+                      active
+                        ? "bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-900/40 dark:text-emerald-300 dark:border-emerald-700"
+                        : "bg-gray-100 text-gray-400 border-gray-200 line-through dark:bg-white/5 dark:text-gray-500 dark:border-white/10"
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
               <textarea
                 readOnly
                 value={exportPokepaste()}
                 aria-label={t('teamBuilder.exportTitle')}
-                className="w-full h-64 rounded-xl p-4 bg-gray-50 border border-gray-200 text-xs font-mono resize-none focus:outline-none"
+                className="w-full h-56 rounded-xl p-4 bg-gray-50 border border-gray-200 text-xs font-mono resize-none focus:outline-none dark:bg-white/5 dark:border-white/10"
               />
               <div className="flex gap-2 mt-4">
                 <button
