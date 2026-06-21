@@ -15,6 +15,7 @@ const KEYS = {
   LAST_TEAM: "champions-lab:last-team",
   MATCH_JOURNAL: "champions-lab:match-journal",
   MY_ROSTER_LEGACY: "champions-lab:my-roster",
+  BOX_SCANNER_LAYOUT: "champions-lab:box-scanner-layout",
 } as const;
 
 function getRosterKey(seasonId: number): string {
@@ -396,4 +397,23 @@ export function importAllData(data: ExportData): void {
 export function countExportRoster(myRoster: ExportData["myRoster"] | number[]): number {
   if (Array.isArray(myRoster)) return myRoster.length;
   return Object.values(myRoster).reduce((s, a) => s + a.length, 0);
+}
+
+// ── Box Scanner Layout ───────────────────────────────────────────────────
+
+export interface StoredBoxLayout {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  cols: number;
+  rows: number;
+}
+
+export function getScannerLayout(): StoredBoxLayout | null {
+  return readJSON<StoredBoxLayout | null>(KEYS.BOX_SCANNER_LAYOUT, null);
+}
+
+export function saveScannerLayout(layout: StoredBoxLayout): void {
+  writeJSON(KEYS.BOX_SCANNER_LAYOUT, layout);
 }

@@ -12,6 +12,7 @@ import {
   CalendarDays,
   BookOpen,
   Settings,
+  ScanLine,
 } from "lucide-react";
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -27,6 +28,7 @@ const NAV_ITEMS = [
   { href: "/battle-bot", i18nKey: "nav.battleBot", icon: Swords },
   { href: "/meta", i18nKey: "nav.meta", icon: TrendingUp },
   { href: "/match-journal", i18nKey: "nav.matchJournal", icon: BookOpen },
+  { href: "/box-scanner", i18nKey: "nav.boxScanner", icon: ScanLine },
   { href: "/events", i18nKey: "nav.tournaments", icon: CalendarDays },
   { href: "/learn", i18nKey: "nav.pokeSchool", icon: GraduationCap },
   { href: "/settings", i18nKey: "nav.settings", icon: Settings },

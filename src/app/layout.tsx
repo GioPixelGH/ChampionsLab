@@ -7,7 +7,7 @@ import "@fontsource-variable/inter";
 import "@fontsource-variable/jetbrains-mono";
 import "@fontsource/sora/600.css";
 import "@fontsource/sora/700.css";
-import { Navbar } from "@/components/navbar";
+import { Navbar } from "@/components/Navbar";
 import { NativeUiWrapper } from "@/components/native-ui-wrapper";
 import { ThemeInit } from "@/components/theme-init";
 import { MobileNavInit } from "@/components/mobile-nav-init";
