@@ -14,6 +14,12 @@ interface ChangelogEntry {
     {
       date: "18/06/2026",
       items: [
+        "🔧 Fixed Mega Raichu X/Y item auto-equip in Team Builder — selecting Y now correctly equips Raichunite Y instead of X; corrected Raichu mega abilities in usage sets to Electric Surge / No Guard",
+      ],
+    },
+    {
+      date: "18/06/2026",
+      items: [
         "💎 Added missing mega stones for new megas: Blazikenite, Swampertite, Sceptilite, Scolipedite, Malamarite, Dragalgite, Eelektrossite, Barbaraclite, Falinksite, Scraftite, Staraptite, Pyroarite, and Meowsticite",
       ],
     },
