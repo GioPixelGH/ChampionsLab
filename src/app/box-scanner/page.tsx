@@ -6,6 +6,7 @@ import {
   ScanLine,
   Monitor,
   Upload,
+  Camera,
   Play,
   Pause,
   Square,
@@ -15,6 +16,7 @@ import {
   CheckCircle2,
   MousePointerClick,
   Info,
+  Smartphone,
 } from "lucide-react";
 import { POKEMON_SEED } from "@/lib/pokemon-data";
 import { cn } from "@/lib/utils";
@@ -57,7 +59,17 @@ export default function BoxScannerPage() {
 
   // Upload mode
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const [isProcessingUpload, setIsProcessingUpload] = useState(false);
+
+  // Mobile detection (pointer-primary touch device — updated after mount)
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    setIsMobile(
+      typeof window !== "undefined" &&
+        (navigator.maxTouchPoints > 0 || window.matchMedia("(pointer: coarse)").matches)
+    );
+  }, []);
 
   // Mobile tab
   const [activeTab, setActiveTab] = useState<"scanner" | "roster">("scanner");
@@ -218,6 +230,18 @@ export default function BoxScannerPage() {
             e l&apos;app lo registra in automatico.
           </span>
         </div>
+
+        {/* Mobile banner — screen capture unsupported */}
+        {isMobile && !captureSupported && (
+          <div className="mb-4 flex items-start gap-2 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 text-xs">
+            <Smartphone className="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <span>
+              <strong>La cattura schermo non è supportata su mobile.</strong> Usa{" "}
+              <strong>Carica immagine</strong> per caricare uno screenshot o{" "}
+              <strong>Fotocamera</strong> per scattare una foto del pannello di gioco.
+            </span>
+          </div>
+        )}
 
         {/* Error */}
         {errorMsg && (
@@ -381,17 +405,19 @@ export default function BoxScannerPage() {
                 </div>
               )}
 
-              {/* Upload section */}
+              {/* Upload / Camera section */}
               <div className="border-t border-gray-200/60 dark:border-gray-700/40 pt-4">
                 <p className="text-xs text-muted-foreground mb-2">
                   {captureSupported
                     ? "Oppure carica screenshot del pannello nome:"
-                    : "Carica screenshot del pannello nome del Pokémon:"}
+                    : "Carica uno screenshot o usa la fotocamera:"}
                 </p>
+
+                {/* Hidden file inputs */}
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp"
                   multiple
                   className="hidden"
                   onChange={(e) => {
@@ -401,23 +427,58 @@ export default function BoxScannerPage() {
                     }
                   }}
                 />
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isProcessingUpload}
-                  className={cn(
-                    "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border",
-                    !isProcessingUpload
-                      ? "border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/5 active:scale-95"
-                      : "opacity-50 cursor-not-allowed"
+                {/* Camera input — opens device camera on mobile */}
+                <input
+                  ref={cameraInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files?.length) {
+                      handleUploadFiles(e.target.files);
+                      e.target.value = "";
+                    }
+                  }}
+                />
+
+                <div className="flex flex-wrap gap-2">
+                  {/* Upload button — works everywhere */}
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isProcessingUpload}
+                    className={cn(
+                      "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border",
+                      !captureSupported
+                        ? "border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 active:scale-95"
+                        : "border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/5 active:scale-95",
+                      isProcessingUpload && "opacity-50 cursor-not-allowed"
+                    )}
+                  >
+                    {isProcessingUpload ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Upload className="w-4 h-4" />
+                    )}
+                    {isProcessingUpload ? "Lettura OCR…" : "Carica immagine"}
+                  </button>
+
+                  {/* Camera button — only on mobile (touch devices) */}
+                  {isMobile && (
+                    <button
+                      onClick={() => cameraInputRef.current?.click()}
+                      disabled={isProcessingUpload}
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border",
+                        "border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 active:scale-95",
+                        isProcessingUpload && "opacity-50 cursor-not-allowed"
+                      )}
+                    >
+                      <Camera className="w-4 h-4" />
+                      Fotocamera
+                    </button>
                   )}
-                >
-                  {isProcessingUpload ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Upload className="w-4 h-4" />
-                  )}
-                  {isProcessingUpload ? "Lettura OCR…" : "Carica screenshot"}
-                </button>
+                </div>
               </div>
             </div>
           </div>

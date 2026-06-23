@@ -1,4 +1,5 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { POKEMON_SEED } from "@/lib/pokemon-data";
 
 const API_BASE = "https://play.limitlesstcg.com/api";
@@ -102,11 +103,29 @@ async function fetchLimitless<T>(url: string): Promise<T> {
 // ── Route ─────────────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  // Rate limit: max 1 sync per 5 minutes per origin
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (!checkRateLimit(`sync-usage:${ip}`, { limit: 1, windowMs: 5 * 60 * 1000 })) {
+    return NextResponse.json({ error: "Too many requests — wait 5 minutes" }, { status: 429 });
+  }
+
+  // Optional secret guard (set SYNC_SECRET in .env.local to enable)
+  const secret = process.env.SYNC_SECRET;
+  let body: { regulationId: string; knownIds: string[]; emptyIds: string[]; secret?: string };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+  if (secret && body.secret !== secret) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const {
     regulationId,
     knownIds = [],      // IDs already in valid cache — used as the temporal boundary
     emptyIds: clientEmptyIds = [],  // IDs previously found to have 0 decklists — skip, don't stop
-  }: { regulationId: string; knownIds: string[]; emptyIds: string[] } = await req.json();
+  } = body;
 
   // validKnownSet  → hitting one of these means we've reached already-processed territory: STOP
   const validKnownSet = new Set<string>(knownIds);

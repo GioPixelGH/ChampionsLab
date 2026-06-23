@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { readFile, writeFile, mkdir } from "fs/promises";
 import { join } from "path";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 const DATA_DIR = join(process.cwd(), "data");
 const TEAMS_FILE = join(DATA_DIR, "shared-teams.json");
@@ -42,15 +43,30 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid team data" }, { status: 400 });
     }
 
+    const id = generateId();
+
+    // Primary path: Supabase (persistent, TTL 90 days)
+    if (isSupabaseConfigured()) {
+      const { error } = await supabase
+        .from("shared_teams")
+        .insert({ id, data: body });
+
+      if (error) {
+        console.error("[share] Supabase insert error:", error.message);
+        // Fall through to flat-file fallback
+      } else {
+        return NextResponse.json({ id });
+      }
+    }
+
+    // Fallback: flat file (local dev / Supabase not configured)
     const store = await readStore();
-
-    let id = generateId();
-    while (store[id]) id = generateId();
-
-    store[id] = { data: body, created: Date.now() };
+    let finalId = id;
+    while (store[finalId]) finalId = generateId();
+    store[finalId] = { data: body, created: Date.now() };
     await writeStore(store);
 
-    return NextResponse.json({ id });
+    return NextResponse.json({ id: finalId });
   } catch {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }

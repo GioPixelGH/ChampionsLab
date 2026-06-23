@@ -1,5 +1,6 @@
 "use client";
 
+import { ErrorBoundary } from "@/components/error-boundary";
 import { useState, useMemo } from "react";
 import { useIsNative } from "@/hooks/useIsNative";
 import { motion, AnimatePresence } from "@/lib/motion";
@@ -179,7 +180,7 @@ type ModalType =
   | { kind: "tournament-team"; id: string }
   | { kind: "anti-meta"; id: string };
 
-export default function MetaPage() {
+function MetaPageInner() {
   const { t, tp, tm, ta, ti, tn, ts, tt, tty, tad } = useI18n();
   const [activeTab, setActiveTabRaw] = useState<ActiveTab>("overview");
   const isNative = useIsNative();
@@ -4615,6 +4616,14 @@ function TournamentTeamCard({ team, expanded, onToggle }: { team: TournamentTeam
         )}
       </AnimatePresence>
     </motion.div>
+  );
+}
+
+export default function MetaPage() {
+  return (
+    <ErrorBoundary label="Meta">
+      <MetaPageInner />
+    </ErrorBoundary>
   );
 }
 

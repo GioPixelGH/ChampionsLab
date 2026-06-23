@@ -1,5 +1,6 @@
 -- Champions Lab — Supabase Schema
 -- Run this in the Supabase SQL Editor to set up the database
+-- Last updated: 2026-06-23 — added shared_teams for anonymous team sharing
 
 -- Enable UUID extension
 create extension if not exists "uuid-ossp";
@@ -133,3 +134,64 @@ create index idx_pokemon_seed_season on public.pokemon_seed(season);
 create index idx_pokemon_seed_dex on public.pokemon_seed(dex_number);
 create index idx_usage_stats_season on public.usage_stats(season);
 create index idx_meta_teams_season on public.meta_teams(season);
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Anonymous team sharing (no auth required)
+-- Teams are public by default; expire after 90 days.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+create table public.shared_teams (
+  id        text        primary key,               -- 6-char random ID (client-generated)
+  data      jsonb       not null,                  -- serialised team payload
+  views     integer     not null default 0,        -- view counter
+  created_at timestamptz not null default now(),
+  expires_at timestamptz not null default (now() + interval '90 days')
+);
+
+-- Anyone can read and insert shared teams (no auth needed)
+alter table public.shared_teams enable row level security;
+
+create policy "Anyone can read shared teams"
+  on public.shared_teams for select using (true);
+
+create policy "Anyone can insert shared teams"
+  on public.shared_teams for insert with check (true);
+
+-- Bump view counter (no auth needed)
+create policy "Anyone can update view count"
+  on public.shared_teams for update
+  using (true)
+  with check (true);
+
+-- Auto-cleanup: remove expired rows (call via pg_cron or a scheduled edge function)
+create index idx_shared_teams_expires on public.shared_teams(expires_at);
+
+-- Function to increment view count safely
+create or replace function public.increment_shared_team_views(team_id text)
+returns void language sql security definer as $$
+  update public.shared_teams set views = views + 1 where id = team_id;
+$$;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Push Notifications (anonymous — no auth required)
+-- Subscriptions are anonymous; only the server-side service role can read them.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+create table public.push_subscriptions (
+  id        uuid        primary key default uuid_generate_v4(),
+  subscription jsonb    not null,                -- Web Push subscription object
+  created_at timestamptz not null default now()
+);
+
+-- Fast deduplication by endpoint
+create index idx_push_subscriptions_endpoint
+  on public.push_subscriptions ((subscription->>'endpoint'));
+
+alter table public.push_subscriptions enable row level security;
+
+-- Anyone can subscribe (insert via anon key from browser)
+create policy "Anyone can subscribe"
+  on public.push_subscriptions for insert with check (true);
+
+-- Only the service role (server) can read or delete subscriptions
+-- (RLS does not apply to the service role key used in API routes)

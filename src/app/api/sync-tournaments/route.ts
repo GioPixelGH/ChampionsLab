@@ -1,10 +1,17 @@
 export const dynamic = "force-dynamic";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { spawn } from "child_process";
 import * as path from "path";
 import * as fs from "fs";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  // Rate limit: max 1 spawn per 5 minutes per origin
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (!checkRateLimit(`sync-tournaments:${ip}`, { limit: 1, windowMs: 5 * 60 * 1000 })) {
+    return NextResponse.json({ error: "Too many requests — wait 5 minutes" }, { status: 429 });
+  }
+
   // Optional secret guard (set SYNC_SECRET in .env.local to enable)
   const secret = process.env.SYNC_SECRET;
   if (secret) {

@@ -7,7 +7,7 @@ import "@fontsource-variable/inter";
 import "@fontsource-variable/jetbrains-mono";
 import "@fontsource/sora/600.css";
 import "@fontsource/sora/700.css";
-import { Navbar } from "@/components/Navbar";
+import { Navbar } from "@/components/navbar";
 import { NativeUiWrapper } from "@/components/native-ui-wrapper";
 import { ThemeInit } from "@/components/theme-init";
 import { MobileNavInit } from "@/components/mobile-nav-init";
@@ -88,18 +88,33 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-NVYVM8YJZN"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-NVYVM8YJZN');
-          `}
-        </Script>
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
+              `}
+            </Script>
+          </>
+        )}
+        {process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && (
+          <Script id="sw-registration" strategy="afterInteractive">
+            {`
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function(err) {
+                  console.warn('[sw] Registration failed:', err);
+                });
+              }
+            `}
+          </Script>
+        )}
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <I18nProvider initialLocale={initialLocale}>

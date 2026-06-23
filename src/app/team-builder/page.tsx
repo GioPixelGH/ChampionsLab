@@ -1,5 +1,6 @@
 "use client";
 
+import { ErrorBoundary } from "@/components/error-boundary";
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "@/lib/motion";
 import Image from "next/image";
@@ -133,7 +134,7 @@ const ALL_TYPES: PokemonType[] = [
   "rock", "ghost", "dragon", "dark", "steel", "fairy",
 ];
 
-export default function TeamBuilderPage() {
+function TeamBuilderPageInner() {
   const { locale: _locale, t, tp, tm, ta, ti, tn, ts, tt, tad, tid, tmd } = useI18n();
   const isNative = useIsNative();
 
@@ -1439,6 +1440,11 @@ export default function TeamBuilderPage() {
     const candidate = name.toLowerCase();
     const pName = pokemon.name.toLowerCase();
     if (pName === candidate || pokemon.showdownName?.toLowerCase() === candidate) return true;
+    // Normalize hyphens ↔ spaces for form variants: "Urshifu-Rapid-Strike" ↔ "Urshifu Rapid Strike"
+    const candidateSpaced = candidate.replace(/-/g, " ");
+    const candidateHyphen = candidate.replace(/ /g, "-");
+    if (pName === candidateSpaced || pName === candidateHyphen) return true;
+    if (pokemon.showdownName?.toLowerCase() === candidateSpaced || pokemon.showdownName?.toLowerCase() === candidateHyphen) return true;
     // Showdown regional forms: "Samurott-Hisui" → "Hisuian Samurott", "Ninetales-Alola" → "Alolan Ninetales", etc.
     const regionalSuffixes: Record<string, string> = { hisui: "Hisuian", alola: "Alolan", galar: "Galarian", paldea: "Paldean" };
     const dashIdx = candidate.lastIndexOf("-");
@@ -1457,9 +1463,12 @@ export default function TeamBuilderPage() {
 
   // Import from Pokepaste format
   const importPokepaste = (text: string) => {
+    try {
     trackEvent("import_pokepaste", "team_builder");
     const isMegaItem = (item: string) => item.endsWith("ite") || item.endsWith("ite X") || item.endsWith("ite Y") || item.endsWith("ite Z");
-    const blocks = text.trim().split(/\n\n+/).filter(Boolean);
+    // Strip BOM and normalize line endings
+    const cleanText = text.replace(/^﻿/, "").trim();
+    const blocks = cleanText.split(/\n\n+/).filter(b => b.trim().length > 0);
     if (blocks.length === 0) { setImportError(t('teamBuilder.noPokemonInPaste')); return; }
     const newSlots: TeamSlot[] = [];
     for (const block of blocks.slice(0, 6)) {
@@ -1496,13 +1505,15 @@ export default function TeamBuilderPage() {
       let nature: string | undefined;
       const moves: string[] = [];
       const sp: StatPoints = { hp: 0, attack: 0, defense: 0, spAtk: 0, spDef: 0, speed: 0 };
+      // Track which stats have an explicit 0 IV (trick room Speed, etc.) — force SP to 0 after conversion
+      const ivZeroStats = new Set<keyof StatPoints>();
       let isNativeSP = false;
       for (let i = 1; i < lines.length; i++) {
         const line = lines[i];
         if (line.startsWith("Ability:")) {
           ability = line.replace("Ability:", "").trim();
-        } else if (line.endsWith("Nature")) {
-          nature = line.replace("Nature", "").trim();
+        } else if (line.match(/\bNature$/i)) {
+          nature = line.replace(/\s*Nature$/i, "").trim();
         } else if (line.startsWith("- ")) {
           moves.push(line.slice(2).trim());
         } else if (line.startsWith("EVs:") || line.startsWith("Stat Points:")) {
@@ -1527,10 +1538,27 @@ export default function TeamBuilderPage() {
           const maxVal = Math.max(sp.hp, sp.attack, sp.defense, sp.spAtk, sp.spDef, sp.speed);
           const totalVal = sp.hp + sp.attack + sp.defense + sp.spAtk + sp.spDef + sp.speed;
           if ((isStatPoints && maxVal <= MAX_PER_STAT) || (!isStatPoints && maxVal <= MAX_PER_STAT && totalVal <= MAX_TOTAL_POINTS)) isNativeSP = true;
+        } else if (line.startsWith("IVs:")) {
+          // "IVs: 0 Atk" / "IVs: 0 Spe" → force SP to 0 for that stat after EV conversion
+          const ivParts = line.replace(/^IVs:/, "").trim().split("/").map(s => s.trim());
+          for (const part of ivParts) {
+            const m = part.match(/^0\s+(HP|Atk|Def|SpA|SpD|Spe)$/i);
+            if (m) {
+              const stat = m[1].toLowerCase();
+              if (stat === "hp") ivZeroStats.add("hp");
+              else if (stat === "atk") ivZeroStats.add("attack");
+              else if (stat === "def") ivZeroStats.add("defense");
+              else if (stat === "spa") ivZeroStats.add("spAtk");
+              else if (stat === "spd") ivZeroStats.add("spDef");
+              else if (stat === "spe") ivZeroStats.add("speed");
+            }
+          }
         }
       }
       // Convert Showdown EVs to our stat point system (skip if already native SP)
       const converted = isNativeSP ? sp : evsToStatPoints(sp);
+      // Apply 0-IV overrides: trick room Speed sets use 0 Spe IVs → force SP to 0
+      for (const stat of ivZeroStats) { converted[stat] = 0; }
       // Auto-detect mega from item or Showdown suffix
       let isMega = false;
       let megaFormIndex = 0;
@@ -1592,6 +1620,10 @@ export default function TeamBuilderPage() {
     setShowImport(false);
     setImportText("");
     setImportError("");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setImportError(`Import error: ${msg}`);
+    }
   };
 
   // Export to Pokepaste format
@@ -4398,5 +4430,13 @@ export default function TeamBuilderPage() {
 
 
     </div>
+  );
+}
+
+export default function TeamBuilderPage() {
+  return (
+    <ErrorBoundary label="Team Builder">
+      <TeamBuilderPageInner />
+    </ErrorBoundary>
   );
 }

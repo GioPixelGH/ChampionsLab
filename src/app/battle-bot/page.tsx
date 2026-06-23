@@ -1,6 +1,8 @@
 "use client";
 
+import { ErrorBoundary } from "@/components/error-boundary";
 import { useState, useEffect, useCallback, useRef } from "react";
+
 import { motion, AnimatePresence } from "@/lib/motion";
 import Image from "next/image";
 import { spriteUrl } from "@/lib/sprite-url";
@@ -429,7 +431,7 @@ function runFullSimulation(
 
 type MainTab = "battle-engine" | "damage-calc" | "team-tester";
 
-export default function BattleBotPage() {
+function BattleBotPageInner() {
   const { t, tp, tm, ta, ti, tn, ts, tt, tad, tid, tmd, locale } = useI18n();
 
   // Translate engine-generated weakness/tip strings at display time
@@ -2842,5 +2844,13 @@ export default function BattleBotPage() {
       </>
       )}
     </div>
+  );
+}
+
+export default function BattleBotPage() {
+  return (
+    <ErrorBoundary label="Battle Bot">
+      <BattleBotPageInner />
+    </ErrorBoundary>
   );
 }
