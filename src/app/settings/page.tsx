@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Settings,
   Sun,
@@ -20,10 +20,16 @@ import { cn } from "@/lib/utils";
 import {
   getSettings,
   updateSettings,
-  exportAllData,
+  exportSelectedData,
   importAllData,
+  mergeImportData,
   countExportRoster,
+  getDataCounts,
+  analyzeImport,
   type ExportData,
+  type ExportOptions,
+  type ImportAnalysis,
+  type ImportStats,
 } from "@/lib/storage";
 import { SEASONS } from "@/lib/pokemon-data";
 import { useI18n, type Locale } from "@/lib/i18n";
@@ -70,7 +76,26 @@ export default function SettingsPage() {
   });
   const [status, setStatus] = useState<{ type: "success" | "error"; msg: string } | null>(null);
   const [confirmImport, setConfirmImport] = useState<ExportData | null>(null);
+  const [importAnalysis, setImportAnalysis] = useState<ImportAnalysis | null>(null);
+  const [importStats, setImportStats] = useState<ImportStats | null>(null);
   const [clearConfirm, setClearConfirm] = useState(false);
+  const [exportOpts, setExportOpts] = useState<ExportOptions>({
+    teams: true,
+    matchJournal: true,
+    myRoster: true,
+    simResults: false,
+    settings: false,
+  });
+  const [dataCounts, setDataCounts] = useState<{ teams: number; matches: number; roster: number; simResults: number }>({
+    teams: 0,
+    matches: 0,
+    roster: 0,
+    simResults: 0,
+  });
+
+  useEffect(() => {
+    setDataCounts(getDataCounts());
+  }, []);
 
   function showStatus(type: "success" | "error", msg: string) {
     setStatus({ type, msg });
@@ -91,7 +116,7 @@ export default function SettingsPage() {
   }
 
   function handleExport() {
-    const data = exportAllData();
+    const data = exportSelectedData(exportOpts);
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -99,10 +124,16 @@ export default function SettingsPage() {
     a.download = `championslab-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    showStatus(
-      "success",
-      `${data.teams.length} team · ${data.matchJournal.length} partite · ${countExportRoster(data.myRoster)} Pokémon esportati`
-    );
+    const parts: string[] = [];
+    if (exportOpts.teams && data.teams.length > 0) parts.push(`${data.teams.length} team`);
+    if (exportOpts.matchJournal && data.matchJournal.length > 0) parts.push(`${data.matchJournal.length} partite`);
+    if (exportOpts.myRoster) {
+      const rCount = countExportRoster(data.myRoster);
+      if (rCount > 0) parts.push(`${rCount} Pokémon`);
+    }
+    if (exportOpts.simResults && data.simResults.length > 0) parts.push(`${data.simResults.length} sim`);
+    if (exportOpts.settings) parts.push("impostazioni");
+    showStatus("success", parts.length > 0 ? `${parts.join(" · ")} esportati` : "File esportato");
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -114,6 +145,8 @@ export default function SettingsPage() {
         const data = JSON.parse(ev.target?.result as string) as ExportData;
         if (data.version !== 1) throw new Error("Versione non supportata");
         setConfirmImport(data);
+        setImportAnalysis(analyzeImport(data));
+        setImportStats(null);
       } catch (err) {
         showStatus("error", err instanceof Error ? err.message : "File non valido o corrotto");
       }
@@ -122,7 +155,20 @@ export default function SettingsPage() {
     e.target.value = "";
   }
 
-  function handleConfirmImport() {
+  function handleMergeImport() {
+    if (!confirmImport) return;
+    try {
+      const stats = mergeImportData(confirmImport);
+      setImportStats(stats);
+      setConfirmImport(null);
+      setImportAnalysis(null);
+      setDataCounts(getDataCounts());
+    } catch (err) {
+      showStatus("error", err instanceof Error ? err.message : "Errore durante l'importazione");
+    }
+  }
+
+  function handleReplaceImport() {
     if (!confirmImport) return;
     try {
       importAllData(confirmImport);
@@ -131,6 +177,8 @@ export default function SettingsPage() {
         `${confirmImport.teams.length} team · ${confirmImport.matchJournal.length} partite · ${countExportRoster(confirmImport.myRoster)} Pokémon importati`
       );
       setConfirmImport(null);
+      setImportAnalysis(null);
+      setDataCounts(getDataCounts());
     } catch (err) {
       showStatus("error", err instanceof Error ? err.message : "Errore durante l'importazione");
     }
@@ -313,7 +361,7 @@ export default function SettingsPage() {
         {/* ── Backup & Data ─────────────────────────────────────────────── */}
         <section className="glass rounded-2xl p-5 border border-gray-200/60 dark:border-white/10">
           <div className="flex items-center gap-2.5 mb-4">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center shrink-0">
+            <div className="w-7 h-7 rounded-lg bg-linear-to-br from-violet-400 to-purple-500 flex items-center justify-center shrink-0">
               <HardDrive className="w-3.5 h-3.5 text-white" />
             </div>
             <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
@@ -324,32 +372,170 @@ export default function SettingsPage() {
             I tuoi dati sono salvati localmente nel browser. Esporta un backup per non perderli.
           </p>
 
-          {confirmImport && (
-            <div className="mb-4 p-4 rounded-xl border-2 border-amber-300 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-500/10">
-              <div className="flex items-start gap-2 mb-3">
-                <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
-                <div>
-                  <p className="text-sm font-bold text-amber-700 dark:text-amber-400">
-                    Conferma importazione
-                  </p>
-                  <p className="text-xs text-amber-600 dark:text-amber-300 mt-0.5">
-                    {confirmImport.teams.length} team · {confirmImport.matchJournal.length} partite ·{" "}
-                    {countExportRoster(confirmImport.myRoster)} Pokémon
-                  </p>
-                  <p className="text-xs text-amber-600 dark:text-amber-300 mt-1">
-                    I dati attuali verranno <strong>sostituiti</strong>. Sei sicuro?
-                  </p>
-                </div>
+          {/* ── Export: selection rows ── */}
+          <div className="mb-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+              Esporta
+            </p>
+            <div className="rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden divide-y divide-gray-100 dark:divide-white/[0.06]">
+              {([
+                {
+                  key: "teams" as const,
+                  label: "Team Builder",
+                  count: dataCounts.teams,
+                  unit: "team",
+                  alwaysShow: false,
+                },
+                {
+                  key: "matchJournal" as const,
+                  label: "Match Journal",
+                  count: dataCounts.matches,
+                  unit: dataCounts.matches === 1 ? "partita" : "partite",
+                  alwaysShow: false,
+                },
+                {
+                  key: "myRoster" as const,
+                  label: "Roster Pokémon",
+                  count: dataCounts.roster,
+                  unit: "Pokémon",
+                  alwaysShow: true,
+                },
+                {
+                  key: "simResults" as const,
+                  label: "Risultati sim.",
+                  count: dataCounts.simResults,
+                  unit: dataCounts.simResults === 1 ? "risultato" : "risultati",
+                  alwaysShow: false,
+                },
+              ])
+                .filter(({ count, alwaysShow }) => alwaysShow || count > 0)
+                .map(({ key, label, count, unit }) => (
+                  <label
+                    key={key}
+                    className="flex items-center gap-3 px-3 py-2.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={exportOpts[key]}
+                      onChange={(e) =>
+                        setExportOpts((o) => ({ ...o, [key]: e.target.checked }))
+                      }
+                      className="w-4 h-4 rounded accent-violet-500 shrink-0"
+                    />
+                    <span className="text-sm font-medium flex-1">{label}</span>
+                    {count > 0 && (
+                      <span className="text-xs text-muted-foreground tabular-nums">
+                        {count} {unit}
+                      </span>
+                    )}
+                  </label>
+                ))}
+              {/* Settings row — always shown */}
+              <label className="flex items-center gap-3 px-3 py-2.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors">
+                <input
+                  type="checkbox"
+                  checked={exportOpts.settings}
+                  onChange={(e) =>
+                    setExportOpts((o) => ({ ...o, settings: e.target.checked }))
+                  }
+                  className="w-4 h-4 rounded accent-violet-500 shrink-0"
+                />
+                <span className="text-sm font-medium flex-1">Impostazioni</span>
+              </label>
+            </div>
+            <button
+              onClick={handleExport}
+              disabled={
+                !Object.values(exportOpts).some(Boolean) ||
+                (exportOpts.teams && dataCounts.teams === 0 &&
+                  exportOpts.matchJournal && dataCounts.matches === 0 &&
+                  exportOpts.myRoster && dataCounts.roster === 0 &&
+                  exportOpts.simResults && dataCounts.simResults === 0 &&
+                  !exportOpts.settings)
+              }
+              className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-violet-500 hover:bg-violet-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-bold transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              Esporta selezionati
+            </button>
+          </div>
+
+          {/* ── Import analysis dialog ── */}
+          {confirmImport && importAnalysis && (
+            <div className="mb-4 p-4 rounded-xl border-2 border-blue-300 dark:border-blue-500/40 bg-blue-50 dark:bg-blue-500/10">
+              <p className="text-sm font-bold text-blue-700 dark:text-blue-300 mb-3">
+                Analisi file importato
+              </p>
+              <div className="space-y-1.5 mb-4">
+                {importAnalysis.teams.total > 0 && (
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs text-muted-foreground w-28 shrink-0">Team Builder</span>
+                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                      {importAnalysis.teams.new} nuovi
+                    </span>
+                    {importAnalysis.teams.duplicate > 0 && (
+                      <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">
+                        {importAnalysis.teams.duplicate} già presenti
+                      </span>
+                    )}
+                  </div>
+                )}
+                {importAnalysis.matches.total > 0 && (
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs text-muted-foreground w-28 shrink-0">Match Journal</span>
+                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                      {importAnalysis.matches.new} nuovi
+                    </span>
+                    {importAnalysis.matches.duplicate > 0 && (
+                      <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">
+                        {importAnalysis.matches.duplicate} già presenti
+                      </span>
+                    )}
+                  </div>
+                )}
+                {importAnalysis.roster.total > 0 && (
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs text-muted-foreground w-28 shrink-0">Roster Pokémon</span>
+                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                      {importAnalysis.roster.total} Pokémon
+                    </span>
+                  </div>
+                )}
+                {importAnalysis.simResults.total > 0 && (
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs text-muted-foreground w-28 shrink-0">Risultati sim.</span>
+                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                      {importAnalysis.simResults.new} nuovi
+                    </span>
+                    {importAnalysis.simResults.duplicate > 0 && (
+                      <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">
+                        {importAnalysis.simResults.duplicate} già presenti
+                      </span>
+                    )}
+                  </div>
+                )}
+                {importAnalysis.hasSettings && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground w-28 shrink-0">Impostazioni</span>
+                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">presenti</span>
+                  </div>
+                )}
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <button
-                  onClick={handleConfirmImport}
-                  className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-colors"
+                  onClick={handleMergeImport}
+                  className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-colors"
                 >
-                  Importa
+                  Unisci
                 </button>
                 <button
-                  onClick={() => setConfirmImport(null)}
+                  onClick={handleReplaceImport}
+                  className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-colors"
+                >
+                  Sostituisci tutto
+                </button>
+                <button
+                  onClick={() => { setConfirmImport(null); setImportAnalysis(null); }}
                   className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/10 text-xs font-medium hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                 >
                   Annulla
@@ -358,31 +544,58 @@ export default function SettingsPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <button
-              onClick={handleExport}
-              className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-white/[0.02] hover:border-violet-300 dark:hover:border-violet-500/40 hover:bg-violet-50/50 dark:hover:bg-violet-500/5 transition-all text-left group"
-            >
-              <div className="w-9 h-9 rounded-xl bg-violet-100 dark:bg-violet-500/20 flex items-center justify-center shrink-0 group-hover:bg-violet-200 dark:group-hover:bg-violet-500/30 transition-colors">
-                <Download className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+          {/* ── Merge success stats ── */}
+          {importStats && (
+            <div className="mb-4 p-4 rounded-xl border border-emerald-200 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-500/10">
+              <div className="flex items-center gap-2 mb-2">
+                <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">
+                  Importazione completata
+                </p>
               </div>
-              <div>
-                <p className="text-sm font-bold">Esporta backup</p>
-                <p className="text-[11px] text-muted-foreground">Scarica file JSON</p>
+              <div className="space-y-1">
+                {importStats.teams.added > 0 && (
+                  <p className="text-xs text-emerald-700 dark:text-emerald-300">
+                    +{importStats.teams.added} team
+                    {importStats.teams.skipped > 0 && (
+                      <span className="text-amber-600 dark:text-amber-400"> · {importStats.teams.skipped} saltati</span>
+                    )}
+                  </p>
+                )}
+                {importStats.matches.added > 0 && (
+                  <p className="text-xs text-emerald-700 dark:text-emerald-300">
+                    +{importStats.matches.added} partite
+                    {importStats.matches.skipped > 0 && (
+                      <span className="text-amber-600 dark:text-amber-400"> · {importStats.matches.skipped} saltate</span>
+                    )}
+                  </p>
+                )}
+                {importStats.roster > 0 && (
+                  <p className="text-xs text-emerald-700 dark:text-emerald-300">
+                    {importStats.roster} Pokémon nel roster
+                  </p>
+                )}
+                {importStats.simResults.added > 0 && (
+                  <p className="text-xs text-emerald-700 dark:text-emerald-300">
+                    +{importStats.simResults.added} risultati sim.
+                  </p>
+                )}
               </div>
-            </button>
+              <button
+                onClick={() => setImportStats(null)}
+                className="mt-2 text-[11px] text-emerald-600 dark:text-emerald-400 underline"
+              >
+                Chiudi
+              </button>
+            </div>
+          )}
 
-            <label className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-white/[0.02] hover:border-blue-300 dark:hover:border-blue-500/40 hover:bg-blue-50/50 dark:hover:bg-blue-500/5 transition-all cursor-pointer text-left group">
-              <div className="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center shrink-0 group-hover:bg-blue-200 dark:group-hover:bg-blue-500/30 transition-colors">
-                <Upload className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <p className="text-sm font-bold">Importa backup</p>
-                <p className="text-[11px] text-muted-foreground">Carica file JSON</p>
-              </div>
-              <input type="file" accept=".json" className="hidden" onChange={handleFileChange} />
-            </label>
-          </div>
+          {/* ── Import button ── */}
+          <label className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-white/2 hover:border-blue-300 dark:hover:border-blue-500/40 hover:bg-blue-50/50 dark:hover:bg-blue-500/5 transition-all cursor-pointer text-sm font-bold">
+            <Upload className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <span>Importa backup</span>
+            <input type="file" accept=".json" className="hidden" onChange={handleFileChange} />
+          </label>
         </section>
 
         {/* ── Danger Zone ──────────────────────────────────────────────── */}

@@ -75,8 +75,8 @@ export interface MetaResponse {
 const LIMITLESS_API = "https://play.limitlesstcg.com/api";
 const REVALIDATE_SECONDS = 6 * 60 * 60; // 6 h
 
-// M-B shares the Limitless format with M-A; date boundary distinguishes them.
-const MB_CUTOFF = new Date("2026-06-17");
+// M-B date boundary: tournaments on or after July 17 belong to regulation M-B.
+const MB_CUTOFF = new Date("2026-07-17");
 
 // ---------------------------------------------------------------------------
 // Handler
@@ -104,8 +104,8 @@ export async function GET(req: Request) {
     ? 300                              // must reach back into target month
     : Math.min(limit * 2, 100);       // rolling window: small pool is enough
 
-  // M-B doesn't have its own Limitless format — reuse M-A and filter by date.
-  const limitlessFormat = regulation === "M-B" ? "M-A" : regulation;
+  // For M-B use format=all so tournaments are fetched regardless of their Limitless tag; date filter distinguishes them.
+  const limitlessFormat = regulation === "M-B" ? "all" : regulation;
   const listUrl = `${LIMITLESS_API}/tournaments?game=VGC&format=${encodeURIComponent(limitlessFormat)}&limit=${fetchLimit}${timeQuery}`;
 
   let tournaments: LimitlessTournament[] = [];

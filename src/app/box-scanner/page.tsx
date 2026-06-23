@@ -205,7 +205,7 @@ export default function BoxScannerPage() {
   const isSaved = scanState === "saved";
 
   return (
-    <main className="min-h-screen pt-16 pb-20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#0a1128] dark:to-[#0d1635]">
+    <div className="pt-16 pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
         {/* Page header */}
@@ -535,6 +535,6 @@ export default function BoxScannerPage() {
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }

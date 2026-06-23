@@ -399,6 +399,127 @@ export function countExportRoster(myRoster: ExportData["myRoster"] | number[]): 
   return Object.values(myRoster).reduce((s, a) => s + a.length, 0);
 }
 
+// ── Selective Export & Smart Merge ──────────────────────────────────────────
+
+export interface ExportOptions {
+  teams: boolean;
+  matchJournal: boolean;
+  myRoster: boolean;
+  simResults: boolean;
+  settings: boolean;
+}
+
+export interface ImportAnalysis {
+  teams: { new: number; duplicate: number; total: number };
+  matches: { new: number; duplicate: number; total: number };
+  roster: { total: number };
+  simResults: { new: number; duplicate: number; total: number };
+  hasSettings: boolean;
+}
+
+export interface ImportStats {
+  teams: { added: number; skipped: number };
+  matches: { added: number; skipped: number };
+  roster: number;
+  simResults: { added: number; skipped: number };
+}
+
+export function getDataCounts(): { teams: number; matches: number; roster: number; simResults: number } {
+  // Trigger legacy migration for season 1 before reading all rosters
+  getStoredRosterIds(1);
+  return {
+    teams: getSavedTeams().length,
+    matches: getMatchRecords().length,
+    roster: countExportRoster(getAllRosters()),
+    simResults: getSavedSimResults().length,
+  };
+}
+
+export function exportSelectedData(options: ExportOptions): ExportData {
+  return {
+    version: 1,
+    exportedAt: Date.now(),
+    teams: options.teams ? getSavedTeams() : [],
+    matchJournal: options.matchJournal ? getMatchRecords() : [],
+    myRoster: options.myRoster ? getAllRosters() : {},
+    simResults: options.simResults ? getSavedSimResults() : [],
+    settings: options.settings ? getSettings() : DEFAULT_SETTINGS,
+    lastTeam: options.teams ? getLastTeam() : null,
+  };
+}
+
+export function analyzeImport(data: ExportData): ImportAnalysis {
+  const existingTeamIds = new Set(getSavedTeams().map((t) => t.id));
+  const existingMatchIds = new Set(getMatchRecords().map((m) => m.id));
+  const existingSimIds = new Set(getSavedSimResults().map((s) => s.id));
+  const teams = data.teams ?? [];
+  const matches = data.matchJournal ?? [];
+  const sims = data.simResults ?? [];
+  return {
+    teams: {
+      new: teams.filter((t) => !existingTeamIds.has(t.id)).length,
+      duplicate: teams.filter((t) => existingTeamIds.has(t.id)).length,
+      total: teams.length,
+    },
+    matches: {
+      new: matches.filter((m) => !existingMatchIds.has(m.id)).length,
+      duplicate: matches.filter((m) => existingMatchIds.has(m.id)).length,
+      total: matches.length,
+    },
+    roster: { total: countExportRoster(data.myRoster) },
+    simResults: {
+      new: sims.filter((s) => !existingSimIds.has(s.id)).length,
+      duplicate: sims.filter((s) => existingSimIds.has(s.id)).length,
+      total: sims.length,
+    },
+    hasSettings: Object.keys(data.settings ?? {}).length > 0,
+  };
+}
+
+export function mergeImportData(data: ExportData): ImportStats {
+  // Teams: add only those whose id isn't already present
+  const existingTeams = getSavedTeams();
+  const existingTeamIds = new Set(existingTeams.map((t) => t.id));
+  const newTeams = (data.teams ?? []).filter((t) => !existingTeamIds.has(t.id));
+  writeJSON(KEYS.SAVED_TEAMS, [...existingTeams, ...newTeams]);
+
+  // Match journal: add only new records (newest first)
+  const existingMatches = getMatchRecords();
+  const existingMatchIds = new Set(existingMatches.map((m) => m.id));
+  const newMatches = (data.matchJournal ?? []).filter((m) => !existingMatchIds.has(m.id));
+  writeJSON(KEYS.MATCH_JOURNAL, [...newMatches, ...existingMatches]);
+
+  // Roster: union per season
+  const rawRoster = data.myRoster as unknown;
+  if (Array.isArray(rawRoster)) {
+    const existing = new Set(getStoredRosterIds(1));
+    (rawRoster as number[]).forEach((id) => existing.add(id));
+    writeJSON(getRosterKey(1), Array.from(existing));
+  } else if (rawRoster && typeof rawRoster === "object") {
+    for (const [sid, ids] of Object.entries(rawRoster as Record<string, number[]>)) {
+      const seasonId = Number(sid);
+      const existing = new Set(getStoredRosterIds(seasonId));
+      (ids as number[]).forEach((id) => existing.add(id));
+      writeJSON(getRosterKey(seasonId), Array.from(existing));
+    }
+  }
+
+  // Sim results: add non-duplicate ids
+  const existingSims = getSavedSimResults();
+  const existingSimIds = new Set(existingSims.map((s) => s.id));
+  const newSims = (data.simResults ?? []).filter((s) => !existingSimIds.has(s.id));
+  writeJSON(KEYS.SIM_RESULTS, [...existingSims, ...newSims]);
+
+  // Settings are NOT merged — user's current settings take priority in merge mode
+
+  return {
+    teams: { added: newTeams.length, skipped: (data.teams ?? []).length - newTeams.length },
+    matches: { added: newMatches.length, skipped: (data.matchJournal ?? []).length - newMatches.length },
+    roster: countExportRoster(data.myRoster),
+    simResults: { added: newSims.length, skipped: (data.simResults ?? []).length - newSims.length },
+  };
+}
+
 // ── Box Scanner Layout ───────────────────────────────────────────────────
 
 export interface StoredBoxLayout {

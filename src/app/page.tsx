@@ -116,7 +116,8 @@ export default function HomePage() {
   const [selectedPokemon, setSelectedPokemon] = useState<ChampionsPokemon | null>(null);
   const [liveMeta, setLiveMeta] = useState<Map<number, MetaEntry>>(new Map());
   const [metaLoading, setMetaLoading] = useState(false);
-  const [tierMap, setTierMap] = useState<Map<number, string>>(() => computeTierMap(defaultRegulation));
+  // Start empty so SSR and initial client render match; useEffect populates from localStorage after hydration
+  const [tierMap, setTierMap] = useState<Map<number, string>>(new Map());
   const { t, ts, tp, tm, ta } = useI18n();
   const isNative = useIsNative();
 

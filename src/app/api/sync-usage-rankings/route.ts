@@ -9,8 +9,8 @@ const MIN_TEAMS = 1;   // skip tournaments with no team decklists
 const MAX_TOURNAMENTS = 25;
 const RATE_MS = 800; // faster than the offline script; user-triggered
 
-// M-B shares the Limitless format with M-A; date boundary distinguishes them.
-const MB_CUTOFF = new Date("2026-06-17");
+// M-B date boundary: tournaments on or after July 17 belong to regulation M-B.
+const MB_CUTOFF = new Date("2026-07-17");
 
 // ── Slug resolution (mirrors scripts/sync-limitless-tournaments.ts) ───────────
 
@@ -146,8 +146,8 @@ export async function POST(req: NextRequest) {
         //    no usable data — newer valid ones may still exist above them).
         send({ type: "progress", msg: `Recupero lista tornei ${regulationId}…` });
 
-        // M-B doesn't have its own Limitless format — reuse M-A and filter by date.
-        const limitlessFormat = regulationId === "M-B" ? "M-A" : regulationId;
+        // For M-B use format=all so tournaments are fetched regardless of their Limitless tag; date filter distinguishes them.
+        const limitlessFormat = regulationId === "M-B" ? "all" : regulationId;
 
         const newCandidates: LimitlessTournament[] = [];
         let page = 1;

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { useIsNative } from "@/hooks/useIsNative";
 import { useI18n } from "@/lib/i18n";
 import { useState } from "react";
-import { BookOpen, CalendarDays, GraduationCap, ScanLine, Share2, Shuffle, BarChart2, Trophy } from "lucide-react";
+import { BookOpen, CalendarDays, GraduationCap, ScanLine } from "lucide-react";
 
 const MAIN_TABS = [
   { href: "/", i18nKey: "nav.pokedex", icon: Grid3X3 },
@@ -21,10 +21,6 @@ const MORE_ITEMS = [
   { href: "/box-scanner", i18nKey: "nav.boxScanner", icon: ScanLine },
   { href: "/events", i18nKey: "nav.tournaments", icon: CalendarDays },
   { href: "/learn", i18nKey: "nav.pokeSchool", icon: GraduationCap },
-  { href: "/gallery", i18nKey: "nav.gallery", icon: Share2 },
-  { href: "/draft", i18nKey: "nav.draft", icon: Shuffle },
-  { href: "/compare", i18nKey: "nav.compare", icon: BarChart2 },
-  { href: "/bracket", i18nKey: "nav.bracket", icon: Trophy },
 ];
 
 export function BottomTabBar() {
