@@ -12,6 +12,13 @@ interface ChangelogEntry {
 
   const SHARED_ENTRIES: ChangelogEntry[] = [
     {
+      date: "24/06/2026",
+      items: [
+        "🤖 Battle bot AI overhaul: Rage Powder / Follow Me now checks for opponent spread moves (Heat Wave, Eruption, etc.), Mega Evolutions are protected more aggressively, and Contrary turns self-drop moves like Close Combat into real advantages",
+        "🧩 Team Builder now detects Contrary archetypes and highlights Contrary abusers, plus a new engine-generated Contrary Mega Staraptor template",
+      ],
+    },
+    {
       date: "18/06/2026",
       items: [
         "🔧 Fixed Mega Raichu X/Y item auto-equip in Team Builder — selecting Y now correctly equips Raichunite Y instead of X; corrected Raichu mega abilities in usage sets to Electric Surge / No Guard",
