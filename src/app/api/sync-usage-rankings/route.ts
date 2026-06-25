@@ -9,8 +9,8 @@ const MIN_TEAMS = 1;   // skip tournaments with no team decklists
 const MAX_TOURNAMENTS = 25;
 const RATE_MS = 800; // faster than the offline script; user-triggered
 
-// M-B date boundary: tournaments on or after July 17 belong to regulation M-B.
-const MB_CUTOFF = new Date("2026-07-17");
+// M-B date boundary: tournaments on or after June 17 belong to regulation M-B.
+const MB_CUTOFF = new Date("2026-06-17");
 
 // ── Slug resolution (mirrors scripts/sync-limitless-tournaments.ts) ───────────
 
@@ -105,7 +105,7 @@ async function fetchLimitless<T>(url: string): Promise<T> {
 export async function POST(req: NextRequest) {
   // Rate limit: max 1 sync per 5 minutes per origin
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-  if (!checkRateLimit(`sync-usage:${ip}`, { limit: 1, windowMs: 5 * 60 * 1000 })) {
+  if (!checkRateLimit(`sync-usage:${ip}`, { limit: 3, windowMs: 5 * 60 * 1000 })) {
     return NextResponse.json({ error: "Too many requests — wait 5 minutes" }, { status: 429 });
   }
 

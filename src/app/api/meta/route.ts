@@ -75,8 +75,8 @@ export interface MetaResponse {
 const LIMITLESS_API = "https://play.limitlesstcg.com/api";
 const REVALIDATE_SECONDS = 6 * 60 * 60; // 6 h
 
-// M-B date boundary: tournaments on or after July 17 belong to regulation M-B.
-const MB_CUTOFF = new Date("2026-07-17");
+// M-B date boundary: tournaments on or after June 17 belong to regulation M-B.
+const MB_CUTOFF = new Date("2026-06-17");
 
 // ---------------------------------------------------------------------------
 // Handler
