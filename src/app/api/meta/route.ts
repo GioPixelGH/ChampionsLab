@@ -104,8 +104,9 @@ export async function GET(req: Request) {
     ? 300                              // must reach back into target month
     : Math.min(limit * 2, 100);       // rolling window: small pool is enough
 
-  // For M-B use format=all so tournaments are fetched regardless of their Limitless tag; date filter distinguishes them.
-  const limitlessFormat = regulation === "M-B" ? "all" : regulation;
+  // M-B tournaments on Limitless are still tagged as format=M-A (same Champions series).
+  // The date filter (>= June 17) is the sole discriminant for M-B.
+  const limitlessFormat = regulation === "M-B" ? "M-A" : regulation;
   const listUrl = `${LIMITLESS_API}/tournaments?game=VGC&format=${encodeURIComponent(limitlessFormat)}&limit=${fetchLimit}${timeQuery}`;
 
   let tournaments: LimitlessTournament[] = [];

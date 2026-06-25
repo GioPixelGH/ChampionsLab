@@ -105,7 +105,7 @@ async function fetchLimitless<T>(url: string): Promise<T> {
 export async function POST(req: NextRequest) {
   // Rate limit: max 1 sync per 5 minutes per origin
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-  if (!checkRateLimit(`sync-usage:${ip}`, { limit: 3, windowMs: 5 * 60 * 1000 })) {
+  if (process.env.NODE_ENV !== "development" && !checkRateLimit(`sync-usage:${ip}`, { limit: 5, windowMs: 5 * 60 * 1000 })) {
     return NextResponse.json({ error: "Too many requests — wait 5 minutes" }, { status: 429 });
   }
 
@@ -146,8 +146,9 @@ export async function POST(req: NextRequest) {
         //    no usable data — newer valid ones may still exist above them).
         send({ type: "progress", msg: `Recupero lista tornei ${regulationId}…` });
 
-        // For M-B use format=all so tournaments are fetched regardless of their Limitless tag; date filter distinguishes them.
-        const limitlessFormat = regulationId === "M-B" ? "all" : regulationId;
+        // M-B tournaments on Limitless are still tagged as format=M-A (same Champions series).
+        // The date filter (>= June 17) is the sole discriminant for M-B.
+        const limitlessFormat = regulationId === "M-B" ? "M-A" : regulationId;
 
         const newCandidates: LimitlessTournament[] = [];
         let page = 1;
@@ -160,12 +161,11 @@ export async function POST(req: NextRequest) {
           if (batch.length === 0) break;
           for (const t of batch) {
             if (t.players < MIN_PLAYERS) continue;
-            // Date-based regulation boundary: skip tournaments outside this regulation's window.
             const tournDate = new Date(t.date);
             if (regulationId === "M-A" && tournDate >= MB_CUTOFF) continue;
             if (regulationId === "M-B" && tournDate < MB_CUTOFF) continue;
             if (validKnownSet.has(t.id)) { hitBoundary = true; break; }
-            if (skipSet.has(t.id)) continue; // known empty — skip, keep going
+            if (skipSet.has(t.id)) continue;
             newCandidates.push(t);
             if (newCandidates.length >= MAX_TOURNAMENTS) break;
           }
