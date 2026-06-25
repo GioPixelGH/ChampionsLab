@@ -104,10 +104,9 @@ export async function GET(req: Request) {
     ? 300                              // must reach back into target month
     : Math.min(limit * 2, 100);       // rolling window: small pool is enough
 
-  // M-B tournaments on Limitless are still tagged as format=M-A (same Champions series).
-  // The date filter (>= June 17) is the sole discriminant for M-B.
-  const limitlessFormat = regulation === "M-B" ? "M-A" : regulation;
-  const listUrl = `${LIMITLESS_API}/tournaments?game=VGC&format=${encodeURIComponent(limitlessFormat)}&limit=${fetchLimit}${timeQuery}`;
+  // No format filter — tournaments appear inconsistently across M-A/M-B tags.
+  // Date is the only reliable discriminant for regulation boundaries.
+  const listUrl = `${LIMITLESS_API}/tournaments?game=VGC&limit=${fetchLimit}${timeQuery}`;
 
   let tournaments: LimitlessTournament[] = [];
   try {

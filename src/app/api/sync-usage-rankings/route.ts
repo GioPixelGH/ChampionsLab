@@ -146,17 +146,15 @@ export async function POST(req: NextRequest) {
         //    no usable data — newer valid ones may still exist above them).
         send({ type: "progress", msg: `Recupero lista tornei ${regulationId}…` });
 
-        // M-B tournaments on Limitless are still tagged as format=M-A (same Champions series).
-        // The date filter (>= June 17) is the sole discriminant for M-B.
-        const limitlessFormat = regulationId === "M-B" ? "M-A" : regulationId;
-
+        // No format filter — tournaments appear inconsistently across M-A/M-B tags.
+        // Date is the only reliable discriminant for regulation boundaries.
         const newCandidates: LimitlessTournament[] = [];
         let page = 1;
         let hitBoundary = false;
 
         while (!hitBoundary && newCandidates.length < MAX_TOURNAMENTS) {
           const batch = await fetchLimitless<LimitlessTournament[]>(
-            `${API_BASE}/tournaments?game=${GAME}&format=${limitlessFormat}&limit=50&page=${page}`
+            `${API_BASE}/tournaments?game=${GAME}&limit=50&page=${page}`
           );
           if (batch.length === 0) break;
           for (const t of batch) {
