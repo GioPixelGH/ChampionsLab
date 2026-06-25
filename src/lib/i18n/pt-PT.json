@@ -12,12 +12,14 @@
     "supportUs": "Apoia-nos",
     "shop": "Loja",
     "language": "Idioma",
-        "gallery": "Galeria",
+    "gallery": "Galeria",
     "draft": "Draft",
     "compare": "Comparar",
     "bracket": "Chave",
     "settings": "Definições",
-    "subtitle": "A tua vantagem competitiva começa aqui"
+    "subtitle": "A tua vantagem competitiva começa aqui",
+    "privacy": "Privacy",
+    "terms": "Terms"
   },
   "common": {
     "search": "Pesquisar",
@@ -174,7 +176,8 @@
       "intimidate-user": "Intimidate",
       "setup-sweeper": "Setup Sweeper",
       "lead": "Lead",
-      "restricted": "Restricted"
+      "restricted": "Restricted",
+      "contrary-abuser": "Contrary Abuser"
     },
     "suggestions": {
       "greatDefSynergy": "Excelente sinergia defensiva de tipos",
@@ -280,7 +283,8 @@
       "spAtk": "Sp.Atk",
       "spDef": "Sp.Def",
       "speed": "Speed",
-      "bst": "BST"
+      "bst": "BST",
+      "usage": "Uso (Live)"
     },
     "noMatch": "Nenhum Pokémon encontrado",
     "adjustFilters": "Tenta ajustar os filtros ou a pesquisa",
@@ -513,7 +517,8 @@
       "goodstuffs": "Good Stuffs",
       "semi-trick-room": "Semi Trick Room",
       "beat-up": "Beat Up",
-      "perish-trap": "Perish Trap"
+      "perish-trap": "Perish Trap",
+      "contrary": "Contrary"
     },
     "insights": {
       "excellentCoverage": "Excelente cobertura ofensiva de tipos",
@@ -521,6 +526,7 @@
       "hasSpeedControl": "Tem opções de speed control",
       "intimidateSupport": "Suporte de Intimidate disponível",
       "hasRedirection": "Tem suporte de redirection",
+      "contraryBoosts": "Contrary inverte quedas de stats em aumentos",
       "priorityMoves": "Moves priority para o endgame",
       "clearGamePlan": "Plano de jogo {archetype} claro",
       "weakToType": "{count} Pokémon fracos a {type}",
@@ -540,7 +546,35 @@
       "noIntimidateThreat": "Sem Intimidate - considera adicionar um utilizador de Intimidate",
       "poorCoverage": "Cobertura fraca - sem acertos super efetivos contra {types}"
     },
-    "spLimitReached": "No more Stat Points available! Reduce another stat first."
+    "spLimitReached": "No more Stat Points available! Reduce another stat first.",
+    "bestTeamName": "Equipa Ótima",
+    "optimizer": {
+      "find": "Encontrar Melhor Equipa",
+      "stop": "Parar",
+      "title": "Otimizador de Equipa",
+      "searching": "A procurar... {{pct}}%",
+      "done": "Pesquisa concluída",
+      "bestScore": "Melhor pontuação: {{score}}/100",
+      "loadTeam": "Carregar Esta Equipa",
+      "searchAgain": "Pesquisar Novamente",
+      "noResult": "Sem resultado ainda. Clica em Pesquisar Novamente para executar o otimizador.",
+      "lockSlot": "Bloquear este Pokémon — mantê-lo na equipa otimizada",
+      "unlockSlot": "Desbloquear este Pokémon",
+      "lockedHint": "{{count}} Pokémon bloqueados — o otimizador irá construir a melhor equipa em torno deles",
+      "noLocksHint": "Bloqueia um Pokémon em qualquer posição para o manter na equipa otimizada",
+      "useMyRoster": "O Meu Roster",
+      "useAllPokemon": "Todos os Pokémon",
+      "rosterFilterActive": "A procurar nos teus {{count}} Pokémon",
+      "rosterEmpty": "O teu roster está vazio — adiciona Pokémon no painel O Meu Roster"
+    },
+    "myRoster": {
+      "title": "O Meu Roster",
+      "subtitle": "Marca os Pokémon que tens. O otimizador pode procurar apenas na tua coleção.",
+      "owned": "{{count}} em posse",
+      "selectAll": "Selecionar Todos",
+      "clearAll": "Limpar Tudo",
+      "close": "Fechar"
+    }
   },
   "survivalCalc": {
     "title": "Survival Calc",
@@ -1084,6 +1118,13 @@
       "networkError": "Erro de rede. Tenta novamente.",
       "sending": "A enviar…",
       "send": "Enviar Mensagem"
+    },
+    "legalTitle": "Legal & Disclaimers",
+    "legal": {
+      "unofficial": "<strong>Champions Lab is an unofficial fan project.</strong> It is not affiliated with, endorsed by, sponsored by, or approved by Nintendo, The Pokémon Company International, Game Freak Inc., or Creatures Inc.",
+      "ip": "Pokémon, Pokémon character names, Nintendo Switch, and related marks are trademarks of Nintendo, The Pokémon Company International, Game Freak Inc., and/or Creatures Inc. All rights to those marks and to Pokémon game data, sprites, artwork, and other materials belong to their respective owners.",
+      "noAffiliation": "This project is provided free of charge by fans, for fans. No revenue from Champions Lab is derived from the sale of Pokémon intellectual property.",
+      "privacyTerms": "For more information, please read our <a href=\"/privacy\" class=\"font-semibold text-amber-700 dark:text-amber-300 hover:underline\">Privacy Policy</a> and <a href=\"/terms\" class=\"font-semibold text-amber-700 dark:text-amber-300 hover:underline\">Terms of Service</a>."
     }
   },
   "events": {
@@ -1312,5 +1353,42 @@
     "copyPaste": "Copiar Paste",
     "footer": "Construído com Champions Lab",
     "openInBuilder": "Abrir no Team Builder"
+  },
+  "footer": {
+    "disclaimer": "Champions Lab is an unofficial fan project and is not affiliated with, endorsed by, or sponsored by Nintendo, The Pokémon Company International, Game Freak Inc., or Creatures Inc. Pokémon and Pokémon character names are trademarks of Nintendo.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "cookieSettings": "Cookie Settings"
+  },
+  "cookieConsent": {
+    "title": "Cookie Consent",
+    "description": "We use cookies to remember your preferences and Google Analytics to understand how the site is used. You can accept or decline analytics cookies.",
+    "accept": "Accept",
+    "decline": "Decline"
+  },
+  "speedTiers": {
+    "title": "Speed Tiers",
+    "subtitle": "Rank #{rank} of {total}",
+    "base": "Base",
+    "ability": "Ability",
+    "afterSetup": "After Setup",
+    "itemSetup": "Item + Setup",
+    "weatherOn": "Weather active",
+    "weatherOff": "Toggle weather",
+    "searchPlaceholder": "Search Pokémon…",
+    "nearby": "Nearby",
+    "pokemon": "Pokémon",
+    "max": "Max",
+    "vsYou": "vs You",
+    "you": "YOU",
+    "needSp": "+{sp} SP to outspeed",
+    "needSp0": "Change nature to outspeed",
+    "outspeedBy": "+{diff} faster",
+    "outspeed": "Outspeed",
+    "outspedBy": "Outsped by",
+    "ties": "Ties",
+    "total": "Total",
+    "noResults": "No Pokémon found",
+    "openTooltip": "Open speed tier comparison"
   }
 }

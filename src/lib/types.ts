@@ -143,6 +143,7 @@ export interface Season {
   name: string;
   startDate: string;
   endDate?: string;
+  regulationEnd?: string;
   regulations: Regulation[];
   rules: string[];
   isActive: boolean;

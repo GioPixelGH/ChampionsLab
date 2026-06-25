@@ -154,6 +154,7 @@ function TeamBuilderPageInner() {
       "Has speed control options": "hasSpeedControl",
       "Intimidate support available": "intimidateSupport",
       "Has redirection support": "hasRedirection",
+      "Contrary turns stat drops into boosts": "contraryBoosts",
       "Priority moves for endgame": "priorityMoves",
       "No speed control - vulnerable to faster teams": "noSpeedControl",
       "Lacks fast options to pressure opponents": "lacksFast",
@@ -3388,9 +3389,20 @@ function TeamBuilderPageInner() {
                           const form = megaForms[formIndex];
                           if (!form) return undefined;
                           const sets = USAGE_DATA[editPkm.id] ?? [];
+                          const suffix = form.name.endsWith(" X") ? " X" : form.name.endsWith(" Y") ? " Y" : form.name.endsWith(" Z") ? " Z" : "";
+                          // Prefer usage sets whose mega-stone suffix matches the form suffix
+                          const suffixSet = sets.find(s => isMegaItem(s.item) && (suffix ? s.item.endsWith(suffix) : !s.item.match(/ite [XYZ]$/)));
+                          if (suffixSet) return suffixSet.item;
                           const megaSet = sets.find(s => isMegaItem(s.item) && s.ability === form.abilities[0]?.name);
                           if (megaSet) return megaSet.item;
-                          return sets.find(s => isMegaItem(s.item))?.item;
+                          const anySet = sets.find(s => isMegaItem(s.item))?.item;
+                          if (anySet) return anySet;
+                          // Fallback to item definition for new/uncatalogued megas
+                          const baseName = editPkm.name.replace(/-M$|-F$/, "");
+                          const candidates = Object.values(ITEMS).filter(i => i.isMegaStone && (i.forPokemon === editPkm.name || i.forPokemon === baseName));
+                          if (candidates.length === 0) return undefined;
+                          if (candidates.length === 1) return candidates[0].name;
+                          return candidates.find(i => suffix ? i.name.endsWith(suffix) : !i.name.match(/ite [XYZ]$/))?.name ?? candidates[0].name;
                         };
                         return (
                           <div className="mt-4 pt-3 border-t border-gray-100">
@@ -3464,7 +3476,18 @@ function TeamBuilderPageInner() {
                               const form = megaForms[fi];
                               if (!form) return undefined;
                               const sets = USAGE_DATA[editPkm.id] ?? [];
-                              return sets.find(s => isMegaItem(s.item) && s.ability === form.abilities[0]?.name)?.item ?? sets.find(s => isMegaItem(s.item))?.item;
+                              const suffix = form.name.endsWith(" X") ? " X" : form.name.endsWith(" Y") ? " Y" : form.name.endsWith(" Z") ? " Z" : "";
+                              // Prefer usage sets whose mega-stone suffix matches the form suffix
+                              const suffixSet = sets.find(s => isMegaItem(s.item) && (suffix ? s.item.endsWith(suffix) : !s.item.match(/ite [XYZ]$/)))?.item;
+                              if (suffixSet) return suffixSet;
+                              const set = sets.find(s => isMegaItem(s.item) && s.ability === form.abilities[0]?.name)?.item ?? sets.find(s => isMegaItem(s.item))?.item;
+                              if (set) return set;
+                              // Fallback to item definition for new/uncatalogued megas
+                              const baseName = editPkm.name.replace(/-M$|-F$/, "");
+                              const candidates = Object.values(ITEMS).filter(i => i.isMegaStone && (i.forPokemon === editPkm.name || i.forPokemon === baseName));
+                              if (candidates.length === 0) return undefined;
+                              if (candidates.length === 1) return candidates[0].name;
+                              return candidates.find(i => suffix ? i.name.endsWith(suffix) : !i.name.match(/ite [XYZ]$/))?.name ?? candidates[0].name;
                             };
                             return (
                               <>

@@ -12067,7 +12067,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     "id": 376,
     "name": "Metagross",
     "dexNumber": 376,
-    "hidden": true,
+    "hidden": false,
     "types": [
       "steel",
       "psychic"
@@ -28575,7 +28575,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     "id": 861,
     "name": "Grimmsnarl",
     "dexNumber": 861,
-    "hidden": true,
+    "hidden": false,
     "types": [
       "dark",
       "fairy"

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { cookies } from "next/headers";
-import Script from "next/script";
 import "./globals.css";
 import "@fontsource-variable/inter";
 import "@fontsource-variable/jetbrains-mono";
@@ -9,9 +8,11 @@ import "@fontsource/sora/600.css";
 import "@fontsource/sora/700.css";
 import { Navbar } from "@/components/navbar";
 import { NativeUiWrapper } from "@/components/native-ui-wrapper";
+import { Footer } from "@/components/footer";
 import { ThemeInit } from "@/components/theme-init";
 import { MobileNavInit } from "@/components/mobile-nav-init";
 import { UpdateModal } from "@/components/update-modal";
+import { CookieConsent } from "@/components/cookie-consent";
 import { I18nProvider } from "@/lib/i18n";
 
 export const metadata: Metadata = {
@@ -87,38 +88,11 @@ export default async function RootLayout({
       style={{ colorScheme: isDark ? "dark" : "light" }}
       suppressHydrationWarning
     >
-      <head>
-        {process.env.NEXT_PUBLIC_GA_ID && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
-              strategy="afterInteractive"
-            />
-            <Script id="google-analytics" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
-              `}
-            </Script>
-          </>
-        )}
-        {process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && (
-          <Script id="sw-registration" strategy="afterInteractive">
-            {`
-              if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function(err) {
-                  console.warn('[sw] Registration failed:', err);
-                });
-              }
-            `}
-          </Script>
-        )}
-      </head>
+      <head />
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <I18nProvider initialLocale={initialLocale}>
         <NativeUiWrapper />
+        <CookieConsent />
         {/* Pure HTML hamburger  -  works instantly, no React hydration needed */}
         <button
           id="mobile-nav-toggle"
@@ -140,6 +114,7 @@ export default async function RootLayout({
           <main className="flex-1 relative z-10">{children}</main>
         </Suspense>
         <UpdateModal />
+        <Footer />
         </I18nProvider>
       </body>
     </html>

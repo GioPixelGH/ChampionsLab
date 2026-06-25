@@ -12,6 +12,118 @@ interface ChangelogEntry {
 
   const SHARED_ENTRIES: ChangelogEntry[] = [
     {
+      date: "24/06/2026",
+      items: [
+        "🤖 Battle bot AI overhaul: Rage Powder / Follow Me now checks for opponent spread moves (Heat Wave, Eruption, etc.), Mega Evolutions are protected more aggressively, and Contrary turns self-drop moves like Close Combat into real advantages",
+        "🧩 Team Builder now detects Contrary archetypes and highlights Contrary abusers, plus a new engine-generated Contrary Mega Staraptor template",
+      ],
+    },
+    {
+      date: "18/06/2026",
+      items: [
+        "🔧 Fixed Mega Raichu X/Y item auto-equip in Team Builder — selecting Y now correctly equips Raichunite Y instead of X; corrected Raichu mega abilities in usage sets to Electric Surge / No Guard",
+      ],
+    },
+    {
+      date: "18/06/2026",
+      items: [
+        "💎 Added missing mega stones for new megas: Blazikenite, Swampertite, Sceptilite, Scolipedite, Malamarite, Dragalgite, Eelektrossite, Barbaraclite, Falinksite, Scraftite, Staraptite, Pyroarite, and Meowsticite",
+      ],
+    },
+    {
+      date: "18/06/2026",
+      items: [
+        "⚔️ Battle engine fixes: Solar Beam now fires instantly in harsh sunlight and charges otherwise; Hyper Beam now correctly forces a recharge turn",
+      ],
+    },
+    {
+      date: "18/06/2026",
+      items: [
+        "🤖 Re-ran battle-bot training with corrected stats — 2,000,000 simulated battles, 861 teams, 272 Pokémon, refreshed ELO rankings, counters, and archetype insights",
+      ],
+    },
+    {
+      date: "18/06/2026",
+      items: [
+        "✅ Validated every active Pokémon/Form base stat against Serebii's Pokémon Champions section — fixed 33 incorrect stat spreads including Mega Eelektross, Mega Delphox, all Mega Raichu forms, and Floette (now Eternal Floette)",
+      ],
+    },
+    {
+      date: "17/06/2026",
+      items: [
+        "🤖 Refreshed battle-bot training data — 2,000,000 simulated battles, 853 teams, 271 Pokémon, updated ELO rankings, synergies, counters, and archetype insights",
+      ],
+    },
+    {
+      date: "17/06/2026",
+      items: [
+        "🔧 Fixed mega stone auto-equip in Team Builder for new megas — enabling Mega Mawile / Mega Metagross now correctly sets Mawilite / Metagrossite",
+      ],
+    },
+    {
+      date: "17/06/2026",
+      items: [
+        "💎 Added missing Mawilite mega stone to the item list",
+      ],
+    },
+    {
+      date: "17/06/2026",
+      items: [
+        "🐾 Unhid Grimmsnarl, Metagross, and Mega Metagross — they now appear in the Pokédex and Team Builder for Regulation M-B",
+      ],
+    },
+    {
+      date: "17/06/2026",
+      items: [
+        "🏆 Refreshed tournament data from Limitless TCG — synced 470 Regulation M-A tournaments (~21,800 teams), updated meta usage rankings and top-cut teams through mid-June 2026",
+      ],
+    },
+    {
+      date: "17/06/2026",
+      items: [
+        "🌐 Added Monthly Challenge Series June 2026 online competition — Regulation M-B Single Battle, June 26–29, rewards Tyranitar, 100 Quick Coupons, and the MCS 06/2026 Challenger title for 3+ battles",
+      ],
+    },
+    {
+      date: "17/06/2026",
+      items: [
+        "🖼️ Uploaded all missing sprites to Hetzner Object Storage — 59 new sprite files including the 22 Regulation M-B base Pokémon, 34 Champions mega forms, 4 official mega forms, and Mega Meowstic official art",
+        "🛡️ Fixed ability descriptions and flags across the full roster — every ability now has a proper description pulled from the battle engine and the correct Champions/existing flag (Mega Raichu X/Y, Mega Clefable, etc. no longer show empty text)",
+        "➕ Added 18 missing battle-engine abilities used by mega forms: Electric Surge, Aerilate, Pixilate, Refrigerate, Huge Power, Pure Power, Speed Boost, Skill Link, No Guard, Filter, Magic Bounce, Shadow Tag, Berserk, Trace, Infiltrator, Stalwart, Innards Out, and Healer",
+      ],
+    },
+    {
+      date: "17/06/2026",
+      items: [
+        "🗓️ Added Season M-3 / Regulation M-B — active from June 17th through July 8th, with the Regulation running until September 2nd",
+        "✅ Validated all 38 Regulation M-B roster additions against Serebii's Regulation M-B page — including Mega Raichu X/Y, Vileplume, Sceptile/Blaziken/Swampert/Mawile mega lines, and the new Champions megas",
+        "➕ Added missing official Mega forms for Sceptile, Blaziken, Swampert, and Mawile to complete their Regulation M-B entries",
+        "🔧 Regulation end date is now stored per-season and displayed dynamically in the season info card",
+      ],
+    },
+    {
+      date: "17/06/2026",
+      items: [
+        "🐾 Restored 22 missing base Pokémon to the Season 1 roster — Annihilape, Barbaracle, Blaziken, Dragalge, Eelektross, Falinks, Gholdengo, Houndstone, Malamar, Mawile, Musharna, Overqwil, Qwilfish, Sceptile, Scolipede, Scrafty, Staraptor, Swampert, Vileplume, Pyroar, Basculegion, and Meowstic are back with full stats, abilities, and learnsets",
+        "✨ Added 34 Mega Evolution forms from Serebii's Champions mega abilities list — including new megas for Raichu X/Y, Clefable, Victreebel, Starmie, Meganium, Feraligatr, Skarmory, Chimecho, Froslass, Emboar, Excadrill, Scolipede, Scrafty, Eelektross, Chandelure, Golurk, Chesnaught, Delphox, Greninja, Pyroar, Floette, Meowstic, Malamar, Barbaracle, Dragalge, Hawlucha, Crabominable, Drampa, Falinks, Scovillain, and Glimmora",
+        "🛡️ Updated Champions-exclusive ability descriptions for Mega Sol, Piercing Drill, and Spicy Spray to match Serebii's latest ability text",
+      ],
+    },
+    {
+      date: "17/06/2026",
+      items: [
+        "📦 Added 205 missing competitive moves to the Battle Engine — every move on Serebii's Pokémon Champions available-moves list now has a complete entry in MOVE_DATA with type, category, power, accuracy, targeting, flags, and effects",
+      ],
+    },
+    {
+      date: "13/06/2026",
+      items: [
+        "🛡️ Added Privacy Policy and Terms of Service pages — legal pages now linked in the footer and About page",
+        "🍪 Added cookie consent banner — EU/UK/California visitors are now asked for consent before loading Google Analytics; everyone can manage consent via the footer",
+        "⚠️ Added official unofficial fan-project disclaimers — About page and footer now clearly state that Champions Lab is not affiliated with Nintendo, The Pokémon Company, Game Freak, or Creatures Inc.",
+      ],
+    },
+    {
       date: "07/06/2026",
       items: [
         "🛡️ Fixed Armor Tail blocking ALL priority moves — now only blocks moves that actually target the Armor Tail side (single-target opponent moves, spread moves, foeSide, and all-field moves). Self-targeting, ally-targeting, and own-side moves like Helping Hand, Follow Me, Rage Powder, Tailwind, Protect, and Quick Guard are no longer incorrectly blocked",

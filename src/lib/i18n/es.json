@@ -13,7 +13,9 @@
     "shop": "Tienda",
     "language": "Idioma",
     "settings": "Ajustes",
-    "subtitle": "Tu ventaja competitiva empieza aquí"
+    "subtitle": "Tu ventaja competitiva empieza aquí",
+    "privacy": "Privacy",
+    "terms": "Terms"
   },
   "common": {
     "search": "Buscar",
@@ -170,7 +172,8 @@
       "intimidate-user": "Intimidación",
       "setup-sweeper": "Barredor con Setup",
       "lead": "Inicial",
-      "restricted": "Restringido"
+      "restricted": "Restringido",
+      "contrary-abuser": "Abusador Respondón"
     },
     "suggestions": {
       "greatDefSynergy": "Gran sinergia defensiva de tipo",
@@ -276,7 +279,8 @@
       "spAtk": "At. Esp.",
       "spDef": "Def. Esp.",
       "speed": "Velocidad",
-      "bst": "Total"
+      "bst": "Total",
+      "usage": "Uso (Live)"
     },
     "noMatch": "No se encontró ningún Pokémon",
     "adjustFilters": "Prueba ajustando tus filtros o búsqueda",
@@ -509,7 +513,8 @@
       "goodstuffs": "Good Stuffs",
       "semi-trick-room": "Semi Cuarto Trucado",
       "beat-up": "Paliza",
-      "perish-trap": "Trampa Mortal"
+      "perish-trap": "Trampa Mortal",
+      "contrary": "Respondón"
     },
     "insights": {
       "excellentCoverage": "Excelente cobertura ofensiva de tipo",
@@ -517,6 +522,7 @@
       "hasSpeedControl": "Tiene opciones de control de velocidad",
       "intimidateSupport": "Cuenta con apoyo de Intimidación",
       "hasRedirection": "Tiene apoyo de redirección",
+      "contraryBoosts": "Respondón convierte las bajas de stats en subidas",
       "priorityMoves": "Movimientos de prioridad para el final",
       "clearGamePlan": "Plan de juego claro de {archetype}",
       "weakToType": "{count} Pokémon débiles al tipo {type}",
@@ -536,7 +542,35 @@
       "noIntimidateThreat": "Sin Intimidación - considera añadir un Intimidador",
       "poorCoverage": "Mala cobertura - sin golpes supereficaces contra {types}"
     },
-    "spLimitReached": "¡No hay más Puntos de Stat disponibles! Reduce otro stat primero."
+    "spLimitReached": "¡No hay más Puntos de Stat disponibles! Reduce otro stat primero.",
+    "bestTeamName": "Equipo Óptimo",
+    "optimizer": {
+      "find": "Encontrar Mejor Equipo",
+      "stop": "Detener",
+      "title": "Optimizador de Equipo",
+      "searching": "Buscando... {{pct}}%",
+      "done": "Búsqueda completada",
+      "bestScore": "Mejor puntuación: {{score}}/100",
+      "loadTeam": "Cargar Este Equipo",
+      "searchAgain": "Buscar de Nuevo",
+      "noResult": "Sin resultado aún. Haz clic en Buscar de Nuevo para ejecutar el optimizador.",
+      "lockSlot": "Bloquear este Pokémon — mantenerlo en el equipo optimizado",
+      "unlockSlot": "Desbloquear este Pokémon",
+      "lockedHint": "{{count}} Pokémon bloqueados — el optimizador construirá el mejor equipo a su alrededor",
+      "noLocksHint": "Bloquea un Pokémon en cualquier ranura para mantenerlo en el equipo optimizado",
+      "useMyRoster": "Mi Roster",
+      "useAllPokemon": "Todos los Pokémon",
+      "rosterFilterActive": "Buscando entre tus {{count}} Pokémon",
+      "rosterEmpty": "Tu roster está vacío — añade Pokémon en el panel Mi Roster"
+    },
+    "myRoster": {
+      "title": "Mi Roster",
+      "subtitle": "Marca los Pokémon que tienes. El optimizador puede buscar solo en tu colección.",
+      "owned": "{{count}} en posesión",
+      "selectAll": "Seleccionar Todos",
+      "clearAll": "Limpiar Todo",
+      "close": "Cerrar"
+    }
   },
   "survivalCalc": {
     "title": "Cálculo de Supervivencia",
@@ -1080,6 +1114,13 @@
       "networkError": "Error de red. Inténtalo de nuevo.",
       "sending": "Enviando…",
       "send": "Enviar Mensaje"
+    },
+    "legalTitle": "Legal & Disclaimers",
+    "legal": {
+      "unofficial": "<strong>Champions Lab is an unofficial fan project.</strong> It is not affiliated with, endorsed by, sponsored by, or approved by Nintendo, The Pokémon Company International, Game Freak Inc., or Creatures Inc.",
+      "ip": "Pokémon, Pokémon character names, Nintendo Switch, and related marks are trademarks of Nintendo, The Pokémon Company International, Game Freak Inc., and/or Creatures Inc. All rights to those marks and to Pokémon game data, sprites, artwork, and other materials belong to their respective owners.",
+      "noAffiliation": "This project is provided free of charge by fans, for fans. No revenue from Champions Lab is derived from the sale of Pokémon intellectual property.",
+      "privacyTerms": "For more information, please read our <a href=\"/privacy\" class=\"font-semibold text-amber-700 dark:text-amber-300 hover:underline\">Privacy Policy</a> and <a href=\"/terms\" class=\"font-semibold text-amber-700 dark:text-amber-300 hover:underline\">Terms of Service</a>."
     }
   },
   "events": {
@@ -1333,5 +1374,17 @@
     "copyPaste": "Copiar Paste",
     "footer": "Creado con Champions Lab",
     "openInBuilder": "Abrir en Creador de Equipos"
+  },
+  "footer": {
+    "disclaimer": "Champions Lab is an unofficial fan project and is not affiliated with, endorsed by, or sponsored by Nintendo, The Pokémon Company International, Game Freak Inc., or Creatures Inc. Pokémon and Pokémon character names are trademarks of Nintendo.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "cookieSettings": "Cookie Settings"
+  },
+  "cookieConsent": {
+    "title": "Cookie Consent",
+    "description": "We use cookies to remember your preferences and Google Analytics to understand how the site is used. You can accept or decline analytics cookies.",
+    "accept": "Accept",
+    "decline": "Decline"
   }
 }
