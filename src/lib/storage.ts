@@ -37,11 +37,47 @@ export interface SavedTeamSlot {
   preMegaAbility?: string;
 }
 
+export interface TeamRuleComposition {
+  lead1: string;  // Pokemon name from team
+  lead2: string;
+  back1: string;
+  back2: string;
+}
+
+export type TypeConditionKind = "resist" | "weak" | "immune";
+
+export interface TypeCondition {
+  id: string;
+  kind: TypeConditionKind;
+  pokeType: PokemonType;
+  count: number;   // ≥ this many opponent Pokémon must satisfy the condition
+}
+
+export interface TeamRule {
+  id: string;
+  label?: string;                // e.g. "vs Ceruledge", "vs Rain"
+  // Specific Pokémon triggers
+  triggerPokemonIds: number[];   // Opponent Pokémon IDs that activate this rule
+  triggerCount: number;          // Fire if opponent has ≥ this many trigger Pokémon (min 1)
+  // Type-based conditions
+  typeConditions: TypeCondition[];
+  // How conditions combine when both Pokémon triggers and type conditions are present
+  conditionMode: "any" | "all"; // "any" = either block fires; "all" = both must fire
+  composition: TeamRuleComposition;
+  notes?: string;                // Strategy notes
+  isDefault?: boolean;           // Fires when no other rule matches (fallback)
+}
+
+export interface TeamRules {
+  rules: TeamRule[];
+}
+
 export interface SavedTeam {
   id: string;
   name: string;
   slots: SavedTeamSlot[];
   regulation?: string;  // e.g. "M-A", "M-B"
+  rules?: TeamRules;
   createdAt: number;
   updatedAt: number;
 }
@@ -198,6 +234,15 @@ export function saveTeam(name: string, slots: TeamSlot[], existingId?: string, r
 /** Delete a saved team */
 export function deleteTeam(id: string): void {
   const teams = getSavedTeams().filter((t) => t.id !== id);
+  writeJSON(KEYS.SAVED_TEAMS, teams);
+}
+
+/** Update the team rules for a saved team */
+export function updateTeamRules(teamId: string, rules: TeamRules): void {
+  const teams = getSavedTeams();
+  const idx = teams.findIndex((t) => t.id === teamId);
+  if (idx < 0) return;
+  teams[idx] = { ...teams[idx], rules, updatedAt: Date.now() };
   writeJSON(KEYS.SAVED_TEAMS, teams);
 }
 

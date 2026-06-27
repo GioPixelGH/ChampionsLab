@@ -12,11 +12,12 @@ import {
   ArrowRightLeft, FolderOpen, Save, Target, Star, Lightbulb,
   TrendingUp, TrendingDown, GitBranch, Shield,
   Settings2, Minus, Plus, Sparkles, Check, Zap, Download, ClipboardPaste, BookOpen,
+  PenLine, AlertTriangle, ChevronDown, ChevronUp, Users, SlidersHorizontal,
 } from "lucide-react";
 import {
   exportTeamTesterPDF, PDF_LABELS_FR, PDF_LABELS_DE,
 } from "@/lib/export-pdf";
-import { POKEMON_SEED, STAT_PRESETS } from "@/lib/pokemon-data";
+import { POKEMON_SEED, STAT_PRESETS, getPokemonByRegulation } from "@/lib/pokemon-data";
 import type { ChampionsPokemon, CommonSet, PokemonType, StatPoints } from "@/lib/types";
 import { TYPE_COLORS } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -64,8 +65,39 @@ import { SIM_POKEMON } from "@/lib/simulation-data";
 import { TOURNAMENT_USAGE } from "@/lib/engine/vgc-data";
 import {
   getSavedTeams, deserializeTeam, saveMatchRecord, getMatchRecords,
-  type SavedTeam, type MatchRecord,
+  updateTeamRules,
+  type SavedTeam, type MatchRecord, type TeamRule, type TeamRules, type TeamRuleComposition,
+  type TypeCondition, type TypeConditionKind,
 } from "@/lib/storage";
+
+// ── Type effectiveness (for rule matching) ────────────────────────────────
+
+// Attack type → defending type → multiplier (only non-1x entries)
+const TYPE_EFF: Partial<Record<PokemonType, Partial<Record<PokemonType, number>>>> = {
+  normal:   { rock: 0.5, ghost: 0, steel: 0.5 },
+  fire:     { fire: 0.5, water: 0.5, rock: 0.5, dragon: 0.5, grass: 2, ice: 2, bug: 2, steel: 2 },
+  water:    { fire: 2, water: 0.5, grass: 0.5, dragon: 0.5, rock: 2, ground: 2 },
+  electric: { electric: 0.5, grass: 0.5, dragon: 0.5, ground: 0, flying: 2, water: 2 },
+  grass:    { fire: 0.5, grass: 0.5, poison: 0.5, flying: 0.5, bug: 0.5, dragon: 0.5, steel: 0.5, water: 2, ground: 2, rock: 2 },
+  ice:      { fire: 0.5, water: 0.5, ice: 0.5, steel: 0.5, grass: 2, ground: 2, flying: 2, dragon: 2 },
+  fighting: { normal: 2, ice: 2, rock: 2, dark: 2, steel: 2, poison: 0.5, bug: 0.5, psychic: 0.5, flying: 0.5, ghost: 0, fairy: 0.5 },
+  poison:   { grass: 2, fairy: 2, poison: 0.5, ground: 0.5, rock: 0.5, ghost: 0.5, steel: 0 },
+  ground:   { fire: 2, electric: 2, poison: 2, rock: 2, steel: 2, flying: 0, grass: 0.5, bug: 0.5 },
+  flying:   { grass: 2, fighting: 2, bug: 2, electric: 0.5, rock: 0.5, steel: 0.5 },
+  psychic:  { fighting: 2, poison: 2, psychic: 0.5, steel: 0.5, dark: 0 },
+  bug:      { grass: 2, psychic: 2, dark: 2, fire: 0.5, fighting: 0.5, flying: 0.5, ghost: 0.5, steel: 0.5, fairy: 0.5 },
+  rock:     { fire: 2, ice: 2, flying: 2, bug: 2, fighting: 0.5, ground: 0.5, steel: 0.5 },
+  ghost:    { psychic: 2, ghost: 2, normal: 0, dark: 0.5 },
+  dragon:   { dragon: 2, steel: 0.5, fairy: 0 },
+  dark:     { psychic: 2, ghost: 2, dark: 0.5, fighting: 0.5, fairy: 0.5 },
+  steel:    { ice: 2, rock: 2, fairy: 2, fire: 0.5, water: 0.5, electric: 0.5, steel: 0.5, poison: 0, grass: 0.5, flying: 0.5, psychic: 0.5, bug: 0.5, dragon: 0.5, dark: 0.5, ghost: 0.5, fighting: 0.5 },
+  fairy:    { fighting: 2, dragon: 2, dark: 2, fire: 0.5, poison: 0.5, steel: 0.5 },
+};
+
+function getTypeEffectiveness(atkType: PokemonType, defTypes: PokemonType[]): number {
+  const chart = TYPE_EFF[atkType] ?? {};
+  return defTypes.reduce((mult, def) => mult * (chart[def] ?? 1), 1);
+}
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -273,6 +305,16 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
   const [savedTeams, setSavedTeams] = useState<SavedTeam[]>([]);
   const [pasteText, setPasteText] = useState("");
   const [pasteError, setPasteError] = useState("");
+
+  // Team Rules (attached to Team 1 when loaded from saved teams)
+  const [loadedTeamId, setLoadedTeamId] = useState<string | null>(null);
+  const [loadedTeamRegulation, setLoadedTeamRegulation] = useState<string>("M-A");
+  const [teamRules, setTeamRules] = useState<TeamRules>({ rules: [] });
+  const [editingRules, setEditingRules] = useState(false);
+  const [draftRules, setDraftRules] = useState<TeamRule[]>([]);
+  const [openTriggerPickerForRule, setOpenTriggerPickerForRule] = useState<string | null>(null);
+  const [triggerSearch, setTriggerSearch] = useState("");
+  const [rulesOpen, setRulesOpen] = useState(true);
   // Replay
   const [replayTurn, setReplayTurn] = useState(0);
   const [replayPlaying, setReplayPlaying] = useState(false);
@@ -509,8 +551,26 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
       }
       return bestAvailableSet(p);
     });
-    if (target === 1) { setTeam1Pokemon(pokemon); setTeam1Sets(sets); }
-    else { setTeam2Pokemon(pokemon); setTeam2Sets(sets); }
+    if (target === 1) {
+      setTeam1Pokemon(pokemon);
+      setTeam1Sets(sets);
+      setLoadedTeamId(team.id);
+      setLoadedTeamRegulation(team.regulation ?? "M-A");
+      const normalizeRule = (r: TeamRule): TeamRule => ({
+        ...r,
+        typeConditions: r.typeConditions ?? [],
+        conditionMode: r.conditionMode ?? "any",
+        isDefault: r.isDefault ?? false,
+      });
+      const tr: TeamRules = { rules: (team.rules?.rules ?? []).map(normalizeRule) };
+      setTeamRules(tr);
+      setDraftRules(tr.rules.map(r => ({ ...r, composition: { ...r.composition } })));
+      setEditingRules(false);
+      setOpenTriggerPickerForRule(null);
+    } else {
+      setTeam2Pokemon(pokemon);
+      setTeam2Sets(sets);
+    }
     setShowLoader(null);
   };
 
@@ -518,10 +578,189 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
     const pokemon = team.pokemonIds
       .map(id => POKEMON_SEED.find(p => p.id === id))
       .filter(Boolean) as ChampionsPokemon[];
-    if (target === 1) { setTeam1Pokemon(pokemon); setTeam1Sets(team.sets.slice(0, pokemon.length)); }
-    else { setTeam2Pokemon(pokemon); setTeam2Sets(team.sets.slice(0, pokemon.length)); }
+    if (target === 1) {
+      setTeam1Pokemon(pokemon);
+      setTeam1Sets(team.sets.slice(0, pokemon.length));
+      setLoadedTeamId(null);
+      setTeamRules({ rules: [] });
+    } else {
+      setTeam2Pokemon(pokemon);
+      setTeam2Sets(team.sets.slice(0, pokemon.length));
+    }
     setShowLoader(null);
   };
+
+  // Team Rules helpers
+  const enterRulesEditMode = () => {
+    setDraftRules(teamRules.rules.map(r => ({ ...r, composition: { ...r.composition } })));
+    setEditingRules(true);
+    setOpenTriggerPickerForRule(null);
+    setTriggerSearch("");
+  };
+
+  const saveRules = () => {
+    if (!loadedTeamId) return;
+    const newRules: TeamRules = { rules: draftRules };
+    updateTeamRules(loadedTeamId, newRules);
+    setTeamRules(newRules);
+    setSavedTeams(getSavedTeams());
+    setEditingRules(false);
+    setOpenTriggerPickerForRule(null);
+  };
+
+  const addRule = () => {
+    const names = team1Pokemon.map(p => p.name);
+    const newRule: TeamRule = {
+      id: `rule-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      label: "",
+      triggerPokemonIds: [],
+      triggerCount: 1,
+      typeConditions: [],
+      conditionMode: "any",
+      composition: {
+        lead1: names[0] ?? "",
+        lead2: names[1] ?? "",
+        back1: names[2] ?? "",
+        back2: names[3] ?? "",
+      },
+      notes: "",
+    };
+    setDraftRules(prev => [...prev, newRule]);
+  };
+
+  const addTypeCondition = (ruleId: string) => {
+    const newCond: TypeCondition = {
+      id: `tc-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
+      kind: "resist",
+      pokeType: "fire",
+      count: 2,
+    };
+    setDraftRules(prev => prev.map(r =>
+      r.id === ruleId ? { ...r, typeConditions: [...r.typeConditions, newCond] } : r
+    ));
+  };
+
+  const updateTypeCondition = (ruleId: string, condId: string, patch: Partial<TypeCondition>) => {
+    setDraftRules(prev => prev.map(r =>
+      r.id !== ruleId ? r : {
+        ...r,
+        typeConditions: r.typeConditions.map(tc =>
+          tc.id === condId ? { ...tc, ...patch } : tc
+        ),
+      }
+    ));
+  };
+
+  const removeTypeCondition = (ruleId: string, condId: string) => {
+    setDraftRules(prev => prev.map(r =>
+      r.id !== ruleId ? r : { ...r, typeConditions: r.typeConditions.filter(tc => tc.id !== condId) }
+    ));
+  };
+
+  const updateDraftRule = (id: string, patch: Partial<Omit<TeamRule, "composition">> | { composition: Partial<TeamRuleComposition> }) => {
+    setDraftRules(prev => prev.map(r => {
+      if (r.id !== id) return r;
+      if ("composition" in patch && patch.composition && typeof patch.composition === "object") {
+        return { ...r, composition: { ...r.composition, ...patch.composition } };
+      }
+      return { ...r, ...(patch as Partial<TeamRule>) };
+    }));
+  };
+
+  const removeDraftRule = (id: string) => {
+    setDraftRules(prev => prev.filter(r => r.id !== id));
+    if (openTriggerPickerForRule === id) setOpenTriggerPickerForRule(null);
+  };
+
+  const moveRule = (id: string, dir: "up" | "down") => {
+    setDraftRules(prev => {
+      const idx = prev.findIndex(r => r.id === id);
+      if (idx < 0) return prev;
+      const next = dir === "up" ? idx - 1 : idx + 1;
+      if (next < 0 || next >= prev.length) return prev;
+      const arr = [...prev];
+      [arr[idx], arr[next]] = [arr[next], arr[idx]];
+      return arr;
+    });
+  };
+
+  const setDefaultRule = (id: string) => {
+    setDraftRules(prev => prev.map(r => ({ ...r, isDefault: r.id === id ? !r.isDefault : false })));
+  };
+
+  const toggleTriggerPokemon = (ruleId: string, pokemonId: number) => {
+    setDraftRules(prev => prev.map(r => {
+      if (r.id !== ruleId) return r;
+      const already = r.triggerPokemonIds.includes(pokemonId);
+      const next = already
+        ? r.triggerPokemonIds.filter(id => id !== pokemonId)
+        : [...r.triggerPokemonIds, pokemonId];
+      return { ...r, triggerPokemonIds: next };
+    }));
+  };
+
+  const getRuleWinRate = useCallback((rule: TeamRule): number | null => {
+    if (!result) return null;
+    const { lead1, lead2 } = rule.composition;
+    const match = result.leadCombos.find(lc =>
+      (lc.lead1 === lead1 && lc.lead2 === lead2) ||
+      (lc.lead1 === lead2 && lc.lead2 === lead1)
+    );
+    return match?.winRate ?? null;
+  }, [result]);
+
+  const matchingRules = useMemo(() => {
+    const opponentIds = new Set(team2Pokemon.map(p => p.id));
+
+    const triggered = teamRules.rules.filter(rule => {
+      if (rule.isDefault) return false; // default rules skip normal matching
+
+      const hasPokemon = (rule.triggerPokemonIds ?? []).length > 0;
+      const typeConditions = rule.typeConditions ?? [];
+      const hasType = typeConditions.length > 0;
+      if (!hasPokemon && !hasType) return false;
+
+      // Check Pokémon block
+      const pokemonMet = hasPokemon &&
+        rule.triggerPokemonIds.filter(id => opponentIds.has(id)).length >= rule.triggerCount;
+
+      // Check each type condition
+      const typeResults = typeConditions.map(tc => {
+        const n = team2Pokemon.filter(p => {
+          const eff = getTypeEffectiveness(tc.pokeType, p.types);
+          if (tc.kind === "resist") return eff < 1 && eff > 0;
+          if (tc.kind === "weak")   return eff > 1;
+          if (tc.kind === "immune") return eff === 0;
+          return false;
+        }).length;
+        return n >= tc.count;
+      });
+      const allTypeMet = hasType && typeResults.every(Boolean);
+      const anyTypeMet = hasType && typeResults.some(Boolean);
+
+      if (rule.conditionMode === "any") {
+        return pokemonMet || anyTypeMet;
+      } else {
+        return (!hasPokemon || pokemonMet) && (!hasType || allTypeMet);
+      }
+    });
+
+    if (triggered.length > 0) return triggered;
+
+    // Fallback: return the first default rule when nothing else matched
+    const fallback = teamRules.rules.find(r => r.isDefault);
+    return fallback ? [fallback] : [];
+  }, [teamRules.rules, team2Pokemon]);
+
+  const triggerPickerPokemon = useMemo(() => {
+    const base = getPokemonByRegulation(loadedTeamRegulation);
+    const q = triggerSearch.toLowerCase().trim();
+    if (!q) return base;
+    return base.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      tp(p.name).toLowerCase().includes(q)
+    );
+  }, [loadedTeamRegulation, triggerSearch, tp]);
 
   const importFromPokepaste = (text: string, target: 1 | 2) => {
     trackEvent("import_pokepaste", "team_tester");
@@ -893,6 +1132,430 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Team Rules */}
+      {loadedTeamId && team1Pokemon.length >= 4 && (
+        <div className="glass rounded-2xl p-5 border border-gray-200/60">
+          {/* Header */}
+          <div
+            className="flex items-center justify-between cursor-pointer select-none"
+            onClick={() => setRulesOpen(o => !o)}
+          >
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+              <SlidersHorizontal className="w-4 h-4 text-violet-500" />
+              Team Rules
+            </h3>
+            <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+              {editingRules ? (
+                <>
+                  <button
+                    onClick={saveRules}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium bg-violet-600 text-white hover:bg-violet-700 transition-colors"
+                  >
+                    <Check className="w-3 h-3" /> Save
+                  </button>
+                  <button
+                    onClick={() => { setEditingRules(false); setOpenTriggerPickerForRule(null); }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors"
+                  >
+                    <X className="w-3 h-3" /> Cancel
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={enterRulesEditMode}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors"
+                >
+                  <PenLine className="w-3 h-3" /> Edit Rules
+                </button>
+              )}
+              <ChevronDown className={cn("w-4 h-4 text-muted-foreground transition-transform duration-200", rulesOpen ? "rotate-180" : "")} />
+            </div>
+          </div>
+
+          {rulesOpen && (<>
+          <p className="text-[10px] text-muted-foreground mt-1 mb-4">
+            Define which team composition to use based on opponent Pokémon. Rules fire automatically when the opponent&apos;s team matches.
+          </p>
+
+          {/* Active rule alert (view mode, after sim) */}
+          {!editingRules && matchingRules.length > 0 && team2Pokemon.length > 0 && (
+            <div className="mb-3 p-3 rounded-xl bg-violet-50 dark:bg-violet-950/40 border border-violet-200 dark:border-violet-700 flex items-start gap-2">
+              <Zap className="w-4 h-4 text-violet-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-semibold text-violet-700 dark:text-violet-300">
+                  {matchingRules.length === 1 ? "1 rule active" : `${matchingRules.length} rules active`} for current opponent
+                </p>
+                <p className="text-[10px] text-violet-600/80 dark:text-violet-400/80">
+                  {matchingRules.map(r => r.label || "Unnamed rule").join(" · ")}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Rules list */}
+          {(editingRules ? draftRules : teamRules.rules).length === 0 && !editingRules ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <SlidersHorizontal className="w-8 h-8 mx-auto mb-2 opacity-20" />
+              <p className="text-xs font-medium mb-1">No rules defined</p>
+              <p className="text-[10px] max-w-xs mx-auto opacity-70">Add rules to define which team composition to use based on what Pokémon the opponent has.</p>
+              <button onClick={enterRulesEditMode} className="mt-3 text-xs text-violet-500 hover:underline">
+                + Add first rule
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {(editingRules ? draftRules : teamRules.rules).map((rule, idx) => {
+                const winRate = getRuleWinRate(rule);
+                const isActive = !editingRules && matchingRules.some(r => r.id === rule.id);
+                const lead1Mon = team1Pokemon.find(p => p.name === rule.composition.lead1);
+                const lead2Mon = team1Pokemon.find(p => p.name === rule.composition.lead2);
+                const back1Mon = team1Pokemon.find(p => p.name === rule.composition.back1);
+                const back2Mon = team1Pokemon.find(p => p.name === rule.composition.back2);
+                const teamNames = team1Pokemon.map(p => p.name);
+
+                if (editingRules) {
+                  const triggerIds = rule.triggerPokemonIds;
+                  const triggerMons = triggerIds.map(id => POKEMON_SEED.find(p => p.id === id)).filter(Boolean);
+                  const pickerOpen = openTriggerPickerForRule === rule.id;
+                  return (
+                    <div key={rule.id} className="p-4 rounded-xl border border-gray-200/60 dark:border-white/10 bg-gray-50/80 dark:bg-white/5 space-y-3">
+                      {/* Row 1: number + move + label + delete */}
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-full bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 flex items-center justify-center text-[11px] font-bold flex-shrink-0">{idx + 1}</span>
+                        <div className="flex flex-col gap-0.5 flex-shrink-0">
+                          <button
+                            onClick={() => moveRule(rule.id, "up")}
+                            disabled={idx === 0}
+                            className="w-5 h-4 rounded flex items-center justify-center text-muted-foreground hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/30 transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+                          ><ChevronUp className="w-3 h-3" /></button>
+                          <button
+                            onClick={() => moveRule(rule.id, "down")}
+                            disabled={idx === draftRules.length - 1}
+                            className="w-5 h-4 rounded flex items-center justify-center text-muted-foreground hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/30 transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+                          ><ChevronDown className="w-3 h-3" /></button>
+                        </div>
+                        <input
+                          type="text"
+                          placeholder='Rule label (e.g. "vs Ceruledge", "vs Rain")'
+                          value={rule.label ?? ""}
+                          onChange={e => updateDraftRule(rule.id, { label: e.target.value })}
+                          className="flex-1 text-xs bg-white dark:bg-white/10 border border-gray-200/60 dark:border-white/10 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-violet-500/50"
+                        />
+                        <button
+                          onClick={() => setDefaultRule(rule.id)}
+                          title={rule.isDefault ? "Remove fallback" : "Set as fallback (fires when no other rule matches)"}
+                          className={cn(
+                            "px-2 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-colors flex-shrink-0",
+                            rule.isDefault
+                              ? "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 ring-1 ring-amber-400/60"
+                              : "bg-gray-100 dark:bg-white/10 text-muted-foreground/50 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20"
+                          )}
+                        >fallback</button>
+                        <button onClick={() => removeDraftRule(rule.id)} className="p-1.5 rounded-lg text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex-shrink-0">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      {/* Row 2a: Pokémon triggers */}
+                      <div className="rounded-lg border border-gray-200/60 dark:border-white/10 bg-white/40 dark:bg-white/5 p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">Pokémon Triggers</p>
+                          <div className="flex items-center gap-1">
+                            <span className="text-[9px] text-muted-foreground">Fires if opponent has ≥</span>
+                            <button onClick={() => updateDraftRule(rule.id, { triggerCount: Math.max(1, rule.triggerCount - 1) })} className="w-4 h-4 rounded flex items-center justify-center bg-gray-200 dark:bg-white/15 text-xs font-bold hover:bg-gray-300 transition-colors">−</button>
+                            <span className="text-xs font-bold tabular-nums w-4 text-center">{rule.triggerCount}</span>
+                            <button onClick={() => updateDraftRule(rule.id, { triggerCount: Math.min(Math.max(1, rule.triggerPokemonIds.length), rule.triggerCount + 1) })} disabled={rule.triggerCount >= Math.max(1, rule.triggerPokemonIds.length)} className="w-4 h-4 rounded flex items-center justify-center bg-gray-200 dark:bg-white/15 text-xs font-bold hover:bg-gray-300 transition-colors disabled:opacity-40">+</button>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {triggerMons.map(mon => mon && (
+                            <span key={mon.id} className="inline-flex items-center gap-1 pl-0.5 pr-1.5 py-0.5 rounded-full bg-white dark:bg-white/10 border border-gray-200 dark:border-white/15 text-[10px] font-medium">
+                              <Image src={spriteUrl(mon.sprite)} alt={mon.name} width={16} height={16} unoptimized className="flex-shrink-0" />
+                              {tp(mon.name)}
+                              <button onClick={() => toggleTriggerPokemon(rule.id, mon.id)} className="ml-0.5 text-muted-foreground/60 hover:text-red-500 transition-colors"><X className="w-2.5 h-2.5" /></button>
+                            </span>
+                          ))}
+                          <button
+                            onClick={() => { setOpenTriggerPickerForRule(pickerOpen ? null : rule.id); setTriggerSearch(""); }}
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-dashed border-violet-300 dark:border-violet-600 text-[10px] text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors"
+                          ><Plus className="w-2.5 h-2.5" /> Add Pokémon</button>
+                        </div>
+                        {pickerOpen && (
+                          <div className="rounded-xl border border-violet-200 dark:border-violet-700 bg-white dark:bg-white/5 p-2.5">
+                            <input type="text" placeholder="Search..." value={triggerSearch} onChange={e => setTriggerSearch(e.target.value)} className="w-full text-xs bg-gray-50 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 rounded-lg px-2.5 py-1.5 mb-2 focus:outline-none focus:ring-1 focus:ring-violet-500/50" autoFocus />
+                            <div className="grid grid-cols-8 gap-1 max-h-32 overflow-y-auto">
+                              {triggerPickerPokemon.slice(0, 120).map(p => {
+                                const selected = triggerIds.includes(p.id);
+                                return (
+                                  <button key={p.id} title={tp(p.name)} onClick={() => toggleTriggerPokemon(rule.id, p.id)} className={cn("flex flex-col items-center p-1 rounded-lg transition-all", selected ? "bg-violet-100 dark:bg-violet-900/50 ring-1 ring-violet-400" : "hover:bg-gray-100 dark:hover:bg-white/10")}>
+                                    <Image src={spriteUrl(p.sprite)} alt={p.name} width={28} height={28} unoptimized />
+                                    {selected && <Check className="w-2.5 h-2.5 text-violet-600 -mt-0.5" />}
+                                  </button>
+                                );
+                              })}
+                              {triggerPickerPokemon.length === 0 && <p className="col-span-8 text-center text-[10px] text-muted-foreground py-3">No Pokémon found</p>}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Row 2b: Type conditions */}
+                      <div className="rounded-lg border border-gray-200/60 dark:border-white/10 bg-white/40 dark:bg-white/5 p-3 space-y-2">
+                        <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">Type Conditions</p>
+                        {rule.typeConditions.map(tc => (
+                          <div key={tc.id} className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-[10px] text-muted-foreground flex-shrink-0">Opponent has ≥</span>
+                            <input
+                              type="number" min={1} max={6} value={tc.count}
+                              onChange={e => updateTypeCondition(rule.id, tc.id, { count: Math.max(1, Math.min(6, Number(e.target.value))) })}
+                              className="w-10 text-xs bg-white dark:bg-white/10 border border-gray-200/60 dark:border-white/10 rounded-md px-1.5 py-1 text-center focus:outline-none focus:ring-1 focus:ring-violet-500/50"
+                            />
+                            <span className="text-[10px] text-muted-foreground flex-shrink-0">Pokémon that</span>
+                            <select
+                              value={tc.kind}
+                              onChange={e => updateTypeCondition(rule.id, tc.id, { kind: e.target.value as TypeConditionKind })}
+                              className="text-[10px] bg-white dark:bg-white/10 border border-gray-200/60 dark:border-white/10 rounded-md px-1.5 py-1 focus:outline-none focus:ring-1 focus:ring-violet-500/50"
+                            >
+                              <option value="resist">resist</option>
+                              <option value="weak">are weak to</option>
+                              <option value="immune">are immune to</option>
+                            </select>
+                            <select
+                              value={tc.pokeType}
+                              onChange={e => updateTypeCondition(rule.id, tc.id, { pokeType: e.target.value as PokemonType })}
+                              className="text-[10px] bg-white dark:bg-white/10 border border-gray-200/60 dark:border-white/10 rounded-md px-1.5 py-1 focus:outline-none focus:ring-1 focus:ring-violet-500/50"
+                            >
+                              {(["normal","fire","water","electric","grass","ice","fighting","poison","ground","flying","psychic","bug","rock","ghost","dragon","dark","steel","fairy"] as PokemonType[]).map(t => (
+                                <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
+                              ))}
+                            </select>
+                            <button onClick={() => removeTypeCondition(rule.id, tc.id)} className="p-1 rounded text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex-shrink-0"><X className="w-3 h-3" /></button>
+                          </div>
+                        ))}
+                        <button onClick={() => addTypeCondition(rule.id)} className="inline-flex items-center gap-1 text-[10px] text-violet-600 dark:text-violet-400 hover:underline">
+                          <Plus className="w-2.5 h-2.5" /> Add type condition
+                        </button>
+                      </div>
+
+                      {/* Condition mode toggle (shown only when both condition types are present) */}
+                      {rule.triggerPokemonIds.length > 0 && rule.typeConditions.length > 0 && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">Match mode:</span>
+                          {(["any", "all"] as const).map(mode => (
+                            <button
+                              key={mode}
+                              onClick={() => updateDraftRule(rule.id, { conditionMode: mode })}
+                              className={cn(
+                                "px-2 py-1 rounded-lg text-[10px] font-semibold transition-colors",
+                                rule.conditionMode === mode
+                                  ? "bg-violet-600 text-white"
+                                  : "bg-gray-100 dark:bg-white/10 text-muted-foreground hover:bg-gray-200 dark:hover:bg-white/20"
+                              )}
+                            >
+                              {mode === "any" ? "ANY condition" : "ALL conditions"}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Row 3: composition selects */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Lead</p>
+                          <div className="flex gap-1.5">
+                            {(["lead1", "lead2"] as const).map(key => (
+                              <select
+                                key={key}
+                                value={rule.composition[key]}
+                                onChange={e => updateDraftRule(rule.id, { composition: { [key]: e.target.value } })}
+                                className="flex-1 text-[10px] bg-white dark:bg-white/10 border border-gray-200/60 dark:border-white/10 rounded-lg px-1.5 py-1 focus:outline-none focus:ring-1 focus:ring-violet-500/50"
+                              >
+                                <option value="">—</option>
+                                {teamNames.map(n => <option key={n} value={n}>{n}</option>)}
+                              </select>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Back</p>
+                          <div className="flex gap-1.5">
+                            {(["back1", "back2"] as const).map(key => (
+                              <select
+                                key={key}
+                                value={rule.composition[key]}
+                                onChange={e => updateDraftRule(rule.id, { composition: { [key]: e.target.value } })}
+                                className="flex-1 text-[10px] bg-white dark:bg-white/10 border border-gray-200/60 dark:border-white/10 rounded-lg px-1.5 py-1 focus:outline-none focus:ring-1 focus:ring-violet-500/50"
+                              >
+                                <option value="">—</option>
+                                {teamNames.map(n => <option key={n} value={n}>{n}</option>)}
+                              </select>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Row 4: notes */}
+                      <textarea
+                        placeholder="Optional notes: strategy, counterplay, matchup tips..."
+                        value={rule.notes ?? ""}
+                        onChange={e => updateDraftRule(rule.id, { notes: e.target.value })}
+                        rows={2}
+                        className="w-full text-xs bg-white dark:bg-white/10 border border-gray-200/60 dark:border-white/10 rounded-lg px-2.5 py-1.5 resize-none focus:outline-none focus:ring-1 focus:ring-violet-500/50 placeholder:text-muted-foreground/50"
+                      />
+                    </div>
+                  );
+                }
+
+                // View mode
+                const triggerMonsView = rule.triggerPokemonIds
+                  .map(id => POKEMON_SEED.find(p => p.id === id))
+                  .filter(Boolean);
+                const isFallbackActive = isActive && rule.isDefault;
+                return (
+                  <div key={rule.id} className={cn(
+                    "p-4 rounded-xl border transition-all",
+                    isFallbackActive
+                      ? "bg-amber-50/80 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700 ring-1 ring-amber-200 dark:ring-amber-800"
+                      : isActive
+                        ? "bg-violet-50/80 dark:bg-violet-950/40 border-violet-300 dark:border-violet-600 ring-1 ring-violet-200 dark:ring-violet-800"
+                        : "bg-gray-50/80 dark:bg-white/5 border-gray-200/60 dark:border-white/10"
+                  )}>
+                    {/* Rule header */}
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={cn(
+                          "w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0",
+                          isFallbackActive
+                            ? "bg-amber-200 dark:bg-amber-700 text-amber-800 dark:text-amber-200"
+                            : isActive
+                              ? "bg-violet-200 dark:bg-violet-700 text-violet-800 dark:text-violet-200"
+                              : "bg-gray-200 dark:bg-white/15 text-gray-600 dark:text-gray-400"
+                        )}>{idx + 1}</span>
+                        {rule.label && <span className="text-xs font-semibold">{rule.label}</span>}
+                        {rule.isDefault && !isActive && (
+                          <span className="px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 text-[9px] font-bold uppercase tracking-wider">
+                            Fallback
+                          </span>
+                        )}
+                        {isFallbackActive && (
+                          <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500 text-white text-[9px] font-bold uppercase tracking-wider">
+                            <Zap className="w-2.5 h-2.5" /> Fallback
+                          </span>
+                        )}
+                        {isActive && !rule.isDefault && (
+                          <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-violet-600 text-white text-[9px] font-bold uppercase tracking-wider">
+                            <Zap className="w-2.5 h-2.5" /> Active
+                          </span>
+                        )}
+                      </div>
+                      {winRate !== null && (
+                        <span className={cn(
+                          "text-sm font-black flex-shrink-0",
+                          winRate >= 55 ? "text-green-600" : winRate >= 45 ? "text-foreground" : "text-red-500"
+                        )}>
+                          {winRate}%
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Default rule: show a simple note instead of trigger conditions */}
+                    {rule.isDefault && (
+                      <p className="text-[10px] text-amber-700 dark:text-amber-400 mb-2.5 italic">
+                        Fires when no other rule matches.
+                      </p>
+                    )}
+
+                    {/* Trigger Pokemon (only for non-default rules) */}
+                    {!rule.isDefault && triggerMonsView.length > 0 && (
+                      <div className="mb-2.5">
+                        <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60 mb-1.5">
+                          Fires when opponent has ≥{rule.triggerCount} of:
+                        </p>
+                        <div className="flex flex-wrap gap-1">
+                          {triggerMonsView.map(mon => mon && (
+                            <span key={mon.id} className="inline-flex items-center gap-1 pl-0.5 pr-2 py-0.5 rounded-full bg-white dark:bg-white/10 border border-gray-200/60 dark:border-white/10 text-[10px] font-medium">
+                              <Image src={spriteUrl(mon.sprite)} alt={mon.name} width={18} height={18} unoptimized />
+                              {tp(mon.name)}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Type conditions (only for non-default rules) */}
+                    {!rule.isDefault && rule.typeConditions.length > 0 && (
+                      <div className="mb-2.5">
+                        <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60 mb-1.5">
+                          Type conditions{rule.triggerPokemonIds.length > 0 && <span className="ml-1 font-normal">({rule.conditionMode === "any" ? "OR" : "AND"} with above)</span>}:
+                        </p>
+                        <div className="flex flex-wrap gap-1">
+                          {rule.typeConditions.map(tc => (
+                            <span key={tc.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white dark:bg-white/10 border border-gray-200/60 dark:border-white/10 text-[10px] font-medium">
+                              ≥{tc.count} {tc.kind === "resist" ? "resist" : tc.kind === "weak" ? "weak to" : "immune to"} {tc.pokeType.charAt(0).toUpperCase() + tc.pokeType.slice(1)}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Composition: Lead + Back */}
+                    <div className="grid grid-cols-2 gap-2 mb-2">
+                      <div>
+                        <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60 mb-1">Lead</p>
+                        <div className="flex gap-1.5">
+                          {[{ mon: lead1Mon, name: rule.composition.lead1 }, { mon: lead2Mon, name: rule.composition.lead2 }].map(({ mon, name }, i) => (
+                            <div key={i} className="flex items-center gap-1 px-1.5 py-1 rounded-lg bg-white/60 dark:bg-white/5 border border-gray-100 dark:border-white/10 flex-1 min-w-0">
+                              {mon && <Image src={spriteUrl(mon.sprite)} alt={name} width={24} height={24} unoptimized className="flex-shrink-0" />}
+                              <span className="text-[9px] font-semibold truncate">{name || "—"}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60 mb-1">Back</p>
+                        <div className="flex gap-1.5">
+                          {[{ mon: back1Mon, name: rule.composition.back1 }, { mon: back2Mon, name: rule.composition.back2 }].map(({ mon, name }, i) => (
+                            <div key={i} className="flex items-center gap-1 px-1.5 py-1 rounded-lg bg-white/60 dark:bg-white/5 border border-gray-100 dark:border-white/10 flex-1 min-w-0">
+                              {mon && <Image src={spriteUrl(mon.sprite)} alt={name} width={24} height={24} unoptimized className="flex-shrink-0" />}
+                              <span className="text-[9px] font-semibold truncate">{name || "—"}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Notes */}
+                    {rule.notes && (
+                      <p className="text-xs text-muted-foreground leading-relaxed bg-white/40 dark:bg-white/5 rounded-lg px-3 py-2 border border-gray-100/60 dark:border-white/10">
+                        {rule.notes}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Add rule button (edit mode) */}
+          {editingRules && (
+            <button
+              onClick={addRule}
+              className="mt-3 w-full py-2 rounded-xl border border-dashed border-violet-300 dark:border-violet-600 text-xs text-violet-600 dark:text-violet-400 hover:bg-violet-50/50 dark:hover:bg-violet-900/20 transition-colors flex items-center justify-center gap-1.5"
+            >
+              <Plus className="w-3.5 h-3.5" /> Add Rule
+            </button>
+          )}
+
+          {/* Help text */}
+          {!result && !editingRules && teamRules.rules.length > 0 && (
+            <p className="text-[10px] text-muted-foreground mt-3">
+              Run a simulation against an opponent to see win rates for each rule&apos;s composition.
+            </p>
+          )}
+          </>)}
         </div>
       )}
 
