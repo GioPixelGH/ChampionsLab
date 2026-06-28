@@ -16,9 +16,7 @@
     "refresh:sim:full": "tsx scripts/refresh-simulation.ts --full",
     "check:i18n": "tsx scripts/check-i18n.ts",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "electron": "electron electron/main.js",
-    "companion": "electron electron/main.js"
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",
@@ -42,8 +40,8 @@
     "framer-motion": "^12.38.0",
     "jspdf": "^4.2.1",
     "lucide-react": "^1.7.0",
-    "next": "16.2.1",
-    "nodemailer": "^8.0.4",
+    "next": "16.2.9",
+    "nodemailer": "^9.0.1",
     "pako": "^2.1.0",
     "qrcode": "^1.5.4",
     "react": "19.2.4",
@@ -65,14 +63,13 @@
     "@types/web-push": "^3.6.4",
     "@vitest/coverage-v8": "^4.1.0",
     "cross-env": "^7.0.3",
-    "electron": "^42.5.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
     "node-html-parser": "^7.1.0",
     "prettier": "^3.8.3",
     "tailwindcss": "^4",
-    "tsx": "^4.21.0",
+    "tsx": "^4.22.4",
     "typescript": "^5",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.9"
   }
 }
