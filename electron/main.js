@@ -3,19 +3,28 @@ const path = require("path");
 const fs = require("fs");
 
 const BASE_URL = "http://localhost:3000";
+const CALIBRATION_FILE = path.join(__dirname, "calibration.json");
 
-// Relative centre-points of the 6 opponent sprite icons on the right panel.
-// Calibrated from a 1456×816 (16:9) game screenshot.
-const SPRITE_REGIONS = [
-  { cx: 0.841, cy: 0.197 },
-  { cx: 0.841, cy: 0.312 },
-  { cx: 0.841, cy: 0.428 },
-  { cx: 0.841, cy: 0.543 },
-  { cx: 0.841, cy: 0.662 },
-  { cx: 0.841, cy: 0.781 },
-];
-const SPRITE_W_REL = 0.058;
-const SPRITE_H_REL = 0.090;
+const DEFAULT_CAL = {
+  sprites: [
+    { cx: 0.841, cy: 0.197 },
+    { cx: 0.841, cy: 0.312 },
+    { cx: 0.841, cy: 0.428 },
+    { cx: 0.841, cy: 0.543 },
+    { cx: 0.841, cy: 0.662 },
+    { cx: 0.841, cy: 0.781 },
+  ],
+  w: 0.058,
+  h: 0.090,
+};
+
+function loadCal() {
+  try { return JSON.parse(fs.readFileSync(CALIBRATION_FILE, "utf8")); }
+  catch { return DEFAULT_CAL; }
+}
+function saveCal(cal) {
+  fs.writeFileSync(CALIBRATION_FILE, JSON.stringify(cal, null, 2));
+}
 
 let win = null;
 
@@ -48,8 +57,7 @@ function createWindow() {
       html, body {
         background: transparent !important;
         overflow: hidden !important;
-        margin: 0 !important;
-        padding: 0 !important;
+        margin: 0 !important; padding: 0 !important;
       }
       main { padding-top: 0 !important; margin-top: 0 !important; flex: none !important; }
     `);
@@ -57,63 +65,88 @@ function createWindow() {
 
   win.loadURL(`${BASE_URL}/overlay`);
 
-  ipcMain.on("win-close", () => win.close());
+  ipcMain.on("win-close",    () => win.close());
   ipcMain.on("win-minimize", () => win.minimize());
 }
 
-// ── IPC: sprite list ────────────────────────────────────────────────────
+// ── Sprites list ─────────────────────────────────────────────────────────
 ipcMain.handle("get-sprites-list", () => {
   const dir = path.join(__dirname, "../public/sprites_champions");
   try {
-    return fs
-      .readdirSync(dir)
-      .filter((f) => f.endsWith(".png"))
-      .map((filename) => {
+    return fs.readdirSync(dir)
+      .filter(f => f.endsWith(".png"))
+      .map(filename => {
         const m = filename.match(/^Menu_CP_(\d{4})(.*?)\.png$/);
         if (!m) return null;
         return { id: parseInt(m[1], 10), form: m[2] || "", filename };
       })
       .filter(Boolean);
-  } catch {
-    return [];
-  }
+  } catch { return []; }
 });
 
-// ── IPC: screenshot + crop 6 opponent sprite regions ───────────────────
+// ── Scan (uses calibration) ──────────────────────────────────────────────
+async function takeScreenshot(w, h) {
+  const { desktopCapturer } = require("electron");
+  win.hide();
+  await new Promise(r => setTimeout(r, 80));
+  const sources = await desktopCapturer.getSources({
+    types: ["screen"],
+    thumbnailSize: { width: w, height: h },
+  });
+  win.show();
+  return sources[0]?.thumbnail ?? null;
+}
+
 ipcMain.handle("scan-opponent", async () => {
   try {
     const { width, height } = screen.getPrimaryDisplay().size;
+    const shot = await takeScreenshot(width, height);
+    if (!shot) return null;
 
-    // desktopCapturer needs the Electron window hidden briefly to avoid
-    // capturing the overlay itself — hide, wait a frame, capture, show.
-    if (win) win.hide();
-    await new Promise((r) => setTimeout(r, 80));
-
-    const { desktopCapturer } = require("electron");
-    const sources = await desktopCapturer.getSources({
-      types: ["screen"],
-      thumbnailSize: { width, height },
-    });
-
-    if (win) win.show();
-    if (!sources.length) return null;
-
-    const shot = sources[0].thumbnail;
-
-    const crops = SPRITE_REGIONS.map((region) => {
-      const sw = Math.round(width * SPRITE_W_REL);
-      const sh = Math.round(height * SPRITE_H_REL);
-      const sx = Math.round(width * region.cx - sw / 2);
-      const sy = Math.round(height * region.cy - sh / 2);
+    const cal = loadCal();
+    const crops = cal.sprites.map(({ cx, cy }) => {
+      const sw = Math.round(width  * cal.w);
+      const sh = Math.round(height * cal.h);
+      const sx = Math.round(width  * cx - sw / 2);
+      const sy = Math.round(height * cy - sh / 2);
       return shot.crop({ x: sx, y: sy, width: sw, height: sh }).toDataURL();
     });
-
     return crops;
   } catch (e) {
-    console.error("scan-opponent error:", e);
+    console.error("scan-opponent:", e);
     if (win) win.show();
     return null;
   }
+});
+
+// ── Calibration ──────────────────────────────────────────────────────────
+ipcMain.handle("get-calibration", () => loadCal());
+
+ipcMain.handle("start-calibration", async () => {
+  try {
+    const { width, height } = screen.getPrimaryDisplay().size;
+    const shot = await takeScreenshot(width, height);
+    const screenshot = shot ? shot.toDataURL() : null;
+    win.setSize(width, height);
+    win.setPosition(0, 0);
+    win.show();
+    return { screenshot, calibration: loadCal(), screenWidth: width, screenHeight: height };
+  } catch (e) {
+    console.error("start-calibration:", e);
+    win.show();
+    return null;
+  }
+});
+
+ipcMain.handle("save-calibration", (_, cal) => {
+  saveCal(cal);
+  win.setSize(460, 300);
+  win.center();
+});
+
+ipcMain.handle("cancel-calibration", () => {
+  win.setSize(460, 300);
+  win.center();
 });
 
 app.whenReady().then(createWindow);
