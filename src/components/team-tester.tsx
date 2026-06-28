@@ -12,7 +12,7 @@ import {
   ArrowRightLeft, FolderOpen, Save, Target, Star, Lightbulb,
   TrendingUp, TrendingDown, GitBranch, Shield,
   Settings2, Minus, Plus, Sparkles, Check, Zap, Download, ClipboardPaste, BookOpen,
-  PenLine, AlertTriangle, ChevronDown, ChevronUp, Users, SlidersHorizontal,
+  PenLine, AlertTriangle, ChevronDown, ChevronUp, Users, SlidersHorizontal, Monitor,
 } from "lucide-react";
 import {
   exportTeamTesterPDF, PDF_LABELS_FR, PDF_LABELS_DE,
@@ -1075,6 +1075,17 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
           </div>
 
           <div className="flex-1" />
+
+          <button
+            onClick={() => window.open(
+              "/overlay?screen=team-select",
+              "cl-overlay",
+              "popup,width=1280,height=720"
+            )}
+            className="px-3 py-2 rounded-xl text-xs font-semibold border border-dashed border-violet-400 dark:border-violet-600 text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors flex items-center gap-1.5"
+          >
+            <Monitor className="w-3.5 h-3.5" /> Overlay
+          </button>
 
           <button
             onClick={handleRun}
