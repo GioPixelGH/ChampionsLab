@@ -6,7 +6,13 @@ import "@fontsource-variable/inter";
 import "@fontsource-variable/jetbrains-mono";
 import "@fontsource/sora/600.css";
 import "@fontsource/sora/700.css";
+import { Navbar } from "@/components/navbar";
+import { NativeUiWrapper } from "@/components/native-ui-wrapper";
+import { Footer } from "@/components/footer";
 import { ThemeInit } from "@/components/theme-init";
+import { MobileNavInit } from "@/components/mobile-nav-init";
+import { UpdateModal } from "@/components/update-modal";
+import { CookieConsent } from "@/components/cookie-consent";
 import { I18nProvider } from "@/lib/i18n";
 
 export const metadata: Metadata = {
@@ -62,6 +68,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // cookies() is unavailable in static export (mobile build) — fallback to defaults.
+  // Theme and locale are applied client-side by ThemeInit and LanguageSelector.
   let initialLocale = "en";
   let isDark = false;
   try {
@@ -82,9 +90,31 @@ export default async function RootLayout({
     >
       <head />
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <ThemeInit />
         <I18nProvider initialLocale={initialLocale}>
-          <Suspense>{children}</Suspense>
+        <NativeUiWrapper />
+        <CookieConsent />
+        {/* Pure HTML hamburger  -  works instantly, no React hydration needed */}
+        <button
+          id="mobile-nav-toggle"
+          className="mobile-nav-btn"
+          aria-label="Toggle menu"
+          suppressHydrationWarning
+        >
+          <svg className="hamburger-open w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          <svg className="hamburger-close w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <MobileNavInit />
+        <ThemeInit />
+        <Navbar />
+        <Suspense>
+          <main className="flex-1 relative z-10">{children}</main>
+        </Suspense>
+        <UpdateModal />
+        <Footer />
         </I18nProvider>
       </body>
     </html>
