@@ -12,7 +12,7 @@ import {
   ArrowRightLeft, FolderOpen, Save, Target, Star, Lightbulb,
   TrendingUp, TrendingDown, GitBranch, Shield,
   Settings2, Minus, Plus, Sparkles, Check, Zap, Download, ClipboardPaste, BookOpen,
-  PenLine, AlertTriangle, ChevronDown, ChevronUp, Users, SlidersHorizontal, Monitor,
+  PenLine, AlertTriangle, ChevronDown, ChevronUp, Users, SlidersHorizontal,
 } from "lucide-react";
 import {
   exportTeamTesterPDF, PDF_LABELS_FR, PDF_LABELS_DE,
@@ -65,10 +65,9 @@ import { SIM_POKEMON } from "@/lib/simulation-data";
 import { TOURNAMENT_USAGE } from "@/lib/engine/vgc-data";
 import {
   getSavedTeams, deserializeTeam, saveMatchRecord, getMatchRecords,
-  updateTeamRules, writeOverlayState,
+  updateTeamRules,
   type SavedTeam, type MatchRecord, type TeamRule, type TeamRules, type TeamRuleComposition,
   type TypeCondition, type TypeConditionKind,
-  type OverlayPick, type OverlayState,
 } from "@/lib/storage";
 
 // ── Type effectiveness (for rule matching) ────────────────────────────────
@@ -753,51 +752,6 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
     return fallback ? [fallback] : [];
   }, [teamRules.rules, team2Pokemon]);
 
-  // Sync overlay state whenever the recommendation changes
-  useEffect(() => {
-    if (team1Pokemon.length < 4) { writeOverlayState(null); return; }
-
-    let state: OverlayState | null = null;
-
-    if (matchingRules.length > 0) {
-      const rule = matchingRules[0];
-      const { lead1, lead2, back1, back2 } = rule.composition;
-      const byName = (n: string) => team1Pokemon.find(p => p.name === n);
-      const picks: OverlayPick[] = (
-        [
-          lead1 ? { slot: 1 as const, role: "lead" as const, name: lead1, sprite: byName(lead1)?.sprite ?? "" } : null,
-          lead2 ? { slot: 2 as const, role: "lead" as const, name: lead2, sprite: byName(lead2)?.sprite ?? "" } : null,
-          back1 ? { slot: 3 as const, role: "back" as const, name: back1, sprite: byName(back1)?.sprite ?? "" } : null,
-          back2 ? { slot: 4 as const, role: "back" as const, name: back2, sprite: byName(back2)?.sprite ?? "" } : null,
-        ] as (OverlayPick | null)[]
-      ).filter((p): p is OverlayPick => p !== null && p.name !== "");
-      if (picks.length > 0) {
-        state = { picks, label: rule.label ?? "Team Rule", winRate: getRuleWinRate(rule) ?? undefined, updatedAt: Date.now() };
-      }
-    } else if (result && result.leadCombos.length > 0) {
-      const top = result.leadCombos[0];
-      const lead1Mon = team1Pokemon.find(p => p.name === top.lead1);
-      const lead2Mon = team1Pokemon.find(p => p.name === top.lead2);
-      if (lead1Mon && lead2Mon) {
-        const remaining = team1Pokemon.filter(p => p.name !== top.lead1 && p.name !== top.lead2);
-        const score = (n: string) => result.leadCombos.slice(0, 10).filter(c => c.lead1 === n || c.lead2 === n).length;
-        const backs = [...remaining].sort((a, b) => score(b.name) - score(a.name));
-        state = {
-          picks: [
-            { slot: 1, role: "lead", name: lead1Mon.name, sprite: lead1Mon.sprite },
-            { slot: 2, role: "lead", name: lead2Mon.name, sprite: lead2Mon.sprite },
-            ...(backs[0] ? [{ slot: 3 as const, role: "back" as const, name: backs[0].name, sprite: backs[0].sprite }] : []),
-            ...(backs[1] ? [{ slot: 4 as const, role: "back" as const, name: backs[1].name, sprite: backs[1].sprite }] : []),
-          ],
-          label: "Best Simulation Lead",
-          winRate: Math.round(top.winRate),
-          updatedAt: Date.now(),
-        };
-      }
-    }
-    writeOverlayState(state);
-  }, [matchingRules, result, team1Pokemon, getRuleWinRate]);
-
   const triggerPickerPokemon = useMemo(() => {
     const base = getPokemonByRegulation(loadedTeamRegulation);
     const q = triggerSearch.toLowerCase().trim();
@@ -1194,17 +1148,6 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
               Team Rules
             </h3>
             <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-              <button
-                onClick={() => {
-                  const url = `${window.location.origin}/overlay`;
-                  navigator.clipboard.writeText(url).catch(() => {});
-                  window.open(`${url}?corner=bl`, "cl-overlay", "width=260,height=220,menubar=no,toolbar=no,location=no,status=no,resizable=yes");
-                }}
-                title="Copy overlay URL (add as OBS Browser Source) — also opens a preview window"
-                className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-medium bg-gray-100 dark:bg-white/10 hover:bg-violet-50 dark:hover:bg-violet-900/20 text-muted-foreground hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
-              >
-                <Monitor className="w-3 h-3" /> Overlay
-              </button>
               {editingRules ? (
                 <>
                   <button

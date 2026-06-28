@@ -16,10 +16,7 @@ const KEYS = {
   MATCH_JOURNAL: "champions-lab:match-journal",
   MY_ROSTER_LEGACY: "champions-lab:my-roster",
   BOX_SCANNER_LAYOUT: "champions-lab:box-scanner-layout",
-  OVERLAY: "champions-lab:overlay",
 } as const;
-
-export const OVERLAY_STORAGE_KEY = "champions-lab:overlay";
 
 function getRosterKey(seasonId: number): string {
   return `champions-lab:roster:${seasonId}`;
@@ -238,32 +235,6 @@ export function saveTeam(name: string, slots: TeamSlot[], existingId?: string, r
 export function deleteTeam(id: string): void {
   const teams = getSavedTeams().filter((t) => t.id !== id);
   writeJSON(KEYS.SAVED_TEAMS, teams);
-}
-
-// ── Overlay types ─────────────────────────────────────────────────────────
-
-export interface OverlayPick {
-  slot: 1 | 2 | 3 | 4;
-  role: "lead" | "back";
-  name: string;
-  sprite: string;
-}
-
-export interface OverlayState {
-  picks: OverlayPick[];
-  label: string;
-  winRate?: number;
-  updatedAt: number;
-}
-
-export function writeOverlayState(state: OverlayState | null): void {
-  try {
-    if (state === null) {
-      localStorage.removeItem(KEYS.OVERLAY);
-    } else {
-      localStorage.setItem(KEYS.OVERLAY, JSON.stringify(state));
-    }
-  } catch {}
 }
 
 /** Update the team rules for a saved team */
