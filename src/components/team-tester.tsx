@@ -1195,8 +1195,12 @@ export default function TeamTester({ initialTeam2Ids }: TeamTesterProps) {
             </h3>
             <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
               <button
-                onClick={() => window.open("/overlay", "cl-overlay", "width=360,height=290,menubar=no,toolbar=no,location=no,status=no,resizable=yes")}
-                title="Open overlay window"
+                onClick={() => {
+                  const url = `${window.location.origin}/overlay`;
+                  navigator.clipboard.writeText(url).catch(() => {});
+                  window.open(`${url}?corner=bl`, "cl-overlay", "width=260,height=220,menubar=no,toolbar=no,location=no,status=no,resizable=yes");
+                }}
+                title="Copy overlay URL (add as OBS Browser Source) — also opens a preview window"
                 className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-medium bg-gray-100 dark:bg-white/10 hover:bg-violet-50 dark:hover:bg-violet-900/20 text-muted-foreground hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
               >
                 <Monitor className="w-3 h-3" /> Overlay
