@@ -275,11 +275,7 @@ function MetaPageInner() {
   const [rosterFilter, setRosterFilter] = useState<"all" | "roster" | "off">("all");
   const [findTeamsRosterFilter, setFindTeamsRosterFilter] = useState<"all" | "roster" | "off">("all");
 
-  // ── Manual sync state (Teams tab — writes to simulation-data.ts) ────────
-  const [syncState, setSyncState] = useState<"idle" | "running" | "done" | "error">("idle");
-  const [syncLog, setSyncLog] = useState<string>("");
-
-  // ── Usage Rankings live sync (Overview tab — localStorage cache) ──────────
+  // ── Usage Rankings + Tournament Teams live sync (localStorage cache) ──────
   const [usageSyncState, setUsageSyncState] = useState<"idle" | "running" | "done" | "error">("idle");
   const [usageSyncLog, setUsageSyncLog] = useState<string>("");
   const [liveUsageRankings, setLiveUsageRankings] = useState<UsageRankingEntry[]>(() => {
@@ -294,35 +290,6 @@ function MetaPageInner() {
     return c ? { syncedAt: c.syncedAt, tournamentCount: c.tournamentCount, totalTeams: c.totalTeams } : null;
   });
 
-  const handleSync = async () => {
-    setSyncState("running");
-    setSyncLog("");
-    try {
-      const res = await fetch("/api/sync-tournaments", { method: "POST" });
-      const json = await res.json();
-      if (!json.ok && json.error) {
-        setSyncState("error");
-        setSyncLog(json.error);
-        return;
-      }
-      // Fire-and-forget: poll the log until done
-      const poll = setInterval(async () => {
-        try {
-          const lr = await fetch("/api/sync-tournaments/log");
-          const lj = await lr.json();
-          if (lj.log) setSyncLog(lj.log);
-          if (lj.done) {
-            clearInterval(poll);
-            setSyncState(lj.failed ? "error" : "done");
-          }
-        } catch { /* keep polling */ }
-      }, 4000);
-    } catch (e) {
-      setSyncState("error");
-      setSyncLog(String(e));
-    }
-  };
-
   const [selectedRegulationId, setSelectedRegulationId] = useState<string>(
     () => getSettings().defaultRegulationId || (getActiveRegulation()?.id ?? SEASONS[0]?.regulations[0]?.id ?? "M-A")
   );
@@ -335,6 +302,31 @@ function MetaPageInner() {
     setLiveUsageRankings(c?.rankings ?? []);
     setUsageCacheMeta(c ? { syncedAt: c.syncedAt, tournamentCount: c.tournamentCount, totalTeams: c.totalTeams } : null);
   }
+
+  // Live tournament teams derived from the usage cache (updates automatically after sync)
+  // Falls back to static simulation-data.ts teams when no cache is available
+  const liveCacheTeams = useMemo(() => {
+    if (typeof window === "undefined") return null;
+    const cache = loadUsageCache(selectedRegulationId);
+    if (!cache || cache.tournaments.length === 0) return null;
+    return cache.tournaments.flatMap((t, _ti) =>
+      t.teams.map((team, i) => ({
+        id: `${t.id}-${i}`,
+        tournament: t.name,
+        players: t.players,
+        placement: team.placement,
+        player: team.player,
+        wins: 0,
+        losses: 0,
+        pokemonIds: team.pokemonIds,
+        pokemonNames: team.pokemonNames,
+        sets: team.sets,
+      }))
+    ).filter(team => team.pokemonIds.every((id: number) => _VALID_IDS.has(id)));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [liveUsageRankings, selectedRegulationId]);
+
+  const activeTeams = liveCacheTeams ?? _VALID_CHAMPIONS_TEAMS;
 
   const handleUsageSync = async () => {
     setUsageSyncState("running");
@@ -547,7 +539,7 @@ function MetaPageInner() {
   // ── Filtered tournament teams by selected Pokémon ──────────────
   const teamFilterMatches = useMemo(() => {
     if (teamFilterIds.length === 0 && teamTypeFilter.length === 0) return [];
-    return [..._VALID_CHAMPIONS_TEAMS]
+    return [...activeTeams]
       .filter(t => {
         if (teamFilterIds.length > 0 && !teamFilterIds.every(id => t.pokemonIds.includes(id))) return false;
         if (teamTypeFilter.length > 0) {
@@ -557,7 +549,8 @@ function MetaPageInner() {
         return true;
       })
       .sort((a, b) => a.placement - b.placement || b.players - a.players);
-  }, [teamFilterIds, teamTypeFilter]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [teamFilterIds, teamTypeFilter, activeTeams]);
 
   const teamFilterResults = useMemo(() => {
     if (findTeamsRosterFilter === "all") return teamFilterMatches;
@@ -841,9 +834,9 @@ function MetaPageInner() {
 
             {/* Tournament Teams */}
             <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">
-              {_VALID_CHAMPIONS_TEAMS.length} Tournament Teams
+              {activeTeams.length} Tournament Teams
             </p>
-            {[..._VALID_CHAMPIONS_TEAMS]
+            {[...activeTeams]
               .sort((a, b) => a.placement - b.placement || b.players - a.players)
               .map((team) => {
                 const teamPokemon = team.pokemonIds
@@ -1271,7 +1264,7 @@ function MetaPageInner() {
           </a>
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200">
             <Award className="w-3.5 h-3.5 text-emerald-600" />
-            <span className="text-xs font-medium text-emerald-700">{t('meta.badges.tournaments', { count: _VALID_CHAMPIONS_TEAMS.length })}</span>
+            <span className="text-xs font-medium text-emerald-700">{t('meta.badges.tournaments', { count: activeTeams.length })}</span>
           </div>
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-50 border border-cyan-200">
             <Swords className="w-3.5 h-3.5 text-cyan-600" />
@@ -1492,13 +1485,13 @@ function MetaPageInner() {
               <h2 className="text-lg font-extrabold flex items-center gap-2">
                 <Trophy className="w-5 h-5 text-amber-500" /> {t('meta.tournamentWinningTeams')}
               </h2>
-              <span className="px-3 py-1 text-[10px] font-bold uppercase rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30">{t('meta.realTeams', { count: _VALID_CHAMPIONS_TEAMS.length })}</span>
+              <span className="px-3 py-1 text-[10px] font-bold uppercase rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30">{t('meta.realTeams', { count: activeTeams.length })}</span>
             </div>
             <p className="text-sm text-muted-foreground mb-5">
               {t('meta.tournamentWinningDesc')}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {[..._VALID_CHAMPIONS_TEAMS].sort((a, b) => a.placement - b.placement || b.players - a.players).slice(0, 8).map(team => {
+              {[...activeTeams].sort((a, b) => a.placement - b.placement || b.players - a.players).slice(0, 8).map(team => {
                 const teamPokemon = team.pokemonIds.map(id => POKEMON_SEED.find(p => p.id === id)).filter((p): p is NonNullable<typeof p> => !!p);
                 return (
                   <div key={team.id} className="p-4 rounded-xl border hover:shadow-md transition-all cursor-pointer bg-white/60 dark:bg-white/[0.04] border-amber-200/60 dark:border-amber-500/15 hover:border-amber-300 dark:hover:border-amber-500/30" onClick={() => setModal({ kind: "tournament-team", id: team.id })}>
@@ -1528,7 +1521,7 @@ function MetaPageInner() {
               })}
             </div>
             <button onClick={() => setActiveTab("teams")} className="mt-4 text-xs text-amber-600 hover:text-amber-700 font-medium flex items-center gap-1">
-              {t('meta.viewAllTournamentTeams').replace('{count}', String(_VALID_CHAMPIONS_TEAMS.length))} <ArrowRight className="w-3 h-3" />
+              {t('meta.viewAllTournamentTeams').replace('{count}', String(activeTeams.length))} <ArrowRight className="w-3 h-3" />
             </button>
           </div>
 
@@ -2387,28 +2380,28 @@ function MetaPageInner() {
               </h2>
               <div className="flex items-center gap-2">
                 <span className="px-3 py-1 text-[10px] font-bold uppercase rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30">
-                  {t('meta.teamsCount', { count: _VALID_CHAMPIONS_TEAMS.length })}
+                  {t('meta.teamsCount', { count: activeTeams.length })}
                 </span>
                 <button
-                  onClick={handleSync}
-                  disabled={syncState === "running"}
+                  onClick={handleUsageSync}
+                  disabled={usageSyncState === "running"}
                   title="Sincronizza dati da Limitless"
                   className={cn(
                     "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all",
-                    syncState === "running"
+                    usageSyncState === "running"
                       ? "bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30 text-amber-600 dark:text-amber-400 cursor-wait"
-                      : syncState === "done"
+                      : usageSyncState === "done"
                       ? "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
-                      : syncState === "error"
+                      : usageSyncState === "error"
                       ? "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400"
                       : "bg-white dark:bg-white/[0.05] border-gray-200 dark:border-white/10 text-muted-foreground hover:text-amber-700 hover:border-amber-300 dark:hover:border-amber-500/40"
                   )}
                 >
-                  {syncState === "running" ? (
-                    <><span className="animate-spin inline-block w-3 h-3 border-2 border-amber-400 border-t-transparent rounded-full" />Sync in corso…</>
-                  ) : syncState === "done" ? (
-                    <><Sparkles className="w-3 h-3" />Fatto — ricarica la pagina</>
-                  ) : syncState === "error" ? (
+                  {usageSyncState === "running" ? (
+                    <><span className="animate-spin inline-block w-3 h-3 border-2 border-amber-400 border-t-transparent rounded-full" />Sync…</>
+                  ) : usageSyncState === "done" ? (
+                    <><Sparkles className="w-3 h-3" />Aggiornato</>
+                  ) : usageSyncState === "error" ? (
                     <><X className="w-3 h-3" />Errore</>
                   ) : (
                     <><TrendingUp className="w-3 h-3" />Sync Limitless</>
@@ -2416,14 +2409,21 @@ function MetaPageInner() {
                 </button>
               </div>
             </div>
-            {(syncState === "done" || syncState === "error") && syncLog && (
+            {usageSyncState !== "idle" && usageSyncLog && (
               <div className={cn(
-                "mb-3 p-3 rounded-xl text-[10px] font-mono whitespace-pre-wrap max-h-32 overflow-y-auto border",
-                syncState === "done"
+                "mb-3 p-2.5 rounded-xl text-[10px] font-mono border flex items-start justify-between gap-2",
+                usageSyncState === "error"
+                  ? "bg-red-50 dark:bg-red-500/[0.08] border-red-200 dark:border-red-500/20 text-red-700"
+                  : usageSyncState === "done"
                   ? "bg-emerald-50 dark:bg-emerald-500/[0.08] border-emerald-200 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-300"
-                  : "bg-red-50 dark:bg-red-500/[0.08] border-red-200 dark:border-red-500/20 text-red-800 dark:text-red-300"
+                  : "bg-amber-50 dark:bg-amber-500/[0.08] border-amber-200 dark:border-amber-500/20 text-amber-800 dark:text-amber-300"
               )}>
-                {syncLog.slice(-2000)}
+                <span>{usageSyncLog}</span>
+                {(usageSyncState === "done" || usageSyncState === "error") && (
+                  <button aria-label="Chiudi" onClick={() => { setUsageSyncState("idle"); setUsageSyncLog(""); }} className="shrink-0 opacity-50 hover:opacity-100">
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
               </div>
             )}
             <p className="text-sm text-muted-foreground mb-4">
@@ -2458,7 +2458,7 @@ function MetaPageInner() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {([..._VALID_CHAMPIONS_TEAMS]
+              {([...activeTeams]
                 .filter(team => {
                   if (rosterFilter === "all") return true;
                   const inRoster = team.pokemonIds.every(id => myRoster.has(id));
@@ -2497,7 +2497,7 @@ function MetaPageInner() {
               })}
             </div>
             {(() => {
-              const filteredCount = _VALID_CHAMPIONS_TEAMS.filter(team => {
+              const filteredCount = activeTeams.filter(team => {
                 if (rosterFilter === "all") return true;
                 const inRoster = team.pokemonIds.every(id => myRoster.has(id));
                 return rosterFilter === "roster" ? inRoster : !inRoster;
@@ -2530,7 +2530,7 @@ function MetaPageInner() {
                 <Search className="w-5 h-5 text-cyan-500" /> Find Teams by Pokémon
               </h2>
               <span className="px-3 py-1 text-[10px] font-bold uppercase rounded-full bg-cyan-100 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/30">
-                {_VALID_CHAMPIONS_TEAMS.length} teams
+                {activeTeams.length} teams
               </span>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
@@ -3884,7 +3884,7 @@ function MetaPageInner() {
               const names = pairName.split(" + ");
               const pokemon1 = POKEMON_SEED.find(p => p.name === names[0]);
               const pokemon2 = POKEMON_SEED.find(p => p.name === names[1]);
-              const teamsWithBoth = (pokemon1 && pokemon2) ? _VALID_CHAMPIONS_TEAMS.filter(tm => tm.pokemonIds.includes(pokemon1.id) && tm.pokemonIds.includes(pokemon2.id)) : [];
+              const teamsWithBoth = (pokemon1 && pokemon2) ? activeTeams.filter(tm => tm.pokemonIds.includes(pokemon1.id) && tm.pokemonIds.includes(pokemon2.id)) : [];
               return (
                 <div className="p-6 space-y-6">
                   <div className="flex items-center gap-5">
@@ -4179,7 +4179,7 @@ function MetaPageInner() {
             })()}
 
             {modal.kind === "tournament-team" && (() => {
-              const team = _VALID_CHAMPIONS_TEAMS.find(t => t.id === modal.id);
+              const team = activeTeams.find(t => t.id === modal.id);
               if (!team) return <div className="p-8 text-center text-muted-foreground">{t('meta.teamNotFound')}</div>;
               const teamPokemon = team.pokemonIds.map(id => POKEMON_SEED.find(p => p.id === id)).filter((p): p is NonNullable<typeof p> => !!p);
               const allTypes = [...new Set(teamPokemon.flatMap(p => p.types))];
