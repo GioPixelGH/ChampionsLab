@@ -222,6 +222,8 @@ export async function POST(req: NextRequest) {
               return {
                 placement: s.placing!,
                 player: s.name ?? "Unknown",
+                wins: s.record?.wins ?? 0,
+                losses: s.record?.losses ?? 0,
                 pokemonIds: paired.map(p => p.id),
                 pokemonNames: paired.map(p => p.name),
                 sets: paired.map(p => p.set),

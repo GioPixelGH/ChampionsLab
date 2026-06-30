@@ -11,6 +11,8 @@ export interface CachedTournamentSet {
 export interface CachedTeam {
   placement: number;
   player: string;
+  wins: number;
+  losses: number;
   pokemonIds: number[];
   pokemonNames: string[];
   sets: CachedTournamentSet[];
