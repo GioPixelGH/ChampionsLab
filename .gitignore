@@ -44,6 +44,7 @@ scripts/sync-last-run.log
 AGENT-CONTEXT.md
 
 # LLM/agent documentation (local reference only)
+CLAUDE.md
 AGENTS.md
 API_AND_BACKEND.md
 ARCHITECTURE.md
