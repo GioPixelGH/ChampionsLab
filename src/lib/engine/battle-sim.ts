@@ -3971,7 +3971,7 @@ const COMPETITIVE_ITEMS = [
   "Black Belt", "Sharp Beak", "Twisted Spoon", "Silver Powder", "Dragon Fang",
   "Black Glasses", "Spell Tag", "Soft Sand", "Hard Stone", "Poison Barb",
   "Metal Coat", "Silk Scarf", "Focus Band", "Shell Bell", "Scope Lens",
-  "White Herb", "Mental Herb", "BrightPowder", "King's Rock", "Quick Claw",
+  "White Herb", "Mental Herb", "Bright Powder", "King's Rock", "Quick Claw",
 ];
 
 function pickNatureForMon(p: ChampionsPokemon): string {

@@ -75,7 +75,7 @@ function buildAttacker(threat: ThreatSet): {
   }
 
   // Palafin assumes Hero Form
-  if (pokemon.name === "Palafin" && ability === "Zero To Hero") {
+  if (pokemon.name === "Palafin" && ability === "Zero to Hero") {
     baseStats = { hp: 100, attack: 160, defense: 97, spAtk: 106, spDef: 87, speed: 100 };
   }
 

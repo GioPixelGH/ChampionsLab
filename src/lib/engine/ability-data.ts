@@ -654,8 +654,8 @@ export const ABILITY_DATA: Record<string, AbilityEffect> = {
     description: "Electric and Fighting moves gain 20% power. Speed increases by 1 stage after KO.",
     damageMultiplier: 1.2, vgcRelevance: 8,
   },
-  "Zero To Hero": {
-    name: "Zero To Hero", category: "form-change",
+  "Zero to Hero": {
+    name: "Zero to Hero", category: "form-change",
     description: "Transforms from Zero Form to Hero Form upon switching out and back in.",
     vgcRelevance: 8,
   },

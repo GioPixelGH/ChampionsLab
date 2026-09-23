@@ -159,9 +159,30 @@ export function serializeTeam(slots: TeamSlot[]): SavedTeamSlot[] {
     }));
 }
 
+// Saved teams and share links created before 2026-09-23 can still contain these since-corrected spellings.
+const LEGACY_NAMES: Record<string, string> = {
+  "Zero To Hero": "Zero to Hero", "Good As Gold": "Good as Gold", BrightPowder: "Bright Powder",
+  Dragonitite: "Dragoninite", Drampite: "Drampanite", Feraligatrite: "Feraligite", Glimmorite: "Glimmoranite",
+  Hawluchite: "Hawluchanite", Skarmoryite: "Skarmorite", Barbaraclite: "Barbaracite", Scolipedite: "Scolipite",
+  Scraftite: "Scraftinite", "Double Edge": "Double-Edge", "U Turn": "U-turn", "Self Destruct": "Self-Destruct",
+  "Mud Slap": "Mud-Slap", "X Scissor": "X-Scissor", "Power Up Punch": "Power-Up Punch", "Topsy Turvy": "Topsy-Turvy",
+  "Will O Wisp": "Will-O-Wisp",
+};
+
+export function fixLegacyName<T extends string | undefined>(name: T): T {
+  return (name && LEGACY_NAMES[name] ? LEGACY_NAMES[name] : name) as T;
+}
+
 /** Convert saved data back to live TeamSlot[] (rehydrate Pokémon objects) */
 export function deserializeTeam(saved: SavedTeamSlot[]): TeamSlot[] {
-  const slots: TeamSlot[] = saved.map((s) => {
+  const slots: TeamSlot[] = saved.map((raw) => {
+    const s = {
+      ...raw,
+      ability: fixLegacyName(raw.ability),
+      preMegaAbility: fixLegacyName(raw.preMegaAbility),
+      item: fixLegacyName(raw.item),
+      moves: (raw.moves ?? []).map(fixLegacyName),
+    };
     const pokemon = POKEMON_SEED.find((p) => p.id === s.pokemonId) ?? null;
     // Auto-detect megaFormIndex from item/ability if not stored
     let megaFormIndex = s.megaFormIndex;

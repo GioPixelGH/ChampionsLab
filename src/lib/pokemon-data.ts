@@ -9630,10 +9630,6 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         {"name":"Baton Pass","type":"normal","category":"status","power":null,"accuracy":null,"pp":40,"description":"The user switches places with a party Pokémon in waiting and passes along any stat changes."},
         {"name":"Bite","type":"dark","category":"physical","power":60,"accuracy":100,"pp":25,"description":"The target is bitten with viciously sharp fangs. This may also make the target flinch."},
         {"name":"Body Slam","type":"normal","category":"physical","power":85,"accuracy":100,"pp":15,"description":"The user attacks by dropping onto the target with its full body weight. This may also leave the target with paralysis."},
-        {"name":"Baby-Doll Eyes","type":"fairy","category":"status","power":null,"accuracy":100,"pp":30,"description":"The user stares at the target with its baby-doll eyes, which lowers the target's Attack stat. This move always goes first."},
-        {"name":"Baton Pass","type":"normal","category":"status","power":null,"accuracy":null,"pp":40,"description":"The user switches places with a party Pokémon in waiting and passes along any stat changes."},
-        {"name":"Bite","type":"dark","category":"physical","power":60,"accuracy":100,"pp":25,"description":"The target is bitten with viciously sharp fangs. This may also make the target flinch."},
-        {"name":"Body Slam","type":"normal","category":"physical","power":85,"accuracy":100,"pp":15,"description":"The user attacks by dropping onto the target with its full body weight. This may also leave the target with paralysis."},
         {"name":"Calm Mind","type":"psychic","category":"status","power":null,"accuracy":null,"pp":20,"description":"The user quietly focuses its mind and calms its spirit to boost its Sp. Atk and Sp. Def stats."},
         {"name":"Charm","type":"fairy","category":"status","power":null,"accuracy":100,"pp":20,"description":"The user gazes at the target rather charmingly, making it less wary. This harshly lowers the target's Attack stat."},
         {"name":"Confuse Ray","type":"ghost","category":"status","power":null,"accuracy":100,"pp":10,"description":"The target is exposed to a sinister ray that causes confusion."},
@@ -26029,7 +26025,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     },
     "abilities": [
       {
-        "name": "Zero To Hero",
+        "name": "Zero to Hero",
         "description": "Transforms into its Hero Form when switching out.",
         "isHidden": false
       }
@@ -29158,7 +29154,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     },
     "abilities": [
       {
-        "name": "Good As Gold",
+        "name": "Good as Gold",
         "description": "A body of pure, solid gold gives the Pokémon full immunity to other Pokémon's status moves.",
         "isHidden": false
       }
@@ -29667,7 +29663,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "Works 2-3 turns and confuses user."
       },
       {
-        "name": "Double Edge",
+        "name": "Double-Edge",
         "type": "normal",
         "category": "physical",
         "power": 120,
@@ -29919,7 +29915,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "Boosts ATTACK when burned, paralyzed, or poisoned."
       },
       {
-        "name": "U Turn",
+        "name": "U-turn",
         "type": "bug",
         "category": "physical",
         "power": 70,
@@ -30367,7 +30363,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
     ],
     "moves": [
       {
-        "name": "Self Destruct",
+        "name": "Self-Destruct",
         "type": "normal",
         "category": "physical",
         "power": 200,
@@ -30394,7 +30390,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The user charges at the foe using every bit of its power. The user must rest on the next turn."
       },
       {
-        "name": "Double Edge",
+        "name": "Double-Edge",
         "type": "normal",
         "category": "physical",
         "power": 120,
@@ -31428,7 +31424,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The user attacks by shooting scales two to five times in a row. This move boosts the user’s Speed stat but lowers its Defense stat."
       },
       {
-        "name": "Mud Slap",
+        "name": "Mud-Slap",
         "type": "ground",
         "category": "special",
         "power": 20,
@@ -31928,7 +31924,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The foe is stabbed with a tentacle or arm steeped in poison. It may also poison the foe."
       },
       {
-        "name": "X Scissor",
+        "name": "X-Scissor",
         "type": "bug",
         "category": "physical",
         "power": 80,
@@ -32216,7 +32212,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The user attacks its target by hitting it with brutal strikes. The target is hit twice in a row."
       },
       {
-        "name": "Power Up Punch",
+        "name": "Power-Up Punch",
         "type": "fighting",
         "category": "physical",
         "power": 40,
@@ -32252,7 +32248,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "Hurls boulders at the foe 2 to 5 times in a row."
       },
       {
-        "name": "Mud Slap",
+        "name": "Mud-Slap",
         "type": "ground",
         "category": "special",
         "power": 20,
@@ -33481,7 +33477,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The user teleports using a strange power and switches its place with one of its allies."
       },
       {
-        "name": "Topsy Turvy",
+        "name": "Topsy-Turvy",
         "type": "dark",
         "category": "status",
         "power": null,
@@ -33603,7 +33599,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "Allows a full-power attack, but sharply lowers SP. ATK."
       },
       {
-        "name": "Double Edge",
+        "name": "Double-Edge",
         "type": "normal",
         "category": "physical",
         "power": 120,
@@ -33990,7 +33986,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "Traps foe in fire for 2-5 turns."
       },
       {
-        "name": "Mud Slap",
+        "name": "Mud-Slap",
         "type": "ground",
         "category": "special",
         "power": 20,
@@ -34143,7 +34139,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "Boosts fire-type moves for 5 turns."
       },
       {
-        "name": "Will O Wisp",
+        "name": "Will-O-Wisp",
         "type": "fire",
         "category": "status",
         "power": null,
@@ -34650,7 +34646,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "An attack with effects that vary by location."
       },
       {
-        "name": "U Turn",
+        "name": "U-turn",
         "type": "bug",
         "category": "physical",
         "power": 70,
@@ -34830,7 +34826,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The user spits fluid that works to melt the target. This harshly reduces the target’s Sp. Def stat."
       },
       {
-        "name": "Power Up Punch",
+        "name": "Power-Up Punch",
         "type": "fighting",
         "category": "physical",
         "power": 40,
@@ -35276,7 +35272,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The target is attacked by a kick launched with muscle-packed power."
       },
       {
-        "name": "Double Edge",
+        "name": "Double-Edge",
         "type": "normal",
         "category": "physical",
         "power": 120,
@@ -35789,7 +35785,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The user attacks its target by hitting it with brutal strikes. The target is hit twice in a row."
       },
       {
-        "name": "Power Up Punch",
+        "name": "Power-Up Punch",
         "type": "fighting",
         "category": "physical",
         "power": 40,
@@ -36299,7 +36295,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The user attacks while destroying the terrain. This move fails when the ground hasn’t turned into a terrain."
       },
       {
-        "name": "Double Edge",
+        "name": "Double-Edge",
         "type": "normal",
         "category": "physical",
         "power": 120,
@@ -36416,7 +36412,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The foe is stabbed with a tentacle or arm steeped in poison. It may also poison the foe."
       },
       {
-        "name": "X Scissor",
+        "name": "X-Scissor",
         "type": "bug",
         "category": "physical",
         "power": 80,
@@ -37701,7 +37697,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "1st turn: Prepare 2nd turn: Attack"
       },
       {
-        "name": "Double Edge",
+        "name": "Double-Edge",
         "type": "normal",
         "category": "physical",
         "power": 120,
@@ -37818,7 +37814,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "An attack with effects that vary by location."
       },
       {
-        "name": "U Turn",
+        "name": "U-turn",
         "type": "bug",
         "category": "physical",
         "power": 70,
@@ -37998,7 +37994,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The user slams the target with its wings. The target is hit twice in a row."
       },
       {
-        "name": "Mud Slap",
+        "name": "Mud-Slap",
         "type": "ground",
         "category": "special",
         "power": 20,
@@ -38392,7 +38388,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The target is attacked by a kick launched with muscle-packed power."
       },
       {
-        "name": "Double Edge",
+        "name": "Double-Edge",
         "type": "normal",
         "category": "physical",
         "power": 120,
@@ -38860,7 +38856,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The user stirs up a fairy wind and strikes the target with it."
       },
       {
-        "name": "Power Up Punch",
+        "name": "Power-Up Punch",
         "type": "fighting",
         "category": "physical",
         "power": 40,
@@ -38878,7 +38874,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "An attack that may shock the foe into flinching."
       },
       {
-        "name": "Mud Slap",
+        "name": "Mud-Slap",
         "type": "ground",
         "category": "special",
         "power": 20,
@@ -39437,7 +39433,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The user shrouds itself in water and slams into the target. This also damages the user."
       },
       {
-        "name": "Double Edge",
+        "name": "Double-Edge",
         "type": "normal",
         "category": "physical",
         "power": 120,
@@ -40022,7 +40018,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The user attacks the target with an echoing voice. If this move is used every turn, it does greater damage."
       },
       {
-        "name": "Power Up Punch",
+        "name": "Power-Up Punch",
         "type": "fighting",
         "category": "physical",
         "power": 40,
@@ -40058,7 +40054,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "Attacks 5 turns with rising power."
       },
       {
-        "name": "Mud Slap",
+        "name": "Mud-Slap",
         "type": "ground",
         "category": "special",
         "power": 20,
@@ -40581,7 +40577,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The target is attacked by a kick launched with muscle-packed power."
       },
       {
-        "name": "Double Edge",
+        "name": "Double-Edge",
         "type": "normal",
         "category": "physical",
         "power": 120,
@@ -40914,7 +40910,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "An attack with effects that vary by location."
       },
       {
-        "name": "U Turn",
+        "name": "U-turn",
         "type": "bug",
         "category": "physical",
         "power": 70,
@@ -41175,7 +41171,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The user attacks its target by hitting it with brutal strikes. The target is hit twice in a row."
       },
       {
-        "name": "Power Up Punch",
+        "name": "Power-Up Punch",
         "type": "fighting",
         "category": "physical",
         "power": 40,
@@ -41220,7 +41216,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "An attack that hits a foe using Protect or Detect. It also lifts the effects of those moves."
       },
       {
-        "name": "Mud Slap",
+        "name": "Mud-Slap",
         "type": "ground",
         "category": "special",
         "power": 20,
@@ -41499,7 +41495,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "Boosts fire-type moves for 5 turns."
       },
       {
-        "name": "Will O Wisp",
+        "name": "Will-O-Wisp",
         "type": "fire",
         "category": "status",
         "power": null,
@@ -41742,7 +41738,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The target is attacked by a kick launched with muscle-packed power."
       },
       {
-        "name": "Double Edge",
+        "name": "Double-Edge",
         "type": "normal",
         "category": "physical",
         "power": 120,
@@ -41922,7 +41918,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The user slams a barrage of hard- shelled seeds down on the foe from above."
       },
       {
-        "name": "X Scissor",
+        "name": "X-Scissor",
         "type": "bug",
         "category": "physical",
         "power": 80,
@@ -42318,7 +42314,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The user attacks its target by hitting it with brutal strikes. The target is hit twice in a row."
       },
       {
-        "name": "Power Up Punch",
+        "name": "Power-Up Punch",
         "type": "fighting",
         "category": "physical",
         "power": 40,
@@ -42372,7 +42368,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "Steals 1/2 of the damage inflicted."
       },
       {
-        "name": "Mud Slap",
+        "name": "Mud-Slap",
         "type": "ground",
         "category": "special",
         "power": 20,
@@ -42855,7 +42851,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "Very powerful but makes user faint."
       },
       {
-        "name": "Self Destruct",
+        "name": "Self-Destruct",
         "type": "normal",
         "category": "physical",
         "power": 200,
@@ -42882,7 +42878,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The user attacks while destroying the terrain. This move fails when the ground hasn’t turned into a terrain."
       },
       {
-        "name": "Double Edge",
+        "name": "Double-Edge",
         "type": "normal",
         "category": "physical",
         "power": 120,
@@ -43822,7 +43818,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "In this two-turn attack, the user gathers light and fills a blade with the light’s energy, attacking the target on the next turn."
       },
       {
-        "name": "Double Edge",
+        "name": "Double-Edge",
         "type": "normal",
         "category": "physical",
         "power": 120,
@@ -45211,7 +45207,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "The user charges at the foe using every bit of its power. The user must rest on the next turn."
       },
       {
-        "name": "Double Edge",
+        "name": "Double-Edge",
         "type": "normal",
         "category": "physical",
         "power": 120,
@@ -45454,7 +45450,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "An attack that may cause paralysis."
       },
       {
-        "name": "Mud Slap",
+        "name": "Mud-Slap",
         "type": "ground",
         "category": "special",
         "power": 20,
@@ -45616,7 +45612,7 @@ export const POKEMON_SEED: ChampionsPokemon[] = [
         "description": "Boosts fire-type moves for 5 turns."
       },
       {
-        "name": "Will O Wisp",
+        "name": "Will-O-Wisp",
         "type": "fire",
         "category": "status",
         "power": null,

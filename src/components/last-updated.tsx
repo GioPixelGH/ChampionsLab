@@ -12,6 +12,16 @@ interface ChangelogEntry {
 
   const SHARED_ENTRIES: ChangelogEntry[] = [
     {
+      date: "23/09/2026",
+      items: [
+        "🎒 Item list now matches the official Pokémon Champions list: Choice Band, Choice Specs, Assault Vest, Flame Orb, Weakness Policy and other items that don't exist in the game were replaced in 174 recommended sets and in the prebuilt teams, using what real tournament players run; Affinity Tickets and Coupons are no longer selectable as held items",
+        "💎 Mega Stones renamed to their official names (Dragoninite, Feraligite, Skarmorite, Glimmoranite, Hawluchanite, Drampanite, Barbaracite, Scolipite, Scraftinite); removed Kommonium Z and Tatsugirite, which aren't in the game",
+        "🧬 Fixed invented Mega abilities in recommended sets (e.g. Mega Clefable Magic Bounce, Mega Skarmory Stalwart, Mega Glimmora Adaptability, Mega Floette Fairy Aura) and wrong abilities on Gengar, Empoleon and Emboar",
+        "⚔️ Palafin's Zero to Hero now triggers in the Battle Bot when picked from the Team Builder; U-turn, Will-O-Wisp, Double-Edge and 5 other moves are now recognised on the new M-B Pokémon",
+        "🧹 Prebuilt teams: removed moves those Pokémon can't learn in Champions (Scald on Pelipper/Politoed, Follow Me on Gardevoir, Close Combat on Kingambit, Return), fixed duplicate held items, and removed the Ursaluna and Body Press Archaludon teams",
+      ],
+    },
+    {
       date: "24/06/2026",
       items: [
         "🤖 Battle bot AI overhaul: Rage Powder / Follow Me now checks for opponent spread moves (Heat Wave, Eruption, etc.), Mega Evolutions are protected more aggressively, and Contrary turns self-drop moves like Close Combat into real advantages",

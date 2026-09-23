@@ -108,7 +108,7 @@ function resolveMegaForCalc(p: ChampionsPokemon, set: CommonSet): {
     }
   }
   // Palafin: Zero to Hero  -  damage calc assumes Hero Form (post-switch)
-  if (p.name === "Palafin" && set.ability === "Zero To Hero") {
+  if (p.name === "Palafin" && set.ability === "Zero to Hero") {
     return {
       baseStats: { hp: 100, attack: 160, defense: 97, spAtk: 106, spDef: 87, speed: 100 },
       types: [...p.types] as PokemonType[],

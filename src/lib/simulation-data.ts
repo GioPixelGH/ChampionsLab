@@ -12205,7 +12205,7 @@ export const CHAMPIONS_TOURNAMENT_TEAMS: ChampionsTournamentTeam[] = [
     { ability: "Intimidate", item: "Passho Berry", moves: ["Parting Shot", "Protect", "Flare Blitz", "Fake Out"] },
     { ability: "Hospitality", item: "Sitrus Berry", moves: ["Life Dew", "Rage Powder", "Matcha Gotcha", "Protect"] },
     { ability: "Swift Swim", item: "Choice Scarf", moves: ["Last Respects", "Flip Turn", "Wave Crash", "Aqua Jet"] },
-    { ability: "Flower veil", item: "Floettite", moves: ["Calm Mind", "Protect", "Moonblast", "Dazzling Gleam"] }
+    { ability: "Flower Veil", item: "Floettite", moves: ["Calm Mind", "Protect", "Moonblast", "Dazzling Gleam"] }
   ] },
   { id: "ct-16", tournament: "*Sitrus-Series*|Champions-MB|#63", players: 100, placement: 8, player: "NMR | FelipeT", wins: 7, losses: 2, pokemonIds: [260, 279, 1018, 983, 1013, 727], pokemonNames: ["Swampert", "Pelipper", "Archaludon", "Kingambit", "Sinistcha", "Incineroar"], sets: [
     { ability: "Damp", item: "Swampertite", moves: ["Wave Crash", "Ice Punch", "Earthquake", "Protect"] },
@@ -12292,8 +12292,8 @@ export const CHAMPIONS_TOURNAMENT_TEAMS: ChampionsTournamentTeam[] = [
     { ability: "Armor Tail", item: "Sitrus Berry", moves: ["Roar", "Trick Room", "Twin Beam", "Thunderbolt"] },
     { ability: "Compound Eyes", item: "Choice Scarf", moves: ["Hurricane", "Energy Ball", "Rage Powder", "Sleep Powder"] },
     { ability: "Pixilate", item: "Life Orb", moves: ["Hyper Beam", "Hyper Voice", "Quick Attack", "Detect"] },
-    { ability: "Sand stream", item: "Chople Berry", moves: ["High horsepower", "knock off", "protect", "Rock Slide"] },
-    { ability: "Lightning Rod", item: "Raichunite Y", moves: ["Zap Cannon", "Volt Switch", "Focus Blast", "Fake out"] }
+    { ability: "Sand Stream", item: "Chople Berry", moves: ["High Horsepower", "Knock Off", "Protect", "Rock Slide"] },
+    { ability: "Lightning Rod", item: "Raichunite Y", moves: ["Zap Cannon", "Volt Switch", "Focus Blast", "Fake Out"] }
   ] },
   { id: "ct-27", tournament: "Último Torneo Ranking PokéchampionsDestiny #9", players: 12, placement: 3, player: "Royal_Rebel_Prince21", wins: 3, losses: 1, pokemonIds: [547, 903, 1018, 130, 668, 604], pokemonNames: ["Whimsicott", "Sneasler", "Archaludon", "Gyarados", "Pyroar", "Eelektross"], sets: [
     { ability: "Prankster", item: "Focus Sash", moves: ["Moonblast", "Tailwind", "Protect", "Encore"] },
@@ -13304,7 +13304,7 @@ export const CHAMPIONS_TOURNAMENT_TEAMS: ChampionsTournamentTeam[] = [
     { ability: "Unburden", item: "White Herb", moves: ["Protect", "Fake Out", "Dire Claw", "Close Combat"] }
   ] },
   { id: "ct-153", tournament: "King's Gambit #5 - M-A Farewell | Reg M-A", players: 16, placement: 5, player: "20gian04", wins: 2, losses: 2, pokemonIds: [530, 707, 983, 823, 5706, 1018], pokemonNames: ["Excadrill", "Klefki", "Kingambit", "Corviknight", "Hisuian Goodra", "Archaludon"], sets: [
-    { ability: "Mold breaker", item: "Excadrite", moves: ["Rock Slide", "Iron Head", "High Horsepower", "Protect"] },
+    { ability: "Mold Breaker", item: "Excadrite", moves: ["Rock Slide", "Iron Head", "High Horsepower", "Protect"] },
     { ability: "Prankster", item: "Shuca Berry", moves: ["Dazzling Gleam", "Rain Dance", "Thunder Wave", "Foul Play"] },
     { ability: "Defiant", item: "Black Glasses", moves: ["Kowtow Cleave", "Sucker Punch", "Low Kick", "Protect"] },
     { ability: "Mirror Armor", item: "Sitrus Berry", moves: ["Tailwind", "Brave Bird", "Protect", "Iron Head"] },
@@ -13565,7 +13565,7 @@ export const CHAMPIONS_TOURNAMENT_TEAMS: ChampionsTournamentTeam[] = [
     { ability: "Rough Skin", item: "Sitrus Berry", moves: ["Dragon Claw", "Earthquake", "Rock Tomb", "Protect"] },
     { ability: "Chlorophyll", item: "Focus Sash", moves: ["Leaf Storm", "Sludge Bomb", "Sleep Powder", "Protect"] },
     { ability: "Defiant", item: "Black Glasses", moves: ["Sucker Punch", "Kowtow Cleave", "Iron Head", "Protect"] },
-    { ability: "Cute Charm", item: "Fairy Feather", moves: ["Quick Attak", "Hyper Voice", "Psychic", "Protect"] }
+    { ability: "Cute Charm", item: "Fairy Feather", moves: ["Quick Attack", "Hyper Voice", "Psychic", "Protect"] }
   ] },
   { id: "ct-186", tournament: "PWC - Battle in the Colosseum #15 - Pride Month", players: 12, placement: 6, player: "Riubyx", wins: 2, losses: 3, pokemonIds: [142, 6, 981, 983, 445, 700], pokemonNames: ["Aerodactyl", "Charizard", "Farigiraf", "Kingambit", "Garchomp", "Sylveon"], sets: [
     { ability: "Unnerve", item: "Aerodactylite", moves: ["Rock Slide", "Ice Fang", "Tailwind", "Dual Wingbeat"] },

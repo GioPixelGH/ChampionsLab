@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { inflateRaw } from "pako";
 import { POKEMON_SEED } from "@/lib/pokemon-data";
+import { fixLegacyName } from "@/lib/storage";
 import {
   ChampionsPokemon, PokemonType, TYPE_COLORS, StatPoints,
 } from "@/lib/types";
@@ -59,14 +60,14 @@ export default function PastePage() {
         }
         parsed.push({
           pokemon,
-          ability: s.a,
+          ability: fixLegacyName(s.a),
           nature: s.t,
-          moves: s.m || [],
+          moves: (s.m || []).map(fixLegacyName),
           statPoints: { hp: s.sp?.[0] || 0, attack: s.sp?.[1] || 0, defense: s.sp?.[2] || 0, spAtk: s.sp?.[3] || 0, spDef: s.sp?.[4] || 0, speed: s.sp?.[5] || 0 },
-          item: s.i,
+          item: fixLegacyName(s.i),
           isMega: s.mg,
           megaFormIndex,
-          preMegaAbility: s.pa,
+          preMegaAbility: fixLegacyName(s.pa),
         });
       }
       setSlots(parsed);
